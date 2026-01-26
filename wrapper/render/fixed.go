@@ -15,21 +15,27 @@ type FixedRender struct {
 	maxCols uint16
 }
 
-func NewFixed(render render.Render, maxRows, maxCols uint16) FixedRender {
-	return FixedRender{
+func NewFixed(render render.Render, maxRows, maxCols uint16) *FixedRender {
+	return &FixedRender{
 		render:  render,
 		maxRows: maxRows,
 		maxCols: maxCols,
 	}
 }
 
-func (r FixedRender) ToRender() render.Render {
+func (l *FixedRender) Update(maxRows uint16, maxCols uint16) *FixedRender {
+	l.maxCols = maxCols
+	l.maxRows = maxRows
+	return l
+}
+
+func (r *FixedRender) ToRender() render.Render {
 	return render.Render{
 		Render: r.Render,
 	}
 }
 
-func (r FixedRender) Render(lines []core.Line, size terminal.Winsize) string {
+func (r *FixedRender) Render(lines []core.Line, size terminal.Winsize) string {
 	rows := min(r.maxRows, size.Rows)
 	cols := min(r.maxCols, size.Cols)
 	newSize := terminal.NewWinsize(rows, cols)

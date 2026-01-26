@@ -10,31 +10,53 @@ import (
 	wrapper_console "github.com/Rafael24595/go-terminal/wrapper/terminal"
 )
 
+const paddingCols = 10
+const paddingRows = 5
+
 // Move main and wrapper packages to a new project
 func main() {
 	state := state.UIState{
 		Page: 0,
 	}
 
-	t := wrapper_console.NewConsole().ToTerminal()
+	c := wrapper_console.NewConsole()
+	t := c.ToTerminal()
+
+	size := t.Size()
+
+	pc := size.Cols - paddingCols
+	pr := size.Rows - paddingRows
 
 	i := wrapper_screen.NewIndex().ToScreen()
 	s := wrapper_screen.NewWrapperMain(i).ToScreen()
 
 	l := core.NewLayout(wrapper_layout.TerminalApply)
-	l = wrapper_layout.NewFixed(l, 40, 100).ToLayout()
+	lf := wrapper_layout.NewFixed(l, pr, pc)
+	l = lf.ToLayout()
 
 	r := render.NewRender(wrapper_render.TerminalRender)
-	r = wrapper_render.NewFixed(r, 40, 100).ToRender()
+	rf := wrapper_render.NewFixed(r, pr, pc)
+	r = rf.ToRender()
 
 	t.OnStart()
 	defer t.OnClose()
 
 	for {
+		newSize := t.Size()
+
+		//TODO: Replace with chan events
+		if newSize.Cols != size.Cols || newSize.Rows != size.Rows {
+			c.Update()
+			lf.Update(newSize.Rows-paddingRows, newSize.Cols-paddingCols)
+			rf.Update(newSize.Rows-paddingRows, newSize.Cols-paddingCols)
+		}
+
+		size = newSize
+
 		vmd := s.View()
 
-		lns := l.Apply(&state, vmd, t.Size())
-		str := r.Render(lns, t.Size())
+		lns := l.Apply(&state, vmd, size)
+		str := r.Render(lns, size)
 
 		t.WriteAll(str)
 

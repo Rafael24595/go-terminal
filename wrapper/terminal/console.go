@@ -28,6 +28,19 @@ func NewConsole() *Console {
 	}
 }
 
+func (c *Console) Update() *Console {
+	winsize := Size()
+	if winsize.Cols == c.winsize.Cols && winsize.Rows == c.winsize.Rows {
+		return c
+	}
+
+	c.buffer = make([]string, winsize.Rows)
+	c.cursor = 0
+	c.winsize = winsize
+
+	return c
+}
+
 func (c *Console) ToTerminal() terminal.Terminal {
 	return terminal.Terminal{
 		OnStart:   c.OnStart,
@@ -52,8 +65,7 @@ func (c *Console) OnClose() error {
 }
 
 func (c *Console) Size() terminal.Winsize {
-	c.winsize = Size()
-	return c.winsize
+	return Size()
 }
 
 func (c *Console) Clear() error {
