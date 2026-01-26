@@ -9,10 +9,20 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-func TerminalRender(vm core.ViewModel, size terminal.Winsize) string {
+func TerminalRender(lines []core.Line, size terminal.Winsize) string {
 	buffer := make([]string, size.Rows)
 
-	for i, l := range vm.Lines {
+	body := terminalRenderBuffer(lines, size)
+
+	copy(buffer, body)
+
+	return strings.Join(buffer, "\n")
+}
+
+func terminalRenderBuffer(ls []core.Line, size terminal.Winsize) []string {
+	buffer := make([]string, len(ls))
+
+	for i, l := range ls {
 		bufferLine := make([]string, 0)
 		for _, f := range l.Text {
 			bufferLine = append(bufferLine,
@@ -21,13 +31,14 @@ func TerminalRender(vm core.ViewModel, size terminal.Winsize) string {
 		}
 
 		buffer[i] = terminalRenderLine(
-			l,
+			ls,
+			i,
 			size,
 			bufferLine,
 		)
 	}
 
-	return strings.Join(buffer, "\n")
+	return buffer
 }
 
 func terminalRenderFragment(f core.Fragment) string {
@@ -41,10 +52,11 @@ func terminalRenderFragment(f core.Fragment) string {
 	return text
 }
 
-func terminalRenderLine(l core.Line, size terminal.Winsize, buffer []string) string {
+func terminalRenderLine(lines []core.Line, index int, size terminal.Winsize, buffer []string) string {
+	padd := lines[index].Padding
 	line := strings.Join(buffer, " ")
 
-	switch l.Padding.Padding {
+	switch padd.Padding {
 	case core.Center:
 		return helper.Center(line, int(size.Cols))
 	case core.Left:
@@ -53,12 +65,24 @@ func terminalRenderLine(l core.Line, size terminal.Winsize, buffer []string) str
 		return helper.Right(line, int(size.Cols))
 	case core.Fill:
 		return helper.Fill(line, int(size.Cols))
+	case core.FillUp:
+		cursor := index - 1
+		if cursor >= len(lines) {
+			return line
+		}
+		return helper.Fill(line, lines[cursor].Len())
+	case core.FillDown:
+		cursor := index + 1
+		if cursor < 0 {
+			return line
+		}
+		return helper.Fill(line, lines[cursor].Len())
 	case core.Custom:
-		line = helper.Left(line, int(l.Padding.Left))
-		return helper.Right(line, int(l.Padding.Right))
+		line = helper.RepeatLeft(line, int(padd.Left))
+		return helper.RepeatRight(line, int(padd.Right))
 	}
 
-	assert.AssertfFalse(true, "undefined padding mode %d", l.Padding.Padding)
+	assert.AssertfFalse(true, "undefined padding mode %d", padd.Padding)
 
 	return line
 }

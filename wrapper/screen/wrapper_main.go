@@ -3,10 +3,13 @@ package wrapper_screen
 import "github.com/Rafael24595/go-terminal/engine/core"
 
 type WrapperMain struct {
+	Screen core.Screen
 }
 
-func NewWrapperMain() *WrapperMain {
-	return &WrapperMain{}
+func NewWrapperMain(screen core.Screen) *WrapperMain {
+	return &WrapperMain{
+		Screen: screen,
+	}
 }
 
 func (c *WrapperMain) ToScreen() core.Screen {
@@ -23,27 +26,32 @@ func (c *WrapperMain) View() core.ViewModel {
 	}
 
 	lines = append(lines, core.NewLine(
-		headerPadding,
 		"LOREM IPSUM DOLOR SIT AMET",
+		headerPadding,
 	))
 
 	lines = append(lines, core.NewLine(
-		headerPadding,
 		"CONSECTETUR ADIPISCING",
-	))
-
-	lines = append(lines, core.NewLine(
 		headerPadding,
-		"-SERVER 00-",
 	))
 
 	lines = append(lines, core.NewLine(
+		"-SERVER 00-",
+		headerPadding,
+	))
+
+	lines = append(lines, core.NewLine(
+		"",
 		core.Padding{
 			Padding: core.Fill,
-		}, "=",
+		},
 	))
+	
+	vm := c.Screen.View()
 
 	return core.ViewModel{
-		Lines: lines,
+		Headers: lines,
+		Lines:   vm.Lines,
+		Input:   vm.Input,
 	}
 }
