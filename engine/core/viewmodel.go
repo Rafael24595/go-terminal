@@ -46,15 +46,19 @@ type Fragment struct {
 	Styles []Style
 }
 
+func FragmentsFromString(text ...string) []Fragment {
+	fragments := make([]Fragment, len(text))
+	for i, v := range text {
+		fragments[i] = NewFragment(v)
+	}
+	return fragments
+}
+
 func NewFragment(text string, styles ...Style) Fragment {
 	return Fragment{
 		Text:   text,
 		Styles: styles,
 	}
-}
-
-func UnstyledFragment(text string) Fragment {
-	return NewFragment(text)
 }
 
 type Line struct {
@@ -63,6 +67,13 @@ type Line struct {
 }
 
 func NewLines(lines ...Line) []Line {
+	return lines
+}
+
+func FixedLinesFromLines(padding Padding, lines ...Line) []Line {
+	for i := range lines {
+		lines[i].Padding = padding
+	}
 	return lines
 }
 
@@ -75,7 +86,7 @@ func NewLine(text string, padding Padding) Line {
 	}
 }
 
-func BasicLine(text string) Line {
+func LineFromString(text string) Line {
 	return Line{
 		Text: []Fragment{{
 			Text: text,
@@ -84,10 +95,17 @@ func BasicLine(text string) Line {
 	}
 }
 
-func EmptyLine(padding Padding) Line {
+func LineFromPadding(padding Padding) Line {
 	return Line{
 		Text:    []Fragment{},
 		Padding: padding,
+	}
+}
+
+func LineJump() Line {
+	return Line{
+		Text:    FragmentsFromString(""),
+		Padding: ModePadding(Fill),
 	}
 }
 

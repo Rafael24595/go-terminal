@@ -91,7 +91,7 @@ func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int
 
 func splitLineWords(cols int, line core.Line) []core.Line {
 	result := make([]core.Line, 0)
-	current := core.EmptyLine(line.Padding)
+	current := core.LineFromPadding(line.Padding)
 	width := 0
 
 	for _, frag := range line.Text {
@@ -111,7 +111,7 @@ func splitLineWords(cols int, line core.Line) []core.Line {
 
 			if wordlen <= cols {
 				result = append(result, current)
-				current = core.EmptyLine(line.Padding)
+				current = core.LineFromPadding(line.Padding)
 				current, width = appendWordToLine(current, word, frag, 0, 0)
 				continue
 			}
@@ -132,7 +132,7 @@ func splitLineWords(cols int, line core.Line) []core.Line {
 
 func appendWordToLine(line core.Line, word string, frag core.Fragment, space int, width int) (core.Line, int) {
 	if space > 0 {
-		fragment := core.UnstyledFragment(" ")
+		fragment := core.NewFragment(" ")
 		line.Text = append(line.Text, fragment)
 		width += 1
 	}
@@ -152,7 +152,7 @@ func splitLongWord(word string, frag core.Fragment, cols int, current core.Line,
 		remaining := cols - width
 		if remaining <= 0 {
 			result = append(result, current)
-			current = core.EmptyLine(current.Padding)
+			current = core.LineFromPadding(current.Padding)
 			width = 0
 			remaining = cols
 		}

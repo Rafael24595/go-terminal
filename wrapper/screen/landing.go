@@ -1,6 +1,9 @@
 package wrapper_screen
 
-import "github.com/Rafael24595/go-terminal/engine/core"
+import (
+	"github.com/Rafael24595/go-terminal/engine/core"
+	wrapper_commons "github.com/Rafael24595/go-terminal/wrapper/screen/commons"
+)
 
 func NewLanding() core.Screen {
 	title := core.NewLines(
@@ -14,14 +17,14 @@ func NewLanding() core.Screen {
 		),
 	)
 
-	options := NewMenuOptions(
-		NewMenuOption(core.BasicLine("Option 0")),
-		NewMenuOption(core.BasicLine("Option 1")),
-		NewMenuOption(core.BasicLine("Option 2")),
-		NewMenuOption(core.BasicLine("Option 3")),
+	options := wrapper_commons.NewMenuOptions(
+		wrapper_commons.NewMenuOption(core.LineFromString("Option 0")),
+		wrapper_commons.NewMenuOption(core.LineFromString("Option 1")),
+		wrapper_commons.NewMenuOption(core.LineFromString("Option 2")),
+		wrapper_commons.NewMenuOption(core.LineFromString("Option 3")),
 	)
 
-	return NewIndexMenu().
+	return wrapper_commons.NewIndexMenu().
 		AddTitle(title...).
 		AddOptions(options...).
 		SetCursor(0).

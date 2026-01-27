@@ -32,7 +32,7 @@ func main() {
 	pr := size.Rows - paddingRows
 
 	i := wrapper_screen.NewLanding()
-	s := wrapper_screen.NewWrapperMain(i).ToScreen()
+	s := wrapper_screen.NewBaseHeader(i)
 
 	l := core.NewLayout(wrapper_layout.TerminalApply)
 	lf := wrapper_layout.NewFixed(l, pr, pc)

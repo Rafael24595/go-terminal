@@ -1,4 +1,4 @@
-package wrapper_screen
+package wrapper_commons
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core"
