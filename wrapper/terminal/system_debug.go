@@ -1,7 +1,7 @@
 //go:build mock_cmd
 // +build mock_cmd
 
-package wrapper_console
+package wrapper_terminal
 
 import (
 	core_terminal "github.com/Rafael24595/go-terminal/engine/terminal"
