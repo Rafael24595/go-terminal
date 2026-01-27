@@ -1,5 +1,7 @@
 package state
 
 type UIState struct {
-	Page int
+	Page   uint
+	Offset uint
+	Cursor uint
 }

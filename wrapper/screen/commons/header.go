@@ -32,9 +32,6 @@ func (c *Header) Update(e core.ScreenEvent) {
 
 func (c *Header) View() core.ViewModel {
 	vm := c.screen.View()
-	return core.ViewModel{
-		Headers: c.header,
-		Lines:   vm.Lines,
-		Input:   vm.Input,
-	}
+	vm.Headers = c.header
+	return vm
 }

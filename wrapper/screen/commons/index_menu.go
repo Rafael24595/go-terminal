@@ -86,6 +86,7 @@ func (c *IndexMenu) View() core.ViewModel {
 	}
 
 	return core.ViewModel{
+		Cursor: c.cursor,
 		Lines: lines,
 	}
 }

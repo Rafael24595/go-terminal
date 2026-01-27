@@ -50,7 +50,7 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 }
 
 func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int) []core.Line {
-	page := 0
+	page := uint(0)
 	cursor := []core.Line{}
 
 	i := 0

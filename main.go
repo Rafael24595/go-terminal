@@ -18,7 +18,9 @@ const paddingRows = 5
 // Move main and wrapper packages to a new project
 func main() {
 	state := state.UIState{
-		Page: 0,
+		Page:   0,
+		Offset: 0,
+		Cursor: 0,
 	}
 
 	c := wrapper_terminal.NewConsole()
@@ -45,7 +47,7 @@ func main() {
 	t.OnStart()
 	defer t.OnClose()
 
-	inputChan := make(chan string)
+	inputChan := make(chan string, 64)
 	go readInput(t, inputChan)
 
 	for {
@@ -61,6 +63,11 @@ func main() {
 		size = newSize
 
 		vmd := s.View()
+
+		//TODO: Move to layout
+		state.Cursor = vmd.Cursor
+		state.Offset = vmd.Page
+		state.Page = vmd.Page
 
 		lns := l.Apply(&state, vmd, size)
 		str := r.Render(lns, size)

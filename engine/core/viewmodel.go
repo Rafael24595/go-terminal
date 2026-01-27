@@ -131,6 +131,8 @@ type InputLine struct {
 }
 
 type ViewModel struct {
+	Cursor  uint
+	Page    uint
 	Headers []Line
 	Lines   []Line
 	Input   *InputLine
