@@ -80,6 +80,8 @@ func terminalRenderLine(lines []core.Line, index int, size terminal.Winsize, buf
 	case core.Custom:
 		line = helper.RepeatLeft(line, int(padd.Left))
 		return helper.RepeatRight(line, int(padd.Right))
+	case core.Unstyled:
+		return line
 	}
 
 	assert.AssertfFalse(true, "undefined padding mode %d", padd.Padding)

@@ -4,10 +4,12 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/render"
+	"github.com/Rafael24595/go-terminal/engine/terminal"
 	wrapper_layout "github.com/Rafael24595/go-terminal/wrapper/layout"
 	wrapper_render "github.com/Rafael24595/go-terminal/wrapper/render"
+
 	wrapper_screen "github.com/Rafael24595/go-terminal/wrapper/screen"
-	wrapper_console "github.com/Rafael24595/go-terminal/wrapper/terminal"
+	wrapper_terminal "github.com/Rafael24595/go-terminal/wrapper/terminal"
 )
 
 const paddingCols = 10
@@ -19,7 +21,9 @@ func main() {
 		Page: 0,
 	}
 
-	c := wrapper_console.NewConsole()
+	c := wrapper_terminal.NewConsole()
+	c.Color("\x1b[0;32m")
+
 	t := c.ToTerminal()
 
 	size := t.Size()
@@ -27,7 +31,7 @@ func main() {
 	pc := size.Cols - paddingCols
 	pr := size.Rows - paddingRows
 
-	i := wrapper_screen.NewIndex().ToScreen()
+	i := wrapper_screen.NewLanding()
 	s := wrapper_screen.NewWrapperMain(i).ToScreen()
 
 	l := core.NewLayout(wrapper_layout.TerminalApply)
@@ -40,6 +44,9 @@ func main() {
 
 	t.OnStart()
 	defer t.OnClose()
+
+	inputChan := make(chan string)
+	go readInput(t, inputChan)
 
 	for {
 		newSize := t.Size()
@@ -63,5 +70,33 @@ func main() {
 		t.Flush()
 
 		t.Clear()
+
+		select {
+		case key, ok := <-inputChan:
+			if !ok {
+				return
+			}
+			s.Update(core.ScreenEvent{
+				Key: key,
+			})
+		default:
+		}
+	}
+}
+
+func readInput(t terminal.Terminal, ch chan<- string) {
+	for {
+		rn, err := t.ReadKey()
+		if err != nil {
+			println(err)
+			close(ch)
+			return
+		}
+
+		ch <- rn
+		if rn == wrapper_terminal.CTRL_C {
+			close(ch)
+			return
+		}
 	}
 }

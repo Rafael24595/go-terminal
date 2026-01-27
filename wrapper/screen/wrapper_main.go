@@ -14,8 +14,13 @@ func NewWrapperMain(screen core.Screen) *WrapperMain {
 
 func (c *WrapperMain) ToScreen() core.Screen {
 	return core.Screen{
-		View: c.View,
+		Update: c.Update,
+		View:   c.View,
 	}
+}
+
+func (c *WrapperMain) Update(e core.ScreenEvent) {
+	c.Screen.Update(e)
 }
 
 func (c *WrapperMain) View() core.ViewModel {
@@ -46,7 +51,7 @@ func (c *WrapperMain) View() core.ViewModel {
 			Padding: core.Fill,
 		},
 	))
-	
+
 	vm := c.Screen.View()
 
 	return core.ViewModel{

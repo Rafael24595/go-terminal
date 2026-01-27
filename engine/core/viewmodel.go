@@ -18,6 +18,7 @@ const (
 	FillUp
 	FillDown
 	Custom
+	Unstyled
 )
 
 type Padding struct {
@@ -32,6 +33,14 @@ func ModePadding(padding PaddingMode) Padding {
 	}
 }
 
+func CustomPadding(left, right uint16) Padding {
+	return Padding{
+		Left:    left,
+		Right:   right,
+		Padding: Custom,
+	}
+}
+
 type Fragment struct {
 	Text   string
 	Styles []Style
@@ -39,7 +48,7 @@ type Fragment struct {
 
 func NewFragment(text string, styles ...Style) Fragment {
 	return Fragment{
-		Text: text,
+		Text:   text,
 		Styles: styles,
 	}
 }
@@ -53,6 +62,10 @@ type Line struct {
 	Padding Padding
 }
 
+func NewLines(lines ...Line) []Line {
+	return lines
+}
+
 func NewLine(text string, padding Padding) Line {
 	return Line{
 		Text: []Fragment{{
@@ -62,16 +75,25 @@ func NewLine(text string, padding Padding) Line {
 	}
 }
 
+func BasicLine(text string) Line {
+	return Line{
+		Text: []Fragment{{
+			Text: text,
+		}},
+		Padding: ModePadding(Unstyled),
+	}
+}
+
 func EmptyLine(padding Padding) Line {
 	return Line{
-		Text: []Fragment{},
+		Text:    []Fragment{},
 		Padding: padding,
 	}
 }
 
 func FragmentLine(padding Padding, fragments ...Fragment) Line {
 	return Line{
-		Text: fragments,
+		Text:    fragments,
 		Padding: padding,
 	}
 }
@@ -81,7 +103,7 @@ func (l Line) Len() int {
 	for _, v := range l.Text {
 		lineLen += utf8.RuneCountInString(v.Text)
 	}
-	return lineLen + len(l.Text) -1 
+	return lineLen + len(l.Text) - 1
 }
 
 type InputLine struct {

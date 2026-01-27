@@ -18,6 +18,7 @@ type Terminal struct {
 	OnClose   func() error
 	Size      func() Winsize
 	Clear     func() error
+	ReadKey   func() (string, error)
 	Write     func(string) error
 	WriteLine func(...string) error
 	WriteAll  func(string) error

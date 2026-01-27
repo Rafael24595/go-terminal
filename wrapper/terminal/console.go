@@ -1,12 +1,14 @@
-package wrapper_console
+package wrapper_terminal
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const RESET_ATTRS = "\x1b[0m"
 const RESET_CURSOR = "\x1b[H"
 const CLEAN_CONSOLE = "\x1B[2J\x1B[H"
 
@@ -14,18 +16,28 @@ const HIDE_CURSOR = "\x1b[?25l"
 const SHOW_CURSOR = "\x1b[?25h"
 
 type Console struct {
+	reader  *inputReader
 	buffer  []string
 	cursor  uint16
 	winsize terminal.Winsize
+	rawmode uintptr
+	color   string
 }
 
 func NewConsole() *Console {
 	winsize := Size()
 	return &Console{
+		reader:  newInputReader(),
 		buffer:  make([]string, winsize.Rows),
 		cursor:  0,
 		winsize: winsize,
+		color:   "",
 	}
+}
+
+func (c *Console) Color(color string) *Console {
+	c.color = color
+	return c
 }
 
 func (c *Console) Update() *Console {
@@ -47,6 +59,7 @@ func (c *Console) ToTerminal() terminal.Terminal {
 		OnClose:   c.OnClose,
 		Size:      c.Size,
 		Clear:     c.Clear,
+		ReadKey:   c.ReadKey,
 		Write:     c.Write,
 		WriteLine: c.WriteLine,
 		WriteAll:  c.WriteAll,
@@ -55,12 +68,14 @@ func (c *Console) ToTerminal() terminal.Terminal {
 }
 
 func (c *Console) OnStart() error {
-	print(CLEAN_CONSOLE + HIDE_CURSOR)
+	c.rawmode, _ = onStart()
+	fmt.Print(c.color + CLEAN_CONSOLE + HIDE_CURSOR)
 	return nil
 }
 
 func (c *Console) OnClose() error {
-	print(CLEAN_CONSOLE + SHOW_CURSOR + RESET_CURSOR)
+	onClose(c.rawmode)
+	fmt.Print(RESET_ATTRS + CLEAN_CONSOLE + SHOW_CURSOR + RESET_CURSOR)
 	return nil
 }
 
@@ -69,8 +84,12 @@ func (c *Console) Size() terminal.Winsize {
 }
 
 func (c *Console) Clear() error {
-	print(RESET_CURSOR)
+	fmt.Print(RESET_CURSOR)
 	return nil
+}
+
+func (c *Console) ReadKey() (string, error) {
+	return c.reader.readRune()
 }
 
 func (c *Console) Write(fragment string) error {
@@ -103,7 +122,7 @@ func (c *Console) WriteAll(text string) error {
 }
 
 func (c *Console) Flush() error {
-	print(strings.Join(c.buffer, "\n"))
+	fmt.Print(strings.Join(c.buffer, "\n"))
 	c.clearBuffer()
 	return nil
 }
