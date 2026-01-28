@@ -118,7 +118,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	size := terminal.Winsize{Rows: 6, Cols: 10}
 
 	vm := core.ViewModel{
-		Headers: []core.Line{
+		Header: []core.Line{
 			core.NewLine("HEADER", core.ModePadding(core.Left)),
 		},
 		Lines: []core.Line{
@@ -133,7 +133,11 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 		},
 	}
 
-	state := &state.UIState{Page: 0}
+	state := &state.UIState{
+		Layout: state.LayoutState{
+			Page: 0,
+		},
+	}
 
 	lines := TerminalApply(state, vm, size)
 
@@ -170,7 +174,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	size := terminal.Winsize{Rows: 4, Cols: 8}
 
 	vm := core.ViewModel{
-		Headers: []core.Line{
+		Header: []core.Line{
 			core.NewLine("H", core.ModePadding(core.Left)),
 		},
 		Lines: []core.Line{
@@ -185,7 +189,12 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		},
 	}
 
-	state := &state.UIState{Page: 0}
+	state := &state.UIState{
+		Layout: state.LayoutState{
+			Page: 0,
+		},
+	}
+
 	lines0 := TerminalApply(state, vm, size)
 	if len(lines0) != int(size.Rows) {
 		t.Errorf("page 0: expected %d lines, got %d", size.Rows, len(lines0))
@@ -197,7 +206,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		t.Errorf("page 0: input mismatch")
 	}
 
-	state.Page = 1
+	state.Layout.Page = 1
 	lines1 := TerminalApply(state, vm, size)
 	if len(lines1) != int(size.Rows) {
 		t.Errorf("page 1: expected %d lines, got %d", size.Rows, len(lines1))
@@ -216,8 +225,13 @@ func TestTerminalApplyBuffer_WordWrap(t *testing.T) {
 		core.NewLine("HELLO WORLD", core.ModePadding(core.Left)),
 	}
 
-	state := &state.UIState{Page: 0}
-	paged := terminalApplyBuffer(state, lines, 2, sizeCols)
+	state := &state.UIState{
+		Layout: state.LayoutState{
+			Page: 0,
+		},
+	}
+
+	paged, _, _ := terminalApplyBuffer(state, lines, 2, sizeCols)
 
 	if len(paged) > 2 {
 		t.Errorf("expected max 2 lines for buffer, got %d", len(paged))

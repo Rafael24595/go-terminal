@@ -18,13 +18,14 @@ func NewLanding() core.Screen {
 	)
 
 	options := wrapper_commons.NewMenuOptions(
-		wrapper_commons.NewMenuOption(core.LineFromString("Option 0")),
-		wrapper_commons.NewMenuOption(core.LineFromString("Option 1")),
-		wrapper_commons.NewMenuOption(core.LineFromString("Option 2")),
-		wrapper_commons.NewMenuOption(core.LineFromString("Option 3")),
+		wrapper_commons.NewMenuOption(core.LineFromString("Option 0"), NewTestArticle),
+		wrapper_commons.NewMenuOption(core.LineFromString("Option 1"), NewTestArticle),
+		wrapper_commons.NewMenuOption(core.LineFromString("Option 2"), NewTestArticle),
+		wrapper_commons.NewMenuOption(core.LineFromString("Option 3"), NewTestArticle),
 	)
 
 	return wrapper_commons.NewIndexMenu().
+		SetName("menu - tortor").
 		AddTitle(title...).
 		AddOptions(options...).
 		SetCursor(0).

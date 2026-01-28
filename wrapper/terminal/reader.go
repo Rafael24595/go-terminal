@@ -48,7 +48,7 @@ func (r *inputReader) readRune() (string, error) {
 	case 'B':
 		return ARROW_DOWN, nil
 	case 'C':
-		return ARROR_RIGHT, nil
+		return ARROW_RIGHT, nil
 	case 'D':
 		return ARROW_LEFT, nil
 	default:

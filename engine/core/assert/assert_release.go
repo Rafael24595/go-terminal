@@ -3,6 +3,10 @@
 
 package assert
 
+func Unreachable(msg string) {}
+
+func Unreachablef(format string, a ...any) {}
+
 func AssertTrue(cond bool, msg string) {}
 
 func AssertFalse(cond bool, msg string) {}

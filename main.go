@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	wrapper_layout "github.com/Rafael24595/go-terminal/wrapper/layout"
 	wrapper_render "github.com/Rafael24595/go-terminal/wrapper/render"
+	wrapper_commons "github.com/Rafael24595/go-terminal/wrapper/screen/commons"
 
 	wrapper_screen "github.com/Rafael24595/go-terminal/wrapper/screen"
 	wrapper_terminal "github.com/Rafael24595/go-terminal/wrapper/terminal"
@@ -18,9 +19,14 @@ const paddingRows = 5
 // Move main and wrapper packages to a new project
 func main() {
 	state := state.UIState{
-		Page:   0,
-		Offset: 0,
-		Cursor: 0,
+		Layout: state.LayoutState{
+			Page:       0,
+			Pagination: false,
+		},
+		Interaction: state.InteractionState{
+			Cursor: 0,
+			Offset: 0,
+		},
 	}
 
 	c := wrapper_terminal.NewConsole()
@@ -34,7 +40,9 @@ func main() {
 	pr := size.Rows - paddingRows
 
 	i := wrapper_screen.NewLanding()
-	s := wrapper_screen.NewBaseHeader(i)
+	p := wrapper_commons.NewPagination(i).ToScreen()
+	h := wrapper_commons.NewHistory(p).ToScreen()
+	s := wrapper_screen.NewBaseHeader(h)
 
 	l := core.NewLayout(wrapper_layout.TerminalApply)
 	lf := wrapper_layout.NewFixed(l, pr, pc)
@@ -62,12 +70,7 @@ func main() {
 
 		size = newSize
 
-		vmd := s.View()
-
-		//TODO: Move to layout
-		state.Cursor = vmd.Cursor
-		state.Offset = vmd.Page
-		state.Page = vmd.Page
+		vmd := s.View(state)
 
 		lns := l.Apply(&state, vmd, size)
 		str := r.Render(lns, size)
@@ -83,9 +86,16 @@ func main() {
 			if !ok {
 				return
 			}
-			s.Update(core.ScreenEvent{
+			result := s.Update(state, core.ScreenEvent{
 				Key: key,
 			})
+
+			state = result.State
+
+			if result.Screen != nil {
+				s = *result.Screen
+			}
+
 		default:
 		}
 	}

@@ -11,11 +11,20 @@ import (
 
 func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsize) []core.Line {
 	headerLines := make([]core.Line, 0)
-	for _, header := range vm.Headers {
+	for _, header := range vm.Header {
 		if header.Len() > int(size.Cols) {
 			headerLines = append(headerLines, splitLineWords(int(size.Cols), header)...)
 		} else {
 			headerLines = append(headerLines, header)
+		}
+	}
+
+	footerLines := make([]core.Line, 0)
+	for _, footer := range vm.Footer {
+		if footer.Len() > int(size.Cols) {
+			footerLines = append(footerLines, splitLineWords(int(size.Cols), footer)...)
+		} else {
+			footerLines = append(footerLines, footer)
 		}
 	}
 
@@ -38,55 +47,73 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 		}
 	}
 
-	rest := int(size.Rows) - (len(headerLines) + len(inputLines))
+	rest := int(size.Rows) - (len(headerLines) + len(footerLines) + len(inputLines))
+	if rest < 0 {
+		return core.NewLines(
+			core.LineFromString("Too low resolution"),
+		)
+	}
 
-	bodyLines = terminalApplyBuffer(state, bodyLines, rest, int(size.Cols))
+	bodyLines, page, pagination := terminalApplyBuffer(state, bodyLines, rest, int(size.Cols))
+
+	state.Layout.Page = page
+	state.Layout.Pagination = pagination
 
 	allLines := headerLines
 	allLines = append(allLines, bodyLines...)
+	allLines = append(allLines, footerLines...)
 	allLines = append(allLines, inputLines...)
 
 	return allLines
 }
 
-func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int) []core.Line {
+func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int) ([]core.Line, uint, bool) {
 	page := uint(0)
-	cursor := []core.Line{}
+	row := make([]core.Line, rows)
 
-	i := 0
-	for i < len(lines) {
-		line := lines[i]
-		var physicalLines []core.Line
+	rowCursor := 0
+	lineCursor := 0
+
+	for lineCursor < len(lines) {
+		line := lines[lineCursor]
+
+		var fixedLines []core.Line
 
 		if line.Len() > cols {
-			physicalLines = splitLineWords(cols, line)
+			fixedLines = splitLineWords(cols, line)
 		} else {
-			physicalLines = []core.Line{line}
+			fixedLines = core.NewLines(line)
 		}
 
-		for _, pl := range physicalLines {
-			cursor = append(cursor, pl)
+		for _, fixedLine := range fixedLines {
+			row[rowCursor] = fixedLine
 
-			if len(cursor) != rows {
+			rowCursor += 1
+			if rowCursor != rows {
 				continue
 			}
 
-			if page == state.Page {
-				return cursor
+			if page == state.Layout.Page {
+				pagination := lineCursor != len(lines) || page != 0
+				return row, page, pagination
 			}
 
+			rowCursor = 0
+			row = make([]core.Line, rows)
+
 			page++
-			cursor = []core.Line{}
 		}
 
-		i++
+		lineCursor++
 	}
 
-	if page == state.Page {
-		return cursor
+	pagination := lineCursor != len(lines) || page != 0
+
+	if page == state.Layout.Page {
+		return row, page, pagination
 	}
 
-	return []core.Line{}
+	return core.NewLines(), page, pagination
 }
 
 func splitLineWords(cols int, line core.Line) []core.Line {

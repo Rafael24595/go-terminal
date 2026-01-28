@@ -1,6 +1,9 @@
 package core
 
-import "unicode/utf8"
+import (
+	"strings"
+	"unicode/utf8"
+)
 
 type Style uint8
 
@@ -124,6 +127,14 @@ func (l Line) Len() int {
 	return lineLen + len(l.Text) - 1
 }
 
+func (l Line) String() string {
+	buffer := make([]string, 0)
+	for _, v := range l.Text {
+		buffer = append(buffer, v.Text)
+	}
+	return strings.Join(buffer, " ")
+}
+
 type InputLine struct {
 	Prompt string
 	Value  string
@@ -131,9 +142,10 @@ type InputLine struct {
 }
 
 type ViewModel struct {
-	Cursor  uint
-	Page    uint
-	Headers []Line
-	Lines   []Line
-	Input   *InputLine
+	Cursor *uint
+	Page   *uint
+	Header []Line
+	Lines  []Line
+	Footer []Line
+	Input  *InputLine
 }
