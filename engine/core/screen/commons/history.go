@@ -1,32 +1,34 @@
-package wrapper_commons
+package commons
 
 import (
 	"fmt"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
 )
 
 type History struct {
-	history *core.Screen
-	screen core.Screen
+	history *screen.Screen
+	screen  screen.Screen
 }
 
-func NewHistory(screen core.Screen) *History {
+func NewHistory(screen screen.Screen) *History {
 	return &History{
 		screen: screen,
 	}
 }
 
-func (c *History) ToScreen() core.Screen {
-	return core.Screen{
-		Name:   c.screen.Name,
-		Update: c.update,
-		View:   c.view,
+func (c *History) ToScreen() screen.Screen {
+	return screen.Screen{
+		Name:       c.screen.Name,
+		Definition: c.screen.Definition,
+		Update:     c.update,
+		View:       c.view,
 	}
 }
 
-func (c *History) update(state state.UIState, event core.ScreenEvent) core.ScreenResult {
+func (c *History) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	if result := c.localUpdate(state, event); result != nil {
 		return *result
 	}
@@ -41,11 +43,11 @@ func (c *History) update(state state.UIState, event core.ScreenEvent) core.Scree
 	return result
 }
 
-func (c *History) localUpdate(state state.UIState, event core.ScreenEvent) *core.ScreenResult {
-	if event.Key == "b" && c.history != nil {
+func (c *History) localUpdate(state state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
+	if event.Key.Rune == 'b' && c.history != nil {
 		newBack := NewHistory(*c.history)
 		newScreen := newBack.ToScreen()
-		result := core.NewScreenResult(state, &newScreen)
+		result := screen.NewScreenResult(state, &newScreen)
 		return &result
 	}
 

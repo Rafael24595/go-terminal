@@ -1,6 +1,7 @@
 package wrapper_render
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/core"
@@ -25,9 +26,15 @@ func terminalRenderBuffer(ls []core.Line, size terminal.Winsize) []string {
 	for i, l := range ls {
 		bufferLine := make([]string, 0)
 		for _, f := range l.Text {
-			bufferLine = append(bufferLine,
-				terminalRenderFragment(f),
-			)
+			fragment := terminalRenderFragment(f)
+			isJoin := slices.Contains(f.Styles, core.Join)
+
+			if isJoin && len(bufferLine) > 0 {
+				bufferLine[len(bufferLine)-1] += fragment
+				continue
+			}
+
+			bufferLine = append(bufferLine, fragment)
 		}
 
 		buffer[i] = terminalRenderLine(
@@ -47,6 +54,8 @@ func terminalRenderFragment(f core.Fragment) string {
 		switch s {
 		case core.Bold:
 			text = "\033[1m" + text
+		case core.Select:
+			text = "\x1b[7m" + text + "\x1b[27m" 
 		}
 	}
 	return text

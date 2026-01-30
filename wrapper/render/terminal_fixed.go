@@ -9,33 +9,33 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-type FixedRender struct {
+type FixedTerminalRender struct {
 	render  render.Render
 	maxRows uint16
 	maxCols uint16
 }
 
-func NewFixed(render render.Render, maxRows, maxCols uint16) *FixedRender {
-	return &FixedRender{
+func NewFixed(render render.Render, maxRows, maxCols uint16) *FixedTerminalRender {
+	return &FixedTerminalRender{
 		render:  render,
 		maxRows: maxRows,
 		maxCols: maxCols,
 	}
 }
 
-func (l *FixedRender) Update(maxRows uint16, maxCols uint16) *FixedRender {
+func (l *FixedTerminalRender) Update(maxRows uint16, maxCols uint16) *FixedTerminalRender {
 	l.maxCols = maxCols
 	l.maxRows = maxRows
 	return l
 }
 
-func (r *FixedRender) ToRender() render.Render {
+func (r *FixedTerminalRender) ToRender() render.Render {
 	return render.Render{
 		Render: r.Render,
 	}
 }
 
-func (r *FixedRender) Render(lines []core.Line, size terminal.Winsize) string {
+func (r *FixedTerminalRender) Render(lines []core.Line, size terminal.Winsize) string {
 	rows := min(r.maxRows, size.Rows)
 	cols := min(r.maxCols, size.Cols)
 	newSize := terminal.NewWinsize(rows, cols)

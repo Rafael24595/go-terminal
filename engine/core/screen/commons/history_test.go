@@ -1,18 +1,20 @@
-package wrapper_commons
+package commons
 
 import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/key"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestHistory_ToScreen(t *testing.T) {
-	base := core.Screen{
+	base := screen.Screen{
 		Name: func() string { return "base" },
-		Update: func(s state.UIState, e core.ScreenEvent) core.ScreenResult {
-			return core.ScreenResultFromState(s)
+		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
+			return screen.ScreenResultFromState(s)
 		},
 		View: func(state.UIState) core.ViewModel {
 			return core.ViewModel{}
@@ -30,20 +32,20 @@ func TestHistory_ToScreen(t *testing.T) {
 func TestHistory_BackNavigation(t *testing.T) {
 	stt := state.UIState{}
 
-	base := core.Screen{
+	base := screen.Screen{
 		Name: func() string { return "base" },
-		Update: func(s state.UIState, e core.ScreenEvent) core.ScreenResult {
-			return core.ScreenResultFromState(s)
+		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
+			return screen.ScreenResultFromState(s)
 		},
 		View: func(state.UIState) core.ViewModel {
 			return core.ViewModel{}
 		},
 	}
 
-	next := core.Screen{
+	next := screen.Screen{
 		Name: func() string { return "next" },
-		Update: func(s state.UIState, e core.ScreenEvent) core.ScreenResult {
-			return core.NewScreenResult(s, &base)
+		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
+			return screen.NewScreenResult(s, &base)
 		},
 		View: func(state.UIState) core.ViewModel {
 			return core.ViewModel{}
@@ -51,21 +53,21 @@ func TestHistory_BackNavigation(t *testing.T) {
 	}
 
 	h := NewHistory(next)
-	screen := h.ToScreen()
+	scrn := h.ToScreen()
 
-	assert.Equal(t, screen.Name(), "next")
+	assert.Equal(t, scrn.Name(), "next")
 
-	result := screen.Update(stt, core.ScreenEvent{})
+	result := scrn.Update(stt, screen.ScreenEvent{})
 	assert.NotNil(t, result.Screen)
 	assert.Equal(t, result.Screen.Name(), "base")
 
-	backResult := result.Screen.Update(stt, core.ScreenEvent{Key: "b"})
+	backResult := result.Screen.Update(stt, screen.ScreenEvent{Key: *key.NewKeyRune('b')})
 	assert.NotNil(t, backResult.Screen)
 	assert.Equal(t, backResult.Screen.Name(), "next")
 }
 
 func TestHistory_ViewFooter(t *testing.T) {
-	base := core.Screen{
+	base := screen.Screen{
 		Name: func() string { return "base" },
 		View: func(state.UIState) core.ViewModel {
 			return core.ViewModel{}

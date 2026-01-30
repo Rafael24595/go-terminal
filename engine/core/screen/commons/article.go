@@ -1,23 +1,24 @@
-package wrapper_commons
+package commons
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
 )
 
 const default_article_name = "Article"
 
 type Article struct {
 	reference string
-	title      []core.Line
-	article    []core.Line
+	title     []core.Line
+	article   []core.Line
 }
 
 func NewArticle() *Article {
 	return &Article{
 		reference: default_article_name,
-		title:      make([]core.Line, 0),
-		article:    make([]core.Line, 0),
+		title:     make([]core.Line, 0),
+		article:   make([]core.Line, 0),
 	}
 }
 
@@ -36,11 +37,12 @@ func (c *Article) AddArticle(article ...core.Line) *Article {
 	return c
 }
 
-func (c *Article) ToScreen() core.Screen {
-	return core.Screen{
-		Name:   c.name,
-		Update: c.update,
-		View:   c.view,
+func (c *Article) ToScreen() screen.Screen {
+	return screen.Screen{
+		Name:       c.name,
+		Definition: c.definition,
+		Update:     c.update,
+		View:       c.view,
 	}
 }
 
@@ -48,8 +50,12 @@ func (c *Article) name() string {
 	return c.reference
 }
 
-func (c *Article) update(state state.UIState, event core.ScreenEvent) core.ScreenResult {
-	return core.ScreenResultFromState(state)
+func (c *Article) definition() screen.Definition {
+	return screen.Definition{}
+}
+
+func (c *Article) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+	return screen.ScreenResultFromState(state)
 }
 
 func (c *Article) view(state state.UIState) core.ViewModel {

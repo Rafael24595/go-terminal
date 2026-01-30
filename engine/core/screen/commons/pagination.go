@@ -1,35 +1,42 @@
-package wrapper_commons
+package commons
 
 import (
 	"fmt"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/key"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	wrapper_terminal "github.com/Rafael24595/go-terminal/wrapper/terminal"
 )
 
 type Pagination struct {
-	screen core.Screen
+	screen screen.Screen
 }
 
-func NewPagination(screen core.Screen) *Pagination {
+func NewPagination(screen screen.Screen) *Pagination {
 	return &Pagination{
 		screen: screen,
 	}
 }
 
-func (c *Pagination) ToScreen() core.Screen {
-	return core.Screen{
-		Name:   c.screen.Name,
-		Update: c.Update,
-		View:   c.View,
+func (c *Pagination) ToScreen() screen.Screen {
+	return screen.Screen{
+		Name:       c.screen.Name,
+		Definition: c.screen.Definition,
+		Update:     c.Update,
+		View:       c.View,
 	}
 }
 
-func (c *Pagination) Update(state state.UIState, event core.ScreenEvent) core.ScreenResult {
-	if result := c.localUpdate(state, event); result != nil {
-		return *result
+func (c *Pagination) Update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+	requiredKey := isKeyRequired(c.screen.Definition(), event.Key)
+
+	if !requiredKey {
+		result := c.localUpdate(state, event)
+		if result != nil {
+			return *result
+		}
 	}
 
 	result := c.screen.Update(state, event)
@@ -42,16 +49,16 @@ func (c *Pagination) Update(state state.UIState, event core.ScreenEvent) core.Sc
 	return result
 }
 
-func (c *Pagination) localUpdate(state state.UIState, event core.ScreenEvent) *core.ScreenResult {
-	switch event.Key {
-	case wrapper_terminal.ARROW_LEFT:
+func (c *Pagination) localUpdate(state state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
+	switch event.Key.Code {
+	case key.KeyArrowLeft:
 		state.Layout.Page = math.SubClampZero(state.Layout.Page, 1)
-		result := core.ScreenResultFromState(state)
+		result := screen.ScreenResultFromState(state)
 		return &result
-	case wrapper_terminal.ARROW_RIGHT:
+	case key.KeyArrowRight:
 		state.Layout.Page += 1
 
-		result := core.ScreenResultFromState(state)
+		result := screen.ScreenResultFromState(state)
 		return &result
 	default:
 		return nil

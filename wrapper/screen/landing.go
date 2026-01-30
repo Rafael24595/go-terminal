@@ -2,10 +2,11 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core"
-	wrapper_commons "github.com/Rafael24595/go-terminal/wrapper/screen/commons"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
 )
 
-func NewLanding() core.Screen {
+func NewLanding() screen.Screen {
 	title := core.NewLines(
 		core.NewLine(
 			"Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor",
@@ -17,14 +18,14 @@ func NewLanding() core.Screen {
 		),
 	)
 
-	options := wrapper_commons.NewMenuOptions(
-		wrapper_commons.NewMenuOption(core.LineFromString("Option 0"), NewTestArticle),
-		wrapper_commons.NewMenuOption(core.LineFromString("Option 1"), NewTestArticle),
-		wrapper_commons.NewMenuOption(core.LineFromString("Option 2"), NewTestArticle),
-		wrapper_commons.NewMenuOption(core.LineFromString("Option 3"), NewTestArticle),
+	options := commons.NewMenuOptions(
+		commons.NewMenuOption(core.LineFromString("Option 0"), NewTestArticle),
+		commons.NewMenuOption(core.LineFromString("Option 1"), NewTestTextArea),
+		commons.NewMenuOption(core.LineFromString("Option 2"), NewTestArticle),
+		commons.NewMenuOption(core.LineFromString("Option 3"), NewTestArticle),
 	)
 
-	return wrapper_commons.NewIndexMenu().
+	return commons.NewIndexMenu().
 		SetName("menu - tortor").
 		AddTitle(title...).
 		AddOptions(options...).

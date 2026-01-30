@@ -1,21 +1,22 @@
-package wrapper_commons
+package commons
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/key"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	wrapper_terminal "github.com/Rafael24595/go-terminal/wrapper/terminal"
 )
 
 const default_index_menu_name = "IndexMenu"
 
 type MenuOption struct {
 	line   core.Line
-	action func() core.Screen
+	action func() screen.Screen
 }
 
-func NewMenuOption(line core.Line, action func() core.Screen) MenuOption {
+func NewMenuOption(line core.Line, action func() screen.Screen) MenuOption {
 	return MenuOption{
 		line:   line,
 		action: action,
@@ -63,35 +64,40 @@ func (c *IndexMenu) SetCursor(cursor uint) *IndexMenu {
 	return c
 }
 
-func (c *IndexMenu) ToScreen() core.Screen {
-	return core.Screen{
-		Name:   c.name,
-		Update: c.update,
-		View:   c.view,
+func (c *IndexMenu) ToScreen() screen.Screen {
+	return screen.Screen{
+		Name:       c.name,
+		Definition: c.definition,
+		Update:     c.update,
+		View:       c.view,
 	}
+}
+
+func (c *IndexMenu) definition() screen.Definition {
+	return screen.Definition{}
 }
 
 func (c *IndexMenu) name() string {
 	return c.reference
 }
 
-func (c *IndexMenu) update(state state.UIState, event core.ScreenEvent) core.ScreenResult {
+func (c *IndexMenu) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	size := uint(len(c.options))
 	if size == 0 {
-		return core.ScreenResultFromState(state)
+		return screen.ScreenResultFromState(state)
 	}
 
-	switch event.Key {
-	case wrapper_terminal.ARROW_UP:
+	switch event.Key.Code {
+	case key.KeyArrowUp:
 		c.cursor = (c.cursor + size - 1) % size
-	case wrapper_terminal.TAB, wrapper_terminal.ARROW_DOWN:
+	case key.KeyTab, key.KeyArrowDown:
 		c.cursor = (c.cursor + 1) % size
-	case "\n", "\r":
+	case key.KeyEnter:
 		option := c.options[c.cursor]
 		if option.action != nil {
-			screen := c.options[c.cursor].action()
-			return core.ScreenResult{
-				Screen: &screen,
+			scrn := c.options[c.cursor].action()
+			return screen.ScreenResult{
+				Screen: &scrn,
 			}
 		}
 
@@ -102,7 +108,7 @@ func (c *IndexMenu) update(state state.UIState, event core.ScreenEvent) core.Scr
 		)
 	}
 
-	return core.ScreenResultFromState(state)
+	return screen.ScreenResultFromState(state)
 }
 
 func (c *IndexMenu) view(state state.UIState) core.ViewModel {

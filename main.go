@@ -3,11 +3,13 @@ package main
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/key"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
 	"github.com/Rafael24595/go-terminal/engine/render"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	wrapper_layout "github.com/Rafael24595/go-terminal/wrapper/layout"
 	wrapper_render "github.com/Rafael24595/go-terminal/wrapper/render"
-	wrapper_commons "github.com/Rafael24595/go-terminal/wrapper/screen/commons"
 
 	wrapper_screen "github.com/Rafael24595/go-terminal/wrapper/screen"
 	wrapper_terminal "github.com/Rafael24595/go-terminal/wrapper/terminal"
@@ -40,8 +42,8 @@ func main() {
 	pr := size.Rows - paddingRows
 
 	i := wrapper_screen.NewLanding()
-	p := wrapper_commons.NewPagination(i).ToScreen()
-	h := wrapper_commons.NewHistory(p).ToScreen()
+	p := commons.NewPagination(i).ToScreen()
+	h := commons.NewHistory(p).ToScreen()
 	s := wrapper_screen.NewBaseHeader(h)
 
 	l := core.NewLayout(wrapper_layout.TerminalApply)
@@ -55,7 +57,7 @@ func main() {
 	t.OnStart()
 	defer t.OnClose()
 
-	inputChan := make(chan string, 64)
+	inputChan := make(chan key.Key, 64)
 	go readInput(t, inputChan)
 
 	for {
@@ -86,7 +88,7 @@ func main() {
 			if !ok {
 				return
 			}
-			result := s.Update(state, core.ScreenEvent{
+			result := s.Update(state, screen.ScreenEvent{
 				Key: key,
 			})
 
@@ -101,7 +103,7 @@ func main() {
 	}
 }
 
-func readInput(t terminal.Terminal, ch chan<- string) {
+func readInput(t terminal.Terminal, ch chan<- key.Key) {
 	for {
 		rn, err := t.ReadKey()
 		if err != nil {
@@ -110,8 +112,8 @@ func readInput(t terminal.Terminal, ch chan<- string) {
 			return
 		}
 
-		ch <- rn
-		if rn == wrapper_terminal.CTRL_C {
+		ch <- *rn
+		if rn.Code == key.KeyCtrlC {
 			close(ch)
 			return
 		}

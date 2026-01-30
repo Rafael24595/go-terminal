@@ -1,12 +1,13 @@
-package wrapper_commons
+package commons
 
 import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/key"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
-	wrapper_terminal "github.com/Rafael24595/go-terminal/wrapper/terminal"
 )
 
 func TestIndexMenu_ToScreen(t *testing.T) {
@@ -16,7 +17,7 @@ func TestIndexMenu_ToScreen(t *testing.T) {
 		AddOptions(
 			NewMenuOption(
 				core.LineFromString("Option 1"),
-				func() core.Screen { return core.Screen{} },
+				func() screen.Screen { return screen.Screen{} },
 			),
 		)
 
@@ -42,11 +43,11 @@ func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 		AddOptions(
 			NewMenuOption(
 				core.LineFromString("Option 1"),
-				func() core.Screen { return core.Screen{} },
+				func() screen.Screen { return screen.Screen{} },
 			),
 			NewMenuOption(
 				core.LineFromString("Option 2"),
-				func() core.Screen { return core.Screen{} },
+				func() screen.Screen { return screen.Screen{} },
 			),
 		)
 
@@ -59,11 +60,11 @@ func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
 		AddOptions(
 			NewMenuOption(
 				core.LineFromString("A"),
-				func() core.Screen { return core.Screen{} },
+				func() screen.Screen { return screen.Screen{} },
 			),
 			NewMenuOption(
 				core.LineFromString("B"),
-				func() core.Screen { return core.Screen{} },
+				func() screen.Screen { return screen.Screen{} },
 			),
 		)
 
@@ -86,33 +87,33 @@ func TestIndexMenu_CursorNavigation(t *testing.T) {
 		AddOptions(
 			NewMenuOption(
 				core.LineFromString("A"),
-				func() core.Screen { return core.Screen{} },
+				func() screen.Screen { return screen.Screen{} },
 			),
 			NewMenuOption(
 				core.LineFromString("B"),
-				func() core.Screen { return core.Screen{} },
+				func() screen.Screen { return screen.Screen{} },
 			),
 		)
 
-	screen := menu.ToScreen()
+	scrn := menu.ToScreen()
 
 	assert.Equal(t, menu.cursor, uint(0))
 
-	screen.Update(
+	scrn.Update(
 		*state.NewUIState(),
-		core.ScreenEvent{Key: wrapper_terminal.ARROW_DOWN},
+		screen.ScreenEvent{Key: *key.NewKeyCode(key.KeyArrowDown)},
 	)
 	assert.Equal(t, menu.cursor, uint(1))
 
-	screen.Update(
+	scrn.Update(
 		*state.NewUIState(),
-		core.ScreenEvent{Key: wrapper_terminal.ARROW_UP},
+		screen.ScreenEvent{Key: *key.NewKeyCode(key.KeyArrowUp)},
 	)
 	assert.Equal(t, menu.cursor, uint(0))
 }
 
 func TestIndexMenu_Action(t *testing.T) {
-	expected := core.Screen{
+	expected := screen.Screen{
 		Name: func() string { return "next" },
 	}
 
@@ -120,14 +121,14 @@ func TestIndexMenu_Action(t *testing.T) {
 		AddOptions(
 			NewMenuOption(
 				core.LineFromString("Go"),
-				func() core.Screen { return expected },
+				func() screen.Screen { return expected },
 			),
 		)
 
-	screen := menu.ToScreen()
-	result := screen.Update(
+	scrn := menu.ToScreen()
+	result := scrn.Update(
 		*state.NewUIState(),
-		core.ScreenEvent{Key: "\n"},
+		screen.ScreenEvent{Key: *key.NewKeyRune('\n')},
 	)
 
 	assert.NotNil(t, result.Screen)
@@ -139,11 +140,11 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 		AddOptions(
 			NewMenuOption(
 				core.LineFromString("A"),
-				func() core.Screen { return core.Screen{} },
+				func() screen.Screen { return screen.Screen{} },
 			),
 			NewMenuOption(
 				core.LineFromString("B"),
-				func() core.Screen { return core.Screen{} },
+				func() screen.Screen { return screen.Screen{} },
 			),
 		)
 

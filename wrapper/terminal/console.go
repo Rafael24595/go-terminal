@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -88,7 +89,7 @@ func (c *Console) Clear() error {
 	return nil
 }
 
-func (c *Console) ReadKey() (string, error) {
+func (c *Console) ReadKey() (*key.Key, error) {
 	return c.reader.readRune()
 }
 

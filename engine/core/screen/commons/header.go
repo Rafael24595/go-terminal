@@ -1,16 +1,17 @@
-package wrapper_commons
+package commons
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
 )
 
 type Header struct {
-	screen core.Screen
+	screen screen.Screen
 	header []core.Line
 }
 
-func NewHeader(screen core.Screen) *Header {
+func NewHeader(screen screen.Screen) *Header {
 	return &Header{
 		screen: screen,
 		header: make([]core.Line, 0),
@@ -22,15 +23,16 @@ func (c *Header) AddHeader(header ...core.Line) *Header {
 	return c
 }
 
-func (c *Header) ToScreen() core.Screen {
-	return core.Screen{
-		Name:   c.screen.Name,
-		Update: c.Update,
-		View:   c.View,
+func (c *Header) ToScreen() screen.Screen {
+	return screen.Screen{
+		Name:       c.screen.Name,
+		Definition: c.screen.Definition,
+		Update:     c.Update,
+		View:       c.View,
 	}
 }
 
-func (c *Header) Update(state state.UIState, event core.ScreenEvent) core.ScreenResult {
+func (c *Header) Update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := c.screen.Update(state, event)
 	if !result.IgnoreParents && result.Screen != nil {
 		newScreen := NewHeader(*result.Screen).

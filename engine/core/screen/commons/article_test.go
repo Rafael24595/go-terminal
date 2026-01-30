@@ -1,10 +1,11 @@
-package wrapper_commons
+package commons
 
 import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -66,7 +67,7 @@ func TestArticle_Update(t *testing.T) {
 	article := NewArticle()
 	initialState := state.UIState{}
 
-	result := article.update(initialState, core.ScreenEvent{})
+	result := article.update(initialState, screen.ScreenEvent{})
 
 	assert.Equal(t, result.State, initialState, "Update should not change state")
 }

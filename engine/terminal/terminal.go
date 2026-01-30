@@ -1,5 +1,9 @@
 package terminal
 
+import (
+	"github.com/Rafael24595/go-terminal/engine/core/key"
+)
+
 type Winsize struct {
 	Rows uint16
 	Cols uint16
@@ -18,7 +22,7 @@ type Terminal struct {
 	OnClose   func() error
 	Size      func() Winsize
 	Clear     func() error
-	ReadKey   func() (string, error)
+	ReadKey   func() (*key.Key, error)
 	Write     func(string) error
 	WriteLine func(...string) error
 	WriteAll  func(string) error

@@ -9,6 +9,8 @@ type Style uint8
 
 const (
 	Bold Style = iota
+	Join
+	Select
 )
 
 type PaddingMode uint

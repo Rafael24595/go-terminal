@@ -6,6 +6,8 @@ package wrapper_terminal
 import (
 	"syscall"
 	"unsafe"
+
+	"github.com/Rafael24595/go-terminal/engine/core/key"
 )
 
 const (
@@ -37,13 +39,13 @@ func sendDummyKey() {
 		{
 			inputType: INPUT_KEYBOARD,
 			ki: keyboardInput{
-				wVk: VK_SHIFT,
+				wVk: key.VK_SHIFT,
 			},
 		},
 		{
 			inputType: INPUT_KEYBOARD,
 			ki: keyboardInput{
-				wVk:     VK_SHIFT,
+				wVk:     key.VK_SHIFT,
 				dwFlags: KEYEVENTF_KEYUP,
 			},
 		},

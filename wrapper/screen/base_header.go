@@ -2,10 +2,11 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core"
-	wrapper_commons "github.com/Rafael24595/go-terminal/wrapper/screen/commons"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
 )
 
-func NewBaseHeader(screen core.Screen) core.Screen {
+func NewBaseHeader(screen screen.Screen) screen.Screen {
 	header := core.FixedLinesFromLines(
 		core.ModePadding(core.Center),
 		core.LineFromString("LOREM IPSUM DOLOR SIT AMET"),
@@ -14,7 +15,7 @@ func NewBaseHeader(screen core.Screen) core.Screen {
 		core.LineJump(),
 	)
 
-	return wrapper_commons.NewHeader(screen).
+	return commons.NewHeader(screen).
 		AddHeader(header...).
 		ToScreen()
 }

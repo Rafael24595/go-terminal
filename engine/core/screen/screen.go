@@ -1,15 +1,23 @@
-package core
+package screen
 
-import "github.com/Rafael24595/go-terminal/engine/app/state"
+import (
+	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/key"
+)
 
 type ScreenEvent struct {
-	Key string
+	Key key.Key
 }
 
 type ScreenResult struct {
 	State         state.UIState
 	IgnoreParents bool
 	Screen        *Screen
+}
+
+type Definition struct {
+	RequireKeys []key.Key
 }
 
 func NewScreenResult(state state.UIState, screen *Screen) ScreenResult {
@@ -27,7 +35,8 @@ func ScreenResultFromState(state state.UIState) ScreenResult {
 
 type Screen struct {
 	//Init func (ctx)
-	Name   func() string
-	Update func(state.UIState, ScreenEvent) ScreenResult
-	View   func(state.UIState) ViewModel
+	Name       func() string
+	Definition func() Definition
+	Update     func(state.UIState, ScreenEvent) ScreenResult
+	View       func(state.UIState) core.ViewModel
 }
