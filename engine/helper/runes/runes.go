@@ -1,6 +1,15 @@
 package runes
 
-import "github.com/Rafael24595/go-terminal/engine/helper/math"
+import (
+	"strings"
+
+	"github.com/Rafael24595/go-terminal/engine/helper/math"
+)
+
+func NormalizeLineEnd(text string) string {
+	normalized := strings.ReplaceAll(text, "\r\n", "\n")
+	return strings.ReplaceAll(normalized, "\r", "\n")
+}
 
 func AppendAt(slice []rune, insert []rune, pos uint) []rune {
 	i := int(pos)

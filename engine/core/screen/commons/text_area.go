@@ -1,6 +1,9 @@
 package commons
 
 import (
+	"slices"
+	"strings"
+
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
@@ -68,7 +71,9 @@ func (c *TextArea) definition() screen.Definition {
 }
 
 func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	switch event.Key.Code {
+	ky := event.Key
+
+	switch ky.Code {
 	case key.KeyHome:
 		c.moveCursorTo(0)
 		return screen.ScreenResultFromState(state)
@@ -80,16 +85,18 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 	case key.KeyArrowRight:
 		return c.moveForward(state, event)
 	case key.KeyBackspace, key.KeyDeleteWordBackward:
-		return c.deleteBackward(state, event.Key.Code == key.KeyDeleteWordBackward)
+		return c.deleteBackward(state, ky.Code == key.KeyDeleteWordBackward)
 	case key.KeyDelete, key.KeyDeleteWordForward:
-		return c.deleteForward(state, event.Key.Code == key.KeyDeleteWordForward)
+		return c.deleteForward(state, ky.Code == key.KeyDeleteWordForward)
+	case key.KeyEnter:
+		ky = *key.NewKeyRune(key.ENTER_LF)
 	case key.KeyArrowUp, key.KeyArrowDown:
 	}
 
-	text := []rune{event.Key.Rune}
+	text := []rune{ky.Rune}
 	c.buffer = runes.AppendRange(c.buffer, text, c.selectStart, c.selectEnd)
 
-	position := c.selectStart + uint(len(text))
+	position := c.selectEnd + uint(len(text))
 	c.moveCursorTo(position)
 
 	return screen.ScreenResultFromState(state)
@@ -233,23 +240,68 @@ func (c *TextArea) view(state state.UIState) core.ViewModel {
 		end = 1
 	}
 
-	text := core.FragmentLine(core.ModePadding(core.Right),
-		core.NewFragment(
-			string(renderBuffer[0:start]),
-			core.Join,
-		),
-		core.NewFragment(
-			string(renderBuffer[start:end]),
-			core.Select,
-			core.Join,
-		),
-		core.NewFragment(
-			string(renderBuffer[end:]),
-			core.Join,
-		),
-	)
+	text := core.FragmentLine(core.ModePadding(core.Right))
+
+	beforeSelect := string(renderBuffer[0:start])
+	text.Text = append(text.Text, core.NewFragment(beforeSelect, core.Join))
+
+	onSelect := string(renderBuffer[start:end])
+	text.Text = append(text.Text, core.NewFragment(onSelect, core.Select, core.Join))
+
+	afterSelect := string(renderBuffer[end:])
+	if len(afterSelect) > 0 {
+		text.Text = append(text.Text, core.NewFragment(afterSelect, core.Join))
+	}
+
+	lines := append(c.title, c.normalizeLinesEnd(text)...)
 
 	return core.ViewModel{
-		Lines: append(c.title, text),
+		Lines: lines,
 	}
+}
+
+func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
+	lines := make([]core.Line, 0)
+
+	currentLine := core.FragmentLine(text.Padding)
+
+	for j, f := range text.Text {
+		normalized := runes.NormalizeLineEnd(f.Text)
+		parts := strings.Split(normalized, "\n")
+
+		if len(parts) == 1 {
+			currentLine.Text = append(
+				currentLine.Text,
+				core.NewFragment(parts[0], f.Styles...),
+			)
+
+			continue
+		}
+
+		for i, part := range parts {
+			isCaret := slices.Contains(f.Styles, core.Select) && len(part) == 0
+			isCaretAtLineStart := i == 0
+			isCaretAtBufferEnd := j == len(text.Text)-1
+
+			if isCaret && (isCaretAtLineStart || isCaretAtBufferEnd) {
+				part += " "
+			}
+
+			currentLine.Text = append(
+				currentLine.Text,
+				core.NewFragment(part, f.Styles...),
+			)
+
+			if i < len(parts)-1 {
+				lines = append(lines, currentLine)
+				currentLine = core.FragmentLine(text.Padding)
+			}
+		}
+	}
+
+	if len(currentLine.Text) > 0 {
+		lines = append(lines, currentLine)
+	}
+
+	return lines
 }
