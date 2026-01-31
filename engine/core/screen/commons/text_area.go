@@ -69,84 +69,156 @@ func (c *TextArea) definition() screen.Definition {
 
 func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	switch event.Key.Code {
+	case key.KeyHome:
+		c.moveCursorTo(0)
+		return screen.ScreenResultFromState(state)
+	case key.KeyEnd:
+		c.moveCursorTo(uint(len(c.buffer)))
+		return screen.ScreenResultFromState(state)
 	case key.KeyArrowLeft:
-		return c.moveLeft(state, event)
+		return c.moveBackward(state, event)
 	case key.KeyArrowRight:
-		return c.moveRight(state, event)
-	case key.KeyBackspace:
-		return c.deleteSelection(state)
+		return c.moveForward(state, event)
+	case key.KeyBackspace, key.KeyDeleteWord:
+		return c.deleteBackward(state, event.Key.Code == key.KeyDeleteWord)
+	case key.KeyDelete, key.KeyDeleteWordForward:
+		return c.deleteForward(state, event.Key.Code == key.KeyDeleteWordForward)
+	case key.KeyArrowUp, key.KeyArrowDown:
 	}
 
 	text := []rune{event.Key.Rune}
 	c.buffer = runes.AppendRange(c.buffer, text, c.selectStart, c.selectEnd)
 
-	c.selectStart = c.selectStart + uint(len(text))
-	c.selectEnd = c.selectEnd + uint(len(text))
+	position := c.selectStart + uint(len(text))
+	c.moveCursorTo(position)
 
 	return screen.ScreenResultFromState(state)
 }
 
-func (c *TextArea) moveLeft(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) moveBackward(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+	result := screen.ScreenResultFromState(state)
+
 	if !event.Key.Mod.Has(key.ModCtrl) && event.Key.Mod.Has(key.ModShift) {
-		c.selectStart = math.SubClampZero(c.selectStart, 1)
-		return screen.ScreenResultFromState(state)
+		start := math.SubClampZero(c.selectStart, 1)
+		c.moveSelectTo(start, c.selectEnd)
+		return result
 	}
 
 	if event.Key.Mod.Has(key.ModCtrl) {
-		c.selectStart = runes.LastIndexOf(c.buffer, ' ', c.selectStart)
+		start := runes.BackwardIndex(c.buffer, ' ', c.selectStart)
 
+		end := c.selectEnd
 		if !event.Key.Mod.Has(key.ModShift) {
-			c.selectEnd = c.selectStart
+			end = start
 		}
 
-		return screen.ScreenResultFromState(state)
+		c.moveSelectTo(start, end)
+
+		return result
 	}
 
 	position := math.SubClampZero(c.selectEnd, 1)
+	c.moveCursorTo(position)
 
-	c.selectStart = position
-	c.selectEnd = position
-
-	return screen.ScreenResultFromState(state)
+	return result
 }
 
-func (c *TextArea) moveRight(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) moveForward(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+	result := screen.ScreenResultFromState(state)
+
 	if !event.Key.Mod.Has(key.ModCtrl) && event.Key.Mod.Has(key.ModShift) {
-		c.selectEnd = math.Clamp(c.selectEnd+1, 0, uint(len(c.buffer)))
-		return screen.ScreenResultFromState(state)
+		end := min(uint(len(c.buffer)), c.selectEnd+1)
+		c.moveSelectTo(c.selectStart, end)
+		return result
 	}
 
 	if event.Key.Mod.Has(key.ModCtrl) {
-		c.selectEnd = runes.IndexOf(c.buffer, ' ', c.selectEnd)
+		end := runes.ForwardIndex(c.buffer, ' ', c.selectEnd)
 
+		start := c.selectStart
 		if !event.Key.Mod.Has(key.ModShift) {
-			c.selectStart = c.selectEnd
+			start = end
 		}
 
-		return screen.ScreenResultFromState(state)
+		c.moveSelectTo(start, end)
+
+		return result
 	}
 
-	position := math.Clamp(c.selectEnd+1, 0, uint(len(c.buffer)))
+	position := min(uint(len(c.buffer)), c.selectEnd+1)
+	c.moveCursorTo(position)
 
-	c.selectStart = position
-	c.selectEnd = position
-
-	return screen.ScreenResultFromState(state)
+	return result
 }
 
-func (c *TextArea) deleteSelection(state state.UIState) screen.ScreenResult {
+func (c *TextArea) deleteBackward(state state.UIState, word bool) screen.ScreenResult {
+	result := screen.ScreenResultFromState(state)
+
 	if len(c.buffer) == 0 {
-		return screen.ScreenResultFromState(state)
+		return result
 	}
 
-	start := math.SubClampZero(c.selectStart, 1)
+	var start uint
+	if word {
+		start = runes.BackwardIndex(c.buffer, ' ', c.selectStart)
+	} else {
+		start = math.SubClampZero(c.selectStart, 1)
+	}
+
 	end := c.selectEnd
 
 	c.buffer = append(c.buffer[:start], c.buffer[end:]...)
-	c.selectStart = start
-	c.selectEnd = start
 
-	return screen.ScreenResultFromState(state)
+	c.moveCursorTo(start)
+
+	return result
+}
+
+func (c *TextArea) deleteForward(state state.UIState, word bool) screen.ScreenResult {
+	result := screen.ScreenResultFromState(state)
+
+	if len(c.buffer) == 0 {
+		return result
+	}
+
+	var end uint
+	if word {
+		end = runes.ForwardIndex(c.buffer, ' ', c.selectEnd)
+	} else {
+		end = min(uint(len(c.buffer)), c.selectEnd+1)
+	}
+
+	start := c.selectStart
+
+	c.buffer = append(c.buffer[:start], c.buffer[end:]...)
+
+	c.moveCursorTo(start)
+
+	return result
+}
+
+func (c *TextArea) moveCursorTo(position uint) {
+	min := uint(1)
+	len := uint(len(c.buffer))
+
+	if len == 0 {
+		min = 0
+	}
+
+	c.selectStart = math.Clamp(position, min, len)
+	c.selectEnd = c.selectStart
+}
+
+func (c *TextArea) moveSelectTo(start, end uint) {
+	min := uint(1)
+	len := uint(len(c.buffer))
+
+	if len == 0 {
+		min = 0
+	}
+
+	c.selectStart = math.Clamp(start, min, len)
+	c.selectEnd = math.Clamp(end, min, len)
 }
 
 func (c *TextArea) view(state state.UIState) core.ViewModel {
@@ -154,12 +226,6 @@ func (c *TextArea) view(state state.UIState) core.ViewModel {
 
 	start := math.SubClampZero(c.selectStart, 1)
 	end := c.selectEnd
-
-	if len(renderBuffer) == 0 {
-		renderBuffer = append(renderBuffer, ' ')
-		start = 0
-		end = 1
-	}
 
 	if len(renderBuffer) == 0 {
 		renderBuffer = append(renderBuffer, ' ')

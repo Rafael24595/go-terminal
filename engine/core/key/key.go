@@ -2,12 +2,14 @@ package key
 
 const (
 	CTRL_C   = 0x03
+	CTRL_W   = 0x17
 	TAB      = 0x09
 	ENTER_LF = '\n'
 	ENTER_CR = '\r'
 	ESC      = 0x1b
 	DEL      = 0x7f
 	BS       = 0x08
+	TILDE    = '~'
 )
 
 const (
@@ -19,6 +21,8 @@ type KeyCode int
 const (
 	KeyRune KeyCode = iota
 	KeyCtrlC
+	KeyDeleteWord
+	KeyDeleteWordForward
 	KeyTab
 	KeyEnter
 	KeyBackspace
@@ -26,6 +30,9 @@ const (
 	KeyArrowDown
 	KeyArrowLeft
 	KeyArrowRight
+	KeyHome
+	KeyEnd
+	KeyDelete
 	KeyAll
 )
 

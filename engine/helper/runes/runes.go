@@ -31,7 +31,22 @@ func AppendRange(slice []rune, insert []rune, start, end uint) []rune {
 	return newSlice
 }
 
-func IndexOf[T math.Number](b []rune, r rune, i T) T {
+func BackwardIndex[T math.Number](b []rune, r rune, i T) T {
+	s := max(0, int(i)-1)
+	for s > 0 && b[s-1] == r {
+		s--
+	}
+
+	for i := s - 1; i >= 0; i-- {
+		if b[i] == r {
+			return T(i) + 1
+		}
+	}
+
+	return 0
+}
+
+func ForwardIndex[T math.Number](b []rune, r rune, i T) T {
 	s := min(int(i+1), len(b))
 
 	for s < len(b) && b[s] == r {
@@ -44,19 +59,4 @@ func IndexOf[T math.Number](b []rune, r rune, i T) T {
 	}
 
 	return T(newEnd)
-}
-
-func LastIndexOf[T math.Number](b []rune, r rune, i T) T {
-	s := max(0, int(i)-1)
-	for s > 0 && b[s-1] == r {
-		s--
-	}
-
-	for i := s - 1; i >= 0; i-- {
-		if b[i] == r {
-			return T(i) + 2
-		}
-	}
-
-	return 0
 }
