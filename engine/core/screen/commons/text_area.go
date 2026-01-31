@@ -79,8 +79,8 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 		return c.moveBackward(state, event)
 	case key.KeyArrowRight:
 		return c.moveForward(state, event)
-	case key.KeyBackspace, key.KeyDeleteWord:
-		return c.deleteBackward(state, event.Key.Code == key.KeyDeleteWord)
+	case key.KeyBackspace, key.KeyDeleteWordBackward:
+		return c.deleteBackward(state, event.Key.Code == key.KeyDeleteWordBackward)
 	case key.KeyDelete, key.KeyDeleteWordForward:
 		return c.deleteForward(state, event.Key.Code == key.KeyDeleteWordForward)
 	case key.KeyArrowUp, key.KeyArrowDown:

@@ -21,7 +21,7 @@ type KeyCode int
 const (
 	KeyRune KeyCode = iota
 	KeyCtrlC
-	KeyDeleteWord
+	KeyDeleteWordBackward
 	KeyDeleteWordForward
 	KeyTab
 	KeyEnter
