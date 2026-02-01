@@ -159,3 +159,103 @@ func TestAppendRange(t *testing.T) {
 	}
 }
 
+func TestBackwardIndexWithOutSkip(t *testing.T) {
+	text := []rune("word1 word2  word3")
+	nextLineRunes := []runes.RuneDefinition{
+		{Rune: ' ', Skip: false},
+	}
+
+	tests := []struct {
+		name  string
+		start int
+		want  int
+	}{
+		{"middle of word2", 9, 6},
+		{"start of word3", 13, 12},
+		{"start of buffer", 0, 0},
+		{"middle of word1", 3, 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := runes.BackwardIndex(text, nextLineRunes, tt.start)
+			assert.Equal(t, tt.want, int(got))
+		})
+	}
+}
+
+func TestBackwardIndexWithSkip(t *testing.T) {
+	text := []rune("Line1\nline2\n\nline3")
+	nextLineRunes := []runes.RuneDefinition{
+		{Rune: '\n', Skip: true},
+	}
+
+	tests := []struct {
+		name  string
+		start int
+		want  int
+	}{
+		{"middle of line2", 9, 6},
+		{"start of line3", 17, 13},
+		{"start of buffer", 0, 0},
+		{"middle of line1", 3, 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := runes.BackwardIndex(text, nextLineRunes, tt.start)
+			assert.Equal(t, tt.want, int(got))
+		})
+	}
+}
+
+
+func TestBackwardIndexWithLimit(t *testing.T) {
+	text := []rune("line1\nline2\nline3")
+	nextLineRunes := []runes.RuneDefinition{
+		{Rune: '\n', Skip: true},
+	}
+
+	tests := []struct {
+		name  string
+		start int
+		want  int
+	}{
+		{"middle of line2", 8, 7},
+		{"start of line3", 13, 13},
+		{"start of buffer", 0, 1},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := runes.BackwardIndexWithLimit(text, nextLineRunes, tt.start)
+			assert.Equal(t, tt.want, int(got))
+		})
+	}
+}
+
+
+func TestForwardIndexWithLimit(t *testing.T) {
+	text := []rune("line1\nline2\nline3")
+	nextLineRunes := []runes.RuneDefinition{
+		{Rune: '\n', Skip: true},
+	}
+
+	tests := []struct {
+		name  string
+		start int
+		want  int
+	}{
+		{"cursor on middle of line1", 2, 5},
+		{"cursor on newline", 5, 5},
+		{"cursor at start of line2", 6, 11},
+		{"cursor at end of buffer", 17, 17},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := runes.ForwardIndexWithLimit(text, nextLineRunes, tt.start)
+			assert.Equal(t, tt.want, int(got))
+		})
+	}
+}

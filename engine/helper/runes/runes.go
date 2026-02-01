@@ -6,6 +6,11 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
+type RuneDefinition struct {
+	Rune rune
+	Skip bool
+}
+
 func NormalizeLineEnd(text string) string {
 	normalized := strings.ReplaceAll(text, "\r\n", "\n")
 	return strings.ReplaceAll(normalized, "\r", "\n")
@@ -40,32 +45,82 @@ func AppendRange(slice []rune, insert []rune, start, end uint) []rune {
 	return newSlice
 }
 
-func BackwardIndex[T math.Number](b []rune, r rune, i T) T {
-	s := max(0, int(i)-1)
-	for s > 0 && b[s-1] == r {
-		s--
-	}
+func BackwardIndexWithLimit[T math.Number](b []rune, rs []RuneDefinition, i T) T {
+	return BackwardIndex(b, rs, i) + 1
+}
 
-	for i := s - 1; i >= 0; i-- {
-		if b[i] == r {
-			return T(i) + 1
+func BackwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) T {
+	s := fixdBackwardIndex(b, rs, i)
+
+	for j := s - 1; j >= 0; j-- {
+		for _, v := range rs {
+			if v.Rune == b[j] {
+				return T(j) + 1
+			}
 		}
 	}
 
 	return 0
 }
 
-func ForwardIndex[T math.Number](b []rune, r rune, i T) T {
-	s := min(int(i+1), len(b))
+func fixdBackwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) int {
+	s := max(0, int(i)-1)
 
-	for s < len(b) && b[s] == r {
+	for s > 0 {
+		for _, v := range rs {
+			if v.Rune != b[s] || !v.Skip {
+				return s
+			}
+		}
+
+		s--
+	}
+
+	return s
+}
+
+func ForwardIndexWithLimit[T math.Number](b []rune, rs []RuneDefinition, i T) T {
+	s := i
+
+	if s < T(len(b)) {
+		for _, v := range rs {
+			if b[s] == v.Rune {
+				return s
+			}
+		}
+	}
+
+	return ForwardIndex(b, rs, s)
+}
+
+func ForwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) T {
+	s := fixForwardIndex(b, rs, i)
+
+	for s < len(b) {
+		for _, v := range rs {
+			if v.Rune == b[s] {
+				return T(s)
+			}
+		}
+
 		s++
 	}
 
-	newEnd := s
-	for newEnd < len(b) && b[newEnd] != r {
-		newEnd++
+	return T(s)
+}
+
+func fixForwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) int {
+	s := min(int(i+1), len(b))
+
+	for s < len(b) {
+		for _, v := range rs {
+			if v.Rune != b[s] || !v.Skip {
+				return s
+			}
+		}
+
+		s++
 	}
 
-	return T(newEnd)
+	return s
 }

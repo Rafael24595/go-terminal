@@ -8,11 +8,30 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/helper/line"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 )
 
 const default_text_area_name = "TextArea"
+
+var next_word_runes = []runes.RuneDefinition{
+	{
+		Rune: ' ',
+		Skip: false,
+	},
+	{
+		Rune: key.ENTER_LF,
+		Skip: true,
+	},
+}
+
+var next_line_runes = []runes.RuneDefinition{
+	{
+		Rune: key.ENTER_LF,
+		Skip: true,
+	},
+}
 
 var text_area_definition = screen.Definition{
 	RequireKeys: key.NewKeysCode(key.KeyAll),
@@ -75,11 +94,9 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 
 	switch ky.Code {
 	case key.KeyHome:
-		c.moveCursorTo(0)
-		return screen.ScreenResultFromState(state)
+		return c.moveHome(state, event)
 	case key.KeyEnd:
-		c.moveCursorTo(uint(len(c.buffer)))
-		return screen.ScreenResultFromState(state)
+		return c.moveEnd(state, event)
 	case key.KeyArrowLeft:
 		return c.moveBackward(state, event)
 	case key.KeyArrowRight:
@@ -90,7 +107,10 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 		return c.deleteForward(state, ky.Code == key.KeyDeleteWordForward)
 	case key.KeyEnter:
 		ky = *key.NewKeyRune(key.ENTER_LF)
-	case key.KeyArrowUp, key.KeyArrowDown:
+	case key.KeyArrowUp:
+		return c.moveUp(state)
+	case key.KeyArrowDown:
+		return c.moveDown(state)
 	}
 
 	text := []rune{ky.Rune}
@@ -100,6 +120,82 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 	c.moveCursorTo(position)
 
 	return screen.ScreenResultFromState(state)
+}
+
+func (c *TextArea) moveHome(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+	result := screen.ScreenResultFromState(state)
+
+	if event.Key.Mod.Has(key.ModCtrl) {
+		c.moveCursorTo(0)
+		return result
+	}
+
+	start := runes.BackwardIndexWithLimit(c.buffer, next_line_runes, c.selectStart)
+
+	end := c.selectEnd
+	if !event.Key.Mod.Has(key.ModShift) {
+		end = start
+	}
+
+	c.moveSelectTo(start, end)
+
+	return result
+}
+
+func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+	result := screen.ScreenResultFromState(state)
+
+	if event.Key.Mod.Has(key.ModCtrl) {
+		c.moveCursorTo(uint(len(c.buffer)))
+		return result
+	}
+
+	start := runes.ForwardIndexWithLimit(c.buffer, next_line_runes, c.selectStart)
+
+	end := c.selectEnd
+	if !event.Key.Mod.Has(key.ModShift) {
+		end = start
+	}
+
+	c.moveSelectTo(start, end)
+
+	return result
+}
+
+func (c *TextArea) moveUp(state state.UIState) screen.ScreenResult {
+	result := screen.ScreenResultFromState(state)
+
+	distance := line.DistanceFromLF(c.buffer, int(c.selectStart))
+
+	prevLineStart := line.FindLineStart(c.buffer, int(c.selectStart))
+	if prevLineStart == 0 {
+		return result
+	}
+
+	targetLineStart := line.FindLineStart(c.buffer, prevLineStart-1)
+	position := line.ClampToLine(c.buffer, targetLineStart, distance)
+
+	c.moveCursorTo(uint(position))
+
+	return result
+}
+
+func (c *TextArea) moveDown(state state.UIState) screen.ScreenResult {
+	result := screen.ScreenResultFromState(state)
+
+	distance := line.DistanceFromLF(c.buffer, int(c.selectStart))
+
+	nextLineStart := line.FindNextLineStart(c.buffer, int(c.selectStart))
+	if nextLineStart == -1 {
+		c.moveCursorTo(uint(len(c.buffer)))
+		return result
+	}
+
+	position := line.ClampToLine(c.buffer, nextLineStart, distance)
+
+	c.moveCursorTo(uint(position))
+
+	return result
 }
 
 func (c *TextArea) moveBackward(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
@@ -112,7 +208,7 @@ func (c *TextArea) moveBackward(state state.UIState, event screen.ScreenEvent) s
 	}
 
 	if event.Key.Mod.Has(key.ModCtrl) {
-		start := runes.BackwardIndex(c.buffer, ' ', c.selectStart)
+		start := runes.BackwardIndex(c.buffer, next_word_runes, c.selectStart)
 
 		end := c.selectEnd
 		if !event.Key.Mod.Has(key.ModShift) {
@@ -140,7 +236,7 @@ func (c *TextArea) moveForward(state state.UIState, event screen.ScreenEvent) sc
 	}
 
 	if event.Key.Mod.Has(key.ModCtrl) {
-		end := runes.ForwardIndex(c.buffer, ' ', c.selectEnd)
+		end := runes.ForwardIndex(c.buffer, next_word_runes, c.selectEnd)
 
 		start := c.selectStart
 		if !event.Key.Mod.Has(key.ModShift) {
@@ -167,7 +263,7 @@ func (c *TextArea) deleteBackward(state state.UIState, word bool) screen.ScreenR
 
 	var start uint
 	if word {
-		start = runes.BackwardIndex(c.buffer, ' ', c.selectStart)
+		start = runes.BackwardIndex(c.buffer, next_word_runes, c.selectStart)
 	} else {
 		start = math.SubClampZero(c.selectStart, 1)
 	}
@@ -190,7 +286,7 @@ func (c *TextArea) deleteForward(state state.UIState, word bool) screen.ScreenRe
 
 	var end uint
 	if word {
-		end = runes.ForwardIndex(c.buffer, ' ', c.selectEnd)
+		end = runes.ForwardIndex(c.buffer, next_word_runes, c.selectEnd)
 	} else {
 		end = min(uint(len(c.buffer)), c.selectEnd+1)
 	}
@@ -280,10 +376,13 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 
 		for i, part := range parts {
 			isCaret := slices.Contains(f.Styles, core.Select) && len(part) == 0
-			isCaretAtLineStart := i == 0
-			isCaretAtBufferEnd := j == len(text.Text)-1
 
-			if isCaret && (isCaretAtLineStart || isCaretAtBufferEnd) {
+			isCaretAtLineStart := i == 0
+
+			isCaretAtBufferEnd := j == len(text.Text)-1
+			isCaretAtEmptyLine := isCaretAtBufferEnd || text.Text[j+1].Text[0] == key.ENTER_LF
+
+			if isCaret && (isCaretAtLineStart || isCaretAtEmptyLine) {
 				part += " "
 			}
 
