@@ -361,10 +361,10 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 
 	currentLine := core.FragmentLine(text.Padding)
 
-	for j, f := range text.Text {
+	for textIndex, f := range text.Text {
 		normalized := runes.NormalizeLineEnd(f.Text)
-		parts := strings.Split(normalized, "\n")
 
+		parts := strings.Split(normalized, "\n")
 		if len(parts) == 1 {
 			currentLine.Text = append(
 				currentLine.Text,
@@ -374,15 +374,8 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 			continue
 		}
 
-		for i, part := range parts {
-			isCaret := slices.Contains(f.Styles, core.Select) && len(part) == 0
-
-			isCaretAtLineStart := i == 0
-
-			isCaretAtBufferEnd := j == len(text.Text)-1
-			isCaretAtEmptyLine := isCaretAtBufferEnd || text.Text[j+1].Text[0] == key.ENTER_LF
-
-			if isCaret && (isCaretAtLineStart || isCaretAtEmptyLine) {
+		for partIndex, part := range parts {
+			if c.isCaretPrintable(text, textIndex, part, partIndex) {
 				part += " "
 			}
 
@@ -391,7 +384,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 				core.NewFragment(part, f.Styles...),
 			)
 
-			if i < len(parts)-1 {
+			if partIndex < len(parts)-1 {
 				lines = append(lines, currentLine)
 				currentLine = core.FragmentLine(text.Padding)
 			}
@@ -403,4 +396,26 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 	}
 
 	return lines
+}
+
+func (c *TextArea) isCaretPrintable(text core.Line, textIndex int, part string, partIndex int) bool {
+	fragment := text.Text[textIndex]
+
+	isCaret := len(part) == 0 && slices.Contains(fragment.Styles, core.Select)
+	if !isCaret {
+		return false
+	}
+
+	atLineStart := partIndex == 0
+	if atLineStart {
+		return true
+	}
+
+	atBufferEnd := textIndex == len(text.Text)-1
+	if atBufferEnd {
+		return true
+	}
+
+	atEmptyLine := text.Text[textIndex+1].Text[0] == key.ENTER_LF
+	return atEmptyLine
 }
