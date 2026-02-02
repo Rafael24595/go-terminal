@@ -14,7 +14,7 @@ func TestPagination_ToScreen(t *testing.T) {
 	base := screen.Screen{
 		Name: func() string { return "Base" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.ScreenResultFromState(s)
+			return screen.EmptyScreenResult()
 		},
 		View: func(state state.UIState) core.ViewModel {
 			return core.ViewModel{}
@@ -32,9 +32,10 @@ func TestPagination_ToScreen(t *testing.T) {
 func TestPagination_LocalUpdate(t *testing.T) {
 	stt := state.NewUIState()
 	base := screen.Screen{
-		Name: func() string { return "Base" },
+		Definition: func() screen.Definition { return screen.Definition{} },
+		Name:       func() string { return "Base" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.ScreenResultFromState(s)
+			return screen.EmptyScreenResult()
 		},
 		View: func(state state.UIState) core.ViewModel { return core.ViewModel{} },
 	}
@@ -43,23 +44,24 @@ func TestPagination_LocalUpdate(t *testing.T) {
 
 	scrn := p.ToScreen()
 
-	stt.Layout.Page = 0
+	stt.Pager.Page = 0
 	result := scrn.Update(*stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.KeyArrowLeft)})
-	assert.Equal(t, result.State.Layout.Page, 0)
+	assert.Equal(t, result.Pager.Page, 0)
 
 	result = scrn.Update(*stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.KeyArrowRight)})
-	assert.Equal(t, result.State.Layout.Page, 1)
+	assert.Equal(t, result.Pager.Page, 1)
 }
 
 func TestPagination_ViewFooter(t *testing.T) {
 	stt := state.NewUIState()
-	stt.Layout.Pagination = true
-	stt.Layout.Page = 3
+	stt.Pager.Enabled = true
+	stt.Pager.Page = 3
 
 	base := screen.Screen{
-		Name: func() string { return "Base" },
+		Definition: func() screen.Definition { return screen.Definition{} },
+		Name:       func() string { return "Base" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.ScreenResultFromState(s)
+			return screen.EmptyScreenResult()
 		},
 		View: func(state state.UIState) core.ViewModel { return core.ViewModel{} },
 	}
@@ -75,10 +77,11 @@ func TestPagination_UpdateDelegates(t *testing.T) {
 	called := false
 
 	base := screen.Screen{
-		Name: func() string { return "Base" },
+		Definition: func() screen.Definition { return screen.Definition{} },
+		Name:       func() string { return "Base" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			called = true
-			return screen.ScreenResultFromState(s)
+			return screen.EmptyScreenResult()
 		},
 		View: func(state state.UIState) core.ViewModel { return core.ViewModel{} },
 	}
@@ -93,12 +96,13 @@ func TestPagination_UpdateDelegates(t *testing.T) {
 
 func TestPagination_PageNeverNegative(t *testing.T) {
 	stt := state.NewUIState()
-	stt.Layout.Page = 0
+	stt.Pager.Page = 0
 
 	base := screen.Screen{
-		Name: func() string { return "Base" },
+		Definition: func() screen.Definition { return screen.Definition{} },
+		Name:       func() string { return "Base" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.ScreenResultFromState(s)
+			return screen.EmptyScreenResult()
 		},
 		View: func(state state.UIState) core.ViewModel { return core.ViewModel{} },
 	}
@@ -107,5 +111,5 @@ func TestPagination_PageNeverNegative(t *testing.T) {
 	scrn := p.ToScreen()
 
 	scrn.Update(*stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.KeyArrowLeft)})
-	assert.Equal(t, stt.Layout.Page, 0)
+	assert.Equal(t, stt.Pager.Page, 0)
 }

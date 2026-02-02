@@ -21,6 +21,14 @@ var next_word_runes = []runes.RuneDefinition{
 		Skip: false,
 	},
 	{
+		Rune: '.',
+		Skip: true,
+	},
+	{
+		Rune: ',',
+		Skip: true,
+	},
+	{
 		Rune: key.ENTER_LF,
 		Skip: true,
 	},
@@ -119,11 +127,11 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 	position := c.selectEnd + uint(len(text))
 	c.moveCursorTo(position)
 
-	return screen.ScreenResultFromState(state)
+	return screen.ScreenResultFromUIState(state)
 }
 
 func (c *TextArea) moveHome(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	result := screen.ScreenResultFromState(state)
+	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.Has(key.ModCtrl) {
 		c.moveCursorTo(0)
@@ -143,7 +151,7 @@ func (c *TextArea) moveHome(state state.UIState, event screen.ScreenEvent) scree
 }
 
 func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	result := screen.ScreenResultFromState(state)
+	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.Has(key.ModCtrl) {
 		c.moveCursorTo(uint(len(c.buffer)))
@@ -163,7 +171,7 @@ func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen
 }
 
 func (c *TextArea) moveUp(state state.UIState) screen.ScreenResult {
-	result := screen.ScreenResultFromState(state)
+	result := screen.ScreenResultFromUIState(state)
 
 	distance := line.DistanceFromLF(c.buffer, int(c.selectStart))
 
@@ -181,7 +189,7 @@ func (c *TextArea) moveUp(state state.UIState) screen.ScreenResult {
 }
 
 func (c *TextArea) moveDown(state state.UIState) screen.ScreenResult {
-	result := screen.ScreenResultFromState(state)
+	result := screen.ScreenResultFromUIState(state)
 
 	distance := line.DistanceFromLF(c.buffer, int(c.selectStart))
 
@@ -199,7 +207,7 @@ func (c *TextArea) moveDown(state state.UIState) screen.ScreenResult {
 }
 
 func (c *TextArea) moveBackward(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	result := screen.ScreenResultFromState(state)
+	result := screen.ScreenResultFromUIState(state)
 
 	if !event.Key.Mod.Has(key.ModCtrl) && event.Key.Mod.Has(key.ModShift) {
 		start := math.SubClampZero(c.selectStart, 1)
@@ -227,7 +235,7 @@ func (c *TextArea) moveBackward(state state.UIState, event screen.ScreenEvent) s
 }
 
 func (c *TextArea) moveForward(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	result := screen.ScreenResultFromState(state)
+	result := screen.ScreenResultFromUIState(state)
 
 	if !event.Key.Mod.Has(key.ModCtrl) && event.Key.Mod.Has(key.ModShift) {
 		end := min(uint(len(c.buffer)), c.selectEnd+1)
@@ -255,7 +263,7 @@ func (c *TextArea) moveForward(state state.UIState, event screen.ScreenEvent) sc
 }
 
 func (c *TextArea) deleteBackward(state state.UIState, word bool) screen.ScreenResult {
-	result := screen.ScreenResultFromState(state)
+	result := screen.ScreenResultFromUIState(state)
 
 	if len(c.buffer) == 0 {
 		return result
@@ -278,7 +286,7 @@ func (c *TextArea) deleteBackward(state state.UIState, word bool) screen.ScreenR
 }
 
 func (c *TextArea) deleteForward(state state.UIState, word bool) screen.ScreenResult {
-	result := screen.ScreenResultFromState(state)
+	result := screen.ScreenResultFromUIState(state)
 
 	if len(c.buffer) == 0 {
 		return result
@@ -324,7 +332,7 @@ func (c *TextArea) moveSelectTo(start, end uint) {
 	c.selectEnd = math.Clamp(end, min, len)
 }
 
-func (c *TextArea) view(state state.UIState) core.ViewModel {
+func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	renderBuffer := c.buffer
 
 	start := math.SubClampZero(c.selectStart, 1)
@@ -339,21 +347,21 @@ func (c *TextArea) view(state state.UIState) core.ViewModel {
 	text := core.FragmentLine(core.ModePadding(core.Right))
 
 	beforeSelect := string(renderBuffer[0:start])
-	text.Text = append(text.Text, core.NewFragment(beforeSelect, core.Join))
+	text.Text = append(text.Text, core.NewFragment(beforeSelect))
 
 	onSelect := string(renderBuffer[start:end])
-	text.Text = append(text.Text, core.NewFragment(onSelect, core.Select, core.Join))
+	text.Text = append(text.Text, core.NewFragment(onSelect, core.Select))
 
 	afterSelect := string(renderBuffer[end:])
 	if len(afterSelect) > 0 {
-		text.Text = append(text.Text, core.NewFragment(afterSelect, core.Join))
+		text.Text = append(text.Text, core.NewFragment(afterSelect))
 	}
 
-	lines := append(c.title, c.normalizeLinesEnd(text)...)
-
-	return core.ViewModel{
-		Lines: lines,
-	}
+	return *core.ViewModelFromUIState(stt).
+		AddHeader(c.title...).
+		AddLines(c.normalizeLinesEnd(text)...).
+		SetPager(state.EmptyPagerState()).
+		SetCursor(state.NewCursorState(c.selectStart))
 }
 
 func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {

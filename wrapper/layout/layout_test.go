@@ -18,7 +18,7 @@ func TestSplitLineWords_Simple(t *testing.T) {
 	maxWidth := 5
 	lines := splitLineWords(maxWidth, line)
 
-	expected := []string{"HELLO", "WORLD"}
+	expected := []string{"HELLO", " " ,"WORLD"}
 
 	if len(lines) != len(expected) {
 		t.Fatalf("expected %d lines, got %d", len(expected), len(lines))
@@ -80,11 +80,8 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 
 	totalRunes := 0
 	for _, l := range lines {
-		for i, f := range l.Text {
+		for _, f := range l.Text {
 			totalRunes += utf8.RuneCountInString(f.Text)
-			if i < len(l.Text)-1 {
-				totalRunes += 1
-			}
 		}
 	}
 	if totalRunes != utf8.RuneCountInString(text) {
@@ -134,7 +131,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	}
 
 	state := &state.UIState{
-		Layout: state.LayoutState{
+		Pager: state.PagerState{
 			Page: 0,
 		},
 	}
@@ -190,7 +187,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	}
 
 	state := &state.UIState{
-		Layout: state.LayoutState{
+		Pager: state.PagerState{
 			Page: 0,
 		},
 	}
@@ -206,7 +203,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		t.Errorf("page 0: input mismatch")
 	}
 
-	state.Layout.Page = 1
+	state.Pager.Page = 1
 	lines1 := TerminalApply(state, vm, size)
 	if len(lines1) != int(size.Rows) {
 		t.Errorf("page 1: expected %d lines, got %d", size.Rows, len(lines1))
@@ -226,7 +223,7 @@ func TestTerminalApplyBuffer_WordWrap(t *testing.T) {
 	}
 
 	state := &state.UIState{
-		Layout: state.LayoutState{
+		Pager: state.PagerState{
 			Page: 0,
 		},
 	}

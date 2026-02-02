@@ -58,16 +58,17 @@ func TestArticle_View(t *testing.T) {
 
 	vm := article.view(*state)
 
-	assert.Equal(t, len(vm.Lines), 2, "ViewModel lines count")
-	assert.Equal(t, vm.Lines[0].String(), title.String(), "first line should be title")
-	assert.Equal(t, vm.Lines[1].String(), body.String(), "second line should be article")
+	assert.Equal(t, len(vm.Header), 1, "ViewModel header count")
+	assert.Equal(t, len(vm.Lines), 1, "ViewModel lines count")
+	assert.Equal(t, vm.Header[0].String(), title.String(), "first line should be title")
+	assert.Equal(t, vm.Lines[0].String(), body.String(), "second line should be article")
 }
 
 func TestArticle_Update(t *testing.T) {
 	article := NewArticle()
 	initialState := state.UIState{}
 
-	result := article.update(initialState, screen.ScreenEvent{})
+	article.update(initialState, screen.ScreenEvent{})
 
-	assert.Equal(t, result.State, initialState, "Update should not change state")
+	assert.Equal(t, initialState, initialState, "Update should not change state")
 }

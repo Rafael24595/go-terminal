@@ -11,25 +11,49 @@ type ScreenEvent struct {
 }
 
 type ScreenResult struct {
-	State         state.UIState
 	IgnoreParents bool
 	Screen        *Screen
+	Pager         state.PagerState
+	Cursor        state.CursorState
 }
 
 type Definition struct {
 	RequireKeys []key.Key
 }
 
-func NewScreenResult(state state.UIState, screen *Screen) ScreenResult {
+func NewScreenResult(screen *Screen, pager state.PagerState, cursor state.CursorState) ScreenResult {
 	return ScreenResult{
-		State:  state,
-		Screen: screen,
+		IgnoreParents: false,
+		Screen:        screen,
+		Cursor:        cursor,
+		Pager:         pager,
 	}
 }
 
-func ScreenResultFromState(state state.UIState) ScreenResult {
+func ScreenResultFromScreen(screen *Screen) ScreenResult {
 	return ScreenResult{
-		State: state,
+		IgnoreParents: false,
+		Screen:        screen,
+		Pager:         state.EmptyPagerState(),
+		Cursor:        state.EmptyCursorState(),
+	}
+}
+
+func ScreenResultFromUIState(state state.UIState) ScreenResult {
+	return ScreenResult{
+		IgnoreParents: false,
+		Screen:        nil,
+		Pager:         state.Pager,
+		Cursor:        state.Cursor,
+	}
+}
+
+func EmptyScreenResult() ScreenResult {
+	return ScreenResult{
+		IgnoreParents: false,
+		Screen:        nil,
+		Pager:         state.EmptyPagerState(),
+		Cursor:        state.EmptyCursorState(),
 	}
 }
 

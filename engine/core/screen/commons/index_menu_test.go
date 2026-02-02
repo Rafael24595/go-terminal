@@ -128,7 +128,7 @@ func TestIndexMenu_Action(t *testing.T) {
 	scrn := menu.ToScreen()
 	result := scrn.Update(
 		*state.NewUIState(),
-		screen.ScreenEvent{Key: *key.NewKeyRune('\n')},
+		screen.ScreenEvent{Key: *key.NewKeyCode(key.KeyEnter)},
 	)
 
 	assert.NotNil(t, result.Screen)
@@ -152,7 +152,8 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	vm := menu.view(state.UIState{})
 
 	assert.NotNil(t, vm.Cursor)
-	assert.Equal(t, *vm.Cursor, uint(1))
+	assert.True(t, vm.Cursor.Enabled)
+	assert.Equal(t, vm.Cursor.Cursor, uint(1))
 
 	assert.Equal(t, vm.Lines[1].Text[0].Text, ">")
 }

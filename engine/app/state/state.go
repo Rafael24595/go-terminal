@@ -1,37 +1,54 @@
 package state
 
-type LayoutState struct {
-	Page       uint
-	Pagination bool
+type PagerState struct {
+	Enabled bool
+	Page    uint
 }
 
-func newLayoutState() LayoutState {
-	return LayoutState{
-		Page:       0,
-		Pagination: false,
+func NewPageState(page uint) PagerState {
+	return PagerState{
+		Enabled: true,
+		Page:    page,
 	}
 }
 
-type InteractionState struct {
-	Cursor uint
-	Offset uint
+func EmptyPagerState() PagerState {
+	return PagerState{
+		Enabled: false,
+		Page:    0,
+	}
 }
 
-func newInteractionState() InteractionState {
-	return InteractionState{
-		Cursor: 0,
-		Offset: 0,
+type CursorState struct {
+	Enabled bool
+	Cursor  uint
+	Offset  uint
+}
+
+func NewCursorState(cursor uint) CursorState {
+	return CursorState{
+		Enabled: true,
+		Cursor:  cursor,
+		Offset:  0,
+	}
+}
+
+func EmptyCursorState() CursorState {
+	return CursorState{
+		Enabled: false,
+		Cursor:  0,
+		Offset:  0,
 	}
 }
 
 type UIState struct {
-	Layout      LayoutState
-	Interaction InteractionState
+	Pager  PagerState
+	Cursor CursorState
 }
 
 func NewUIState() *UIState {
 	return &UIState{
-		Layout:      newLayoutState(),
-		Interaction: newInteractionState(),
+		Pager:  EmptyPagerState(),
+		Cursor: EmptyCursorState(),
 	}
 }

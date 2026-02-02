@@ -84,7 +84,7 @@ func (c *IndexMenu) name() string {
 func (c *IndexMenu) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	size := uint(len(c.options))
 	if size == 0 {
-		return screen.ScreenResultFromState(state)
+		return screen.EmptyScreenResult()
 	}
 
 	switch event.Key.Code {
@@ -108,10 +108,10 @@ func (c *IndexMenu) update(state state.UIState, event screen.ScreenEvent) screen
 		)
 	}
 
-	return screen.ScreenResultFromState(state)
+	return screen.EmptyScreenResult()
 }
 
-func (c *IndexMenu) view(state state.UIState) core.ViewModel {
+func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 	lines := make([]core.Line, 0)
 
 	lines = append(lines, c.title...)
@@ -132,7 +132,7 @@ func (c *IndexMenu) view(state state.UIState) core.ViewModel {
 	}
 
 	return core.ViewModel{
-		Cursor: &c.cursor,
 		Lines:  lines,
+		Cursor: state.NewCursorState(c.cursor),
 	}
 }

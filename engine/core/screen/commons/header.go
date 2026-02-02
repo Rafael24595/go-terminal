@@ -45,6 +45,6 @@ func (c *Header) Update(state state.UIState, event screen.ScreenEvent) screen.Sc
 
 func (c *Header) View(state state.UIState) core.ViewModel {
 	vm := c.screen.View(state)
-	vm.Header = append(vm.Header, c.header...)
+	vm.Header = append(c.header, vm.Header...)
 	return vm
 }

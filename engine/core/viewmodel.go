@@ -3,13 +3,14 @@ package core
 import (
 	"strings"
 	"unicode/utf8"
+
+	"github.com/Rafael24595/go-terminal/engine/app/state"
 )
 
 type Style uint8
 
 const (
 	Bold Style = iota
-	Join
 	Select
 )
 
@@ -126,7 +127,7 @@ func (l Line) Len() int {
 	for _, v := range l.Text {
 		lineLen += utf8.RuneCountInString(v.Text)
 	}
-	return lineLen + len(l.Text) - 1
+	return lineLen
 }
 
 func (l Line) String() string {
@@ -144,10 +145,42 @@ type InputLine struct {
 }
 
 type ViewModel struct {
-	Cursor *uint
-	Page   *uint
 	Header []Line
 	Lines  []Line
 	Footer []Line
 	Input  *InputLine
+	Pager  state.PagerState
+	Cursor state.CursorState
+}
+
+func ViewModelFromUIState(state state.UIState) *ViewModel {
+	return &ViewModel{
+		Pager:  state.Pager,
+		Cursor: state.Cursor,
+	}
+}
+
+func (v *ViewModel) AddHeader(headers ...Line) *ViewModel {
+	v.Header = append(v.Header, headers...)
+	return v
+}
+
+func (v *ViewModel) AddLines(lines ...Line) *ViewModel {
+	v.Lines = append(v.Lines, lines...)
+	return v
+}
+
+func (v *ViewModel) AddFooter(footer []Line) *ViewModel {
+	v.Footer = append(v.Footer, footer...)
+	return v
+}
+
+func (v *ViewModel) SetPager(pager state.PagerState) *ViewModel {
+	v.Pager = pager
+	return v
+}
+
+func (v *ViewModel) SetCursor(cursor state.CursorState) *ViewModel {
+	v.Cursor = cursor
+	return v
 }

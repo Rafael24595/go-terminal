@@ -56,8 +56,8 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 
 	bodyLines, page, pagination := terminalApplyBuffer(state, bodyLines, rest, int(size.Cols))
 
-	state.Layout.Page = page
-	state.Layout.Pagination = pagination
+	state.Pager.Page = page
+	state.Pager.Enabled = pagination
 
 	allLines := headerLines
 	allLines = append(allLines, bodyLines...)
@@ -73,9 +73,11 @@ func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int
 
 	rowCursor := 0
 	lineCursor := 0
+	sourceTotal := uint(0)
 
 	for lineCursor < len(lines) {
 		line := lines[lineCursor]
+		lineLen := uint(line.Len())
 
 		var fixedLines []core.Line
 
@@ -93,7 +95,12 @@ func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int
 				continue
 			}
 
-			if page == state.Layout.Page {
+			isCustomFocus := state.Pager.Enabled || state.Cursor.Enabled
+
+			isPage := state.Pager.Enabled && page == state.Pager.Page
+			isCursor := state.Cursor.Enabled && sourceTotal+lineLen >= state.Cursor.Cursor
+
+			if !isCustomFocus || isPage || isCursor {
 				pagination := lineCursor != len(lines) || page != 0
 				return row, page, pagination
 			}
@@ -104,16 +111,12 @@ func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int
 			page++
 		}
 
+		sourceTotal += lineLen
 		lineCursor++
 	}
 
 	pagination := lineCursor != len(lines) || page != 0
-
-	if page == state.Layout.Page {
-		return row, page, pagination
-	}
-
-	return core.NewLines(), page, pagination
+	return row, page, pagination
 }
 
 func splitLineWords(cols int, line core.Line) []core.Line {
@@ -122,24 +125,19 @@ func splitLineWords(cols int, line core.Line) []core.Line {
 	width := 0
 
 	for _, frag := range line.Text {
-		words := strings.Fields(frag.Text)
-		for wi, word := range words {
-			space := 0
-			if width > 0 && wi > 0 {
-				space = 1
-			}
-
+		words := splitPreserveSpaces(frag.Text)
+		for _, word := range words {
 			wordlen := utf8.RuneCountInString(word)
 
-			if width+space+wordlen <= cols {
-				current, width = appendWordToLine(current, word, frag, space, width)
+			if width+wordlen <= cols {
+				current, width = appendWordToLine(current, word, frag, width)
 				continue
 			}
 
 			if wordlen <= cols {
 				result = append(result, current)
 				current = core.LineFromPadding(line.Padding)
-				current, width = appendWordToLine(current, word, frag, 0, 0)
+				current, width = appendWordToLine(current, word, frag, 0)
 				continue
 			}
 
@@ -157,13 +155,41 @@ func splitLineWords(cols int, line core.Line) []core.Line {
 	return result
 }
 
-func appendWordToLine(line core.Line, word string, frag core.Fragment, space int, width int) (core.Line, int) {
-	if space > 0 {
-		fragment := core.NewFragment(" ")
-		line.Text = append(line.Text, fragment)
-		width += 1
+func splitPreserveSpaces(s string) []string {
+	var tokens []string
+	var current strings.Builder
+	var inSpace bool
+
+	for _, r := range s {
+		if r == ' ' {
+			if !inSpace && current.Len() > 0 {
+				tokens = append(tokens, current.String())
+				current.Reset()
+			}
+
+			inSpace = true
+			current.WriteRune(r)
+
+			continue
+		}
+
+		if inSpace && current.Len() > 0 {
+			tokens = append(tokens, current.String())
+			current.Reset()
+		}
+
+		inSpace = false
+		current.WriteRune(r)
 	}
 
+	if current.Len() > 0 {
+		tokens = append(tokens, current.String())
+	}
+
+	return tokens
+}
+
+func appendWordToLine(line core.Line, word string, frag core.Fragment, width int) (core.Line, int) {
 	fragment := core.NewFragment(word, frag.Styles...)
 	line.Text = append(line.Text, fragment)
 
@@ -184,10 +210,7 @@ func splitLongWord(word string, frag core.Fragment, cols int, current core.Line,
 			remaining = cols
 		}
 
-		end := start + remaining
-		if end > len(runes) {
-			end = len(runes)
-		}
+		end := min(start+remaining, len(runes))
 
 		word := string(runes[start:end])
 		fragment := core.NewFragment(word, frag.Styles...)

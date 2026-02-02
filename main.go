@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
@@ -21,11 +23,11 @@ const paddingRows = 5
 // Move main and wrapper packages to a new project
 func main() {
 	state := state.UIState{
-		Layout: state.LayoutState{
-			Page:       0,
-			Pagination: false,
+		Pager: state.PagerState{
+			Page:    0,
+			Enabled: false,
 		},
-		Interaction: state.InteractionState{
+		Cursor: state.CursorState{
 			Cursor: 0,
 			Offset: 0,
 		},
@@ -74,6 +76,9 @@ func main() {
 
 		vmd := s.View(state)
 
+		state.Pager = vmd.Pager
+		state.Cursor = vmd.Cursor
+
 		lns := l.Apply(&state, vmd, size)
 		str := r.Render(lns, size)
 
@@ -92,7 +97,8 @@ func main() {
 				Key: key,
 			})
 
-			state = result.State
+			state.Pager = result.Pager
+			state.Cursor = result.Cursor
 
 			if result.Screen != nil {
 				s = *result.Screen
@@ -100,6 +106,8 @@ func main() {
 
 		default:
 		}
+
+		time.Sleep(20 * time.Millisecond)
 	}
 }
 

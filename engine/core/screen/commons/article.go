@@ -55,11 +55,11 @@ func (c *Article) definition() screen.Definition {
 }
 
 func (c *Article) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	return screen.ScreenResultFromState(state)
+	return screen.ScreenResultFromUIState(state)
 }
 
 func (c *Article) view(state state.UIState) core.ViewModel {
-	return core.ViewModel{
-		Lines: append(c.title, c.article...),
-	}
+	return *core.ViewModelFromUIState(state).
+		AddHeader(c.title...).
+		AddLines(c.article...)
 }

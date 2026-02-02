@@ -52,13 +52,12 @@ func (c *Pagination) Update(state state.UIState, event screen.ScreenEvent) scree
 func (c *Pagination) localUpdate(state state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
 	switch event.Key.Code {
 	case key.KeyArrowLeft:
-		state.Layout.Page = math.SubClampZero(state.Layout.Page, 1)
-		result := screen.ScreenResultFromState(state)
+		state.Pager.Page = math.SubClampZero(state.Pager.Page, 1)
+		result := screen.ScreenResultFromUIState(state)
 		return &result
 	case key.KeyArrowRight:
-		state.Layout.Page += 1
-
-		result := screen.ScreenResultFromState(state)
+		state.Pager.Page += 1
+		result := screen.ScreenResultFromUIState(state)
 		return &result
 	default:
 		return nil
@@ -67,13 +66,13 @@ func (c *Pagination) localUpdate(state state.UIState, event screen.ScreenEvent) 
 
 func (c *Pagination) View(state state.UIState) core.ViewModel {
 	vm := c.screen.View(state)
-	if state.Layout.Pagination {
-		page := fmt.Sprintf("page: %d", state.Layout.Page)
+	if state.Pager.Enabled {
+		page := fmt.Sprintf("page: %d", state.Pager.Page)
 		footer := core.NewLines(
 			core.LineJump(),
 			core.NewLine(page, core.ModePadding(core.Right)),
 		)
-		vm.Footer = append(vm.Footer, footer...)
+		vm.Footer = append(footer, vm.Footer...)
 	}
 	return vm
 }

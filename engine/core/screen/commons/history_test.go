@@ -14,7 +14,7 @@ func TestHistory_ToScreen(t *testing.T) {
 	base := screen.Screen{
 		Name: func() string { return "base" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.ScreenResultFromState(s)
+			return screen.EmptyScreenResult()
 		},
 		View: func(state.UIState) core.ViewModel {
 			return core.ViewModel{}
@@ -35,7 +35,7 @@ func TestHistory_BackNavigation(t *testing.T) {
 	base := screen.Screen{
 		Name: func() string { return "base" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.ScreenResultFromState(s)
+			return screen.EmptyScreenResult()
 		},
 		View: func(state.UIState) core.ViewModel {
 			return core.ViewModel{}
@@ -45,7 +45,7 @@ func TestHistory_BackNavigation(t *testing.T) {
 	next := screen.Screen{
 		Name: func() string { return "next" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.NewScreenResult(s, &base)
+			return screen.ScreenResultFromScreen(&base)
 		},
 		View: func(state.UIState) core.ViewModel {
 			return core.ViewModel{}

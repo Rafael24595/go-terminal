@@ -43,11 +43,11 @@ func (c *History) update(state state.UIState, event screen.ScreenEvent) screen.S
 	return result
 }
 
-func (c *History) localUpdate(state state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
+func (c *History) localUpdate(_ state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
 	if event.Key.Rune == 'b' && c.history != nil {
 		newBack := NewHistory(*c.history)
 		newScreen := newBack.ToScreen()
-		result := screen.NewScreenResult(state, &newScreen)
+		result := screen.ScreenResultFromScreen(&newScreen)
 		return &result
 	}
 
@@ -62,7 +62,7 @@ func (c *History) view(state state.UIState) core.ViewModel {
 			core.LineJump(),
 			core.NewLine(page, core.ModePadding(core.Right)),
 		)
-		vm.Footer = append(vm.Footer, footer...)
+		vm.Footer = append(footer, vm.Footer...)
 	}
 	return vm
 }
