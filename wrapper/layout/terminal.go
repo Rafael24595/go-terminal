@@ -1,14 +1,12 @@
 package wrapper_layout
 
 import (
-	"strings"
-	"unicode/utf8"
-
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+// TODO: Implement tokenize lines method to prevent line feed injection.
 func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsize) []core.Line {
 	headerLines := make([]core.Line, 0)
 	for _, header := range vm.Header {
@@ -116,6 +114,7 @@ func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int
 	}
 
 	pagination := lineCursor != len(lines) || page != 0
+
 	return row, page, pagination
 }
 
@@ -124,28 +123,33 @@ func splitLineWords(cols int, line core.Line) []core.Line {
 	current := core.LineFromPadding(line.Padding)
 	width := 0
 
-	for _, frag := range line.Text {
-		words := splitPreserveSpaces(frag.Text)
-		for _, word := range words {
-			wordlen := utf8.RuneCountInString(word)
+	words := core.TokenizeLineWords(line)
 
-			if width+wordlen <= cols {
-				current, width = appendWordToLine(current, word, frag, width)
-				continue
-			}
+	for _, word := range words {
+		wordlen := word.Size()
 
-			if wordlen <= cols {
-				result = append(result, current)
-				current = core.LineFromPadding(line.Padding)
-				current, width = appendWordToLine(current, word, frag, 0)
-				continue
-			}
+		if width+wordlen <= cols {
+			current.Text = append(current.Text, word.Text...)
+			width += wordlen
 
-			lines, newCurrent, newWidth := splitLongWord(word, frag, cols, current, width)
-			result = append(result, lines...)
-			current = newCurrent
-			width = newWidth
+			continue
 		}
+
+		if wordlen <= cols {
+			result = append(result, current)
+			current = core.LineFromPadding(line.Padding)
+
+			current.Text = append(current.Text, word.Text...)
+			width = wordlen
+
+			continue
+		}
+
+		newCurrent, lines, newWidth := core.SplitLongToken(word, cols, current, width)
+
+		result = append(result, lines...)
+		current = newCurrent
+		width = newWidth
 	}
 
 	if len(current.Text) > 0 {
@@ -153,72 +157,4 @@ func splitLineWords(cols int, line core.Line) []core.Line {
 	}
 
 	return result
-}
-
-func splitPreserveSpaces(s string) []string {
-	var tokens []string
-	var current strings.Builder
-	var inSpace bool
-
-	for _, r := range s {
-		if r == ' ' {
-			if !inSpace && current.Len() > 0 {
-				tokens = append(tokens, current.String())
-				current.Reset()
-			}
-
-			inSpace = true
-			current.WriteRune(r)
-
-			continue
-		}
-
-		if inSpace && current.Len() > 0 {
-			tokens = append(tokens, current.String())
-			current.Reset()
-		}
-
-		inSpace = false
-		current.WriteRune(r)
-	}
-
-	if current.Len() > 0 {
-		tokens = append(tokens, current.String())
-	}
-
-	return tokens
-}
-
-func appendWordToLine(line core.Line, word string, frag core.Fragment, width int) (core.Line, int) {
-	fragment := core.NewFragment(word, frag.Styles...)
-	line.Text = append(line.Text, fragment)
-
-	return line, width + utf8.RuneCountInString(word)
-}
-
-func splitLongWord(word string, frag core.Fragment, cols int, current core.Line, width int) ([]core.Line, core.Line, int) {
-	result := make([]core.Line, 0)
-	runes := []rune(word)
-	start := 0
-
-	for start < len(runes) {
-		remaining := cols - width
-		if remaining <= 0 {
-			result = append(result, current)
-			current = core.LineFromPadding(current.Padding)
-			width = 0
-			remaining = cols
-		}
-
-		end := min(start+remaining, len(runes))
-
-		word := string(runes[start:end])
-		fragment := core.NewFragment(word, frag.Styles...)
-		current.Text = append(current.Text, fragment)
-
-		width += utf8.RuneCountInString(word)
-		start = end
-	}
-
-	return result, current, width
 }

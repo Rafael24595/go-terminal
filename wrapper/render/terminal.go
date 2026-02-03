@@ -23,27 +23,62 @@ func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
 	buffer := make([]string, len(lines))
 
 	for i, l := range lines {
-		bufferLine := make([]string, 0)
-
-		for _, f := range l.Text {
-			fragment := terminalRenderFragment(f)
-			bufferLine = append(bufferLine, fragment)
-		}
+		styled := renderLineFragments(l)
 
 		buffer[i] = terminalRenderLine(
 			lines,
 			i,
 			size,
-			bufferLine,
+			styled,
 		)
 	}
 
 	return buffer
 }
 
-func terminalRenderFragment(f core.Fragment) string {
-	text := f.Text
-	for _, s := range f.Styles {
+func renderLineFragments(l core.Line) string {
+	line := ""
+	fragments := ""
+	styles := make([]core.Style, 0)
+
+	for _, f := range l.Text {
+		if !equalStyles(styles, f.Styles) && len(fragments) != 0 {
+			line += applystyles(fragments, styles...)
+
+			fragments = ""
+
+			fragments += f.Text
+			styles = f.Styles
+			continue
+		}
+
+		fragments += f.Text
+		styles = f.Styles
+	}
+
+	if len(fragments) != 0 {
+		line += applystyles(fragments, styles...)
+	}
+
+	return line
+}
+
+func equalStyles(a, b []core.Style) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func applystyles(text string, styles ...core.Style) string {
+	for _, s := range styles {
 		switch s {
 		case core.Bold:
 			text = "\033[1m" + text
@@ -54,9 +89,8 @@ func terminalRenderFragment(f core.Fragment) string {
 	return text
 }
 
-func terminalRenderLine(lines []core.Line, index int, size terminal.Winsize, buffer []string) string {
+func terminalRenderLine(lines []core.Line, index int, size terminal.Winsize, line string) string {
 	padd := lines[index].Padding
-	line := strings.Join(buffer, "")
 
 	switch padd.Padding {
 	case core.Center:

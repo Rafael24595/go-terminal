@@ -158,11 +158,11 @@ func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen
 		return result
 	}
 
-	start := runes.ForwardIndexWithLimit(c.buffer, next_line_runes, c.selectStart)
+	end := runes.ForwardIndexWithLimit(c.buffer, next_line_runes, c.selectStart)
 
-	end := c.selectEnd
+	start := c.selectStart
 	if !event.Key.Mod.Has(key.ModShift) {
-		end = start
+		start = end
 	}
 
 	c.moveSelectTo(start, end)

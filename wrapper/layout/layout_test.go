@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestSplitLineWords_Simple(t *testing.T) {
@@ -18,20 +19,17 @@ func TestSplitLineWords_Simple(t *testing.T) {
 	maxWidth := 5
 	lines := splitLineWords(maxWidth, line)
 
-	expected := []string{"HELLO", " " ,"WORLD"}
+	expected := []string{"HELLO", " ", "WORLD"}
 
-	if len(lines) != len(expected) {
-		t.Fatalf("expected %d lines, got %d", len(expected), len(lines))
-	}
+	assert.Equal(t, len(expected), len(lines))
 
 	for i, l := range lines {
 		text := ""
 		for _, f := range l.Text {
 			text += f.Text
 		}
-		if text != expected[i] {
-			t.Errorf("line %d expected '%s', got '%s'", i, expected[i], text)
-		}
+
+		assert.Equal(t, expected[i], text)
 	}
 }
 
@@ -39,22 +37,24 @@ func TestSplitLineWords_Styles(t *testing.T) {
 	line := core.FragmentLine(
 		core.ModePadding(core.Left),
 		core.NewFragment("HELLO", core.Bold),
+		core.NewFragment(" "),
 		core.NewFragment("WORLD"),
 	)
 
 	maxWidth := 7
 	lines := splitLineWords(maxWidth, line)
 
-	if len(lines) != 2 {
-		t.Fatalf("expected 2 lines, got %d", len(lines))
-	}
+	assert.Equal(t, 2, len(lines))
 
-	if lines[0].Text[0].Text != "HELLO" || lines[0].Text[0].Styles[0] != core.Bold {
-		t.Errorf("first fragment incorrect: %+v", lines[0].Text[0])
-	}
-	if lines[1].Text[0].Text != "WORLD" {
-		t.Errorf("second fragment incorrect: %+v", lines[0].Text[1])
-	}
+	assert.Equal(t, "HELLO", lines[0].Text[0].Text)
+	assert.Equal(t, lines[0].Text[0].Styles[0], core.Bold)
+
+	assert.Equal(t, " ", lines[0].Text[1].Text)
+	assert.Equal(t, 0, len(lines[0].Text[1].Styles))
+
+
+	assert.Equal(t, "WORLD", lines[1].Text[0].Text)
+	assert.Equal(t, 0, len(lines[1].Text[0].Styles))
 }
 
 func TestSplitLineWords_LongWord(t *testing.T) {
