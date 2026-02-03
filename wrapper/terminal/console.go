@@ -13,6 +13,8 @@ const RESET_ATTRS = "\x1b[0m"
 const RESET_CURSOR = "\x1b[H"
 const CLEAN_CONSOLE = "\x1B[2J\x1B[H"
 
+const ERASE_LINE = "\r\033[K"
+
 const HIDE_CURSOR = "\x1b[?25l"
 const SHOW_CURSOR = "\x1b[?25h"
 
@@ -106,12 +108,12 @@ func (c *Console) WriteLine(line ...string) error {
 			c.winsize.Rows, l, c.cursor,
 		)
 
-		// assert.AssertfFalse(len(l) > int(c.winsize.Cols),
+		// assert.AssertfFalse(utf8.RuneCountInString(l) > int(c.winsize.Cols),
 		// 	"line overflow[%d]: the line '%s' has lenght %d",
-		// 	c.winsize.Cols, l, len(l),
+		// 	c.winsize.Cols, l, utf8.RuneCountInString(l),
 		// )
 
-		c.buffer[c.cursor] = l
+		c.buffer[c.cursor] = ERASE_LINE + l
 
 		c.cursor += 1
 	}
