@@ -19,10 +19,10 @@ func TerminalRender(lines []core.Line, size terminal.Winsize) string {
 	return strings.Join(buffer, "\n")
 }
 
-func terminalRenderBuffer(ls []core.Line, size terminal.Winsize) []string {
-	buffer := make([]string, len(ls))
+func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
+	buffer := make([]string, len(lines))
 
-	for i, l := range ls {
+	for i, l := range lines {
 		bufferLine := make([]string, 0)
 
 		for _, f := range l.Text {
@@ -31,7 +31,7 @@ func terminalRenderBuffer(ls []core.Line, size terminal.Winsize) []string {
 		}
 
 		buffer[i] = terminalRenderLine(
-			ls,
+			lines,
 			i,
 			size,
 			bufferLine,
