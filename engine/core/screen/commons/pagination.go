@@ -51,11 +51,11 @@ func (c *Pagination) Update(state state.UIState, event screen.ScreenEvent) scree
 
 func (c *Pagination) localUpdate(state state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
 	switch event.Key.Code {
-	case key.KeyArrowLeft:
+	case key.ActionArrowLeft:
 		state.Pager.Page = math.SubClampZero(state.Pager.Page, 1)
 		result := screen.ScreenResultFromUIState(state)
 		return &result
-	case key.KeyArrowRight:
+	case key.ActionArrowRight:
 		state.Pager.Page += 1
 		result := screen.ScreenResultFromUIState(state)
 		return &result

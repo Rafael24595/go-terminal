@@ -39,11 +39,11 @@ func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
 func renderLineFragments(l core.Line) string {
 	line := ""
 	fragments := ""
-	styles := make([]core.Style, 0)
+	styles := core.None
 
 	for _, f := range l.Text {
-		if !equalStyles(styles, f.Styles) && len(fragments) != 0 {
-			line += applystyles(fragments, styles...)
+		if styles != f.Styles && len(fragments) != 0 {
+			line += applystyles(fragments, styles)
 
 			fragments = ""
 
@@ -57,7 +57,7 @@ func renderLineFragments(l core.Line) string {
 	}
 
 	if len(fragments) != 0 {
-		line += applystyles(fragments, styles...)
+		line += applystyles(fragments, styles)
 	}
 
 	return line
@@ -78,14 +78,16 @@ func equalStyles(a, b []core.Style) bool {
 }
 
 func applystyles(text string, styles ...core.Style) string {
-	for _, s := range styles {
-		switch s {
-		case core.Bold:
-			text = "\033[1m" + text
-		case core.Select:
-			text = "\x1b[7m" + text + "\x1b[27m"
-		}
+	merged := core.MergeStyles(styles...)
+
+	if merged.HasAny(core.Bold) {
+		text = "\033[1m" + text
 	}
+
+	if merged.HasAny(core.Select) {
+		text = "\x1b[7m" + text + "\x1b[27m"
+	}
+
 	return text
 }
 

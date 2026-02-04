@@ -88,11 +88,11 @@ func (c *IndexMenu) update(state state.UIState, event screen.ScreenEvent) screen
 	}
 
 	switch event.Key.Code {
-	case key.KeyArrowUp:
+	case key.ActionArrowUp:
 		c.cursor = (c.cursor + size - 1) % size
-	case key.KeyTab, key.KeyArrowDown:
+	case key.ActionTab, key.ActionArrowDown:
 		c.cursor = (c.cursor + 1) % size
-	case key.KeyEnter:
+	case key.ActionEnter:
 		option := c.options[c.cursor]
 		if option.action != nil {
 			scrn := c.options[c.cursor].action()

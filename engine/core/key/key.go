@@ -16,24 +16,24 @@ const (
 	VK_SHIFT = 0x10
 )
 
-type KeyCode int
+type KeyAction int
 
 const (
-	KeyRune KeyCode = iota
-	KeyCtrlC
-	KeyDeleteWordBackward
-	KeyDeleteWordForward
-	KeyTab
-	KeyEnter
-	KeyBackspace
-	KeyArrowUp
-	KeyArrowDown
-	KeyArrowLeft
-	KeyArrowRight
-	KeyHome
-	KeyEnd
-	KeyDelete
-	KeyAll
+	ActionRune KeyAction = iota
+	ActionExit
+	ActionDeleteBackward
+	ActionDeleteForward
+	ActionTab
+	ActionEnter
+	ActionBackspace
+	ActionArrowUp
+	ActionArrowDown
+	ActionArrowLeft
+	ActionArrowRight
+	ActionHome
+	ActionEnd
+	ActionDelete
+	ActionAll
 )
 
 type ModMask uint8
@@ -45,17 +45,34 @@ const (
 	ModCtrl
 )
 
-func (m ModMask) Has(mod ModMask) bool {
-	return m&mod != 0
+func MergeMods(mods ...ModMask) ModMask {
+	var merged ModMask
+	for _, mod := range mods {
+		merged |= mod
+	}
+	return merged
+}
+
+func (m ModMask) HasAny(mods ...ModMask) bool {
+	for _, mod := range mods {
+		if m&mod != 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func (m ModMask) HasNone(mods ...ModMask) bool {
+	return !m.HasAny(mods...)
 }
 
 type Key struct {
-	Code KeyCode
+	Code KeyAction
 	Mod  ModMask
 	Rune rune
 }
 
-func NewKeysCode(codes ...KeyCode) []Key {
+func NewKeysCode(codes ...KeyAction) []Key {
 	keys := make([]Key, len(codes))
 
 	for i, v := range codes {
@@ -65,7 +82,7 @@ func NewKeysCode(codes ...KeyCode) []Key {
 	return keys
 }
 
-func NewKeyCode(code KeyCode, mods ...ModMask) *Key {
+func NewKeyCode(code KeyAction, mods ...ModMask) *Key {
 	var mod ModMask
 	for _, m := range mods {
 		mod |= m
@@ -80,7 +97,7 @@ func NewKeyCode(code KeyCode, mods ...ModMask) *Key {
 
 func NewKeyRune(r rune) *Key {
 	return &Key{
-		Code: KeyRune,
+		Code: ActionRune,
 		Mod:  ModNone,
 		Rune: r,
 	}

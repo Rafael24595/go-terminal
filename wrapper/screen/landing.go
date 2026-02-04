@@ -19,10 +19,10 @@ func NewLanding() screen.Screen {
 	)
 
 	options := commons.NewMenuOptions(
-		commons.NewMenuOption(core.LineFromString("Option 0"), NewTestArticle),
-		commons.NewMenuOption(core.LineFromString("Option 1"), NewTestTextArea),
-		commons.NewMenuOption(core.LineFromString("Option 2"), NewTestArticle),
-		commons.NewMenuOption(core.LineFromString("Option 3"), NewTestArticle),
+		commons.NewMenuOption(core.LineFromString("Option Article"), NewTestArticle),
+		commons.NewMenuOption(core.LineFromString("Option TextArea"), NewTestTextArea),
+		commons.NewMenuOption(core.LineFromString("Option Article"), NewTestArticle),
+		commons.NewMenuOption(core.LineFromString("Option Article"), NewTestArticle),
 	)
 
 	return commons.NewIndexMenu().

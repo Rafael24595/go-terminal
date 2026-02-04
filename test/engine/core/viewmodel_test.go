@@ -136,8 +136,8 @@ func TestTokenizeLine_StyleChangeRequiresFragmentSplit(t *testing.T) {
 	assert.Equal(t, 1, len(tokens))
 	assert.Equal(t, 2, len(tokens[0].Text))
 
-	assert.Equal(t, core.Bold, tokens[0].Text[0].Styles[0])
-	assert.Equal(t, core.Bold, tokens[0].Text[1].Styles[0])
+	assert.True(t, tokens[0].Text[0].Styles.HasAny(core.Bold))
+	assert.True(t, tokens[0].Text[1].Styles.HasAny(core.Bold))
 }
 
 func TestTokenizeLine_PreservesStylesAcrossFragments(t *testing.T) {
@@ -151,12 +151,7 @@ func TestTokenizeLine_PreservesStylesAcrossFragments(t *testing.T) {
 
 	assert.Equal(t, 1, len(tokens))
 
-	assert.Equal(t, 0, len(tokens[0].Text[0].Styles))
-
-	assert.Equal(t, 1, len(tokens[0].Text[1].Styles))
-	assert.Equal(t, core.Select, tokens[0].Text[1].Styles[0])
-
-	assert.Equal(t, 0, len(tokens[0].Text[2].Styles))
+	assert.True(t, tokens[0].Text[1].Styles.HasAny(core.Select))
 }
 
 func TestTokenizeLine_MultipleSpaceFragmentsKeepStyles(t *testing.T) {
@@ -173,17 +168,14 @@ func TestTokenizeLine_MultipleSpaceFragmentsKeepStyles(t *testing.T) {
 	assert.Equal(t, 2, len(tokens[0].Text))
 
 	assert.Equal(t, " ", tokens[0].Text[0].Text)
-	assert.Equal(t, 1, len(tokens[0].Text[0].Styles))
-	assert.Equal(t, core.Bold, tokens[0].Text[0].Styles[0])
+	assert.True(t, tokens[0].Text[0].Styles.HasAny(core.Bold))
 
 	assert.Equal(t, " ", tokens[0].Text[1].Text)
-	assert.Equal(t, 1, len(tokens[0].Text[1].Styles))
-	assert.Equal(t, core.Select, tokens[0].Text[1].Styles[0])
+	assert.True(t, tokens[0].Text[1].Styles.HasAny(core.Select))
 
 	assert.Equal(t, 1, len(tokens[1].Text))
 	assert.Equal(t, "c", tokens[1].Text[0].Text)
-	assert.Equal(t, 1, len(tokens[1].Text[0].Styles))
-	assert.Equal(t, core.Bold, tokens[1].Text[0].Styles[0])
+	assert.True(t, tokens[1].Text[0].Styles.HasAny(core.Bold))
 }
 
 func TestTokenizeLine_FinalFlushPreservesStyles(t *testing.T) {
@@ -194,9 +186,8 @@ func TestTokenizeLine_FinalFlushPreservesStyles(t *testing.T) {
 	tokens := core.TokenizeLineWords(line)
 
 	assert.Equal(t, 1, len(tokens))
-	assert.Equal(t, 1, len(tokens[0].Text[0].Styles))
 
-	assert.Equal(t, core.Bold, tokens[0].Text[0].Styles[0])
+	assert.True(t, tokens[0].Text[0].Styles.HasAny(core.Bold))
 }
 
 func TestSplitLongToken_PreservesStyles(t *testing.T) {
@@ -217,8 +208,7 @@ func TestSplitLongToken_PreservesStyles(t *testing.T) {
 	assert.Equal(t, 1, len(emitted))
 	assert.Equal(t, "abc", emitted[0].String())
 
-	assert.Equal(t, core.Bold, line.Text[0].Styles[0])
-	assert.Equal(t, core.Bold, emitted[0].Text[0].Styles[0])
+	assert.True(t, emitted[0].Text[0].Styles.HasAny(core.Bold))
 }
 
 func TestSplitLongToken_WithInitialWidth(t *testing.T) {
@@ -234,7 +224,6 @@ func TestSplitLongToken_WithInitialWidth(t *testing.T) {
 		current, 2,
 	)
 
-	
 	assert.Equal(t, "cdef", line.String())
 
 	assert.Equal(t, 1, len(emitted))

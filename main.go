@@ -121,7 +121,7 @@ func readInput(t terminal.Terminal, ch chan<- key.Key) {
 		}
 
 		ch <- *rn
-		if rn.Code == key.KeyCtrlC {
+		if rn.Code == key.ActionExit {
 			close(ch)
 			return
 		}

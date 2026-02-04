@@ -45,10 +45,10 @@ func TestPagination_LocalUpdate(t *testing.T) {
 	scrn := p.ToScreen()
 
 	stt.Pager.Page = 0
-	result := scrn.Update(*stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.KeyArrowLeft)})
+	result := scrn.Update(*stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})
 	assert.Equal(t, result.Pager.Page, 0)
 
-	result = scrn.Update(*stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.KeyArrowRight)})
+	result = scrn.Update(*stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowRight)})
 	assert.Equal(t, result.Pager.Page, 1)
 }
 
@@ -110,6 +110,6 @@ func TestPagination_PageNeverNegative(t *testing.T) {
 	p := NewPagination(base)
 	scrn := p.ToScreen()
 
-	scrn.Update(*stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.KeyArrowLeft)})
+	scrn.Update(*stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})
 	assert.Equal(t, stt.Pager.Page, 0)
 }

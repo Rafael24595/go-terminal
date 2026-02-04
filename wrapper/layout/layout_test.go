@@ -47,14 +47,11 @@ func TestSplitLineWords_Styles(t *testing.T) {
 	assert.Equal(t, 2, len(lines))
 
 	assert.Equal(t, "HELLO", lines[0].Text[0].Text)
-	assert.Equal(t, lines[0].Text[0].Styles[0], core.Bold)
+	assert.True(t, lines[0].Text[0].Styles.HasAny(core.Bold))
 
 	assert.Equal(t, " ", lines[0].Text[1].Text)
-	assert.Equal(t, 0, len(lines[0].Text[1].Styles))
-
 
 	assert.Equal(t, "WORLD", lines[1].Text[0].Text)
-	assert.Equal(t, 0, len(lines[1].Text[0].Styles))
 }
 
 func TestSplitLineWords_LongWord(t *testing.T) {

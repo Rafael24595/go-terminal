@@ -10,34 +10,34 @@ import (
 )
 
 var controlKeyMap = map[rune]*key.Key{
-	key.CTRL_C:   key.NewKeyCode(key.KeyCtrlC),
-	key.CTRL_W:   key.NewKeyCode(key.KeyDeleteWordBackward),
-	key.TAB:      key.NewKeyCode(key.KeyTab),
-	key.ENTER_LF: key.NewKeyCode(key.KeyEnter),
-	key.ENTER_CR: key.NewKeyCode(key.KeyEnter),
-	key.DEL:      key.NewKeyCode(key.KeyBackspace),
-	key.BS:       key.NewKeyCode(key.KeyBackspace),
+	key.CTRL_C:   key.NewKeyCode(key.ActionExit),
+	key.CTRL_W:   key.NewKeyCode(key.ActionDeleteBackward),
+	key.TAB:      key.NewKeyCode(key.ActionTab),
+	key.ENTER_LF: key.NewKeyCode(key.ActionEnter),
+	key.ENTER_CR: key.NewKeyCode(key.ActionEnter),
+	key.DEL:      key.NewKeyCode(key.ActionBackspace),
+	key.BS:       key.NewKeyCode(key.ActionBackspace),
 }
 
 var altKeyMap = map[rune]*key.Key{
-	'd': key.NewKeyCode(key.KeyDeleteWordForward, key.ModAlt),
+	'd': key.NewKeyCode(key.ActionDeleteForward, key.ModAlt),
 }
 
-var csiFinalMap = map[rune]key.KeyCode{
-	'A': key.KeyArrowUp,
-	'B': key.KeyArrowDown,
-	'C': key.KeyArrowRight,
-	'D': key.KeyArrowLeft,
-	'H': key.KeyHome,
-	'F': key.KeyEnd,
+var csiFinalMap = map[rune]key.KeyAction{
+	'A': key.ActionArrowUp,
+	'B': key.ActionArrowDown,
+	'C': key.ActionArrowRight,
+	'D': key.ActionArrowLeft,
+	'H': key.ActionHome,
+	'F': key.ActionEnd,
 }
 
-var csiTildeMap = map[string]key.KeyCode{
-	"3": key.KeyDelete,
-	"1": key.KeyHome,
-	"7": key.KeyHome,
-	"4": key.KeyEnd,
-	"8": key.KeyEnd,
+var csiTildeMap = map[string]key.KeyAction{
+	"3": key.ActionDelete,
+	"1": key.ActionHome,
+	"7": key.ActionHome,
+	"4": key.ActionEnd,
+	"8": key.ActionEnd,
 }
 
 type inputReader struct {
