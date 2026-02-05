@@ -3,15 +3,35 @@ package wrapper_layout
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/helper"
+	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
+
+const separator = " | "
+
+type IndexMeta struct {
+	sufix      string
+	prefixBody string
+	digits     uint16
+	totalWidth uint32
+}
+
+func (i IndexMeta) header(index int) string {
+	return helper.Right(index, int(i.digits)) + i.sufix
+}
+
+func (i IndexMeta) body() string {
+	return i.prefixBody + i.sufix
+}
 
 // TODO: Implement tokenize lines method to prevent line feed injection.
 func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsize) []core.Line {
 	headerLines := make([]core.Line, 0)
 	for _, header := range vm.Header {
 		if header.Len() > int(size.Cols) {
-			headerLines = append(headerLines, splitLineWords(int(size.Cols), header)...)
+			headerLines = append(headerLines, wrapLineWords(int(size.Cols), header)...)
 		} else {
 			headerLines = append(headerLines, header)
 		}
@@ -20,7 +40,7 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	footerLines := make([]core.Line, 0)
 	for _, footer := range vm.Footer {
 		if footer.Len() > int(size.Cols) {
-			footerLines = append(footerLines, splitLineWords(int(size.Cols), footer)...)
+			footerLines = append(footerLines, wrapLineWords(int(size.Cols), footer)...)
 		} else {
 			footerLines = append(footerLines, footer)
 		}
@@ -30,19 +50,16 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	if vm.Input != nil {
 		inputLine := core.NewLine(vm.Input.Prompt+vm.Input.Value, core.ModePadding(core.Left))
 		if inputLine.Len() > int(size.Cols) {
-			inputLines = append(inputLines, splitLineWords(int(size.Cols), inputLine)...)
+			inputLines = append(inputLines, wrapLineWords(int(size.Cols), inputLine)...)
 		} else {
 			inputLines = append(inputLines, inputLine)
 		}
 	}
 
 	bodyLines := make([]core.Line, 0)
+	indexMeta := computeIndexMeta(vm.Lines)
 	for _, line := range vm.Lines {
-		if line.Len() > int(size.Cols) {
-			bodyLines = append(bodyLines, splitLineWords(int(size.Cols), line)...)
-		} else {
-			bodyLines = append(bodyLines, line)
-		}
+		bodyLines = append(bodyLines, indexLines(int(size.Cols), line, indexMeta)...)
 	}
 
 	rest := int(size.Rows) - (len(headerLines) + len(footerLines) + len(inputLines))
@@ -52,7 +69,7 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 		)
 	}
 
-	bodyLines, page, pagination := terminalApplyBuffer(state, bodyLines, rest, int(size.Cols))
+	bodyLines, page, pagination := terminalApplyBuffer(state, bodyLines, rest, int(size.Cols), indexMeta)
 
 	state.Pager.Page = page
 	state.Pager.Enabled = pagination
@@ -65,7 +82,7 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	return allLines
 }
 
-func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int) ([]core.Line, uint, bool) {
+func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int, meta *IndexMeta) ([]core.Line, uint, bool) {
 	page := uint(0)
 	row := make([]core.Line, rows)
 
@@ -73,14 +90,20 @@ func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int
 	lineCursor := 0
 	sourceTotal := uint(0)
 
+	indexFix := 0
+	if meta != nil {
+		indexFix = int(meta.totalWidth)
+	}
+
 	for lineCursor < len(lines) {
 		line := lines[lineCursor]
-		lineLen := uint(line.Len())
+		lineLen := uint (max(1, line.Len() - indexFix))
 
 		var fixedLines []core.Line
 
 		if line.Len() > cols {
-			fixedLines = splitLineWords(cols, line)
+			fixedLines = wrapLineWords(cols, line)
+			assert.Unreachablef("the lines at this point should be less than cols")
 		} else {
 			fixedLines = core.NewLines(line)
 		}
@@ -118,12 +141,42 @@ func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int
 	return row, page, pagination
 }
 
-func splitLineWords(cols int, line core.Line) []core.Line {
+func indexLines(cols int, line core.Line, meta *IndexMeta) []core.Line {
+	isGreaterWithoutIndex := line.Len() > int(cols)
+	isGreaterWithIndex := meta != nil && line.Len()+int(meta.totalWidth) > cols
+
+	if isGreaterWithoutIndex || isGreaterWithIndex {
+		return wrapLineWordsWithIndex(int(cols), line, meta)
+	}
+
+	fragments := core.FragmentsFromString()
+	if meta != nil {
+		fragments = append(fragments, core.NewFragment(meta.header(int(line.Order))))
+	}
+
+	newLine := core.LineFromFragments(
+		append(fragments, line.Text...)...,
+	)
+
+	return core.FixedLinesFromLines(line.Padding, newLine)
+}
+
+func wrapLineWords(cols int, line core.Line) []core.Line {
+	return wrapLineWordsWithIndex(cols, line, nil)
+}
+
+func wrapLineWordsWithIndex(cols int, line core.Line, meta *IndexMeta) []core.Line {
 	result := make([]core.Line, 0)
 	current := core.LineFromPadding(line.Padding)
 	width := 0
 
 	words := core.TokenizeLineWords(line)
+
+	if meta != nil {
+		fragments := core.FragmentsFromString(meta.header(int(line.Order)))
+		current.Text = append(current.Text, fragments...)
+		cols -= int(meta.totalWidth)
+	}
 
 	for _, word := range words {
 		wordlen := word.Size()
@@ -139,13 +192,18 @@ func splitLineWords(cols int, line core.Line) []core.Line {
 			result = append(result, current)
 			current = core.LineFromPadding(line.Padding)
 
+			if meta != nil {
+				fragments := core.FragmentsFromString(meta.body())
+				current.Text = append(current.Text, fragments...)
+			}
+
 			current.Text = append(current.Text, word.Text...)
 			width = wordlen
 
 			continue
 		}
 
-		newCurrent, lines, newWidth := core.SplitLongToken(word, cols, current, width)
+		newCurrent, lines, newWidth := wrapLongTokenWithIndex(word, cols, current, width, meta)
 
 		result = append(result, lines...)
 		current = newCurrent
@@ -157,4 +215,49 @@ func splitLineWords(cols int, line core.Line) []core.Line {
 	}
 
 	return result
+}
+
+func wrapLongTokenWithIndex(
+	word core.WordToken,
+	cols int,
+	current core.Line,
+	width int,
+	meta *IndexMeta,
+) (core.Line, []core.Line, int) {
+	current, lines, width := core.SplitLongToken(word, cols, current, width)
+	if meta == nil || len(lines) == 0 {
+		return current, lines, width
+	}
+
+	index := core.FragmentsFromString(meta.body())
+
+	current.Text = append(index, current.Text...)
+
+	for i := 1; i < len(lines); i++ {
+		lines[i].Text = append(index, lines[i].Text...)
+	}
+
+	return current, lines, width
+}
+
+func computeIndexMeta(lines []core.Line) *IndexMeta {
+	size := uint32(0)
+
+	for _, line := range lines {
+		if line.Order == 0 {
+			continue
+		}
+		size = max(size, math.Digits(line.Order))
+	}
+
+	if size == 0 {
+		return nil
+	}
+
+	return &IndexMeta{
+		sufix:      separator,
+		prefixBody: helper.Fill(" ", int(size)),
+		digits:     uint16(size),
+		totalWidth: size + uint32(len(separator)),
+	}
 }

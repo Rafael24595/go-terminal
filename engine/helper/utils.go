@@ -7,6 +7,18 @@ import (
 )
 
 func Center(item any, width int) string {
+	return CenterCustom(item, width, " ")
+}
+
+func Left(item any, width int) string {
+	return LeftCustom(item, width, " ")
+}
+
+func Right(item any, width int) string {
+	return RightCustom(item, width, " ")
+}
+
+func CenterCustom(item any, width int, runes string) string {
 	text := fmt.Sprintf("%v", item)
 	if utf8.RuneCountInString(text) >= width {
 		return text
@@ -16,10 +28,10 @@ func Center(item any, width int) string {
 	left := padding / 2
 	right := padding - left
 
-	return strings.Repeat(" ", left) + text + strings.Repeat(" ", right)
+	return strings.Repeat(runes, left) + text + strings.Repeat(runes, right)
 }
 
-func Left(item any, width int) string {
+func LeftCustom(item any, width int, runes string) string {
 	text := fmt.Sprintf("%v", item)
 	if utf8.RuneCountInString(text) >= width {
 		return text
@@ -27,10 +39,10 @@ func Left(item any, width int) string {
 
 	padding := width - utf8.RuneCountInString(text)
 
-	return strings.Repeat(" ", padding) + text
+	return strings.Repeat(runes, padding) + text
 }
 
-func Right(item any, width int) string {
+func RightCustom(item any, width int, runes string) string {
 	text := fmt.Sprintf("%v", item)
 	if utf8.RuneCountInString(text) >= width {
 		return text
@@ -38,7 +50,7 @@ func Right(item any, width int) string {
 
 	padding := width - utf8.RuneCountInString(text)
 
-	return text + strings.Repeat(" ", padding)
+	return text + strings.Repeat(runes, padding)
 }
 
 func Fill(item any, width int) string {

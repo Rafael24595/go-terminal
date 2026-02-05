@@ -17,7 +17,7 @@ func TestSplitLineWords_Simple(t *testing.T) {
 	)
 
 	maxWidth := 5
-	lines := splitLineWords(maxWidth, line)
+	lines := wrapLineWords(maxWidth, line)
 
 	expected := []string{"HELLO", " ", "WORLD"}
 
@@ -42,7 +42,7 @@ func TestSplitLineWords_Styles(t *testing.T) {
 	)
 
 	maxWidth := 7
-	lines := splitLineWords(maxWidth, line)
+	lines := wrapLineWords(maxWidth, line)
 
 	assert.Equal(t, 2, len(lines))
 
@@ -63,7 +63,7 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 	)
 
 	maxWidth := 10
-	lines := splitLineWords(maxWidth, line)
+	lines := wrapLineWords(maxWidth, line)
 
 	for i, l := range lines {
 		text := ""
@@ -95,7 +95,7 @@ func TestSplitLineWords_MultipleFragments(t *testing.T) {
 	)
 
 	maxWidth := 8
-	lines := splitLineWords(maxWidth, line)
+	lines := wrapLineWords(maxWidth, line)
 
 	for _, l := range lines {
 		width := 0
@@ -225,7 +225,7 @@ func TestTerminalApplyBuffer_WordWrap(t *testing.T) {
 		},
 	}
 
-	paged, _, _ := terminalApplyBuffer(state, lines, 2, sizeCols)
+	paged, _, _ := terminalApplyBuffer(state, lines, 2, sizeCols, nil)
 
 	if len(paged) > 2 {
 		t.Errorf("expected max 2 lines for buffer, got %d", len(paged))

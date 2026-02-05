@@ -95,6 +95,7 @@ func NewFragment(text string, styles ...Style) Fragment {
 }
 
 type Line struct {
+	Order   uint16
 	Text    []Fragment
 	Padding Padding
 }
@@ -154,6 +155,11 @@ func FragmentLine(padding Padding, fragments ...Fragment) Line {
 		Text:    fragments,
 		Padding: padding,
 	}
+}
+
+func (l *Line) SetOrder(order uint16) *Line {
+	l.Order = order
+	return l
 }
 
 func (l Line) Len() int {

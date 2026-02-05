@@ -36,7 +36,7 @@ var next_word_runes = []runes.RuneDefinition{
 var next_line_runes = []runes.RuneDefinition{
 	{
 		Rune: key.ENTER_LF,
-		Skip: true,
+		Skip: false,
 	},
 }
 
@@ -50,6 +50,7 @@ type TextArea struct {
 	caret     uint
 	anchor    uint
 	buffer    []rune
+	index     bool
 }
 
 func NewTextArea() *TextArea {
@@ -76,6 +77,16 @@ func (c *TextArea) AddText(text string) *TextArea {
 	c.buffer = append(c.buffer, []rune(text)...)
 	c.caret = uint(len(c.buffer))
 	c.anchor = c.caret
+	return c
+}
+
+func (c *TextArea) ShowIndex() *TextArea {
+	c.index = true
+	return c
+}
+
+func (c *TextArea) HideIndex() *TextArea {
+	c.index = false
 	return c
 }
 
@@ -129,9 +140,9 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 	case key.ActionEnter:
 		ky = *key.NewKeyRune(key.ENTER_LF)
 	case key.ActionArrowUp:
-		return c.moveUp(state)
+		return c.moveUp(state, event)
 	case key.ActionArrowDown:
-		return c.moveDown(state)
+		return c.moveDown(state, event)
 	}
 
 	start := c.selectStart()
@@ -188,7 +199,7 @@ func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen
 	return result
 }
 
-func (c *TextArea) moveUp(state state.UIState) screen.ScreenResult {
+func (c *TextArea) moveUp(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	start := c.selectStart()
@@ -202,26 +213,38 @@ func (c *TextArea) moveUp(state state.UIState) screen.ScreenResult {
 	targetLineStart := line.FindLineStart(c.buffer, prevLineStart-1)
 	position := line.ClampToLine(c.buffer, targetLineStart, distance)
 
-	c.moveCaretTo(uint(position))
+	if event.Key.Mod.HasAny(key.ModShift) {
+		c.moveSelectTo(uint(position), c.anchor)
+	} else {
+		c.moveCaretTo(uint(position))
+	}
 
 	return result
 }
 
-func (c *TextArea) moveDown(state state.UIState) screen.ScreenResult {
+func (c *TextArea) moveDown(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
-	start := c.selectStart()
-	distance := line.DistanceFromLF(c.buffer, int(start))
+	end := c.selectEnd()
+	distance := line.DistanceFromLF(c.buffer, int(end))
 
-	nextLineStart := line.FindNextLineStart(c.buffer, int(start))
+	nextLineStart := line.FindNextLineStart(c.buffer, int(end))
 	if nextLineStart == -1 {
-		c.moveCaretTo(uint(len(c.buffer)))
+		if event.Key.Mod.HasAny(key.ModShift) {
+			c.moveSelectTo(uint(len(c.buffer)), c.anchor)
+		} else {
+			c.moveCaretTo(uint(len(c.buffer)))
+		}
 		return result
 	}
 
 	position := line.ClampToLine(c.buffer, nextLineStart, distance)
 
-	c.moveCaretTo(uint(position))
+	if event.Key.Mod.HasAny(key.ModShift) {
+		c.moveSelectTo(uint(position), c.anchor)
+	} else {
+		c.moveCaretTo(uint(position))
+	}
 
 	return result
 }
@@ -383,7 +406,12 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 	lines := make([]core.Line, 0)
 
+	index := uint16(1)
+
 	currentLine := core.FragmentLine(text.Padding)
+	if c.index {
+		currentLine.SetOrder(index)
+	}
 
 	for textIndex, f := range text.Text {
 		normalized := runes.NormalizeLineEnd(f.Text)
@@ -410,7 +438,12 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 
 			if partIndex < len(parts)-1 {
 				lines = append(lines, currentLine)
+				index++
+
 				currentLine = core.FragmentLine(text.Padding)
+				if c.index {
+					currentLine.SetOrder(index)
+				}
 			}
 		}
 	}
