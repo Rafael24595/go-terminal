@@ -32,6 +32,14 @@ func FindNextLineStart(buf []rune, from int) int {
 	return -1
 }
 
+func FindPrevLineStart(buf []rune, from int) int {
+	prevLineStart := FindLineStart(buf, from)
+	if prevLineStart == 0 {
+		return -1
+	}
+	return FindLineStart(buf, prevLineStart-1)
+}
+
 func ClampToLine(buf []rune, lineStart, col int) int {
 	end := FindLineEnd(buf, lineStart)
 	lineLen := end - lineStart

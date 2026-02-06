@@ -10,6 +10,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/line"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
+	"github.com/Rafael24595/go-terminal/engine/helper/text"
 )
 
 const default_text_area_name = "TextArea"
@@ -148,7 +149,8 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 	start := c.selectStart()
 	end := c.selectEnd()
 
-	text := []rune{ky.Rune}
+	start, end, text := text.FullTextTransformer.Apply(ky, start, end, c.buffer)
+
 	c.buffer = runes.AppendRange(c.buffer, text, start, end)
 
 	position := start + uint(len(text))
@@ -202,16 +204,21 @@ func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen
 func (c *TextArea) moveUp(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
-	start := c.selectStart()
+	start := c.caret
 	distance := line.DistanceFromLF(c.buffer, int(start))
 
-	prevLineStart := line.FindLineStart(c.buffer, int(start))
-	if prevLineStart == 0 {
+	prevLineStart := line.FindPrevLineStart(c.buffer, int(start))
+	if prevLineStart == -1 {
+		if event.Key.Mod.HasAny(key.ModShift) {
+			c.moveSelectTo(0, c.anchor)
+			return result
+		}
+
+		c.moveCaretTo(0)
 		return result
 	}
 
-	targetLineStart := line.FindLineStart(c.buffer, prevLineStart-1)
-	position := line.ClampToLine(c.buffer, targetLineStart, distance)
+	position := line.ClampToLine(c.buffer, prevLineStart, distance)
 
 	if event.Key.Mod.HasAny(key.ModShift) {
 		c.moveSelectTo(uint(position), c.anchor)
@@ -225,16 +232,17 @@ func (c *TextArea) moveUp(state state.UIState, event screen.ScreenEvent) screen.
 func (c *TextArea) moveDown(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
-	end := c.selectEnd()
-	distance := line.DistanceFromLF(c.buffer, int(end))
+	start := c.caret
+	distance := line.DistanceFromLF(c.buffer, int(start))
 
-	nextLineStart := line.FindNextLineStart(c.buffer, int(end))
+	nextLineStart := line.FindNextLineStart(c.buffer, int(start))
 	if nextLineStart == -1 {
 		if event.Key.Mod.HasAny(key.ModShift) {
 			c.moveSelectTo(uint(len(c.buffer)), c.anchor)
-		} else {
-			c.moveCaretTo(uint(len(c.buffer)))
+			return result
 		}
+
+		c.moveCaretTo(uint(len(c.buffer)))
 		return result
 	}
 
@@ -378,7 +386,7 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	end := c.selectEnd()
 
 	if len(renderBuffer) == 0 {
-		renderBuffer = append(renderBuffer, ' ')
+		renderBuffer = append(renderBuffer, []rune(PRINTABLE_CARET)...)
 		start = 0
 		end = 1
 	}
@@ -396,9 +404,12 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 		text.Text = append(text.Text, core.NewFragment(afterSelect))
 	}
 
+	lines := c.normalizeLinesEnd(text)
+	lines = c.fixEmptyLines(lines)
+
 	return *core.ViewModelFromUIState(stt).
 		AddHeader(c.title...).
-		AddLines(c.normalizeLinesEnd(text)...).
+		AddLines(lines...).
 		SetPager(state.EmptyPagerState()).
 		SetCursor(state.NewCursorState(c.selectEnd()))
 }
@@ -428,7 +439,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 
 		for partIndex, part := range parts {
 			if c.isCaretPrintable(text, textIndex, part, partIndex) {
-				part += " "
+				part += PRINTABLE_CARET
 			}
 
 			currentLine.Text = append(
@@ -452,6 +463,20 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 		lines = append(lines, currentLine)
 	}
 
+	return lines
+}
+
+func (c *TextArea) fixEmptyLines(lines []core.Line) []core.Line {
+	for i, line := range lines {
+		if line.Len() == 0 {
+			styles := core.None
+			if len(line.Text) > 0 {
+				styles = line.Text[len(line.Text)-1].Styles
+			}
+
+			lines[i].Text = append(line.Text, core.NewFragment(EMPTY_LINE_FIX, styles))
+		}
+	}
 	return lines
 }
 
