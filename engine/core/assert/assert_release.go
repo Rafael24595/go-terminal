@@ -3,14 +3,8 @@
 
 package assert
 
-func Unreachable(msg string) {}
+func Unreachable(msg string, a ...any) {}
 
-func Unreachablef(format string, a ...any) {}
+func AssertTrue(cond bool, msg string, a ...any) {}
 
-func AssertTrue(cond bool, msg string) {}
-
-func AssertFalse(cond bool, msg string) {}
-
-func AssertfFalse(cond bool, format string, a ...any) {}
-
-func AssertfTrue(cond bool, format string, a ...any) {}
+func AssertFalse(cond bool, msg string, a ...any) {}

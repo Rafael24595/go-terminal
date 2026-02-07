@@ -101,7 +101,7 @@ func (c *IndexMenu) update(state state.UIState, event screen.ScreenEvent) screen
 			}
 		}
 
-		assert.Unreachablef(
+		assert.Unreachable(
 			"menu actions should not be nil: %s - %s",
 			c.reference,
 			option.line,

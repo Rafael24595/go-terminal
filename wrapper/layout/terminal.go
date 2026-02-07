@@ -103,7 +103,7 @@ func terminalApplyBuffer(state *state.UIState, lines []core.Line, rows, cols int
 
 		if line.Len() > cols {
 			fixedLines = wrapLineWords(cols, line)
-			assert.Unreachablef("the lines at this point should be less than cols")
+			assert.Unreachable("the lines at this point should be less than cols")
 		} else {
 			fixedLines = core.NewLines(line)
 		}

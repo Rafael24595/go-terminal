@@ -108,7 +108,7 @@ func terminalRenderLine(lines []core.Line, index int, size terminal.Winsize, lin
 		return line
 	}
 
-	assert.AssertfFalse(true, "undefined padding mode %d", padd.Padding)
+	assert.AssertFalse(true, "undefined padding mode %d", padd.Padding)
 
 	return line
 }
