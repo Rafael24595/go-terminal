@@ -3,6 +3,7 @@ package runes
 import (
 	"strings"
 
+	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
@@ -35,12 +36,16 @@ func AppendRange(slice []rune, insert []rune, start, end uint) []rune {
 
 	oldSize := len(slice)
 	newSize := len(insert)
-
-	newSlice := make([]rune, oldSize+(newSize-e+s))
+	
+	assert.AssertTrue(oldSize < e, "range[%d - %d] is greater than slice length %d", s, e, oldSize)
+	
+	newSlice := make([]rune, oldSize-(e-s)+newSize)
 
 	copy(newSlice[0:s], slice[0:s])
 	copy(newSlice[s:], insert)
-	copy(newSlice[s+newSize:], slice[e:])
+	if e < len(slice) {
+		copy(newSlice[s+newSize:], slice[e:])
+	}
 
 	return newSlice
 }
