@@ -2,10 +2,14 @@ package event
 
 import (
 	"strings"
+	"time"
 
+	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 )
+
+const expires_ms = 1000
 
 type ActionKind int
 
@@ -15,68 +19,81 @@ const (
 	DeleteForward
 )
 
-type TextAction struct {
-	action    ActionKind
+type textAction struct {
+	kind      ActionKind
 	caret     uint
 	anchor    uint
-	text      string
+	delete    string
+	insert    string
 	timestamp int64
 }
 
-type MergeAction struct {
-	action        ActionKind
+type mergeAction struct {
+	kind          ActionKind
 	initialCaret  uint
 	initialAnchor uint
 	finalCaret    uint
 	finalAnchor   uint
-	text          []string
-	timestamp     int64
+	delete        []string
+	insert        []string
 }
 
-func (m *MergeAction) len() uint {
+func (m *mergeAction) len() uint {
 	var n uint
-	for _, t := range m.text {
+	for _, t := range m.insert {
 		n += uint(len(t))
 	}
 	return n
 }
 
-type TextEvent struct {
-	action ActionKind
+type textEvent struct {
 	start  uint
 	end    uint
-	text   string
+	insert string
+	delete string
 }
 
+type Delta struct {
+	start uint
+	end   uint
+	text  string
+}
+
+type clock func() int64
+
 type TextEventService struct {
-	actions []TextAction
-	events  []TextEvent
+	clock   clock
+	actions []textAction
+	events  []textEvent
+	cursor  int
 }
 
 func NewTextEventService() *TextEventService {
 	return &TextEventService{
-		actions: make([]TextAction, 0),
-		events:  make([]TextEvent, 0),
+		clock:   time.Now().UnixMilli,
+		actions: make([]textAction, 0),
+		events:  make([]textEvent, 0),
 	}
 }
 
-func (s *TextEventService) mergeActions(actions []TextAction) []TextEvent {
-	events := make([]TextEvent, 0)
+func (s *TextEventService) mergeActions(actions []textAction) []textEvent {
+	events := make([]textEvent, 0)
 
-	var event *MergeAction = nil
+	var event *mergeAction = nil
 
 	i := 0
 	for i < len(actions) {
 		action := actions[i]
 
 		if event == nil {
-			event = &MergeAction{
-				action:        action.action,
+			event = &mergeAction{
+				kind:          action.kind,
 				initialCaret:  action.caret,
 				initialAnchor: action.anchor,
 				finalCaret:    action.caret,
 				finalAnchor:   action.anchor,
-				text:          []string{action.text},
+				delete:        []string{action.delete},
+				insert:        []string{action.insert},
 			}
 
 			i++
@@ -84,14 +101,15 @@ func (s *TextEventService) mergeActions(actions []TextAction) []TextEvent {
 		}
 
 		isConsistent := s.isConsistentAction(action, *event)
-		if action.action != event.action || !isConsistent {
+		if action.kind != event.kind || !isConsistent {
 			events = append(events, s.forgeEvent(*event))
 			event = nil
 
 			continue
 		}
 
-		event.text = append(event.text, action.text)
+		event.delete = append(event.delete, action.delete)
+		event.insert = append(event.insert, action.insert)
 		event.finalCaret = action.caret
 		event.finalAnchor = action.anchor
 
@@ -105,8 +123,8 @@ func (s *TextEventService) mergeActions(actions []TextAction) []TextEvent {
 	return events
 }
 
-func (s *TextEventService) isConsistentAction(action TextAction, event MergeAction) bool {
-	switch action.action {
+func (s *TextEventService) isConsistentAction(action textAction, event mergeAction) bool {
+	switch action.kind {
 	case Insert:
 		return event.initialCaret+event.len() == action.caret
 	case DeleteBackward:
@@ -118,7 +136,7 @@ func (s *TextEventService) isConsistentAction(action TextAction, event MergeActi
 	return false
 }
 
-func (s *TextEventService) forgeEvent(action MergeAction) TextEvent {
+func (s *TextEventService) forgeEvent(action mergeAction) textEvent {
 	start := min(
 		action.initialCaret,
 		action.finalCaret,
@@ -133,54 +151,121 @@ func (s *TextEventService) forgeEvent(action MergeAction) TextEvent {
 		action.finalAnchor,
 	)
 
-	return TextEvent{
-		action: action.action,
-		start:  start,
-		end:    end,
-		text:   s.joinText(action),
-	}
-}
-
-func (s *TextEventService) joinText(action MergeAction) string {
-	if action.action == Insert {
-		return strings.Join(action.text, "")
+	evt := textEvent{
+		start: start,
+		end:   end,
 	}
 
-	return ""
+	switch action.kind {
+	case Insert, DeleteForward:
+		evt.insert = strings.Join(action.insert, "")
+		evt.delete = strings.Join(action.delete, "")
+
+	case DeleteBackward:
+		evt.insert = runes.JoinReverse(action.insert)
+		evt.delete = runes.JoinReverse(action.delete)
+	}
+
+	assert.AssertTrue(
+		uint(len(evt.delete)) == end-start,
+		"deleted text length mismatch",
+	)
+
+	return evt
 }
 
-func (s *TextEventService) PushEvent(action TextAction, caret uint, anchor uint, text string) {
-	//
+func (s *TextEventService) PushEvent(action ActionKind, caret uint, anchor uint, delete, insert string) {
+	s.events = s.events[:s.cursor]
+
+	if s.shouldFlush(action, insert) {
+		s.flushActions()
+	}
+
+	now := s.clock()
+
+	s.actions = append(s.actions, textAction{
+		kind:      action,
+		caret:     caret,
+		anchor:    anchor,
+		delete:    delete,
+		insert:    insert,
+		timestamp: now,
+	})
 }
 
-func (s *TextEventService) ApplyLastEvent(buff []rune) []rune {
-	s.FlushActions()
+func (s *TextEventService) Undo() *Delta {
+	s.flushActions()
 
 	if len(s.events) == 0 {
-		return buff
+		return nil
 	}
 
-	event := s.events[len(s.events)-1]
-	s.events = s.events[:len(s.events)-1]
+	s.decrementCursor()
 
-	return apply(buff, event)
+	event := s.events[s.cursor]
+
+	return &Delta{
+		start: event.start,
+		end:   event.end,
+		text:  event.delete,
+	}
 }
 
-func (s *TextEventService) FlushActions() {
+func (s *TextEventService) Redo() *Delta {
+	s.flushActions()
+
+	if len(s.events) == 0 {
+		return nil
+	}
+
+	s.incrementCursor()
+
+	event := s.events[s.cursor]
+
+	return &Delta{
+		start: event.start,
+		end:   event.end,
+		text:  event.insert,
+	}
+}
+
+func (s *TextEventService) incrementCursor() {
+	s.cursor = min(len(s.events)-1, s.cursor+1)
+}
+
+func (s *TextEventService) decrementCursor() {
+	s.cursor = max(0, s.cursor-1)
+}
+
+func (s *TextEventService) flushActions() {
 	if len(s.actions) == 0 {
 		return
 	}
 
 	events := s.mergeActions(s.actions)
 	s.events = append(s.events, events...)
+	s.cursor = len(s.events)
 	s.actions = nil
 }
 
-func apply(buff []rune, ev TextEvent) []rune {
-	return runes.AppendRange(
-		buff,
-		[]rune(ev.text),
-		ev.start,
-		ev.end,
-	)
+func (s *TextEventService) shouldFlush(action ActionKind, text string) bool {
+	if len(s.actions) == 0 {
+		return false
+	}
+
+	if strings.ContainsAny(text, " \n") {
+		return true
+	}
+
+	last := s.actions[len(s.actions)-1]
+	if last.kind != action {
+		return true
+	}
+
+	now := s.clock()
+	if now-last.timestamp >= expires_ms {
+		return true
+	}
+
+	return false
 }

@@ -2,77 +2,159 @@ package event
 
 import (
 	"testing"
+	"time"
 
+	"github.com/Rafael24595/go-terminal/engine/helper/math"
+	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
+
+type TestClock struct {
+	now int64
+}
+
+func (c *TestClock) Now() int64 {
+	return c.now
+}
+
+func (c *TestClock) Advance(ms int64) {
+	c.now += ms
+}
+
+func fixedClock(t int64) clock {
+	return func() int64 {
+		return t
+	}
+}
+
+func appendRange(b []rune, e Delta) string {
+	start := e.start
+	end := e.end
+
+	b = runes.NormalizeBuffer(b, end)
+
+	if start != end {
+		start = math.SubClampZero(start, 1)
+	}
+
+	return string(runes.AppendRange(b, []rune(e.text), start, end))
+}
 
 func TestForgeEvent_Insert(t *testing.T) {
 	s := NewTextEventService()
 
-	m := MergeAction{
-		action:        Insert,
+	m := mergeAction{
+		kind:          Insert,
 		initialCaret:  5,
 		finalCaret:    8,
 		initialAnchor: 5,
 		finalAnchor:   8,
-		text:          []string{"a", "b", "c"},
+		insert:        []string{"a", "b", "c"},
 	}
 
 	ev := s.forgeEvent(m)
 
-	assert.Equal(t, ev.start, uint(5), "start debe ser 5")
-	assert.Equal(t, ev.end, uint(8), "end debe ser 8")
-	assert.Equal(t, ev.text, "abc", "texto concatenado")
+	assert.Equal(t, uint(5), ev.start)
+	assert.Equal(t, uint(8), ev.end)
+	assert.Equal(t, "abc", ev.insert)
+	assert.Equal(t, "", ev.delete)
+}
+
+func TestForgeEvent_Replace(t *testing.T) {
+	s := NewTextEventService()
+
+	m := mergeAction{
+		kind:          Insert,
+		initialCaret:  5,
+		finalCaret:    8,
+		initialAnchor: 5,
+		finalAnchor:   8,
+		insert:        []string{"a", "b", "c"},
+		delete:        []string{"A", "Z"},
+	}
+
+	ev := s.forgeEvent(m)
+
+	assert.Equal(t, uint(5), ev.start)
+	assert.Equal(t, uint(8), ev.end)
+	assert.Equal(t, "abc", ev.insert)
+	assert.Equal(t, "AZ", ev.delete)
 }
 
 func TestForgeEvent_DeleteBackward(t *testing.T) {
 	s := NewTextEventService()
 
-	m := MergeAction{
-		action:        DeleteBackward,
+	m := mergeAction{
+		kind:          DeleteBackward,
 		initialCaret:  5,
 		finalCaret:    2,
 		initialAnchor: 5,
 		finalAnchor:   2,
-		text:          nil,
+		delete:        []string{"c", "b", "a"},
 	}
 
 	ev := s.forgeEvent(m)
 
-	assert.Equal(t, ev.start, uint(2), "start debe ser 2")
-	assert.Equal(t, ev.end, uint(5), "end debe ser 5")
-	assert.Equal(t, ev.text, "", "texto vacío en delete")
+	assert.Equal(t, uint(2), ev.start)
+	assert.Equal(t, uint(5), ev.end)
+	assert.Equal(t, "abc", ev.delete)
+	assert.Equal(t, "", ev.insert)
+}
+
+func TestForgeEvent_DeleteForward(t *testing.T) {
+	s := NewTextEventService()
+
+	m := mergeAction{
+		kind:          DeleteForward,
+		initialCaret:  5,
+		finalCaret:    2,
+		initialAnchor: 5,
+		finalAnchor:   2,
+		delete:        []string{"a", "b", "c"},
+	}
+
+	ev := s.forgeEvent(m)
+
+	assert.Equal(t, uint(2), ev.start)
+	assert.Equal(t, uint(5), ev.end)
+	assert.Equal(t, "abc", ev.delete)
+	assert.Equal(t, "", ev.insert)
 }
 
 func TestForgeEvent_SelectionActive(t *testing.T) {
 	s := NewTextEventService()
 
-	m := MergeAction{
-		action:        Insert,
+	m := mergeAction{
+		kind:          Insert,
 		initialCaret:  3,
 		finalCaret:    3,
 		initialAnchor: 7,
 		finalAnchor:   7,
-		text:          []string{"X"},
+		insert:        []string{"X"},
+		delete:        []string{"abcd"},
 	}
 
 	ev := s.forgeEvent(m)
 
-	assert.Equal(t, ev.start, uint(3), "start debe ser 3")
-	assert.Equal(t, ev.end, uint(7), "end debe ser 7")
-	assert.Equal(t, ev.text, "X", "texto insertado")
+	assert.Equal(t, uint(3), ev.start)
+	assert.Equal(t, uint(7), ev.end)
+
+	assert.Equal(t, len("abcd"), int(ev.end-ev.start))
+
+	assert.Equal(t, "X", ev.insert)
+	assert.Equal(t, "abcd", ev.delete)
 }
 
 func TestMergeActions_MultipleInserts(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: Insert, caret: 0, anchor: 0, text: "g"},
-		{action: Insert, caret: 1, anchor: 1, text: "o"},
-		{action: Insert, caret: 2, anchor: 2, text: "l"},
-		{action: Insert, caret: 3, anchor: 3, text: "a"},
-		{action: Insert, caret: 4, anchor: 4, text: "n"},
-		{action: Insert, caret: 5, anchor: 5, text: "g"},
+	s.actions = []textAction{
+		{kind: Insert, caret: 0, anchor: 0, insert: "g"},
+		{kind: Insert, caret: 1, anchor: 1, insert: "o"},
+		{kind: Insert, caret: 2, anchor: 2, insert: "l"},
+		{kind: Insert, caret: 3, anchor: 3, insert: "a"},
+		{kind: Insert, caret: 4, anchor: 4, insert: "n"},
+		{kind: Insert, caret: 5, anchor: 5, insert: "g"},
 	}
 
 	events := s.mergeActions(s.actions)
@@ -81,49 +163,50 @@ func TestMergeActions_MultipleInserts(t *testing.T) {
 
 	ev := events[0]
 
-	assert.Equal(t, ev.start, uint(0))
-	assert.Equal(t, ev.end, uint(5))
-	assert.Equal(t, ev.text, "golang")
+	assert.Equal(t, uint(0), ev.start)
+	assert.Equal(t, uint(5), ev.end)
+	assert.Equal(t, "golang", ev.insert)
 }
 
 func TestMerge_InsertNonContiguous(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: Insert, caret: 0, anchor: 0, text: "g"},
-		{action: Insert, caret: 2, anchor: 2, text: "o"},
+	s.actions = []textAction{
+		{kind: Insert, caret: 0, anchor: 0, insert: "g"},
+		{kind: Insert, caret: 2, anchor: 2, insert: "o"},
 	}
 
 	events := s.mergeActions(s.actions)
 
 	assert.Len(t, 2, events)
 
-	assert.Equal(t, "g", events[0].text)
-	assert.Equal(t, "o", events[1].text)
+	assert.Equal(t, "g", events[0].insert)
+	assert.Equal(t, "o", events[1].insert)
 }
 
 func TestMerge_DifferentActions(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: Insert, caret: 0, anchor: 0, text: "g"},
-		{action: DeleteBackward, caret: 1, anchor: 1},
+	s.actions = []textAction{
+		{kind: Insert, caret: 0, anchor: 0, insert: "g"},
+		{kind: Insert, caret: 1, anchor: 1, insert: "o"},
+		{kind: DeleteBackward, caret: 1, anchor: 1, delete: "o"},
 	}
 
 	events := s.mergeActions(s.actions)
 
 	assert.Len(t, 2, events)
-	assert.Equal(t, Insert, events[0].action)
-	assert.Equal(t, DeleteBackward, events[1].action)
+	assert.Equal(t, "go", events[0].insert)
+	assert.Equal(t, "o", events[1].delete)
 }
 
 func TestMerge_DeleteBackwardContiguous(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: DeleteBackward, caret: 5, anchor: 5},
-		{action: DeleteBackward, caret: 4, anchor: 4},
-		{action: DeleteBackward, caret: 3, anchor: 3},
+	s.actions = []textAction{
+		{kind: DeleteBackward, caret: 5, anchor: 5, delete: "g"},
+		{kind: DeleteBackward, caret: 4, anchor: 4, delete: "i"},
+		{kind: DeleteBackward, caret: 3, anchor: 3, delete: "Z"},
 	}
 
 	events := s.mergeActions(s.actions)
@@ -133,14 +216,15 @@ func TestMerge_DeleteBackwardContiguous(t *testing.T) {
 	ev := events[0]
 	assert.Equal(t, uint(3), ev.start)
 	assert.Equal(t, uint(5), ev.end)
+	assert.Equal(t, "Zig", ev.delete)
 }
 
 func TestMerge_DeleteBackwardNonContiguous(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: DeleteBackward, caret: 5, anchor: 5},
-		{action: DeleteBackward, caret: 2, anchor: 2},
+	s.actions = []textAction{
+		{kind: DeleteBackward, caret: 5, anchor: 5},
+		{kind: DeleteBackward, caret: 2, anchor: 2},
 	}
 
 	events := s.mergeActions(s.actions)
@@ -148,129 +232,274 @@ func TestMerge_DeleteBackwardNonContiguous(t *testing.T) {
 	assert.Len(t, 2, events)
 }
 
-// func TestMerge_AnchorChangeBreaksMerge(t *testing.T) {
-// 	s := NewTextEventService()
-
-// 	s.actions = []TextAction{
-// 		{action: Insert, caret: 0, anchor: 0, text: "a"},
-// 		{action: Insert, caret: 1, anchor: 2, text: "b"},
-// 	}
-
-// 	events := s.mergeActions(s.actions)
-
-// 	assert.Len(t, 2, events)
-// }
-
 func TestMerge_SingleAction(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: Insert, caret: 10, anchor: 10, text: "Z"},
+	s.actions = []textAction{
+		{kind: Insert, caret: 10, anchor: 10, insert: "Z"},
 	}
 
 	events := s.mergeActions(s.actions)
 
 	assert.Len(t, 1, events)
-	assert.Equal(t, "Z", events[0].text)
+	assert.Equal(t, "Z", events[0].insert)
 }
 
-func TestApplyLastEvent_NoActionsNoEvents(t *testing.T) {
+func TestShouldFlush_NoActions(t *testing.T) {
 	s := NewTextEventService()
 
-	buff := []rune("hello")
-	out := s.ApplyLastEvent(buff)
+	ok := s.shouldFlush(Insert, "a")
 
-	assert.Equal(t, "hello", string(out))
+	assert.False(t, ok)
 }
 
-func TestApplyLastEvent_Insert(t *testing.T) {
+func TestShouldFlush_SameAction_NoSpace_NotExpired(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: Insert, caret: 5, anchor: 5, text: " world"},
+	s.actions = []textAction{
+		{
+			kind:      Insert,
+			insert:    "a",
+			timestamp: time.Now().UnixMilli(),
+		},
 	}
 
-	buff := []rune("hello")
-	out := s.ApplyLastEvent(buff)
+	ok := s.shouldFlush(Insert, "b")
 
-	assert.Equal(t, "hello world", string(out))
-	assert.Len(t, 0, s.actions)
-	assert.Len(t, 0, s.events)
+	assert.False(t, ok)
 }
 
-func TestApplyLastEvent_MergedInsert(t *testing.T) {
+func TestShouldFlush_ActionChange(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: Insert, caret: 0, anchor: 0, text: "a"},
-		{action: Insert, caret: 1, anchor: 1, text: "b"},
-		{action: Insert, caret: 2, anchor: 2, text: "c"},
+	s.actions = []textAction{
+		{
+			kind:      Insert,
+			timestamp: time.Now().UnixMilli(),
+		},
 	}
 
-	buff := make([]rune, 2)
-	out := s.ApplyLastEvent(buff)
+	ok := s.shouldFlush(DeleteBackward, "")
 
-	assert.Equal(t, "abc", string(out))
-	assert.Len(t, 0, s.events)
+	assert.True(t, ok)
 }
 
-func TestApplyLastEvent_DeleteBackward(t *testing.T) {
+func TestShouldFlush_Whitespace(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: DeleteBackward, caret: 4, anchor: 5},
+	s.actions = []textAction{
+		{
+			kind:      Insert,
+			timestamp: time.Now().UnixMilli(),
+		},
 	}
 
-	buff := []rune("hello")
-	out := s.ApplyLastEvent(buff)
+	ok := s.shouldFlush(Insert, " ")
 
-	assert.Equal(t, "hell", string(out))
+	assert.True(t, ok)
 }
 
-func TestApplyLastEvent_ReplaceSelection(t *testing.T) {
+func TestShouldFlush_Newline(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: Insert, caret: 1, anchor: 4, text: "i"},
+	s.actions = []textAction{
+		{
+			kind:      Insert,
+			timestamp: time.Now().UnixMilli(),
+		},
 	}
 
-	buff := []rune("hello")
-	out := s.ApplyLastEvent(buff)
+	ok := s.shouldFlush(Insert, "\n")
 
-	assert.Equal(t, "hio", string(out))
+	assert.True(t, ok)
 }
 
-func TestApplyLastEvent_LIFO(t *testing.T) {
+func TestShouldFlush_Expired(t *testing.T) {
 	s := NewTextEventService()
 
-	s.events = []TextEvent{
-		{action: Insert, start: 2, end: 2, text: "A"},
-		{action: Insert, start: 1, end: 1, text: "B"},
+	s.actions = []textAction{
+		{
+			kind:      Insert,
+			timestamp: time.Now().UnixMilli() - expires_ms - 1,
+		},
 	}
 
-	buff := []rune("x")
-	out := s.ApplyLastEvent(buff)
+	ok := s.shouldFlush(Insert, "a")
 
-	assert.Equal(t, "xB", string(out))
+	assert.True(t, ok)
+}
+
+func TestPushEvent_AddsAction(t *testing.T) {
+	s := NewTextEventService()
+
+	s.PushEvent(Insert, 0, 0, "", "a")
+
+	assert.Len(t, 1, s.actions)
+	assert.Equal(t, Insert, s.actions[0].kind)
+	assert.Equal(t, "a", s.actions[0].insert)
+}
+
+func TestPushEvent_FlushOnWhitespace(t *testing.T) {
+	s := NewTextEventService()
+
+	s.PushEvent(Insert, 0, 0, "", "a")
+	s.PushEvent(Insert, 1, 1, "", " ")
+
+	assert.Len(t, 1, s.actions)
 	assert.Len(t, 1, s.events)
-
-	out = s.ApplyLastEvent(out)
-
-	assert.Equal(t, "xBA", string(out))
-	assert.Len(t, 0, s.events)
 }
 
-func TestApplyLastEvent_ActionsConsumed(t *testing.T) {
+func TestPushEvent_FlushOnActionChange(t *testing.T) {
 	s := NewTextEventService()
 
-	s.actions = []TextAction{
-		{action: Insert, caret: 0, anchor: 0, text: "a"},
+	s.PushEvent(Insert, 0, 0, "", "a")
+	s.PushEvent(DeleteBackward, 1, 1, "a", "")
+
+	assert.Len(t, 1, s.actions)
+	assert.Len(t, 1, s.events)
+}
+
+func TestPushEvent_FlushOnExpire(t *testing.T) {
+	s := NewTextEventService()
+
+	s.actions = []textAction{
+		{
+			kind:      Insert,
+			insert:    "a",
+			timestamp: time.Now().UnixMilli() - expires_ms - 1,
+		},
 	}
 
-	buff := []rune("")
-	out1 := s.ApplyLastEvent(buff)
-	out2 := s.ApplyLastEvent(out1)
+	s.PushEvent(Insert, 1, 1, "", "b")
 
-	assert.Equal(t, "a", string(out1))
-	assert.Equal(t, "a", string(out2))
+	assert.Len(t, 1, s.actions)
+	assert.Len(t, 1, s.events)
+}
+
+func TestPushEvent_Typing(t *testing.T) {
+	s := NewTextEventService()
+
+	clock := &TestClock{now: 1000}
+	s.clock = clock.Now
+
+	i := 0
+	for _, v := range "Golang" {
+		s.PushEvent(Insert, uint(i), uint(i), "", string(v))
+		clock.Advance(100)
+		i++
+	}
+
+	s.PushEvent(Insert, uint(i), uint(i), "", " ")
+	i++
+
+	for _, v := range "Zig" {
+		s.PushEvent(Insert, uint(i), uint(i), "", string(v))
+		clock.Advance(expires_ms + 1)
+		i++
+	}
+
+	s.PushEvent(Insert, uint(i), uint(i), "", " ")
+	i++
+
+	assert.Len(t, 1, s.actions)
+	assert.Len(t, 4, s.events)
+
+	assert.Equal(t, s.events[0].insert, "Golang")
+	assert.Equal(t, s.events[1].insert, " "+"Z")
+	assert.Equal(t, s.events[2].insert, "i")
+	assert.Equal(t, s.events[3].insert, "g")
+}
+
+func TestPushEvent_UndoAndRedo(t *testing.T) {
+	s := NewTextEventService()
+
+	clock := &TestClock{now: 1000}
+	s.clock = clock.Now
+
+	i := 1
+	for _, v := range "Golang" {
+		s.PushEvent(Insert, uint(i), uint(i), "", string(v))
+		clock.Advance(100)
+		i++
+	}
+
+	s.PushEvent(Insert, uint(i), uint(i), "", " ")
+	i++
+
+	clock.Advance(expires_ms + 1)
+
+	for _, v := range "Zig" {
+		s.PushEvent(Insert, uint(i), uint(i), "", string(v))
+		clock.Advance(100)
+		i++
+	}
+
+	assert.Len(t, 3, s.actions)
+	assert.Len(t, 2, s.events)
+
+	buff := "Golang Zig"
+
+	evnt := s.Undo()
+	assert.NotNil(t, evnt)
+
+	buff = appendRange([]rune(buff), *evnt)
+	assert.Equal(t, "Golang ", buff)
+
+	evnt = s.Redo()
+	assert.NotNil(t, evnt)
+
+	buff = appendRange([]rune(buff), *evnt)
+	assert.Equal(t, "Golang Zig", appendRange([]rune(buff), *evnt))
+}
+
+func TestPushEvent_UndoRedoTruncateHistory(t *testing.T) {
+    s := NewTextEventService()
+    clock := &TestClock{now: 1000}
+    s.clock = clock.Now
+
+    i := 1
+    for _, v := range "Golang " {
+        s.PushEvent(Insert, uint(i), uint(i), "", string(v))
+        clock.Advance(100)
+        i++
+    }
+
+    clock.Advance(expires_ms + 1)
+    for _, v := range "Zig" {
+        s.PushEvent(Insert, uint(i), uint(i), "", string(v))
+        clock.Advance(100)
+        i++
+    }
+
+    buff := "Golang Zig"
+
+    evnt := s.Undo()
+	assert.NotNil(t, evnt)
+
+    buff = appendRange([]rune(buff), *evnt)
+    assert.Equal(t, "Golang ", string(buff))
+    i = len(buff)
+
+    s.PushEvent(Insert, uint(i), uint(i), "", "New")
+    assert.Equal(t, s.cursor, len(s.events))
+
+    evnt = s.Redo()
+    buff = appendRange([]rune(buff), *evnt)
+    assert.Equal(t, "Golang New", string(buff))
+}
+
+func TestShouldFlush_Expired_WithClock(t *testing.T) {
+	s := NewTextEventService()
+	s.clock = fixedClock(1000)
+
+	s.actions = []textAction{
+		{
+			kind:      Insert,
+			timestamp: 1000 - expires_ms - 1,
+		},
+	}
+
+	ok := s.shouldFlush(Insert, "a")
+
+	assert.True(t, ok)
 }

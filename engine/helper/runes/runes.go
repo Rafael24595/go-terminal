@@ -37,7 +37,7 @@ func AppendRange(slice []rune, insert []rune, start, end uint) []rune {
 	oldSize := len(slice)
 	newSize := len(insert)
 	
-	assert.AssertTrue(oldSize < e, "range[%d - %d] is greater than slice length %d", s, e, oldSize)
+	assert.AssertFalse(oldSize < e, "range[%d - %d] is greater than slice length %d", s, e, oldSize)
 	
 	newSlice := make([]rune, oldSize-(e-s)+newSize)
 
@@ -48,6 +48,17 @@ func AppendRange(slice []rune, insert []rune, start, end uint) []rune {
 	}
 
 	return newSlice
+}
+
+func NormalizeBuffer(buf []rune, min uint) []rune {
+	if uint(len(buf)) >= min {
+		return buf
+	}
+
+	needed := int(min) - len(buf)
+	padding := make([]rune, needed)
+
+	return append(buf, padding...)
 }
 
 func BackwardIndexWithLimit[T math.Number](b []rune, rs []RuneDefinition, i T) T {
@@ -128,4 +139,14 @@ func fixForwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) int {
 	}
 
 	return s
+}
+
+func JoinReverse(ps []string) string {
+	var rs []rune
+
+	for i := len(ps) - 1; i >= 0; i-- {
+		rs = append(rs, []rune(ps[i])...)
+	}
+
+	return string(rs)
 }

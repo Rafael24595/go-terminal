@@ -209,7 +209,6 @@ func TestBackwardIndexWithSkip(t *testing.T) {
 	}
 }
 
-
 func TestBackwardIndexWithLimit(t *testing.T) {
 	text := []rune("line1\nline2\nline3")
 	nextLineRunes := []runes.RuneDefinition{
@@ -234,7 +233,6 @@ func TestBackwardIndexWithLimit(t *testing.T) {
 	}
 }
 
-
 func TestForwardIndexWithLimit(t *testing.T) {
 	text := []rune("line1\nline2\nline3")
 	nextLineRunes := []runes.RuneDefinition{
@@ -258,4 +256,52 @@ func TestForwardIndexWithLimit(t *testing.T) {
 			assert.Equal(t, tt.want, int(got))
 		})
 	}
+}
+
+func TestJoinReverse_Empty(t *testing.T) {
+	result := runes.JoinReverse(nil)
+	assert.Equal(t, "", result)
+}
+
+func TestJoinReverse_SinglePart(t *testing.T) {
+	result := runes.JoinReverse([]string{"abc"})
+	assert.Equal(t, "abc", result)
+}
+
+func TestJoinReverse_MultipleParts(t *testing.T) {
+	result := runes.JoinReverse([]string{"a", "b", "c"})
+	assert.Equal(t, "cba", result)
+}
+
+func TestJoinReverse_MultiplePartsWithWords(t *testing.T) {
+	result := runes.JoinReverse([]string{"hello", " ", "world"})
+	assert.Equal(t, "world hello", result)
+}
+
+func TestJoinReverse_WithUnicode(t *testing.T) {
+	result := runes.JoinReverse([]string{"世", "界", "🌍"})
+	assert.Equal(t, "🌍界世", result)
+}
+
+func TestJoinReverse_WithEmptyFragments(t *testing.T) {
+	result := runes.JoinReverse([]string{"a", "", "b", ""})
+	assert.Equal(t, "ba", result)
+}
+
+func TestNormalizeBuffer_NoChange(t *testing.T) {
+	buf := []rune("golang")
+
+	out := runes.NormalizeBuffer(buf, 4)
+
+	assert.Equal(t, "golang", string(out))
+	assert.Equal(t, 6, len(out))
+}
+
+func TestNormalizeBuffer_Extends(t *testing.T) {
+	buf := []rune("golang")
+
+	out := runes.NormalizeBuffer(buf, 8)
+
+	assert.Equal(t, 8, len(out))
+	assert.Equal(t, "golang", string(out[:6]))
 }
