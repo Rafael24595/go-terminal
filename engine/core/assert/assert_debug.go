@@ -5,10 +5,6 @@ package assert
 
 import "fmt"
 
-func Unreachable(msg string) {
-	panic(msg)
-}
-
 func Unreachable(format string, a ...any) {
 	msg := fmt.Sprintf(format, a...)
 	panic(msg)
