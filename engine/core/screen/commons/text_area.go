@@ -146,10 +146,14 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 		return c.moveDown(state, event)
 	}
 
-	start := c.selectStart()
 	end := c.selectEnd()
+	
+	start := c.selectStart()
+	if start != end {
+		start = math.SubClampZero(start, 1)
+	}
 
-	start, end, text := text.FullTextTransformer.Apply(ky, start, end, c.buffer)
+	text := text.FullTextTransformer.Apply(ky, start, end, c.buffer)
 
 	c.buffer = runes.AppendRange(c.buffer, text, start, end)
 

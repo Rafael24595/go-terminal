@@ -2,7 +2,6 @@ package text
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core/key"
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
 var wrapperMap = map[rune]rune{
@@ -25,7 +24,7 @@ type textTransform func(
 	start,
 	end uint,
 	buff []rune,
-) (uint, uint, []rune, bool)
+) ([]rune, bool)
 
 type TextTransformer struct {
 	helpers []textTransform
@@ -37,37 +36,35 @@ func NewTextTransformer(helpers ...textTransform) TextTransformer {
 	}
 }
 
-func (h TextTransformer) Apply(ky key.Key, start, end uint, buff []rune) (uint, uint, []rune) {
+func (h TextTransformer) Apply(ky key.Key, start, end uint, buff []rune) []rune {
 	for _, h := range h.helpers {
-		if start, end, text, ok := h(ky, start, end, buff); ok {
-			return start, end, text
+		if text, ok := h(ky, start, end, buff); ok {
+			return text
 		}
 	}
 
-	return start, end, []rune{ky.Rune}
+	return []rune{ky.Rune}
 }
 
-func WrappRunes(ky key.Key, start, end uint, buff []rune) (uint, uint, []rune, bool) {
+func WrappRunes(ky key.Key, start, end uint, buff []rune) ([]rune, bool) {
 	text := []rune{ky.Rune}
 
 	open := ky.Rune
 
 	close, ok := wrapperMap[open]
 	if !ok {
-		return start, end, text, false
+		return text, false
 	}
-
-	start = math.SubClampZero(start, 1)
 
 	text = make([]rune, 0)
 	text = append(text, open)
 	text = append(text, buff[start:end]...)
 	text = append(text, close)
 
-	return start, end, text, true
+	return text, true
 }
 
-func AppendSpaceAfterRune(ky key.Key, start, end uint, _ []rune) (uint, uint, []rune, bool) {
+func AppendSpaceAfterRune(ky key.Key, start, end uint, _ []rune) ([]rune, bool) {
 	text := []rune{ky.Rune}
 
 	for _, r := range runesRequiringTrailingSpace {
@@ -77,8 +74,8 @@ func AppendSpaceAfterRune(ky key.Key, start, end uint, _ []rune) (uint, uint, []
 
 		text = append(text, ' ')
 
-		return start, end, text, true
+		return text, true
 	}
 
-	return start, end, text, false
+	return text, false
 }
