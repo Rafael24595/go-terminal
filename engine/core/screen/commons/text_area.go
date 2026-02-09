@@ -4,7 +4,9 @@ import (
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/commons/log"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/event"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/helper/line"
@@ -47,6 +49,7 @@ var text_area_definition = screen.Definition{
 
 type TextArea struct {
 	reference string
+	history   *event.TextEventService
 	title     []core.Line
 	caret     uint
 	anchor    uint
@@ -57,6 +60,7 @@ type TextArea struct {
 func NewTextArea() *TextArea {
 	return &TextArea{
 		reference: default_text_area_name,
+		history:   event.NewTextEventService(),
 		title:     make([]core.Line, 0),
 		caret:     0,
 		anchor:    0,
@@ -122,18 +126,18 @@ func (c *TextArea) selectEnd() uint {
 	return c.anchor
 }
 
-func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	ky := event.Key
+func (c *TextArea) update(state state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+	ky := evnt.Key
 
 	switch ky.Code {
 	case key.ActionHome:
-		return c.moveHome(state, event)
+		return c.moveHome(state, evnt)
 	case key.ActionEnd:
-		return c.moveEnd(state, event)
+		return c.moveEnd(state, evnt)
 	case key.ActionArrowLeft:
-		return c.moveBackward(state, event)
+		return c.moveBackward(state, evnt)
 	case key.ActionArrowRight:
-		return c.moveForward(state, event)
+		return c.moveForward(state, evnt)
 	case key.ActionBackspace, key.ActionDeleteBackward:
 		return c.deleteBackward(state, ky.Code == key.ActionDeleteBackward)
 	case key.ActionDelete, key.ActionDeleteForward:
@@ -141,19 +145,40 @@ func (c *TextArea) update(state state.UIState, event screen.ScreenEvent) screen.
 	case key.ActionEnter:
 		ky = *key.NewKeyRune(key.ENTER_LF)
 	case key.ActionArrowUp:
-		return c.moveUp(state, event)
+		return c.moveUp(state, evnt)
 	case key.ActionArrowDown:
-		return c.moveDown(state, event)
+		return c.moveDown(state, evnt)
+	}
+
+	if ky.Rune == 'q' || ky.Rune == 'w' {
+		var d *event.Delta
+		if ky.Rune == 'q' {
+			d = c.history.Undo()
+		} else {
+			d = c.history.Redo()
+		}
+
+		if d != nil {
+			log.Debug(d)
+			c.buffer = event.ApplyDelta(c.buffer, d)
+			newTextRunes := []rune(d.Text)
+			c.moveCaretTo(d.Start + uint(len(newTextRunes)))
+		}
+		return screen.ScreenResultFromUIState(state)
 	}
 
 	end := c.selectEnd()
-	
+
 	start := c.selectStart()
+	fixEnd := end
 	if start != end {
 		start = math.SubClampZero(start, 1)
+		fixEnd += 1
 	}
 
 	text := text.FullTextTransformer.Apply(ky, start, end, c.buffer)
+
+	c.history.PushEvent(event.Insert, start, fixEnd, string(c.buffer[start:end]), string(text))
 
 	c.buffer = runes.AppendRange(c.buffer, text, start, end)
 
@@ -330,6 +355,8 @@ func (c *TextArea) deleteBackward(state state.UIState, word bool) screen.ScreenR
 
 	end := c.selectEnd()
 
+	c.history.PushEvent(event.DeleteBackward, start, end, string(c.buffer[start:end]), "")
+
 	c.buffer = append(c.buffer[:start], c.buffer[end:]...)
 
 	c.moveCaretTo(start)
@@ -352,6 +379,8 @@ func (c *TextArea) deleteForward(state state.UIState, word bool) screen.ScreenRe
 	}
 
 	end := c.selectEnd()
+
+	c.history.PushEvent(event.DeleteForward, start, end, string(c.buffer[start:end]), "")
 
 	c.buffer = append(c.buffer[:start], c.buffer[end:]...)
 
