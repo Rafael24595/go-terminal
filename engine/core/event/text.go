@@ -54,9 +54,9 @@ type textEvent struct {
 }
 
 type Delta struct {
-	start uint
-	end   uint
-	text  string
+	Start uint
+	End   uint
+	Text  string
 }
 
 type clock func() int64
@@ -196,7 +196,7 @@ func (s *TextEventService) PushEvent(action ActionKind, caret uint, anchor uint,
 func (s *TextEventService) Undo() *Delta {
 	s.flushActions()
 
-	if len(s.events) == 0 {
+	if len(s.events) == 0 || s.cursor == 0 {
 		return nil
 	}
 
@@ -205,32 +205,32 @@ func (s *TextEventService) Undo() *Delta {
 	event := s.events[s.cursor]
 
 	return &Delta{
-		start: event.start,
-		end:   event.end,
-		text:  event.delete,
+		Start: event.start,
+		End:   event.start + uint(len([]rune(event.insert))),
+		Text:  event.delete,
 	}
 }
 
 func (s *TextEventService) Redo() *Delta {
 	s.flushActions()
 
-	if len(s.events) == 0 {
+	if len(s.events) == 0 || s.cursor >= len(s.events) {
 		return nil
 	}
 
-	s.incrementCursor()
-
 	event := s.events[s.cursor]
 
+	s.incrementCursor()
+
 	return &Delta{
-		start: event.start,
-		end:   event.end,
-		text:  event.insert,
+		Start: event.start,
+		End:   event.start + uint(len([]rune(event.delete))),
+		Text:  event.insert,
 	}
 }
 
 func (s *TextEventService) incrementCursor() {
-	s.cursor = min(len(s.events)-1, s.cursor+1)
+	s.cursor = min(len(s.events), s.cursor+1)
 }
 
 func (s *TextEventService) decrementCursor() {
@@ -268,4 +268,25 @@ func (s *TextEventService) shouldFlush(action ActionKind, text string) bool {
 	}
 
 	return false
+}
+
+func ApplyDelta(insert []rune, d *Delta) []rune {
+	size := uint(len(insert))
+	if d.Start > size || d.End > size {
+		return insert
+	}
+
+	runes := []rune(d.Text)
+	runesSize := uint(len(runes))
+
+	tail := size - d.End
+	total := d.Start + uint(len(runes)) + tail
+
+	newBuffer := make([]rune, total)
+
+	copy(newBuffer[:d.Start], insert[:d.Start])
+	copy(newBuffer[d.Start:], runes)
+	copy(newBuffer[d.Start+runesSize:], insert[d.End:])
+
+	return newBuffer
 }

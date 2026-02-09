@@ -4,8 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -27,17 +25,8 @@ func fixedClock(t int64) clock {
 	}
 }
 
-func appendRange(b []rune, e Delta) string {
-	start := e.start
-	end := e.end
-
-	b = runes.NormalizeBuffer(b, end)
-
-	if start != end {
-		start = math.SubClampZero(start, 1)
-	}
-
-	return string(runes.AppendRange(b, []rune(e.text), start, end))
+func applyDeltaStr(buffer string, d *Delta) string {
+	return string(ApplyDelta([]rune(buffer), d))
 }
 
 func TestForgeEvent_Insert(t *testing.T) {
@@ -416,7 +405,7 @@ func TestPushEvent_UndoAndRedo(t *testing.T) {
 	clock := &TestClock{now: 1000}
 	s.clock = clock.Now
 
-	i := 1
+	i := 0
 	for _, v := range "Golang" {
 		s.PushEvent(Insert, uint(i), uint(i), "", string(v))
 		clock.Advance(100)
@@ -442,50 +431,89 @@ func TestPushEvent_UndoAndRedo(t *testing.T) {
 	evnt := s.Undo()
 	assert.NotNil(t, evnt)
 
-	buff = appendRange([]rune(buff), *evnt)
+	buff = applyDeltaStr(buff, evnt)
 	assert.Equal(t, "Golang ", buff)
 
 	evnt = s.Redo()
 	assert.NotNil(t, evnt)
 
-	buff = appendRange([]rune(buff), *evnt)
-	assert.Equal(t, "Golang Zig", appendRange([]rune(buff), *evnt))
+	buff = applyDeltaStr(buff, evnt)
+	assert.Equal(t, "Golang Zig", buff)
 }
 
 func TestPushEvent_UndoRedoTruncateHistory(t *testing.T) {
-    s := NewTextEventService()
-    clock := &TestClock{now: 1000}
-    s.clock = clock.Now
+	s := NewTextEventService()
+	clock := &TestClock{now: 1000}
+	s.clock = clock.Now
 
-    i := 1
-    for _, v := range "Golang " {
-        s.PushEvent(Insert, uint(i), uint(i), "", string(v))
-        clock.Advance(100)
-        i++
-    }
+	i := 0
+	for _, v := range "Golang " {
+		s.PushEvent(Insert, uint(i), uint(i), "", string(v))
+		clock.Advance(100)
+		i++
+	}
 
-    clock.Advance(expires_ms + 1)
-    for _, v := range "Zig" {
-        s.PushEvent(Insert, uint(i), uint(i), "", string(v))
-        clock.Advance(100)
-        i++
-    }
+	clock.Advance(expires_ms + 1)
+	for _, v := range "Zig" {
+		s.PushEvent(Insert, uint(i), uint(i), "", string(v))
+		clock.Advance(100)
+		i++
+	}
 
-    buff := "Golang Zig"
+	buff := "Golang Zig"
 
-    evnt := s.Undo()
+	evnt := s.Undo()
 	assert.NotNil(t, evnt)
 
-    buff = appendRange([]rune(buff), *evnt)
-    assert.Equal(t, "Golang ", string(buff))
-    i = len(buff)
+	buff = applyDeltaStr(buff, evnt)
+	assert.Equal(t, "Golang ", string(buff))
+	i = len(buff)
 
-    s.PushEvent(Insert, uint(i), uint(i), "", "New")
-    assert.Equal(t, s.cursor, len(s.events))
+	s.PushEvent(Insert, uint(i), uint(i), "", "New")
+	assert.Equal(t, s.cursor, len(s.events))
 
-    evnt = s.Redo()
-    buff = appendRange([]rune(buff), *evnt)
-    assert.Equal(t, "Golang New", string(buff))
+	_ = s.Undo()
+
+	evnt = s.Redo()
+	assert.NotNil(t, evnt)
+
+	buff = applyDeltaStr(buff, evnt)
+	assert.Equal(t, "Golang New", string(buff))
+}
+
+func TestPushEvent_UndoRedoHistoryConsistence(t *testing.T) {
+	s := NewTextEventService()
+
+	s.PushEvent(DeleteForward, uint(7), uint(11), "Rust ", "")
+
+	evnt := s.Undo()
+	assert.NotNil(t, evnt)
+
+	buff := "Golang Zig"
+	buff = applyDeltaStr(buff, evnt)
+	assert.Equal(t, "Golang Rust Zig", string(buff))
+
+	evnt = s.Redo()
+	assert.NotNil(t, evnt)
+
+	buff = applyDeltaStr(buff, evnt)
+	assert.Equal(t, "Golang Zig", string(buff))
+}
+
+func TestPushEvent_UndoRedoHistoryConsistenceWithLoop(t *testing.T) {
+	s := NewTextEventService()
+
+	buff := "Golang Rust Zig"
+
+	s.PushEvent(Insert, 7, 12, "X ", "Rust ")
+
+	for range 10 {
+		buff = applyDeltaStr(buff, s.Undo())
+		assert.Equal(t, "Golang X Zig", buff)
+
+		buff = applyDeltaStr(buff, s.Redo())
+		assert.Equal(t, "Golang Rust Zig", buff)
+	}
 }
 
 func TestShouldFlush_Expired_WithClock(t *testing.T) {
