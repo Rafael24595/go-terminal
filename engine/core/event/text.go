@@ -4,12 +4,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 )
 
 const expires_ms = 1000
+
+const event_limit = 200
+const action_limit = 2000
 
 type ActionKind int
 
@@ -40,7 +42,8 @@ type mergeAction struct {
 func (m *mergeAction) len() uint {
 	var n uint
 	for _, t := range m.insert {
-		n += uint(len(t))
+		r := []rune(t)
+		n += uint(len(r))
 	}
 	return n
 }
@@ -70,7 +73,7 @@ func NewTextEventService() *TextEventService {
 	return &TextEventService{
 		clock:   time.Now().UnixMilli,
 		actions: make([]textAction, 0),
-		events:  make([]textEvent, 0),
+		events:  make([]textEvent, 0, event_limit),
 	}
 }
 
@@ -85,12 +88,12 @@ func (s *TextEventService) mergeActions(actions []textAction) []textEvent {
 
 		if event == nil {
 			event = &mergeAction{
-				kind:    action.kind,
-				origin:  action.start,
-				extent:  action.end,
-				probe:   action.start,
-				delete:  []string{action.delete},
-				insert:  []string{action.insert},
+				kind:   action.kind,
+				origin: action.start,
+				extent: action.end,
+				probe:  action.start,
+				delete: []string{action.delete},
+				insert: []string{action.insert},
 			}
 
 			i++
@@ -107,7 +110,7 @@ func (s *TextEventService) mergeActions(actions []textAction) []textEvent {
 
 		event.delete = append(event.delete, action.delete)
 		event.insert = append(event.insert, action.insert)
-		
+
 		event.probe = action.start
 
 		i++
@@ -140,12 +143,6 @@ func (s *TextEventService) forgeEvent(action mergeAction) textEvent {
 		action.extent,
 	)
 
-	end := max(
-		action.origin,
-		action.probe,
-		action.extent,
-	)
-
 	insert := ""
 	delete := ""
 
@@ -159,11 +156,6 @@ func (s *TextEventService) forgeEvent(action mergeAction) textEvent {
 		delete = runes.JoinReverse(action.delete)
 	}
 
-	assert.AssertTrue(
-		uint(len(delete)) == end-start,
-		"deleted text length mismatch",
-	)
-
 	return textEvent{
 		start:  start,
 		insert: insert,
@@ -175,7 +167,7 @@ func (s *TextEventService) PushEvent(action ActionKind, start uint, end uint, de
 	s.events = s.events[:s.cursor]
 
 	if s.shouldFlush(action, insert) {
-		s.flushActions()
+		s.flushAndLimit()
 	}
 
 	now := s.clock()
@@ -191,7 +183,7 @@ func (s *TextEventService) PushEvent(action ActionKind, start uint, end uint, de
 }
 
 func (s *TextEventService) Undo() *Delta {
-	s.flushActions()
+	s.flushAndLimit()
 
 	if len(s.events) == 0 || s.cursor == 0 {
 		return nil
@@ -209,7 +201,7 @@ func (s *TextEventService) Undo() *Delta {
 }
 
 func (s *TextEventService) Redo() *Delta {
-	s.flushActions()
+	s.flushAndLimit()
 
 	if len(s.events) == 0 || s.cursor >= len(s.events) {
 		return nil
@@ -234,6 +226,11 @@ func (s *TextEventService) decrementCursor() {
 	s.cursor = max(0, s.cursor-1)
 }
 
+func (s *TextEventService) flushAndLimit() {
+	s.flushActions()
+	s.limitEvents()
+}
+
 func (s *TextEventService) flushActions() {
 	if len(s.actions) == 0 {
 		return
@@ -246,6 +243,10 @@ func (s *TextEventService) flushActions() {
 }
 
 func (s *TextEventService) shouldFlush(action ActionKind, text string) bool {
+	if len(s.actions) > action_limit {
+		return false
+	}
+
 	if len(s.actions) == 0 {
 		return false
 	}
@@ -265,6 +266,20 @@ func (s *TextEventService) shouldFlush(action ActionKind, text string) bool {
 	}
 
 	return false
+}
+
+func (s *TextEventService) limitEvents() {
+	if len(s.events) <= event_limit {
+		return
+	}
+
+	buff := make([]textEvent, event_limit)
+
+	excess := len(s.events) - event_limit
+	copy(buff, s.events[excess:])
+
+	s.events = buff
+	s.cursor = max(0, s.cursor-excess)
 }
 
 func ApplyDelta(insert []rune, d *Delta) []rune {

@@ -1,6 +1,7 @@
 package event
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -33,11 +34,11 @@ func TestForgeEvent_Insert(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:    Insert,
-		origin:  5,
-		probe:   8,
-		extent:  5,
-		insert:  []string{"a", "b", "c"},
+		kind:   Insert,
+		origin: 5,
+		probe:  8,
+		extent: 5,
+		insert: []string{"a", "b", "c"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -52,12 +53,12 @@ func TestForgeEvent_Replace(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:    Insert,
-		origin:  5,
-		probe:   8,
-		extent:  5,
-		insert:  []string{"a", "b", "c"},
-		delete:  []string{"A", "Z"},
+		kind:   Insert,
+		origin: 5,
+		probe:  8,
+		extent: 5,
+		insert: []string{"a", "b", "c"},
+		delete: []string{"A", "Z"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -72,11 +73,11 @@ func TestForgeEvent_DeleteBackward(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:    DeleteBackward,
-		origin:  5,
-		probe:   2,
-		extent:  5,
-		delete:  []string{"c", "b", "a"},
+		kind:   DeleteBackward,
+		origin: 5,
+		probe:  2,
+		extent: 5,
+		delete: []string{"c", "b", "a"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -91,11 +92,11 @@ func TestForgeEvent_DeleteForward(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:    DeleteForward,
-		origin:  5,
-		probe:   2,
-		extent:  5,
-		delete:  []string{"a", "b", "c"},
+		kind:   DeleteForward,
+		origin: 5,
+		probe:  2,
+		extent: 5,
+		delete: []string{"a", "b", "c"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -110,12 +111,12 @@ func TestForgeEvent_SelectionActive(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:    Insert,
-		origin:  3,
-		probe:   3,
-		extent:  7,
-		insert:  []string{"X"},
-		delete:  []string{"abcd"},
+		kind:   Insert,
+		origin: 3,
+		probe:  3,
+		extent: 7,
+		insert: []string{"X"},
+		delete: []string{"abcd"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -523,4 +524,77 @@ func TestShouldFlush_Expired_WithClock(t *testing.T) {
 	ok := s.shouldFlush(Insert, "a")
 
 	assert.True(t, ok)
+}
+
+func TestTextEventService_LimitLogic(t *testing.T) {
+	s := NewTextEventService()
+
+	totalPush := event_limit + 50
+	for i := range totalPush {
+		content := fmt.Sprintf("%d", i)
+		s.events = append(s.events, textEvent{
+			start:  uint(i),
+			delete: content,
+			insert: "",
+		})
+		s.cursor += 1
+	}
+
+	s.limitEvents()
+
+	assert.Equal(t, event_limit, len(s.events))
+	assert.Equal(t, event_limit, s.cursor)
+	assert.Equal(t, "50", s.events[0].delete)
+
+	undoResult := s.Undo()
+	assert.NotNil(t, undoResult)
+	assert.Equal(t, "249", undoResult.Text)
+}
+
+func TestTextEventService_LimitLogicWithPush(t *testing.T) {
+	s := NewTextEventService()
+
+	for i := range event_limit + 50 {
+		content := fmt.Sprintf("%d", i)
+		s.PushEvent(Insert, uint(i), uint(i), content, " ")
+	}
+
+	assert.Equal(t, event_limit, len(s.events))
+	assert.Equal(t, event_limit, s.cursor)
+	assert.Equal(t, "49", s.events[0].delete)
+
+	undoResult := s.Undo()
+	assert.NotNil(t, undoResult)
+	assert.Equal(t, "249", undoResult.Text)
+}
+
+func TestLimitWithCursorAtZero(t *testing.T) {
+	s := NewTextEventService()
+
+	for i := range event_limit {
+		s.events = append(s.events, textEvent{
+			delete: fmt.Sprintf("%d", i)},
+		)
+
+		s.cursor++
+	}
+
+	for range event_limit {
+		s.Undo()
+	}
+
+	assert.Equal(t, 0, s.cursor)
+
+	for range 10 {
+		s.events = append(s.events, textEvent{
+			delete: "new"},
+		)
+
+		s.cursor++
+	}
+
+	s.limitEvents()
+
+	assert.True(t, s.cursor >= 0)
+	assert.Equal(t, 0, s.cursor)
 }
