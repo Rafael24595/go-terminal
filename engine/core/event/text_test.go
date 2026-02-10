@@ -33,12 +33,11 @@ func TestForgeEvent_Insert(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:          Insert,
-		initialCaret:  5,
-		finalCaret:    8,
-		initialAnchor: 5,
-		finalAnchor:   8,
-		insert:        []string{"a", "b", "c"},
+		kind:    Insert,
+		origin:  5,
+		probe:   8,
+		extent:  5,
+		insert:  []string{"a", "b", "c"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -53,13 +52,12 @@ func TestForgeEvent_Replace(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:          Insert,
-		initialCaret:  5,
-		finalCaret:    8,
-		initialAnchor: 5,
-		finalAnchor:   8,
-		insert:        []string{"a", "b", "c"},
-		delete:        []string{"A", "Z"},
+		kind:    Insert,
+		origin:  5,
+		probe:   8,
+		extent:  5,
+		insert:  []string{"a", "b", "c"},
+		delete:  []string{"A", "Z"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -74,12 +72,11 @@ func TestForgeEvent_DeleteBackward(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:          DeleteBackward,
-		initialCaret:  5,
-		finalCaret:    2,
-		initialAnchor: 5,
-		finalAnchor:   2,
-		delete:        []string{"c", "b", "a"},
+		kind:    DeleteBackward,
+		origin:  5,
+		probe:   2,
+		extent:  5,
+		delete:  []string{"c", "b", "a"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -94,12 +91,11 @@ func TestForgeEvent_DeleteForward(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:          DeleteForward,
-		initialCaret:  5,
-		finalCaret:    2,
-		initialAnchor: 5,
-		finalAnchor:   2,
-		delete:        []string{"a", "b", "c"},
+		kind:    DeleteForward,
+		origin:  5,
+		probe:   2,
+		extent:  5,
+		delete:  []string{"a", "b", "c"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -114,13 +110,12 @@ func TestForgeEvent_SelectionActive(t *testing.T) {
 	s := NewTextEventService()
 
 	m := mergeAction{
-		kind:          Insert,
-		initialCaret:  3,
-		finalCaret:    3,
-		initialAnchor: 7,
-		finalAnchor:   7,
-		insert:        []string{"X"},
-		delete:        []string{"abcd"},
+		kind:    Insert,
+		origin:  3,
+		probe:   3,
+		extent:  7,
+		insert:  []string{"X"},
+		delete:  []string{"abcd"},
 	}
 
 	ev := s.forgeEvent(m)
@@ -136,12 +131,12 @@ func TestMergeActions_MultipleInserts(t *testing.T) {
 	s := NewTextEventService()
 
 	s.actions = []textAction{
-		{kind: Insert, caret: 0, anchor: 0, insert: "g"},
-		{kind: Insert, caret: 1, anchor: 1, insert: "o"},
-		{kind: Insert, caret: 2, anchor: 2, insert: "l"},
-		{kind: Insert, caret: 3, anchor: 3, insert: "a"},
-		{kind: Insert, caret: 4, anchor: 4, insert: "n"},
-		{kind: Insert, caret: 5, anchor: 5, insert: "g"},
+		{kind: Insert, start: 0, end: 0, insert: "g"},
+		{kind: Insert, start: 1, end: 1, insert: "o"},
+		{kind: Insert, start: 2, end: 2, insert: "l"},
+		{kind: Insert, start: 3, end: 3, insert: "a"},
+		{kind: Insert, start: 4, end: 4, insert: "n"},
+		{kind: Insert, start: 5, end: 5, insert: "g"},
 	}
 
 	events := s.mergeActions(s.actions)
@@ -159,8 +154,8 @@ func TestMerge_InsertNonContiguous(t *testing.T) {
 	s := NewTextEventService()
 
 	s.actions = []textAction{
-		{kind: Insert, caret: 0, anchor: 0, insert: "g"},
-		{kind: Insert, caret: 2, anchor: 2, insert: "o"},
+		{kind: Insert, start: 0, end: 0, insert: "g"},
+		{kind: Insert, start: 2, end: 2, insert: "o"},
 	}
 
 	events := s.mergeActions(s.actions)
@@ -175,9 +170,9 @@ func TestMerge_DifferentActions(t *testing.T) {
 	s := NewTextEventService()
 
 	s.actions = []textAction{
-		{kind: Insert, caret: 0, anchor: 0, insert: "g"},
-		{kind: Insert, caret: 1, anchor: 1, insert: "o"},
-		{kind: DeleteBackward, caret: 1, anchor: 1, delete: "o"},
+		{kind: Insert, start: 0, end: 0, insert: "g"},
+		{kind: Insert, start: 1, end: 1, insert: "o"},
+		{kind: DeleteBackward, start: 1, end: 1, delete: "o"},
 	}
 
 	events := s.mergeActions(s.actions)
@@ -191,9 +186,9 @@ func TestMerge_DeleteBackwardContiguous(t *testing.T) {
 	s := NewTextEventService()
 
 	s.actions = []textAction{
-		{kind: DeleteBackward, caret: 5, anchor: 5, delete: "g"},
-		{kind: DeleteBackward, caret: 4, anchor: 4, delete: "i"},
-		{kind: DeleteBackward, caret: 3, anchor: 3, delete: "Z"},
+		{kind: DeleteBackward, start: 5, end: 5, delete: "g"},
+		{kind: DeleteBackward, start: 4, end: 4, delete: "i"},
+		{kind: DeleteBackward, start: 3, end: 3, delete: "Z"},
 	}
 
 	events := s.mergeActions(s.actions)
@@ -210,8 +205,8 @@ func TestMerge_DeleteBackwardNonContiguous(t *testing.T) {
 	s := NewTextEventService()
 
 	s.actions = []textAction{
-		{kind: DeleteBackward, caret: 5, anchor: 5},
-		{kind: DeleteBackward, caret: 2, anchor: 2},
+		{kind: DeleteBackward, start: 5, end: 5},
+		{kind: DeleteBackward, start: 2, end: 2},
 	}
 
 	events := s.mergeActions(s.actions)
@@ -223,7 +218,7 @@ func TestMerge_SingleAction(t *testing.T) {
 	s := NewTextEventService()
 
 	s.actions = []textAction{
-		{kind: Insert, caret: 10, anchor: 10, insert: "Z"},
+		{kind: Insert, start: 10, end: 10, insert: "Z"},
 	}
 
 	events := s.mergeActions(s.actions)

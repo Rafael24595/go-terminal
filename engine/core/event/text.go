@@ -21,21 +21,20 @@ const (
 
 type textAction struct {
 	kind      ActionKind
-	caret     uint
-	anchor    uint
+	start     uint
+	end       uint
 	delete    string
 	insert    string
 	timestamp int64
 }
 
 type mergeAction struct {
-	kind          ActionKind
-	initialCaret  uint
-	initialAnchor uint
-	finalCaret    uint
-	finalAnchor   uint
-	delete        []string
-	insert        []string
+	kind   ActionKind
+	origin uint
+	extent uint
+	probe  uint
+	delete []string
+	insert []string
 }
 
 func (m *mergeAction) len() uint {
@@ -86,13 +85,12 @@ func (s *TextEventService) mergeActions(actions []textAction) []textEvent {
 
 		if event == nil {
 			event = &mergeAction{
-				kind:          action.kind,
-				initialCaret:  action.caret,
-				initialAnchor: action.anchor,
-				finalCaret:    action.caret,
-				finalAnchor:   action.anchor,
-				delete:        []string{action.delete},
-				insert:        []string{action.insert},
+				kind:    action.kind,
+				origin:  action.start,
+				extent:  action.end,
+				probe:   action.start,
+				delete:  []string{action.delete},
+				insert:  []string{action.insert},
 			}
 
 			i++
@@ -109,8 +107,8 @@ func (s *TextEventService) mergeActions(actions []textAction) []textEvent {
 
 		event.delete = append(event.delete, action.delete)
 		event.insert = append(event.insert, action.insert)
-		event.finalCaret = action.caret
-		event.finalAnchor = action.anchor
+		
+		event.probe = action.start
 
 		i++
 	}
@@ -125,11 +123,11 @@ func (s *TextEventService) mergeActions(actions []textAction) []textEvent {
 func (s *TextEventService) isConsistentAction(action textAction, event mergeAction) bool {
 	switch action.kind {
 	case Insert:
-		return event.initialCaret+event.len() == action.caret
+		return event.origin+event.len() == action.start
 	case DeleteBackward:
-		return action.caret == math.SubClampZero(event.finalCaret, uint(1))
+		return action.start == math.SubClampZero(event.probe, uint(1))
 	case DeleteForward:
-		return action.caret == event.finalCaret+1
+		return action.start == event.probe+1
 	}
 
 	return false
@@ -137,17 +135,15 @@ func (s *TextEventService) isConsistentAction(action textAction, event mergeActi
 
 func (s *TextEventService) forgeEvent(action mergeAction) textEvent {
 	start := min(
-		action.initialCaret,
-		action.finalCaret,
-		action.initialAnchor,
-		action.finalAnchor,
+		action.origin,
+		action.probe,
+		action.extent,
 	)
 
 	end := max(
-		action.initialCaret,
-		action.finalCaret,
-		action.initialAnchor,
-		action.finalAnchor,
+		action.origin,
+		action.probe,
+		action.extent,
 	)
 
 	insert := ""
@@ -175,7 +171,7 @@ func (s *TextEventService) forgeEvent(action mergeAction) textEvent {
 	}
 }
 
-func (s *TextEventService) PushEvent(action ActionKind, caret uint, anchor uint, delete, insert string) {
+func (s *TextEventService) PushEvent(action ActionKind, start uint, end uint, delete, insert string) {
 	s.events = s.events[:s.cursor]
 
 	if s.shouldFlush(action, insert) {
@@ -186,8 +182,8 @@ func (s *TextEventService) PushEvent(action ActionKind, caret uint, anchor uint,
 
 	s.actions = append(s.actions, textAction{
 		kind:      action,
-		caret:     caret,
-		anchor:    anchor,
+		start:     start,
+		end:       end,
 		delete:    delete,
 		insert:    insert,
 		timestamp: now,
