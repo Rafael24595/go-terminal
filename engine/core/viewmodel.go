@@ -36,7 +36,7 @@ func (v *ViewModel) AddLines(lines ...Line) *ViewModel {
 	return v
 }
 
-func (v *ViewModel) AddFooter(footer []Line) *ViewModel {
+func (v *ViewModel) AddFooter(footer ...Line) *ViewModel {
 	v.Footer = append(v.Footer, footer...)
 	return v
 }
