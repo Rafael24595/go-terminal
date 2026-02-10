@@ -44,7 +44,7 @@ func TestForgeEvent_Insert(t *testing.T) {
 	ev := s.forgeEvent(m)
 
 	assert.Equal(t, uint(5), ev.start)
-	assert.Equal(t, uint(8), ev.end)
+	assert.Equal(t, uint(8), ev.start+uint(len(ev.insert)))
 	assert.Equal(t, "abc", ev.insert)
 	assert.Equal(t, "", ev.delete)
 }
@@ -65,7 +65,7 @@ func TestForgeEvent_Replace(t *testing.T) {
 	ev := s.forgeEvent(m)
 
 	assert.Equal(t, uint(5), ev.start)
-	assert.Equal(t, uint(8), ev.end)
+	assert.Equal(t, uint(8), ev.start+uint(len(ev.insert)))
 	assert.Equal(t, "abc", ev.insert)
 	assert.Equal(t, "AZ", ev.delete)
 }
@@ -85,7 +85,7 @@ func TestForgeEvent_DeleteBackward(t *testing.T) {
 	ev := s.forgeEvent(m)
 
 	assert.Equal(t, uint(2), ev.start)
-	assert.Equal(t, uint(5), ev.end)
+	assert.Equal(t, uint(5), ev.start+uint(len(ev.delete)))
 	assert.Equal(t, "abc", ev.delete)
 	assert.Equal(t, "", ev.insert)
 }
@@ -105,7 +105,7 @@ func TestForgeEvent_DeleteForward(t *testing.T) {
 	ev := s.forgeEvent(m)
 
 	assert.Equal(t, uint(2), ev.start)
-	assert.Equal(t, uint(5), ev.end)
+	assert.Equal(t, uint(5), ev.start+uint(len(ev.delete)))
 	assert.Equal(t, "abc", ev.delete)
 	assert.Equal(t, "", ev.insert)
 }
@@ -126,9 +126,7 @@ func TestForgeEvent_SelectionActive(t *testing.T) {
 	ev := s.forgeEvent(m)
 
 	assert.Equal(t, uint(3), ev.start)
-	assert.Equal(t, uint(7), ev.end)
-
-	assert.Equal(t, len("abcd"), int(ev.end-ev.start))
+	assert.Equal(t, uint(7), ev.start+uint(len(ev.delete)))
 
 	assert.Equal(t, "X", ev.insert)
 	assert.Equal(t, "abcd", ev.delete)
@@ -153,7 +151,7 @@ func TestMergeActions_MultipleInserts(t *testing.T) {
 	ev := events[0]
 
 	assert.Equal(t, uint(0), ev.start)
-	assert.Equal(t, uint(5), ev.end)
+	assert.Equal(t, uint(6), ev.start+uint(len(ev.insert)))
 	assert.Equal(t, "golang", ev.insert)
 }
 
@@ -204,7 +202,7 @@ func TestMerge_DeleteBackwardContiguous(t *testing.T) {
 
 	ev := events[0]
 	assert.Equal(t, uint(3), ev.start)
-	assert.Equal(t, uint(5), ev.end)
+	assert.Equal(t, uint(6), ev.start+uint(len(ev.delete)))
 	assert.Equal(t, "Zig", ev.delete)
 }
 

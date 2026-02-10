@@ -48,7 +48,6 @@ func (m *mergeAction) len() uint {
 
 type textEvent struct {
 	start  uint
-	end    uint
 	insert string
 	delete string
 }
@@ -151,27 +150,29 @@ func (s *TextEventService) forgeEvent(action mergeAction) textEvent {
 		action.finalAnchor,
 	)
 
-	evt := textEvent{
-		start: start,
-		end:   end,
-	}
+	insert := ""
+	delete := ""
 
 	switch action.kind {
 	case Insert, DeleteForward:
-		evt.insert = strings.Join(action.insert, "")
-		evt.delete = strings.Join(action.delete, "")
+		insert = strings.Join(action.insert, "")
+		delete = strings.Join(action.delete, "")
 
 	case DeleteBackward:
-		evt.insert = runes.JoinReverse(action.insert)
-		evt.delete = runes.JoinReverse(action.delete)
+		insert = runes.JoinReverse(action.insert)
+		delete = runes.JoinReverse(action.delete)
 	}
 
 	assert.AssertTrue(
-		uint(len(evt.delete)) == end-start,
+		uint(len(delete)) == end-start,
 		"deleted text length mismatch",
 	)
 
-	return evt
+	return textEvent{
+		start:  start,
+		insert: insert,
+		delete: delete,
+	}
 }
 
 func (s *TextEventService) PushEvent(action ActionKind, caret uint, anchor uint, delete, insert string) {
