@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/commons/log"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/event"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
@@ -51,6 +51,7 @@ type TextArea struct {
 	reference string
 	history   *event.TextEventService
 	title     []core.Line
+	footer    []core.Line
 	caret     uint
 	anchor    uint
 	buffer    []rune
@@ -62,6 +63,7 @@ func NewTextArea() *TextArea {
 		reference: default_text_area_name,
 		history:   event.NewTextEventService(),
 		title:     make([]core.Line, 0),
+		footer:    make([]core.Line, 0),
 		caret:     0,
 		anchor:    0,
 		buffer:    make([]rune, 0),
@@ -75,6 +77,11 @@ func (c *TextArea) SetName(name string) *TextArea {
 
 func (c *TextArea) AddTitle(title ...core.Line) *TextArea {
 	c.title = append(c.title, title...)
+	return c
+}
+
+func (c *TextArea) AddFooter(footer ...core.Line) *TextArea {
+	c.footer = append(c.footer, footer...)
 	return c
 }
 
@@ -148,23 +155,8 @@ func (c *TextArea) update(state state.UIState, evnt screen.ScreenEvent) screen.S
 		return c.moveUp(state, evnt)
 	case key.ActionArrowDown:
 		return c.moveDown(state, evnt)
-	}
-
-	if ky.Rune == 'q' || ky.Rune == 'w' {
-		var d *event.Delta
-		if ky.Rune == 'q' {
-			d = c.history.Undo()
-		} else {
-			d = c.history.Redo()
-		}
-
-		if d != nil {
-			log.Debug(d)
-			c.buffer = event.ApplyDelta(c.buffer, d)
-			newTextRunes := []rune(d.Text)
-			c.moveCaretTo(d.Start + uint(len(newTextRunes)))
-		}
-		return screen.ScreenResultFromUIState(state)
+	case key.CustomActionUndo, key.CustomActionRedo:
+		return c.undoRedo(state, ky)
 	}
 
 	end := c.selectEnd()
@@ -186,6 +178,31 @@ func (c *TextArea) update(state state.UIState, evnt screen.ScreenEvent) screen.S
 	c.moveCaretTo(position)
 
 	return screen.ScreenResultFromUIState(state)
+}
+
+func (c *TextArea) undoRedo(state state.UIState, ky key.Key) screen.ScreenResult {
+	result := screen.ScreenResultFromUIState(state)
+
+	var delta *event.Delta
+	switch ky.Code {
+	case key.CustomActionUndo:
+		delta = c.history.Undo()
+	case key.CustomActionRedo:
+		delta = c.history.Redo()
+	default:
+		assert.Unreachable("unsupported key code '%d'", ky.Code)
+		delta = c.history.Redo()
+	}
+
+	if delta == nil {
+		return result
+	}
+
+	c.buffer = event.ApplyDelta(c.buffer, delta)
+	newTextRunes := []rune(delta.Text)
+	c.moveCaretTo(delta.Start + uint(len(newTextRunes)))
+
+	return result
 }
 
 func (c *TextArea) moveHome(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
@@ -370,15 +387,15 @@ func (c *TextArea) deleteForward(state state.UIState, word bool) screen.ScreenRe
 		return result
 	}
 
-	start := c.selectStart()
+	end := c.selectEnd()
 
 	if word {
-		start = runes.ForwardIndex(c.buffer, next_word_runes, start)
+		end = runes.ForwardIndex(c.buffer, next_word_runes, end)
 	} else {
-		start = min(uint(len(c.buffer)), start+1)
+		end = min(uint(len(c.buffer)), end+1)
 	}
 
-	end := c.selectEnd()
+	start := math.SubClampZero(c.selectStart(), 1)
 
 	c.history.PushEvent(event.DeleteForward, start, end, string(c.buffer[start:end]), "")
 
@@ -443,6 +460,7 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	return *core.ViewModelFromUIState(stt).
 		AddHeader(c.title...).
 		AddLines(lines...).
+		AddFooter(c.footer...).
 		SetPager(state.EmptyPagerState()).
 		SetCursor(state.NewCursorState(c.selectEnd()))
 }

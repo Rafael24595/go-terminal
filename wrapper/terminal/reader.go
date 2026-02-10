@@ -12,6 +12,8 @@ import (
 var controlKeyMap = map[rune]*key.Key{
 	key.CTRL_C:   key.NewKeyCode(key.ActionExit),
 	key.CTRL_W:   key.NewKeyCode(key.ActionDeleteBackward),
+	key.CTRL_G:   key.NewKeyCode(key.CustomActionUndo),
+	key.CTRL_T:   key.NewKeyCode(key.CustomActionRedo),
 	key.TAB:      key.NewKeyCode(key.ActionTab),
 	key.ENTER_LF: key.NewKeyCode(key.ActionEnter),
 	key.ENTER_CR: key.NewKeyCode(key.ActionEnter),

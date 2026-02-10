@@ -3,6 +3,8 @@ package key
 const (
 	CTRL_C   = 0x03
 	CTRL_W   = 0x17
+	CTRL_G   = 0x07
+	CTRL_T   = 0x14
 	TAB      = 0x09
 	ENTER_LF = '\n'
 	ENTER_CR = '\r'
@@ -33,6 +35,8 @@ const (
 	ActionHome
 	ActionEnd
 	ActionDelete
+	CustomActionUndo
+	CustomActionRedo
 	ActionAll
 )
 
