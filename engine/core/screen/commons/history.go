@@ -29,8 +29,13 @@ func (c *History) ToScreen() screen.Screen {
 }
 
 func (c *History) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	if result := c.localUpdate(state, event); result != nil {
-		return *result
+	requiredKey := isKeyRequired(c.screen.Definition(), event.Key)
+
+	if !requiredKey {
+		result := c.localUpdate(state, event)
+		if result != nil {
+			return *result
+		}
 	}
 
 	result := c.screen.Update(state, event)

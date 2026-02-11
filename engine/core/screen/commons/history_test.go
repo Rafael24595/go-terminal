@@ -33,7 +33,8 @@ func TestHistory_BackNavigation(t *testing.T) {
 	stt := state.UIState{}
 
 	base := screen.Screen{
-		Name: func() string { return "base" },
+		Definition: func() screen.Definition { return screen.Definition{} },
+		Name:       func() string { return "base" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			return screen.EmptyScreenResult()
 		},
@@ -43,7 +44,8 @@ func TestHistory_BackNavigation(t *testing.T) {
 	}
 
 	next := screen.Screen{
-		Name: func() string { return "next" },
+		Definition: func() screen.Definition { return screen.Definition{} },
+		Name:       func() string { return "next" },
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			return screen.ScreenResultFromScreen(&base)
 		},
