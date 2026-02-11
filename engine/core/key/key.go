@@ -1,17 +1,23 @@
 package key
 
 const (
-	CTRL_C   = 0x03
-	CTRL_W   = 0x17
-	CTRL_G   = 0x07
-	CTRL_T   = 0x14
-	TAB      = 0x09
-	ENTER_LF = '\n'
-	ENTER_CR = '\r'
-	ESC      = 0x1b
-	DEL      = 0x7f
-	BS       = 0x08
-	TILDE    = '~'
+	CTRL_A = 0x01
+	CTRL_E = 0x05
+	CTRL_D = 0x04
+	CTRL_C = 0x03
+	CTRL_G = 0x07
+	CTRL_T = 0x14
+	CTRL_W = 0x17
+)
+
+const (
+	ESC        = 0x1b
+	DEL        = 0x7f
+	TAB        = 0x09
+	ENTER_LF   = 0x0A
+	ENTER_CR   = 0x0D
+	TILDE      = 0x7E
+	BACK_SPACE = 0x08
 )
 
 const (
@@ -22,6 +28,8 @@ type KeyAction int
 
 const (
 	ActionRune KeyAction = iota
+	
+	ActionEsc
 	ActionExit
 	ActionDeleteBackward
 	ActionDeleteForward
@@ -35,10 +43,75 @@ const (
 	ActionHome
 	ActionEnd
 	ActionDelete
+
 	CustomActionUndo
 	CustomActionRedo
+
 	ActionAll
 )
+
+var ControlKeyMap = map[rune]*Key{
+	CTRL_A:     NewKeyCode(ActionHome),
+	CTRL_E:     NewKeyCode(ActionEnd),
+	CTRL_C:     NewKeyCode(ActionExit),
+	CTRL_W:     NewKeyCode(ActionDeleteBackward),
+	CTRL_D:     NewKeyCode(ActionDeleteForward),
+	CTRL_G:     NewKeyCode(CustomActionUndo),
+	CTRL_T:     NewKeyCode(CustomActionRedo),
+	TAB:        NewKeyCode(ActionTab),
+	ENTER_LF:   NewKeyCode(ActionEnter),
+	ENTER_CR:   NewKeyCode(ActionEnter),
+	DEL:        NewKeyCode(ActionBackspace),
+	BACK_SPACE: NewKeyCode(ActionBackspace),
+}
+
+var AltKeyMap = map[rune]*Key{
+	'd': NewKeyCode(ActionDeleteForward, ModAlt),
+}
+
+var CsiFinalMap = map[rune]KeyAction{
+	'A': ActionArrowUp,
+	'B': ActionArrowDown,
+	'C': ActionArrowRight,
+	'D': ActionArrowLeft,
+	'H': ActionHome,
+	'F': ActionEnd,
+}
+
+var CsiTildeMap = map[string]KeyAction{
+	"3": ActionDelete,
+	"1": ActionHome,
+	"7": ActionHome,
+	"4": ActionEnd,
+	"8": ActionEnd,
+}
+
+var actionMap = map[KeyAction][]string{
+	ActionEsc:            {"ESC"},
+	ActionExit:           {"CTRL+C"},
+	ActionDeleteBackward: {"CTRL+W"},
+	ActionDeleteForward:  {"CTRL+D"},
+	ActionTab:            {"TAB"},
+	ActionEnter:          {"ENTER"},
+	ActionBackspace:      {"BACKSPACE"},
+	ActionArrowUp:        {"UP"},
+	ActionArrowDown:      {"DOWN"},
+	ActionArrowLeft:      {"LEFT"},
+	ActionArrowRight:     {"RIGHT"},
+	ActionHome:           {"HOME", "CTRL+A"},
+	ActionEnd:            {"END", "CTRL+E"},
+	ActionDelete:         {"DELETE"},
+	CustomActionUndo:     {"CTRL+G"},
+	CustomActionRedo:     {"CTRL+T"},
+	ActionAll:            {"$_SYSTEM_ALL"},
+}
+
+func ActionToString(action KeyAction) []string {
+	if str, exist := actionMap[action]; exist {
+		return str
+	}
+	return []string{"rune"}
+}
 
 type ModMask uint8
 

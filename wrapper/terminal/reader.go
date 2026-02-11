@@ -4,43 +4,11 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 )
-
-var controlKeyMap = map[rune]*key.Key{
-	key.CTRL_C:   key.NewKeyCode(key.ActionExit),
-	key.CTRL_W:   key.NewKeyCode(key.ActionDeleteBackward),
-	key.CTRL_G:   key.NewKeyCode(key.CustomActionUndo),
-	key.CTRL_T:   key.NewKeyCode(key.CustomActionRedo),
-	key.TAB:      key.NewKeyCode(key.ActionTab),
-	key.ENTER_LF: key.NewKeyCode(key.ActionEnter),
-	key.ENTER_CR: key.NewKeyCode(key.ActionEnter),
-	key.DEL:      key.NewKeyCode(key.ActionBackspace),
-	key.BS:       key.NewKeyCode(key.ActionBackspace),
-}
-
-var altKeyMap = map[rune]*key.Key{
-	'd': key.NewKeyCode(key.ActionDeleteForward, key.ModAlt),
-}
-
-var csiFinalMap = map[rune]key.KeyAction{
-	'A': key.ActionArrowUp,
-	'B': key.ActionArrowDown,
-	'C': key.ActionArrowRight,
-	'D': key.ActionArrowLeft,
-	'H': key.ActionHome,
-	'F': key.ActionEnd,
-}
-
-var csiTildeMap = map[string]key.KeyAction{
-	"3": key.ActionDelete,
-	"1": key.ActionHome,
-	"7": key.ActionHome,
-	"4": key.ActionEnd,
-	"8": key.ActionEnd,
-}
 
 type inputReader struct {
 	reader *bufio.Reader
@@ -59,12 +27,20 @@ func (r *inputReader) readRune() (*key.Key, error) {
 		return key.NewKeySpace(), err
 	}
 
-	exists, ok := controlKeyMap[char]
+	exists, ok := key.ControlKeyMap[char]
 	if ok {
 		return exists, nil
 	}
 
 	if char == key.ESC {
+		if r.reader.Buffered() == 0 {
+			time.Sleep(1 * time.Millisecond)
+		}
+
+		if r.reader.Buffered() == 0 {
+			return key.NewKeyCode(key.ActionEsc), nil
+		}
+
 		return r.readEscapeSequence()
 	}
 
@@ -77,16 +53,14 @@ func (r *inputReader) readEscapeSequence() (*key.Key, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	if char != '[' {
 		return r.decodeAltKey(char), nil
 	}
-
 	return r.readCSISequence()
 }
 
 func (r *inputReader) decodeAltKey(char rune) *key.Key {
-	exists, ok := altKeyMap[char]
+	exists, ok := key.AltKeyMap[char]
 	if ok {
 		return exists
 	}
@@ -137,7 +111,7 @@ func decodeCSI(params string, char rune) *key.Key {
 }
 
 func decodeTildeCSI(params string, char rune, mod key.ModMask) *key.Key {
-	exists, ok := csiTildeMap[params]
+	exists, ok := key.CsiTildeMap[params]
 	if ok {
 		return key.NewKeyCode(exists, mod)
 	}
@@ -147,7 +121,7 @@ func decodeTildeCSI(params string, char rune, mod key.ModMask) *key.Key {
 }
 
 func decodeFinalCSI(char rune, mod key.ModMask) *key.Key {
-	exists, ok := csiFinalMap[char]
+	exists, ok := key.CsiFinalMap[char]
 	if ok {
 		return key.NewKeyCode(exists, mod)
 	}
