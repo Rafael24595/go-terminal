@@ -8,6 +8,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/event"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
+	"github.com/Rafael24595/go-terminal/engine/core/primitive"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/helper/line"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
@@ -43,17 +44,21 @@ var next_line_runes = []runes.RuneDefinition{
 	},
 }
 
-var text_area_definition = screen.Definition{
+var text_area_write_definition = screen.Definition{
 	RequireKeys: key.NewKeysCode(key.ActionAll),
+}
+
+var text_area_read_definition = screen.Definition{
+	RequireKeys: key.NewKeysCode(key.ActionEnter),
 }
 
 type TextArea struct {
 	reference string
 	history   *event.TextEventService
+	write     bool
 	title     []core.Line
 	footer    []core.Line
-	caret     uint
-	anchor    uint
+	caret     *primitive.Cursor
 	buffer    []rune
 	index     bool
 }
@@ -62,16 +67,36 @@ func NewTextArea() *TextArea {
 	return &TextArea{
 		reference: default_text_area_name,
 		history:   event.NewTextEventService(),
+		write:     false,
 		title:     make([]core.Line, 0),
 		footer:    make([]core.Line, 0),
-		caret:     0,
-		anchor:    0,
+		caret:     primitive.NewCursor(false),
 		buffer:    make([]rune, 0),
 	}
 }
 
 func (c *TextArea) SetName(name string) *TextArea {
 	c.reference = name
+	return c
+}
+
+func (c *TextArea) WriteMode() *TextArea {
+	c.write = true
+	return c
+}
+
+func (c *TextArea) ReadMode() *TextArea {
+	c.write = false
+	return c
+}
+
+func (c *TextArea) EnableBlinking() *TextArea {
+	c.caret.EnableBlinking()
+	return c
+}
+
+func (c *TextArea) DisableBlinking() *TextArea {
+	c.caret.DisableBlinking()
 	return c
 }
 
@@ -87,8 +112,7 @@ func (c *TextArea) AddFooter(footer ...core.Line) *TextArea {
 
 func (c *TextArea) AddText(text string) *TextArea {
 	c.buffer = append(c.buffer, []rune(text)...)
-	c.caret = uint(len(c.buffer))
-	c.anchor = c.caret
+	c.caret.MoveCaretTo(c.buffer, uint(len(c.buffer)))
 	return c
 }
 
@@ -116,27 +140,37 @@ func (c *TextArea) name() string {
 }
 
 func (c *TextArea) definition() screen.Definition {
-	return text_area_definition
-}
-
-func (c *TextArea) selectStart() uint {
-	if c.anchor < c.caret {
-		return c.anchor
+	if c.write {
+		return text_area_write_definition
 	}
-	return c.caret
-}
-
-func (c *TextArea) selectEnd() uint {
-	if c.anchor < c.caret {
-		return c.caret
-	}
-	return c.anchor
+	return text_area_read_definition
 }
 
 func (c *TextArea) update(state state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+	if !c.write {
+		return c.updateRead(state, evnt)
+	}
+	return c.updateWrite(state, evnt)
+}
+
+func (c *TextArea) updateRead(state state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
 	ky := evnt.Key
 
 	switch ky.Code {
+	case key.ActionEnter:
+		c.write = true
+	}
+
+	return screen.ScreenResultFromUIState(state)
+}
+
+func (c *TextArea) updateWrite(state state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+	ky := evnt.Key
+
+	switch ky.Code {
+	case key.ActionEsc:
+		c.write = false
+		return screen.ScreenResultFromUIState(state)
 	case key.ActionHome:
 		return c.moveHome(state, evnt)
 	case key.ActionEnd:
@@ -159,9 +193,13 @@ func (c *TextArea) update(state state.UIState, evnt screen.ScreenEvent) screen.S
 		return c.undoRedo(state, ky)
 	}
 
-	end := c.selectEnd()
+	return c.pushRune(state, ky)
+}
 
-	start := c.selectStart()
+func (c *TextArea) pushRune(state state.UIState, ky key.Key) screen.ScreenResult {
+	end := c.caret.SelectEnd()
+
+	start := c.caret.SelectStart()
 	fixEnd := end
 	if start != end {
 		start = math.SubClampZero(start, 1)
@@ -175,7 +213,7 @@ func (c *TextArea) update(state state.UIState, evnt screen.ScreenEvent) screen.S
 	c.buffer = runes.AppendRange(c.buffer, text, start, end)
 
 	position := start + uint(len(text))
-	c.moveCaretTo(position)
+	c.caret.MoveCaretTo(c.buffer, position)
 
 	return screen.ScreenResultFromUIState(state)
 }
@@ -200,7 +238,7 @@ func (c *TextArea) undoRedo(state state.UIState, ky key.Key) screen.ScreenResult
 
 	c.buffer = event.ApplyDelta(c.buffer, delta)
 	newTextRunes := []rune(delta.Text)
-	c.moveCaretTo(delta.Start + uint(len(newTextRunes)))
+	c.caret.MoveCaretTo(c.buffer, delta.Start+uint(len(newTextRunes)))
 
 	return result
 }
@@ -209,19 +247,19 @@ func (c *TextArea) moveHome(state state.UIState, event screen.ScreenEvent) scree
 	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.HasAny(key.ModCtrl) {
-		c.moveCaretTo(0)
+		c.caret.MoveCaretTo(c.buffer, 0)
 		return result
 	}
 
-	caret := runes.BackwardIndexWithLimit(c.buffer, next_line_runes, c.caret)
+	caret := runes.BackwardIndexWithLimit(c.buffer, next_line_runes, c.caret.Caret())
 
-	anchor := c.anchor
+	anchor := c.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModShift) {
-		c.moveCaretTo(caret)
+		c.caret.MoveCaretTo(c.buffer, caret)
 		return result
 	}
 
-	c.moveSelectTo(caret, anchor)
+	c.caret.MoveSelectTo(c.buffer, caret, anchor)
 
 	return result
 }
@@ -230,19 +268,19 @@ func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen
 	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.HasAny(key.ModCtrl) {
-		c.moveCaretTo(uint(len(c.buffer)))
+		c.caret.MoveCaretTo(c.buffer, uint(len(c.buffer)))
 		return result
 	}
 
-	caret := runes.ForwardIndexWithLimit(c.buffer, next_line_runes, c.caret)
+	caret := runes.ForwardIndexWithLimit(c.buffer, next_line_runes, c.caret.Caret())
 
-	anchor := c.anchor
+	anchor := c.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModShift) {
-		c.moveCaretTo(caret)
+		c.caret.MoveCaretTo(c.buffer, caret)
 		return result
 	}
 
-	c.moveSelectTo(caret, anchor)
+	c.caret.MoveSelectTo(c.buffer, caret, anchor)
 
 	return result
 }
@@ -250,26 +288,26 @@ func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen
 func (c *TextArea) moveUp(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
-	start := c.caret
+	start := c.caret.Caret()
 	distance := line.DistanceFromLF(c.buffer, int(start))
 
 	prevLineStart := line.FindPrevLineStart(c.buffer, int(start))
 	if prevLineStart == -1 {
 		if event.Key.Mod.HasAny(key.ModShift) {
-			c.moveSelectTo(0, c.anchor)
+			c.caret.MoveSelectTo(c.buffer, 0, c.caret.Anchor())
 			return result
 		}
 
-		c.moveCaretTo(0)
+		c.caret.MoveCaretTo(c.buffer, 0)
 		return result
 	}
 
 	position := line.ClampToLine(c.buffer, prevLineStart, distance)
 
 	if event.Key.Mod.HasAny(key.ModShift) {
-		c.moveSelectTo(uint(position), c.anchor)
+		c.caret.MoveSelectTo(c.buffer, uint(position), c.caret.Anchor())
 	} else {
-		c.moveCaretTo(uint(position))
+		c.caret.MoveCaretTo(c.buffer, uint(position))
 	}
 
 	return result
@@ -278,26 +316,26 @@ func (c *TextArea) moveUp(state state.UIState, event screen.ScreenEvent) screen.
 func (c *TextArea) moveDown(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
-	start := c.caret
+	start := c.caret.Caret()
 	distance := line.DistanceFromLF(c.buffer, int(start))
 
 	nextLineStart := line.FindNextLineStart(c.buffer, int(start))
 	if nextLineStart == -1 {
 		if event.Key.Mod.HasAny(key.ModShift) {
-			c.moveSelectTo(uint(len(c.buffer)), c.anchor)
+			c.caret.MoveSelectTo(c.buffer, uint(len(c.buffer)), c.caret.Anchor())
 			return result
 		}
 
-		c.moveCaretTo(uint(len(c.buffer)))
+		c.caret.MoveCaretTo(c.buffer, uint(len(c.buffer)))
 		return result
 	}
 
 	position := line.ClampToLine(c.buffer, nextLineStart, distance)
 
 	if event.Key.Mod.HasAny(key.ModShift) {
-		c.moveSelectTo(uint(position), c.anchor)
+		c.caret.MoveSelectTo(c.buffer, uint(position), c.caret.Anchor())
 	} else {
-		c.moveCaretTo(uint(position))
+		c.caret.MoveCaretTo(c.buffer, uint(position))
 	}
 
 	return result
@@ -307,25 +345,25 @@ func (c *TextArea) moveBackward(state state.UIState, event screen.ScreenEvent) s
 	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.HasNone(key.ModShift, key.ModCtrl) {
-		caret := math.SubClampZero(c.caret, 1)
-		c.moveCaretTo(caret)
+		caret := math.SubClampZero(c.caret.Caret(), 1)
+		c.caret.MoveCaretTo(c.buffer, caret)
 		return result
 	}
 
-	anchor := c.anchor
+	anchor := c.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModCtrl) {
-		caret := math.SubClampZero(c.caret, 1)
-		c.moveSelectTo(caret, anchor)
+		caret := math.SubClampZero(c.caret.Caret(), 1)
+		c.caret.MoveSelectTo(c.buffer, caret, anchor)
 		return result
 	}
 
-	caret := runes.BackwardIndex(c.buffer, next_word_runes, c.caret)
+	caret := runes.BackwardIndex(c.buffer, next_word_runes, c.caret.Caret())
 	if event.Key.Mod.HasNone(key.ModShift) {
-		c.moveCaretTo(caret)
+		c.caret.MoveCaretTo(c.buffer, caret)
 		return result
 	}
 
-	c.moveSelectTo(caret, anchor)
+	c.caret.MoveSelectTo(c.buffer, caret, anchor)
 	return result
 }
 
@@ -333,25 +371,25 @@ func (c *TextArea) moveForward(state state.UIState, event screen.ScreenEvent) sc
 	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.HasNone(key.ModShift, key.ModCtrl) {
-		caret := min(uint(len(c.buffer)), c.caret+1)
-		c.moveCaretTo(caret)
+		caret := min(uint(len(c.buffer)), c.caret.Caret()+1)
+		c.caret.MoveCaretTo(c.buffer, caret)
 		return result
 	}
 
-	anchor := c.anchor
+	anchor := c.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModCtrl) {
-		caret := min(uint(len(c.buffer)), c.caret+1)
-		c.moveSelectTo(caret, anchor)
+		caret := min(uint(len(c.buffer)), c.caret.Caret()+1)
+		c.caret.MoveSelectTo(c.buffer, caret, anchor)
 		return result
 	}
 
-	caret := runes.ForwardIndex(c.buffer, next_word_runes, c.caret)
+	caret := runes.ForwardIndex(c.buffer, next_word_runes, c.caret.Caret())
 	if event.Key.Mod.HasNone(key.ModShift) {
-		c.moveCaretTo(caret)
+		c.caret.MoveCaretTo(c.buffer, caret)
 		return result
 	}
 
-	c.moveSelectTo(caret, anchor)
+	c.caret.MoveSelectTo(c.buffer, caret, anchor)
 	return result
 }
 
@@ -362,7 +400,7 @@ func (c *TextArea) deleteBackward(state state.UIState, word bool) screen.ScreenR
 		return result
 	}
 
-	start := c.selectStart()
+	start := c.caret.SelectStart()
 
 	if word {
 		start = runes.BackwardIndex(c.buffer, next_word_runes, start)
@@ -370,13 +408,13 @@ func (c *TextArea) deleteBackward(state state.UIState, word bool) screen.ScreenR
 		start = math.SubClampZero(start, 1)
 	}
 
-	end := c.selectEnd()
+	end := c.caret.SelectEnd()
 
 	c.history.PushEvent(event.DeleteBackward, start, end, string(c.buffer[start:end]), "")
 
 	c.buffer = append(c.buffer[:start], c.buffer[end:]...)
 
-	c.moveCaretTo(start)
+	c.caret.MoveCaretTo(c.buffer, start)
 	return result
 }
 
@@ -387,7 +425,7 @@ func (c *TextArea) deleteForward(state state.UIState, word bool) screen.ScreenRe
 		return result
 	}
 
-	end := c.selectEnd()
+	end := c.caret.SelectEnd()
 
 	if word {
 		end = runes.ForwardIndex(c.buffer, next_word_runes, end)
@@ -395,50 +433,35 @@ func (c *TextArea) deleteForward(state state.UIState, word bool) screen.ScreenRe
 		end = min(uint(len(c.buffer)), end+1)
 	}
 
-	start := math.SubClampZero(c.selectStart(), 1)
+	start := math.SubClampZero(c.caret.SelectStart(), 1)
 
 	c.history.PushEvent(event.DeleteForward, start, end, string(c.buffer[start:end]), "")
 
 	c.buffer = append(c.buffer[:start], c.buffer[end:]...)
 
-	c.moveCaretTo(start)
+	c.caret.MoveCaretTo(c.buffer, start)
 	return result
-}
-
-func (c *TextArea) moveCaretTo(caret uint) {
-	min := uint(1)
-	len := uint(len(c.buffer))
-
-	if len == 0 {
-		min = 0
-	}
-
-	c.caret = math.Clamp(caret, min, len)
-	c.anchor = c.caret
-}
-
-func (c *TextArea) moveSelectTo(caret, anchor uint) {
-	min := uint(1)
-	len := uint(len(c.buffer))
-
-	if len == 0 {
-		min = 0
-	}
-
-	c.caret = math.Clamp(caret, min, len)
-	c.anchor = math.Clamp(anchor, min, len)
 }
 
 func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	renderBuffer := c.buffer
 
-	start := math.SubClampZero(c.selectStart(), 1)
-	end := c.selectEnd()
+	start := math.SubClampZero(c.caret.SelectStart(), 1)
+	end := c.caret.SelectEnd()
 
 	if len(renderBuffer) == 0 {
 		renderBuffer = append(renderBuffer, []rune(PRINTABLE_CARET)...)
 		start = 0
 		end = 1
+	}
+
+	selectStyle := core.None
+	page := state.NewPageState(stt.Pager.Page)
+	cursor := state.EmptyCursorState()
+	if c.write {
+		selectStyle = c.caret.BlinkStyle()
+		page = state.EmptyPagerState()
+		cursor = state.NewCursorState(c.caret.Caret())
 	}
 
 	text := core.FragmentLine(core.ModePadding(core.Right))
@@ -447,7 +470,7 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	text.Text = append(text.Text, core.NewFragment(beforeSelect))
 
 	onSelect := string(renderBuffer[start:end])
-	text.Text = append(text.Text, core.NewFragment(onSelect, core.Select))
+	text.Text = append(text.Text, core.NewFragment(onSelect, selectStyle))
 
 	afterSelect := string(renderBuffer[end:])
 	if len(afterSelect) > 0 {
@@ -461,8 +484,8 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 		AddHeader(c.title...).
 		AddLines(lines...).
 		AddFooter(c.footer...).
-		SetPager(state.EmptyPagerState()).
-		SetCursor(state.NewCursorState(c.selectEnd()))
+		SetPager(page).
+		SetCursor(cursor)
 }
 
 func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
@@ -498,14 +521,16 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 				core.NewFragment(part, f.Styles),
 			)
 
-			if partIndex < len(parts)-1 {
-				lines = append(lines, currentLine)
-				index++
+			if partIndex >= len(parts)-1 {
+				continue
+			}
 
-				currentLine = core.FragmentLine(text.Padding)
-				if c.index {
-					currentLine.SetOrder(index)
-				}
+			lines = append(lines, currentLine)
+			index++
+
+			currentLine = core.FragmentLine(text.Padding)
+			if c.index {
+				currentLine.SetOrder(index)
 			}
 		}
 	}

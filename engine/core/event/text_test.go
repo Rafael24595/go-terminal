@@ -6,25 +6,8 @@ import (
 	"time"
 
 	"github.com/Rafael24595/go-terminal/test/support/assert"
+	"github.com/Rafael24595/go-terminal/test/support/mock"
 )
-
-type TestClock struct {
-	now int64
-}
-
-func (c *TestClock) Now() int64 {
-	return c.now
-}
-
-func (c *TestClock) Advance(ms int64) {
-	c.now += ms
-}
-
-func fixedClock(t int64) clock {
-	return func() int64 {
-		return t
-	}
-}
 
 func applyDeltaStr(buffer string, d *Delta) string {
 	return string(ApplyDelta([]rune(buffer), d))
@@ -362,7 +345,7 @@ func TestPushEvent_FlushOnExpire(t *testing.T) {
 func TestPushEvent_Typing(t *testing.T) {
 	s := NewTextEventService()
 
-	clock := &TestClock{now: 1000}
+	clock := &mock.TestClock{Time: 1000}
 	s.clock = clock.Now
 
 	i := 0
@@ -396,7 +379,7 @@ func TestPushEvent_Typing(t *testing.T) {
 func TestPushEvent_UndoAndRedo(t *testing.T) {
 	s := NewTextEventService()
 
-	clock := &TestClock{now: 1000}
+	clock := &mock.TestClock{Time: 1000}
 	s.clock = clock.Now
 
 	i := 0
@@ -437,7 +420,7 @@ func TestPushEvent_UndoAndRedo(t *testing.T) {
 
 func TestPushEvent_UndoRedoTruncateHistory(t *testing.T) {
 	s := NewTextEventService()
-	clock := &TestClock{now: 1000}
+	clock := &mock.TestClock{Time: 1000}
 	s.clock = clock.Now
 
 	i := 0
@@ -512,7 +495,7 @@ func TestPushEvent_UndoRedoHistoryConsistenceWithLoop(t *testing.T) {
 
 func TestShouldFlush_Expired_WithClock(t *testing.T) {
 	s := NewTextEventService()
-	s.clock = fixedClock(1000)
+	s.clock = mock.FixedClock(1000)
 
 	s.actions = []textAction{
 		{
