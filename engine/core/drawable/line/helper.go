@@ -1,4 +1,4 @@
-package wrapper_drawable
+package line
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core"
@@ -28,7 +28,7 @@ func indexLines(cols int, line core.Line, meta *IndexMeta) []core.Line {
 	isGreaterWithIndex := meta != nil && line.Len()+int(meta.totalWidth) > cols
 
 	if isGreaterWithoutIndex || isGreaterWithIndex {
-		return wrapLineWordsWithIndex(int(cols), line, meta)
+		return WrapLineWordsWithIndex(int(cols), line, meta)
 	}
 
 	fragments := core.FragmentsFromString()
@@ -43,11 +43,11 @@ func indexLines(cols int, line core.Line, meta *IndexMeta) []core.Line {
 	return core.FixedLinesFromLines(line.Padding, newLine)
 }
 
-func wrapLineWords(cols int, line core.Line) []core.Line {
-	return wrapLineWordsWithIndex(cols, line, nil)
+func WrapLineWords(cols int, line core.Line) []core.Line {
+	return WrapLineWordsWithIndex(cols, line, nil)
 }
 
-func wrapLineWordsWithIndex(cols int, line core.Line, meta *IndexMeta) []core.Line {
+func WrapLineWordsWithIndex(cols int, line core.Line, meta *IndexMeta) []core.Line {
 	result := make([]core.Line, 0)
 	current := core.LineFromPadding(line.Padding)
 	width := 0
@@ -70,26 +70,26 @@ func wrapLineWordsWithIndex(cols int, line core.Line, meta *IndexMeta) []core.Li
 			continue
 		}
 
-		if wordlen > cols {
-			newCurrent, lines, newWidth := wrapLongTokenWithIndex(word, cols, current, width, meta)
-			
-			result = append(result, lines...)
-			current = newCurrent
-			width = newWidth
+		if wordlen <= cols {
+			result = append(result, current)
+			current = core.LineFromPadding(line.Padding)
+
+			if meta != nil {
+				fragments := core.FragmentsFromString(meta.body())
+				current.Text = append(current.Text, fragments...)
+			}
+
+			current.Text = append(current.Text, word.Text...)
+			width = wordlen
 
 			continue
 		}
-		
-		result = append(result, current)
-		current = core.LineFromPadding(line.Padding)
 
-		if meta != nil {
-			fragments := core.FragmentsFromString(meta.body())
-			current.Text = append(current.Text, fragments...)
-		}
+		newCurrent, lines, newWidth := wrapLongTokenWithIndex(word, cols, current, width, meta)
 
-		current.Text = append(current.Text, word.Text...)
-		width = wordlen
+		result = append(result, lines...)
+		current = newCurrent
+		width = newWidth
 	}
 
 	if len(current.Text) > 0 {

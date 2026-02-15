@@ -5,6 +5,7 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 )
 
@@ -61,13 +62,21 @@ func (c *History) localUpdate(_ state.UIState, event screen.ScreenEvent) *screen
 
 func (c *History) view(state state.UIState) core.ViewModel {
 	vm := c.screen.View(state)
-	if c.history != nil {
-		page := fmt.Sprintf("back: %s", c.history.Name())
-		footer := core.NewLines(
-			core.LineJump(),
-			core.NewLine(page, core.ModePadding(core.Right)),
-		)
-		vm.Footer = append(footer, vm.Footer...)
+
+	if c.history == nil {
+		return vm
 	}
+
+	page := fmt.Sprintf("back: %s", c.history.Name())
+
+	footer := core.NewLines(
+		core.LineJump(),
+		core.NewLine(page, core.ModePadding(core.Right)),
+	)
+
+	vm.Footer.Unshift(
+		line.LinesEagerDrawableFromLines(footer...),
+	)
+
 	return vm
 }

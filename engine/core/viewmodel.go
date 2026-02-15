@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 type InputLine struct {
@@ -11,9 +12,9 @@ type InputLine struct {
 }
 
 type ViewModel struct {
-	Header []Line
-	Lines  []Line
-	Footer []Line
+	Header *LayerStack
+	Lines  *LayerStack
+	Footer *LayerStack
 	Input  *InputLine
 	Pager  state.PagerState
 	Cursor state.CursorState
@@ -21,24 +22,12 @@ type ViewModel struct {
 
 func ViewModelFromUIState(state state.UIState) *ViewModel {
 	return &ViewModel{
+		Header: NewLayerStack(),
+		Lines:  NewLayerStack(),
+		Footer: NewLayerStack(),
 		Pager:  state.Pager,
 		Cursor: state.Cursor,
 	}
-}
-
-func (v *ViewModel) AddHeader(headers ...Line) *ViewModel {
-	v.Header = append(v.Header, headers...)
-	return v
-}
-
-func (v *ViewModel) AddLines(lines ...Line) *ViewModel {
-	v.Lines = append(v.Lines, lines...)
-	return v
-}
-
-func (v *ViewModel) AddFooter(footer ...Line) *ViewModel {
-	v.Footer = append(v.Footer, footer...)
-	return v
 }
 
 func (v *ViewModel) SetPager(pager state.PagerState) *ViewModel {
@@ -49,4 +38,8 @@ func (v *ViewModel) SetPager(pager state.PagerState) *ViewModel {
 func (v *ViewModel) SetCursor(cursor state.CursorState) *ViewModel {
 	v.Cursor = cursor
 	return v
+}
+
+func (v *ViewModel) InitLayers(size terminal.Winsize) (*LayerStack, *LayerStack, *LayerStack) {
+	return v.Header.Init(size), v.Lines.Init(size), v.Footer.Init(size)
 }

@@ -1,8 +1,7 @@
-package wrapper_drawable
+package line
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -14,14 +13,18 @@ type LinesLazyDrawable struct {
 	cursor uint16
 }
 
-func NewLinesLazyDrawable() *LinesLazyDrawable {
+func NewLinesLazyDrawable(lines ...core.Line) *LinesLazyDrawable {
 	return &LinesLazyDrawable{
 		rows:   0,
 		cols:   0,
 		meta:   &IndexMeta{},
-		lines:  make([]core.Line, 0),
+		lines:  lines,
 		cursor: 0,
 	}
+}
+
+func LinesLazyDrawableFromLines(lines ...core.Line) core.Drawable {
+	return NewLinesLazyDrawable(lines...).ToDrawable()
 }
 
 func (d *LinesLazyDrawable) init(size terminal.Winsize) {
@@ -41,8 +44,8 @@ func (d *LinesLazyDrawable) draw() ([]core.Line, bool) {
 	return lines, d.cursor < uint16(len(d.lines))
 }
 
-func (d *LinesLazyDrawable) ToDrawable() *drawable.Drawable {
-	return &drawable.Drawable{
+func (d *LinesLazyDrawable) ToDrawable() core.Drawable {
+	return core.Drawable{
 		Init: d.init,
 		Draw: d.draw,
 	}

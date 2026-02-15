@@ -14,6 +14,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/helper/text"
+
+	dwawable_line "github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 )
 
 const default_text_area_name = "TextArea"
@@ -480,12 +482,22 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	lines := c.normalizeLinesEnd(text)
 	lines = c.fixEmptyLines(lines)
 
-	return *core.ViewModelFromUIState(stt).
-		AddHeader(c.title...).
-		AddLines(lines...).
-		AddFooter(c.footer...).
-		SetPager(page).
-		SetCursor(cursor)
+	vm := core.ViewModelFromUIState(stt)
+
+	vm.Header.Shift(
+		dwawable_line.LinesEagerDrawableFromLines(c.title...),
+	)
+	vm.Lines.Shift(
+		dwawable_line.LinesLazyDrawableFromLines(lines...),
+	)
+	vm.Footer.Shift(
+		dwawable_line.LinesEagerDrawableFromLines(c.footer...),
+	)
+	
+	vm.SetPager(page)
+	vm.SetCursor(cursor)
+
+	return *vm
 }
 
 func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {

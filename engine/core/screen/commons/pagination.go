@@ -5,6 +5,7 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
@@ -66,13 +67,19 @@ func (c *Pagination) localUpdate(state state.UIState, event screen.ScreenEvent) 
 
 func (c *Pagination) View(state state.UIState) core.ViewModel {
 	vm := c.screen.View(state)
+
 	if state.Pager.Enabled {
 		page := fmt.Sprintf("page: %d", state.Pager.Page)
+
 		footer := core.NewLines(
 			core.LineJump(),
 			core.NewLine(page, core.ModePadding(core.Right)),
 		)
-		vm.Footer = append(footer, vm.Footer...)
+
+		vm.Footer.Unshift(
+			line.LinesEagerDrawableFromLines(footer...),
+		)
 	}
+	
 	return vm
 }

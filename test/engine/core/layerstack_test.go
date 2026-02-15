@@ -1,10 +1,9 @@
-package drawable_test
+package core_test
 
 import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/core"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
@@ -26,15 +25,15 @@ func (m *mockDrawable) Draw() ([]core.Line, bool) {
 	return m.lines, m.status
 }
 
-func (m *mockDrawable) toDrawable() drawable.Drawable {
-	return drawable.Drawable{
+func (m *mockDrawable) toDrawable() core.Drawable {
+	return core.Drawable{
 		Init: m.Init,
 		Draw: m.Draw,
 	}
 }
 
 func TestLayerStack_Init(t *testing.T) {
-	stack := &drawable.LayerStack{}
+	stack := &core.LayerStack{}
 
 	d1 := &mockDrawable{}
 	d2 := &mockDrawable{}
@@ -51,7 +50,7 @@ func TestLayerStack_Init(t *testing.T) {
 }
 
 func TestLayerStack_Shift_Order(t *testing.T) {
-	stack := &drawable.LayerStack{}
+	stack := &core.LayerStack{}
 
 	count := 0
 
@@ -83,7 +82,7 @@ func TestLayerStack_Shift_Order(t *testing.T) {
 }
 
 func TestLayerStack_Unshift_Order(t *testing.T) {
-	stack := &drawable.LayerStack{}
+	stack := &core.LayerStack{}
 
 	count := 0
 
@@ -115,7 +114,7 @@ func TestLayerStack_Unshift_Order(t *testing.T) {
 }
 
 func TestLayerStack_Draw_BreaksOnTrue(t *testing.T) {
-	stack := &drawable.LayerStack{}
+	stack := &core.LayerStack{}
 
 	d1 := &mockDrawable{status: true}
 	d2 := &mockDrawable{status: false}
@@ -132,7 +131,7 @@ func TestLayerStack_Draw_BreaksOnTrue(t *testing.T) {
 }
 
 func TestLayerStack_DisablesLayer(t *testing.T) {
-	stack := &drawable.LayerStack{}
+	stack := &core.LayerStack{}
 
 	d1 := &mockDrawable{status: false}
 
@@ -145,7 +144,7 @@ func TestLayerStack_DisablesLayer(t *testing.T) {
 }
 
 func TestLayerStack_BufferConcat(t *testing.T) {
-	stack := &drawable.LayerStack{}
+	stack := &core.LayerStack{}
 
 	line1 := core.LineFromString("go")
 	line2 := core.LineFromString("lang")
@@ -172,7 +171,7 @@ func TestLayerStack_BufferConcat(t *testing.T) {
 }
 
 func TestLayerStack_ShortCircuitStopsPropagation(t *testing.T) {
-	stack := &drawable.LayerStack{}
+	stack := &core.LayerStack{}
 
 	d1 := &mockDrawable{status: false}
 	d2 := &mockDrawable{status: true}

@@ -3,6 +3,7 @@ package commons
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 )
 
@@ -59,7 +60,14 @@ func (c *Article) update(state state.UIState, event screen.ScreenEvent) screen.S
 }
 
 func (c *Article) view(state state.UIState) core.ViewModel {
-	return *core.ViewModelFromUIState(state).
-		AddHeader(c.title...).
-		AddLines(c.article...)
+	vm := core.ViewModelFromUIState(state)
+
+	vm.Header.Shift(
+		line.LinesEagerDrawableFromLines(c.title...),
+	)
+	vm.Lines.Shift(
+		line.LinesLazyDrawableFromLines(c.article...),
+	)
+	
+	return *vm
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -58,10 +59,16 @@ func TestArticle_View(t *testing.T) {
 
 	vm := article.view(*state)
 
-	assert.Equal(t, len(vm.Header), 1, "ViewModel header count")
-	assert.Equal(t, len(vm.Lines), 1, "ViewModel lines count")
-	assert.Equal(t, vm.Header[0].String(), title.String(), "first line should be title")
-	assert.Equal(t, vm.Lines[0].String(), body.String(), "second line should be article")
+	vm.Header.Init(terminal.Winsize{})
+	headers, _ := vm.Header.Draw()
+
+	vm.Lines.Init(terminal.Winsize{})
+	lines, _ := vm.Lines.Draw()
+
+	assert.Equal(t, len(headers), 1, "ViewModel header count")
+	assert.Equal(t, len(lines), 1, "ViewModel lines count")
+	assert.Equal(t, headers[0].String(), title.String(), "first line should be title")
+	assert.Equal(t, lines[0].String(), body.String(), "second line should be article")
 }
 
 func TestArticle_Update(t *testing.T) {

@@ -4,6 +4,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
@@ -131,8 +132,15 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 		lines = append(lines, styledLine)
 	}
 
-	return core.ViewModel{
-		Lines:  lines,
-		Cursor: state.NewCursorState(c.cursor),
-	}
+	vm := core.ViewModelFromUIState(stt)
+
+	vm.Lines.Shift(
+		line.LinesEagerDrawableFromLines(lines...),
+	)
+	
+	vm.SetCursor(
+		state.NewCursorState(c.cursor),
+	)
+
+	return *vm
 }

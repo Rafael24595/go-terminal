@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -151,9 +152,12 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	menu.cursor = 1
 	vm := menu.view(state.UIState{})
 
+	vm.Lines.Init(terminal.Winsize{})
+	lines, _ := vm.Lines.Draw()
+
 	assert.NotNil(t, vm.Cursor)
 	assert.True(t, vm.Cursor.Enabled)
 	assert.Equal(t, vm.Cursor.Cursor, uint(1))
 
-	assert.Equal(t, vm.Lines[1].Text[0].Text, ">")
+	assert.Equal(t, lines[1].Text[0].Text, ">")
 }

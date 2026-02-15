@@ -3,6 +3,7 @@ package commons
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 )
 
@@ -45,6 +46,10 @@ func (c *Header) Update(state state.UIState, event screen.ScreenEvent) screen.Sc
 
 func (c *Header) View(state state.UIState) core.ViewModel {
 	vm := c.screen.View(state)
-	vm.Header = append(c.header, vm.Header...)
+
+	vm.Header.Unshift(
+		line.LinesEagerDrawableFromLines(c.header...),
+	)
+	
 	return vm
 }

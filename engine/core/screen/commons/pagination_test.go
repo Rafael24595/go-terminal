@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -17,7 +18,7 @@ func TestPagination_ToScreen(t *testing.T) {
 			return screen.EmptyScreenResult()
 		},
 		View: func(state state.UIState) core.ViewModel {
-			return core.ViewModel{}
+			return *core.ViewModelFromUIState(state)
 		},
 	}
 
@@ -37,7 +38,9 @@ func TestPagination_LocalUpdate(t *testing.T) {
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			return screen.EmptyScreenResult()
 		},
-		View: func(state state.UIState) core.ViewModel { return core.ViewModel{} },
+		View: func(state state.UIState) core.ViewModel {
+			return *core.ViewModelFromUIState(state)
+		},
 	}
 
 	p := NewPagination(base)
@@ -63,14 +66,19 @@ func TestPagination_ViewFooter(t *testing.T) {
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			return screen.EmptyScreenResult()
 		},
-		View: func(state state.UIState) core.ViewModel { return core.ViewModel{} },
+		View: func(state state.UIState) core.ViewModel {
+			return *core.ViewModelFromUIState(state)
+		},
 	}
 
 	p := NewPagination(base)
 	vm := p.View(*stt)
 
-	assert.True(t, len(vm.Footer) > 0)
-	assert.Contains(t, vm.Footer[1].Text[0].Text, "page: 3")
+	vm.Footer.Init(terminal.Winsize{ Cols: 10 })
+	footer, _ := vm.Footer.Draw()
+
+	assert.True(t, len(footer) > 0)
+	assert.Contains(t, footer[1].String(), "page: 3")
 }
 
 func TestPagination_UpdateDelegates(t *testing.T) {
@@ -83,7 +91,9 @@ func TestPagination_UpdateDelegates(t *testing.T) {
 			called = true
 			return screen.EmptyScreenResult()
 		},
-		View: func(state state.UIState) core.ViewModel { return core.ViewModel{} },
+		View: func(state state.UIState) core.ViewModel {
+			return *core.ViewModelFromUIState(state)
+		},
 	}
 
 	p := NewPagination(base)
@@ -104,7 +114,9 @@ func TestPagination_PageNeverNegative(t *testing.T) {
 		Update: func(s state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			return screen.EmptyScreenResult()
 		},
-		View: func(state state.UIState) core.ViewModel { return core.ViewModel{} },
+		View: func(state state.UIState) core.ViewModel {
+			return *core.ViewModelFromUIState(state)
+		},
 	}
 
 	p := NewPagination(base)

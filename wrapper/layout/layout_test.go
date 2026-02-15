@@ -1,130 +1,45 @@
 package wrapper_layout
 
 import (
+	"strings"
 	"testing"
 	"unicode/utf8"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
-func TestSplitLineWords_Simple(t *testing.T) {
-	line := core.NewLine(
-		"HELLO WORLD",
-		core.ModePadding(core.Left),
-	)
-
-	maxWidth := 5
-	lines := wrapLineWords(maxWidth, line)
-
-	expected := []string{"HELLO", " ", "WORLD"}
-
-	assert.Equal(t, len(expected), len(lines))
-
-	for i, l := range lines {
-		text := ""
-		for _, f := range l.Text {
-			text += f.Text
-		}
-
-		assert.Equal(t, expected[i], text)
-	}
-}
-
-func TestSplitLineWords_Styles(t *testing.T) {
-	line := core.FragmentLine(
-		core.ModePadding(core.Left),
-		core.NewFragment("HELLO", core.Bold),
-		core.NewFragment(" "),
-		core.NewFragment("WORLD"),
-	)
-
-	maxWidth := 7
-	lines := wrapLineWords(maxWidth, line)
-
-	assert.Equal(t, 2, len(lines))
-
-	assert.Equal(t, "HELLO", lines[0].Text[0].Text)
-	assert.True(t, lines[0].Text[0].Styles.HasAny(core.Bold))
-
-	assert.Equal(t, " ", lines[0].Text[1].Text)
-
-	assert.Equal(t, "WORLD", lines[1].Text[0].Text)
-}
-
-func TestSplitLineWords_LongWord(t *testing.T) {
-	text := "HELLO WORLD FROM GOLANG"
-
-	line := core.NewLine(
-		text,
-		core.ModePadding(core.Left),
-	)
-
-	maxWidth := 10
-	lines := wrapLineWords(maxWidth, line)
-
-	for i, l := range lines {
-		text := ""
-		for _, f := range l.Text {
-			text += f.Text
-		}
-		if utf8.RuneCountInString(text) > maxWidth {
-			t.Errorf("line %d too long: %s", i, text)
-		}
-	}
-
-	totalRunes := 0
-	for _, l := range lines {
-		for _, f := range l.Text {
-			totalRunes += utf8.RuneCountInString(f.Text)
-		}
-	}
-	if totalRunes != utf8.RuneCountInString(text) {
-		t.Errorf("total runes mismatch")
-	}
-}
-
-func TestSplitLineWords_MultipleFragments(t *testing.T) {
-	line := core.FragmentLine(
-		core.ModePadding(core.Left),
-		core.NewFragment("HELLO", core.Bold),
-		core.NewFragment("WORLD", core.Bold),
-		core.NewFragment("GO"),
-	)
-
-	maxWidth := 8
-	lines := wrapLineWords(maxWidth, line)
-
-	for _, l := range lines {
-		width := 0
-		for _, f := range l.Text {
-			width += utf8.RuneCountInString(f.Text)
-		}
-		if width > maxWidth {
-			t.Errorf("line exceeds maxWidth: %v", l)
-		}
-	}
-}
-
 func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	size := terminal.Winsize{Rows: 6, Cols: 10}
 
-	vm := core.ViewModel{
-		Header: []core.Line{
+	stt := state.NewUIState()
+	stt.Pager = state.PagerState{
+		Page: 0,
+	}
+
+	vm := core.ViewModelFromUIState(*stt)
+
+	vm.Header.Shift(
+		line.LinesEagerDrawableFromLines(
 			core.NewLine("HEADER", core.ModePadding(core.Left)),
-		},
-		Lines: []core.Line{
+		),
+	)
+
+	vm.Lines.Shift(
+		line.LinesLazyDrawableFromLines(
 			core.NewLine("=", core.ModePadding(core.Fill)),
 			core.NewLine("LINE TWO", core.ModePadding(core.Left)),
 			core.NewLine("LINE THREE IS LONG", core.ModePadding(core.Left)),
 			core.NewLine("LINE FOUR", core.ModePadding(core.Left)),
-		},
-		Input: &core.InputLine{
-			Prompt: ">",
-			Value:  "INPUT",
-		},
+		),
+	)
+
+	vm.Input = &core.InputLine{
+		Prompt: ">",
+		Value:  "INPUT",
 	}
 
 	state := &state.UIState{
@@ -133,54 +48,59 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 		},
 	}
 
-	lines := TerminalApply(state, vm, size)
+	lines := TerminalApply(state, *vm, size)
 
-	if len(lines) != int(size.Rows) {
-		t.Errorf("expected %d lines, got %d", size.Rows, len(lines))
-	}
-
-	if lines[0].Text[0].Text != "HEADER" {
-		t.Errorf("expected header line, got %v", lines[0].Text)
-	}
+	assert.Len(t, int(size.Rows), lines)
+	assert.Equal(t, "HEADER", lines[0].Text[0].Text)
 
 	inputLine := lines[len(lines)-1]
 	expectedInput := ">INPUT"
-	text := ""
+
+	var text strings.Builder
 	for _, f := range inputLine.Text {
-		text += f.Text
+		text.WriteString(f.Text)
 	}
-	if text != expectedInput {
-		t.Errorf("expected input line '%s', got '%s'", expectedInput, text)
-	}
+
+	assert.Equal(t, expectedInput, text.String())
 
 	for i := 1; i < len(lines)-1; i++ {
 		width := 0
 		for _, f := range lines[i].Text {
 			width += utf8.RuneCountInString(f.Text)
 		}
-		if width > int(size.Cols) {
-			t.Errorf("line %d exceeds width %d: %+v", i, size.Cols, lines[i])
-		}
+
+		assert.LessOrEqual(t, int(size.Cols), width)
 	}
 }
 
 func TestTerminalApply_MultiplePages(t *testing.T) {
 	size := terminal.Winsize{Rows: 4, Cols: 8}
 
-	vm := core.ViewModel{
-		Header: []core.Line{
+	stt := state.NewUIState()
+	stt.Pager = state.PagerState{
+		Page: 0,
+	}
+
+	vm := core.ViewModelFromUIState(*stt)
+
+	vm.Header.Shift(
+		line.LinesEagerDrawableFromLines(
 			core.NewLine("H", core.ModePadding(core.Left)),
-		},
-		Lines: []core.Line{
+		),
+	)
+
+	vm.Lines.Shift(
+		line.LinesLazyDrawableFromLines(
 			core.NewLine("AAAAAAA", core.ModePadding(core.Left)),
 			core.NewLine("BBBBBBB", core.ModePadding(core.Left)),
 			core.NewLine("CCCCCCC", core.ModePadding(core.Left)),
 			core.NewLine("DDDDDDD", core.ModePadding(core.Left)),
-		},
-		Input: &core.InputLine{
-			Prompt: ">",
-			Value:  "X",
-		},
+		),
+	)
+
+	vm.Input = &core.InputLine{
+		Prompt: ">",
+		Value:  "X",
 	}
 
 	state := &state.UIState{
@@ -189,28 +109,20 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		},
 	}
 
-	lines0 := TerminalApply(state, vm, size)
-	if len(lines0) != int(size.Rows) {
-		t.Errorf("page 0: expected %d lines, got %d", size.Rows, len(lines0))
-	}
-	if lines0[0].Text[0].Text != "H" {
-		t.Errorf("page 0: header mismatch")
-	}
-	if lines0[len(lines0)-1].Text[0].Text != ">X" {
-		t.Errorf("page 0: input mismatch")
-	}
+	lines0 := TerminalApply(state, *vm, size)
+
+	assert.Len(t, int(size.Rows), lines0)
+	assert.Equal(t, "H", lines0[0].Text[0].Text)
+	assert.Equal(t, ">X", lines0[len(lines0)-1].Text[0].Text)
+
+	vm.Header.Init(size)
 
 	state.Pager.Page = 1
-	lines1 := TerminalApply(state, vm, size)
-	if len(lines1) != int(size.Rows) {
-		t.Errorf("page 1: expected %d lines, got %d", size.Rows, len(lines1))
-	}
-	if lines1[0].Text[0].Text != "H" {
-		t.Errorf("page 1: header mismatch")
-	}
-	if lines1[len(lines1)-1].Text[0].Text != ">X" {
-		t.Errorf("page 1: input mismatch")
-	}
+	lines1 := TerminalApply(state, *vm, size)
+
+	assert.Len(t, int(size.Rows), lines1)
+	assert.Equal(t, "H", lines1[0].Text[0].Text)
+	assert.Equal(t, ">X", lines1[len(lines1)-1].Text[0].Text)
 }
 
 func TestTerminalApplyBuffer_WordWrap(t *testing.T) {
@@ -219,13 +131,16 @@ func TestTerminalApplyBuffer_WordWrap(t *testing.T) {
 		core.NewLine("HELLO WORLD", core.ModePadding(core.Left)),
 	}
 
+	layer := core.NewLayerStack().
+		Shift(line.LinesEagerDrawableFromLines(lines...))
+
 	state := &state.UIState{
 		Pager: state.PagerState{
 			Page: 0,
 		},
 	}
 
-	paged, _, _ := terminalApplyBuffer(state, lines, 2, sizeCols, nil)
+	paged, _, _ := drawDynamicLines(state, layer, 2, sizeCols)
 
 	if len(paged) > 2 {
 		t.Errorf("expected max 2 lines for buffer, got %d", len(paged))

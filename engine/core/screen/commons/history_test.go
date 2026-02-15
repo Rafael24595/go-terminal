@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -17,7 +18,7 @@ func TestHistory_ToScreen(t *testing.T) {
 			return screen.EmptyScreenResult()
 		},
 		View: func(state.UIState) core.ViewModel {
-			return core.ViewModel{}
+			return *core.ViewModelFromUIState(state.UIState{})
 		},
 	}
 
@@ -39,7 +40,7 @@ func TestHistory_BackNavigation(t *testing.T) {
 			return screen.EmptyScreenResult()
 		},
 		View: func(state.UIState) core.ViewModel {
-			return core.ViewModel{}
+			return *core.ViewModelFromUIState(state.UIState{})
 		},
 	}
 
@@ -50,7 +51,7 @@ func TestHistory_BackNavigation(t *testing.T) {
 			return screen.ScreenResultFromScreen(&base)
 		},
 		View: func(state.UIState) core.ViewModel {
-			return core.ViewModel{}
+			return *core.ViewModelFromUIState(state.UIState{})
 		},
 	}
 
@@ -70,18 +71,26 @@ func TestHistory_BackNavigation(t *testing.T) {
 
 func TestHistory_ViewFooter(t *testing.T) {
 	base := screen.Screen{
-		Name: func() string { return "base" },
+		Name: func() string {
+			return "base"
+		},
 		View: func(state.UIState) core.ViewModel {
-			return core.ViewModel{}
+			return *core.ViewModelFromUIState(state.UIState{})
 		},
 	}
 
 	h := NewHistory(base)
 
 	vm := h.view(*state.NewUIState())
-	assert.Equal(t, len(vm.Footer), 0)
+
+	vm.Footer.Init(terminal.Winsize{})
+	footer, _ := vm.Footer.Draw()
+
+	assert.Equal(t, len(footer), 0)
 
 	h.history = &base
 	vm = h.view(*state.NewUIState())
-	assert.True(t, len(vm.Footer) > 0)
+	footer, _ = vm.Footer.Draw()
+	
+	assert.True(t, len(footer) > 0)
 }

@@ -82,6 +82,11 @@ func TokenizeLineWords(line Line) []WordToken {
 
 func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []Line, int) {
 	emmited := make([]Line, 0)
+	if cols == 0 {
+		emmited = append(emmited, LineFromFragments(word.Text...))
+		return current, emmited, 0
+	}
+
 	fragments := append([]Fragment{}, word.Text...)
 
 	flush := func() {
