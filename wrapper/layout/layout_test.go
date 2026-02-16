@@ -103,13 +103,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		Value:  "X",
 	}
 
-	state := &state.UIState{
-		Pager: state.PagerState{
-			Page: 0,
-		},
-	}
-
-	lines0 := TerminalApply(state, *vm, size)
+	lines0 := TerminalApply(stt, *vm, size)
 
 	assert.Len(t, int(size.Rows), lines0)
 	assert.Equal(t, "H", lines0[0].Text[0].Text)
@@ -117,16 +111,17 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	vm.Header.Init(size)
 
-	state.Pager.Page = 1
-	lines1 := TerminalApply(state, *vm, size)
+	stt.Pager.Page = 1
+	lines1 := TerminalApply(stt, *vm, size)
 
 	assert.Len(t, int(size.Rows), lines1)
 	assert.Equal(t, "H", lines1[0].Text[0].Text)
 	assert.Equal(t, ">X", lines1[len(lines1)-1].Text[0].Text)
 }
 
-func TestTerminalApplyBuffer_WordWrap(t *testing.T) {
+func TestDrawDynamicLines_WordWrap(t *testing.T) {
 	sizeCols := 5
+
 	lines := []core.Line{
 		core.NewLine("HELLO WORLD", core.ModePadding(core.Left)),
 	}
@@ -134,25 +129,93 @@ func TestTerminalApplyBuffer_WordWrap(t *testing.T) {
 	layer := core.NewLayerStack().
 		Shift(line.LinesEagerDrawableFromLines(lines...))
 
-	state := &state.UIState{
-		Pager: state.PagerState{
-			Page: 0,
-		},
+	stt := state.NewUIState()
+	stt.Pager = state.PagerState{
+		Page: 0,
 	}
 
-	paged, _, _ := drawDynamicLines(state, layer, 2, sizeCols)
+	paged, _, _ := drawDynamicLines(stt, layer, 2, sizeCols)
 
-	if len(paged) > 2 {
-		t.Errorf("expected max 2 lines for buffer, got %d", len(paged))
-	}
+	assert.LessOrEqual(t, 2, len(paged))
 
 	for _, l := range paged {
 		width := 0
 		for _, f := range l.Text {
 			width += utf8.RuneCountInString(f.Text)
 		}
-		if width > sizeCols {
-			t.Errorf("line exceeds width: %+v", l)
-		}
+		assert.LessOrEqual(t, sizeCols, width)
 	}
+}
+
+func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
+	lines := core.NewLines(
+		core.LineFromString("golang"),
+		core.LineFromString("rust"),
+		core.LineFromString("ziglang"),
+	)
+
+	layer := core.NewLayerStack().
+		Shift(line.LinesEagerDrawableFromLines(lines...))
+
+	result := drawStaticLines(layer, 2, 80)
+
+	assert.LessOrEqual(t, 2, len(result))
+}
+
+func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
+	lines := core.NewLines(
+		core.LineFromString("golang ziglang"),
+	)
+
+	layer := core.NewLayerStack().
+		Shift(line.LinesEagerDrawableFromLines(lines...))
+
+	result := drawStaticLines(layer, 3, 7)
+
+	assert.Equal(t, 3, len(result))
+	assert.Equal(t, "golang", result[0].String())
+	assert.Equal(t, " ", result[1].String())
+	assert.Equal(t, "ziglang", result[2].String())
+}
+
+func TestTerminalApply_InitializeLayers(t *testing.T) {
+	size := terminal.Winsize{Rows: 4, Cols: 8}
+
+	stt := state.NewUIState()
+	stt.Pager = state.PagerState{
+		Page: 0,
+	}
+
+	vm := core.ViewModelFromUIState(*stt)
+
+	vm.Header.Shift(
+		line.LinesEagerDrawableFromLines(
+			core.NewLine("golang", core.ModePadding(core.Left)),
+		),
+	)
+	vm.Lines.Shift(
+		line.LinesLazyDrawableFromLines(
+			core.NewLine("rust", core.ModePadding(core.Left)),
+		),
+	)
+	vm.Footer.Shift(
+		line.LinesEagerDrawableFromLines(
+			core.NewLine("Ziglang", core.ModePadding(core.Left)),
+		),
+	)
+
+	vm.Input = &core.InputLine{
+		Prompt: ">",
+		Value:  "X",
+	}
+
+	assert.True(t, vm.Header.HasNext())
+	assert.True(t, vm.Lines.HasNext())
+	assert.True(t, vm.Footer.HasNext())
+
+	TerminalApply(stt, *vm, size)
+
+	assert.False(t, vm.Header.HasNext())
+	assert.False(t, vm.Lines.HasNext())
+	assert.False(t, vm.Footer.HasNext())
 }
