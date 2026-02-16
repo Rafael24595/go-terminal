@@ -105,6 +105,23 @@ func Equal[T comparable](t *testing.T, want, have T, message ...any) {
 	t.Errorf("%sExpected '%v', but got '%v'", custom, want, have)
 }
 
+func Greater[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
+	t.Helper()
+
+	if have > want {
+		return
+	}
+
+	custom := ""
+	if len(message) > 0 {
+		if format, ok := message[0].(string); ok {
+			custom = fmt.Sprintf(format+" - ", message[1:]...)
+		}
+	}
+
+	t.Errorf("%sExpected greater than %v, but got %v", custom, want, have)
+}
+
 func GreaterOrEqual[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
 	t.Helper()
 
@@ -121,6 +138,24 @@ func GreaterOrEqual[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
 
 	t.Errorf("%sExpected greater or equal than %v, but got %v", custom, want, have)
 }
+
+func Less[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
+	t.Helper()
+
+	if have < want {
+		return
+	}
+
+	custom := ""
+	if len(message) > 0 {
+		if format, ok := message[0].(string); ok {
+			custom = fmt.Sprintf(format+" - ", message[1:]...)
+		}
+	}
+
+	t.Errorf("%sExpected less than %v, but got %v", custom, want, have)
+}
+
 
 func LessOrEqual[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
 	t.Helper()
