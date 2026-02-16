@@ -68,8 +68,8 @@ func (c *Pagination) localUpdate(state state.UIState, event screen.ScreenEvent) 
 func (c *Pagination) View(state state.UIState) core.ViewModel {
 	vm := c.screen.View(state)
 
-	if state.Pager.Enabled {
-		page := fmt.Sprintf("page: %d", state.Pager.Page)
+	if vm.Pager.Enabled {
+		page := fmt.Sprintf("page: %d", vm.Pager.Page)
 
 		footer := core.NewLines(
 			core.LineJump(),
