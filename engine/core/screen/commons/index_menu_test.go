@@ -157,7 +157,7 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 
 	assert.NotNil(t, vm.Cursor)
 	assert.True(t, vm.Cursor.Enabled)
-	assert.Equal(t, vm.Cursor.Cursor, uint(1))
+	assert.Equal(t, vm.Cursor.Cursor, uint(6))
 
 	assert.Equal(t, lines[0].String(), "-")
 }

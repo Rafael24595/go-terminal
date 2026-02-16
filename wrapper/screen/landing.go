@@ -1,6 +1,8 @@
 package wrapper_screen
 
 import (
+	"fmt"
+
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
@@ -21,9 +23,13 @@ func NewLanding() screen.Screen {
 	options := commons.NewMenuOptions(
 		commons.NewMenuOption(core.LineFromString("Option Article"), NewTestArticle),
 		commons.NewMenuOption(core.LineFromString("Option TextArea"), NewTestTextArea),
-		commons.NewMenuOption(core.LineFromString("Option Article"), NewTestArticle),
-		commons.NewMenuOption(core.LineFromString("Option Article"), NewTestArticle),
 	)
+
+	for i := range 30 {
+		options = append(options, 
+			commons.NewMenuOption(core.LineFromString(fmt.Sprintf("Option %d", i + 1)), NewTestTextArea),
+		)
+	}
 
 	return commons.NewIndexMenu().
 		SetName("menu - tortor").

@@ -159,9 +159,10 @@ func (c *IndexMenu) update(state state.UIState, event screen.ScreenEvent) screen
 func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 	lines := make([]core.Line, 0)
 
-	lines = append(lines, c.title...)
 	digits := math.Digits(len(c.options))
 
+	cursor := 0
+	found := false
 	for i, o := range c.options {
 		selector := []core.Fragment{
 			c.makeIndex(i, int(digits)),
@@ -172,10 +173,23 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 			core.CustomPadding(2, 0),
 			append(selector, o.line.Text...)...,
 		)
+
 		lines = append(lines, styledLine)
+
+		if !found {
+			cursor += styledLine.Len()
+		}
+
+		if i == int(c.cursor) {
+			found = true
+		}
 	}
 
 	vm := core.ViewModelFromUIState(stt)
+
+	vm.Header.Shift(
+		line.LinesEagerDrawableFromLines(c.title...),
+	)
 
 	vm.Lines.Shift(
 		line.LinesEagerDrawableFromLines(lines...),
@@ -184,6 +198,9 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 	vm.SetCursor(
 		state.NewCursorState(c.cursor),
 	)
+
+	vm.Pager.Enabled = false
+	vm.SetCursor(state.NewCursorState(uint(cursor)))
 
 	return *vm
 }
