@@ -27,6 +27,7 @@ func NewLanding() screen.Screen {
 
 	return commons.NewIndexMenu().
 		SetName("menu - tortor").
+		SetIndex(commons.NumericIndex).
 		AddTitle(title...).
 		AddOptions(options...).
 		SetCursor(0).

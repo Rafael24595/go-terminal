@@ -1,16 +1,53 @@
 package commons
 
 import (
+	"strconv"
+
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
 const default_index_menu_name = "IndexMenu"
+
+type IndexKind int
+
+const (
+	Numeric IndexKind = iota
+	Alphabetic
+	Custom
+)
+
+var NumericIndex = KindIndex(Numeric)
+var AlphabeticIndex = KindIndex(Alphabetic)
+
+var GreaterIndex = CustomIndex(">", "-")
+var HyphenIndex = CustomIndex("-", ">")
+
+type IndexMeta struct {
+	kind   IndexKind
+	index  string
+	cursor string
+}
+
+func KindIndex(kind IndexKind) IndexMeta {
+	return IndexMeta{
+		kind: kind,
+	}
+}
+
+func CustomIndex(index string, cursor string) IndexMeta {
+	return IndexMeta{
+		kind:   Custom,
+		index:  index,
+		cursor: cursor,
+	}
+}
 
 type MenuOption struct {
 	line   core.Line
@@ -30,6 +67,7 @@ func NewMenuOptions(options ...MenuOption) []MenuOption {
 
 type IndexMenu struct {
 	reference string
+	index     IndexMeta
 	title     []core.Line
 	options   []MenuOption
 	cursor    uint
@@ -38,6 +76,7 @@ type IndexMenu struct {
 func NewIndexMenu() *IndexMenu {
 	return &IndexMenu{
 		reference: default_index_menu_name,
+		index:     HyphenIndex,
 		title:     make([]core.Line, 0),
 		options:   make([]MenuOption, 0),
 		cursor:    0,
@@ -46,6 +85,11 @@ func NewIndexMenu() *IndexMenu {
 
 func (c *IndexMenu) SetName(name string) *IndexMenu {
 	c.reference = name
+	return c
+}
+
+func (c *IndexMenu) SetIndex(index IndexMeta) *IndexMenu {
+	c.index = index
 	return c
 }
 
@@ -116,18 +160,17 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 	lines := make([]core.Line, 0)
 
 	lines = append(lines, c.title...)
+	digits := math.Digits(len(c.options))
 
 	for i, o := range c.options {
-		selector := "-"
-		if c.cursor == uint(i) {
-			selector = ">"
+		selector := []core.Fragment{
+			c.makeIndex(i, int(digits)),
+			core.NewFragment(" "),
 		}
-
-		fr := []core.Fragment{core.NewFragment(selector)}
 
 		styledLine := core.FragmentLine(
 			core.CustomPadding(2, 0),
-			append(fr, o.line.Text...)...,
+			append(selector, o.line.Text...)...,
 		)
 		lines = append(lines, styledLine)
 	}
@@ -137,10 +180,36 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 	vm.Lines.Shift(
 		line.LinesEagerDrawableFromLines(lines...),
 	)
-	
+
 	vm.SetCursor(
 		state.NewCursorState(c.cursor),
 	)
 
 	return *vm
+}
+
+func (c *IndexMenu) makeIndex(cursor, digits int) core.Fragment {
+	if c.index.kind == Numeric {
+		text := helper.Right(strconv.Itoa(cursor+1), digits)
+		index := core.NewFragment(text + ".- ")
+		if cursor == int(c.cursor) {
+			index.Styles |= core.Bold
+		}
+		return index
+	}
+
+	if c.index.kind == Alphabetic {
+		text := helper.Right(helper.NumberToAlpha(cursor), digits)
+		index := core.NewFragment(text + ".- ")
+		if cursor == int(c.cursor) {
+			index.Styles |= core.Bold
+		}
+		return index
+	}
+
+	index := c.index.index
+	if cursor == int(c.cursor) {
+		index = c.index.cursor
+	}
+	return core.NewFragment(index)
 }

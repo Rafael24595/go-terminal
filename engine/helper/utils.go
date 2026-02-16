@@ -71,3 +71,20 @@ func RepeatRight(item any, width int) string {
 	text := fmt.Sprintf("%v", item)
 	return text + strings.Repeat(" ", width)
 }
+
+func NumberToAlpha(n int) string {
+	if n <= 0 {
+		return "?"
+	}
+
+	result := ""
+
+	for n > 0 {
+		n--
+		remainder := n % 26
+		result = string(rune('a'+remainder)) + result
+		n = n / 26
+	}
+
+	return result
+}
