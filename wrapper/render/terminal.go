@@ -37,13 +37,14 @@ func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
 }
 
 func renderLineFragments(l core.Line) string {
-	line := ""
+	var line strings.Builder
+
 	fragments := ""
 	styles := core.None
 
 	for _, f := range l.Text {
 		if styles != f.Styles && len(fragments) != 0 {
-			line += applystyles(fragments, styles)
+			line.WriteString(applystyles(fragments, styles))
 
 			fragments = ""
 
@@ -57,21 +58,29 @@ func renderLineFragments(l core.Line) string {
 	}
 
 	if len(fragments) != 0 {
-		line += applystyles(fragments, styles)
+		line.WriteString(applystyles(fragments, styles))
 	}
 
-	return line
+	return line.String()
 }
 
 func applystyles(text string, styles ...core.Style) string {
 	merged := core.MergeStyles(styles...)
 
+	if merged.HasAny(core.Lower) {
+		text = strings.ToLower(text)
+	}
+
+	if merged.HasAny(core.Upper) {
+		text = strings.ToUpper(text)
+	}
+
 	if merged.HasAny(core.Bold) {
-		text = "\033[1m" + text
+		text = Bold + text + NoBold
 	}
 
 	if merged.HasAny(core.Select) {
-		text = "\x1b[7m" + text + "\x1b[27m"
+		text = Reverse + text + NoReverse
 	}
 
 	return text

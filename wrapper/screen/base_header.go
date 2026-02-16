@@ -9,9 +9,9 @@ import (
 func NewBaseHeader(screen screen.Screen) screen.Screen {
 	header := core.FixedLinesFromLines(
 		core.ModePadding(core.Center),
-		core.LineFromString("LOREM IPSUM DOLOR SIT AMET"),
-		core.LineFromString("CONSECTETUR ADIPISCING"),
-		core.LineFromString("-SERVER 00-"),
+		core.LineFromString("Lorem ipsum dolor sit amet", core.Upper),
+		core.LineFromString("consectetur adipiscing", core.Upper),
+		core.LineFromString("-Server 00-", core.Upper),
 		core.LineJump(),
 	)
 

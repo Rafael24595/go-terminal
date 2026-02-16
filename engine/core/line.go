@@ -10,6 +10,8 @@ type Style uint8
 const (
 	None Style = 0
 	Bold Style = 1 << iota
+	Upper
+	Lower
 	Select
 )
 
@@ -127,10 +129,11 @@ func NewLine(text string, padding Padding) Line {
 	}
 }
 
-func LineFromString(text string) Line {
+func LineFromString(text string, styles ...Style) Line {
 	return Line{
 		Text: []Fragment{{
-			Text: text,
+			Text:   text,
+			Styles: MergeStyles(styles...),
 		}},
 		Padding: ModePadding(Unstyled),
 	}
