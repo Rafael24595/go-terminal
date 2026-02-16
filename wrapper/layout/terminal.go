@@ -77,9 +77,11 @@ func drawDynamicLines(state *state.UIState, layer *core.LayerStack, rows, cols i
 	runes := uint(0)
 
 	for lines := range layer.Iterator() {
-		for _, line := range lines {
+		for i, line := range lines {
 			lineRunes := uint(max(1, line.Len()))
-			for _, v := range fixLineSize(line, cols) {
+			
+			fixed := fixLineSize(line, cols)
+			for j, v := range fixed {
 				buffer[row] = v
 
 				row += 1
@@ -93,7 +95,8 @@ func drawDynamicLines(state *state.UIState, layer *core.LayerStack, rows, cols i
 				isCursor := state.Cursor.Enabled && runes+lineRunes >= state.Cursor.Cursor
 
 				if !isCustomFocus || isPage || isCursor {
-					pagination := layer.HasNext() || page != 0
+					hasSpace := i < len(lines)-1 || j < len(fixed)-1
+					pagination := hasSpace || layer.HasNext() || page != 0
 					return buffer, page, pagination
 				}
 
