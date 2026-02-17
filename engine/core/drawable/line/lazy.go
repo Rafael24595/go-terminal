@@ -41,6 +41,7 @@ func (d *LinesLazyDrawable) draw() ([]core.Line, bool) {
 
 	lines := indexLines(int(d.cols), d.lines[d.cursor], d.meta)
 	d.cursor += 1
+	
 	return lines, d.cursor < uint16(len(d.lines))
 }
 
