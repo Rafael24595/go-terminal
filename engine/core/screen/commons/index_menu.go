@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
@@ -170,7 +171,7 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 		}
 
 		styledLine := core.FragmentLine(
-			core.CustomPadding(2, 0),
+			style.SpecLeft(2),
 			append(selector, o.line.Text...)...,
 		)
 
@@ -210,7 +211,7 @@ func (c *IndexMenu) makeIndex(cursor, digits int) core.Fragment {
 		text := helper.Right(strconv.Itoa(cursor+1), digits)
 		index := core.NewFragment(text + ".- ")
 		if cursor == int(c.cursor) {
-			index.Styles |= core.Bold
+			index.Atom |= style.AtmBold
 		}
 		return index
 	}
@@ -219,7 +220,7 @@ func (c *IndexMenu) makeIndex(cursor, digits int) core.Fragment {
 		text := helper.Right(helper.NumberToAlpha(cursor), digits)
 		index := core.NewFragment(text + ".- ")
 		if cursor == int(c.cursor) {
-			index.Styles |= core.Bold
+			index.Atom |= style.AtmBold
 		}
 		return index
 	}

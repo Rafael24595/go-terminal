@@ -4,7 +4,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/commons/structure"
 )
 
-//TODO: Use as a argument.
+// TODO: Use as a argument.
 const min_width = 4
 
 type col struct {
@@ -12,9 +12,9 @@ type col struct {
 	size int
 }
 
-func renderedSize(size map[string]int, separator, leftBorder, rightBorder string) int {
-	joinSize := (len(size) - 1) * len(separator)
-	borderSize := len(leftBorder) + len(rightBorder)
+func renderedRowSize(size map[string]int, separator SeparatorMeta) int {
+	joinSize := (len(size) - 1) * len(separator.center)
+	borderSize := len(separator.right) + len(separator.right)
 
 	total := 0
 	for _, v := range size {
@@ -24,12 +24,12 @@ func renderedSize(size map[string]int, separator, leftBorder, rightBorder string
 	return total + joinSize + borderSize
 }
 
-func adjustSize(size map[string]int, termWidth int, renderedSize int) map[string]int {
-	if renderedSize <= termWidth {
-		return size
+func adjustSize(size map[string]int, cols int, rowSize int) (map[string]int, bool) {
+	if rowSize <= cols {
+		return size, true
 	}
 
-	excess := renderedSize - termWidth
+	excess := rowSize - cols
 
 	h := structure.NewMaxHeapBy(func(c col) int {
 		return c.size
@@ -57,19 +57,19 @@ func adjustSize(size map[string]int, termWidth int, renderedSize int) map[string
 		newSize[c.name] = c.size
 	}
 
-	return newSize
+	return newSize, excess == 0
 }
 
-func splitTable(size map[string]int, termWidth int) []map[string]int {
+func splitTable(size map[string]int, cols int) []map[string]int {
 	tables := make([]map[string]int, 0)
 
 	table := make(map[string]int)
 	count := 0
 
 	for k := range size {
-		v := min(size[k], termWidth)
+		v := min(size[k], cols)
 
-		if count + v >= termWidth && len(table) > 0 {
+		if count+v >= cols && len(table) > 0 {
 			tables = append(tables, table)
 
 			table = make(map[string]int)

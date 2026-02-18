@@ -40,7 +40,7 @@ func indexLines(cols int, line core.Line, meta *IndexMeta) []core.Line {
 		append(fragments, line.Text...)...,
 	)
 
-	return core.FixedLinesFromLines(line.Padding, newLine)
+	return core.FixedLinesFromLines(line.Spec, newLine)
 }
 
 func WrapLineWords(cols int, line core.Line) []core.Line {
@@ -49,7 +49,7 @@ func WrapLineWords(cols int, line core.Line) []core.Line {
 
 func WrapLineWordsWithIndex(cols int, line core.Line, meta *IndexMeta) []core.Line {
 	result := make([]core.Line, 0)
-	current := core.LineFromPadding(line.Padding)
+	current := core.LineFromSpec(line.Spec)
 	width := 0
 
 	words := core.TokenizeLineWords(line)
@@ -72,7 +72,7 @@ func WrapLineWordsWithIndex(cols int, line core.Line, meta *IndexMeta) []core.Li
 
 		if wordlen <= cols {
 			result = append(result, current)
-			current = core.LineFromPadding(line.Padding)
+			current = core.LineFromSpec(line.Spec)
 
 			if meta != nil {
 				fragments := core.FragmentsFromString(meta.body())

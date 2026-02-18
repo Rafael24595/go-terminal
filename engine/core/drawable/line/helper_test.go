@@ -5,13 +5,14 @@ import (
 	"unicode/utf8"
 
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestSplitLineWords_Simple(t *testing.T) {
 	line := core.NewLine(
 		"HELLO WORLD",
-		core.ModePadding(core.Left),
+		style.SpecFromKind(style.SpcKindLeft),
 	)
 
 	maxWidth := 5
@@ -33,8 +34,8 @@ func TestSplitLineWords_Simple(t *testing.T) {
 
 func TestSplitLineWords_Styles(t *testing.T) {
 	line := core.FragmentLine(
-		core.ModePadding(core.Left),
-		core.NewFragment("HELLO", core.Bold),
+		style.SpecFromKind(style.SpcKindLeft),
+		core.NewFragment("HELLO").AddAtom(style.AtmBold),
 		core.NewFragment(" "),
 		core.NewFragment("WORLD"),
 	)
@@ -45,7 +46,7 @@ func TestSplitLineWords_Styles(t *testing.T) {
 	assert.Equal(t, 2, len(lines))
 
 	assert.Equal(t, "HELLO", lines[0].Text[0].Text)
-	assert.True(t, lines[0].Text[0].Styles.HasAny(core.Bold))
+	assert.True(t, lines[0].Text[0].Atom.HasAny(style.AtmBold))
 
 	assert.Equal(t, " ", lines[0].Text[1].Text)
 
@@ -57,7 +58,7 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 
 	line := core.NewLine(
 		text,
-		core.ModePadding(core.Left),
+		style.SpecFromKind(style.SpcKindLeft),
 	)
 
 	maxWidth := 10
@@ -86,9 +87,9 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 
 func TestSplitLineWords_MultipleFragments(t *testing.T) {
 	line := core.FragmentLine(
-		core.ModePadding(core.Left),
-		core.NewFragment("HELLO", core.Bold),
-		core.NewFragment("WORLD", core.Bold),
+		style.SpecFromKind(style.SpcKindLeft),
+		core.NewFragment("HELLO").AddAtom(style.AtmBold),
+		core.NewFragment("WORLD").AddAtom(style.AtmBold),
 		core.NewFragment("GO"),
 	)
 

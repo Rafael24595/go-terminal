@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 )
 
 type History struct {
@@ -71,7 +72,7 @@ func (c *History) view(state state.UIState) core.ViewModel {
 
 	footer := core.NewLines(
 		core.LineJump(),
-		core.NewLine(page, core.ModePadding(core.Right)),
+		core.NewLine(page, style.SpecFromKind(style.SpcKindRight)),
 	)
 
 	vm.Footer.Unshift(

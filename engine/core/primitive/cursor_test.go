@@ -3,7 +3,7 @@ package primitive
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 	"github.com/Rafael24595/go-terminal/test/support/mock"
 )
@@ -30,14 +30,14 @@ func TestCursor_BlinkingLogic(t *testing.T) {
 	c := NewCursor(true)
 	c.clock = clock.Now
 
-	clock.Advance(blink_ms+1)
+	clock.Advance(blink_ms + 1)
 
-	assert.Equal(t, c.BlinkStyle(), core.Select)
+	assert.Equal(t, c.BlinkStyle(), style.AtmSelect)
 
-	clock.Advance(blink_ms+1)
+	clock.Advance(blink_ms + 1)
 
-	assert.Equal(t, c.BlinkStyle(), core.None)
+	assert.Equal(t, c.BlinkStyle(), style.AtmNone)
 
-	clock.Advance(blink_ms+1)
-	assert.Equal(t, c.BlinkStyle(), core.Select)
+	clock.Advance(blink_ms + 1)
+	assert.Equal(t, c.BlinkStyle(), style.AtmSelect)
 }

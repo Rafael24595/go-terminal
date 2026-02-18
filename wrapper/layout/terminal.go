@@ -4,6 +4,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -19,7 +20,7 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 
 	inputLines := make([]core.Line, 0)
 	if vm.Input != nil {
-		inputLine := core.NewLine(vm.Input.Prompt+vm.Input.Value, core.ModePadding(core.Left))
+		inputLine := core.NewLine(vm.Input.Prompt+vm.Input.Value, style.SpecFromKind(style.SpcKindLeft))
 		if inputLine.Len() > int(size.Cols) {
 			inputLines = append(inputLines, line.WrapLineWords(int(size.Cols), inputLine)...)
 		} else {
@@ -79,7 +80,7 @@ func drawDynamicLines(state *state.UIState, layer *core.LayerStack, rows, cols i
 	for lines := range layer.Iterator() {
 		for i, line := range lines {
 			lineRunes := uint(max(1, line.Len()))
-			
+
 			fixed := fixLineSize(line, cols)
 			for j, v := range fixed {
 				buffer[row] = v

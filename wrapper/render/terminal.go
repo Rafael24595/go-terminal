@@ -4,8 +4,7 @@ import (
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/core"
-	"github.com/Rafael24595/go-terminal/engine/core/assert"
-	"github.com/Rafael24595/go-terminal/engine/helper"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -22,10 +21,10 @@ func TerminalRender(lines []core.Line, size terminal.Winsize) string {
 func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
 	buffer := make([]string, len(lines))
 
-	for i, l := range lines {
-		styled := renderLineFragments(l)
+	for i, line := range lines {
+		styled := renderLineFragments(line, size)
 
-		buffer[i] = terminalRenderLine(
+		buffer[i] = renderLine(
 			lines,
 			i,
 			size,
@@ -36,88 +35,48 @@ func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
 	return buffer
 }
 
-func renderLineFragments(l core.Line) string {
-	var line strings.Builder
+func renderLineFragments(line core.Line, size terminal.Winsize) string {
+	var buffer strings.Builder
 
 	fragments := ""
-	styles := core.None
+	styles := style.AtmNone
 
-	for _, f := range l.Text {
-		if styles != f.Styles && len(fragments) != 0 {
-			line.WriteString(applystyles(fragments, styles))
+	flush := func(f core.Fragment) {
+		atom := applyAtomStyles(fragments, styles)
+		spec, _ := applyVariantStyles(f.Spec, size, atom)
 
-			fragments = ""
+		buffer.WriteString(spec)
 
-			fragments += f.Text
-			styles = f.Styles
+		fragments = ""
+
+		fragments += f.Text
+		styles = f.Atom
+	}
+
+	for _, f := range line.Text {
+		if styles != f.Atom && len(fragments) != 0 {
+			flush(f)
 			continue
 		}
 
 		fragments += f.Text
-		styles = f.Styles
+		styles = f.Atom
 	}
 
 	if len(fragments) != 0 {
-		line.WriteString(applystyles(fragments, styles))
+		flush(core.EmptyFragment())
 	}
 
-	return line.String()
+	return buffer.String()
 }
 
-func applystyles(text string, styles ...core.Style) string {
-	merged := core.MergeStyles(styles...)
-
-	if merged.HasAny(core.Lower) {
-		text = strings.ToLower(text)
-	}
-
-	if merged.HasAny(core.Upper) {
-		text = strings.ToUpper(text)
-	}
-
-	if merged.HasAny(core.Bold) {
-		text = Bold + text + NoBold
-	}
-
-	if merged.HasAny(core.Select) {
-		text = Reverse + text + NoReverse
-	}
-
-	return text
-}
-
-func terminalRenderLine(lines []core.Line, index int, size terminal.Winsize, line string) string {
-	padd := lines[index].Padding
-
-	switch padd.Padding {
-	case core.Center:
-		return helper.Center(line, int(size.Cols))
-	case core.Left:
-		return helper.Left(line, int(size.Cols))
-	case core.Right:
-		return helper.Right(line, int(size.Cols))
-	case core.Fill:
-		return helper.Fill(line, int(size.Cols))
-	case core.FillUp:
-		cursor := index - 1
-		if cursor >= len(lines) {
-			return line
-		}
-		return helper.Fill(line, lines[cursor].Len())
-	case core.FillDown:
-		cursor := index + 1
-		if cursor < 0 {
-			return line
-		}
-		return helper.Fill(line, lines[cursor].Len())
-	case core.Custom:
-		line = helper.RepeatLeft(line, int(padd.Left))
-		return helper.RepeatRight(line, int(padd.Right))
-	case core.Unstyled:
+func renderLine(lines []core.Line, index int, size terminal.Winsize, line string) string {
+	if line, ok := applyLineVariantStyles(lines, index, size, line); ok {
 		return line
 	}
 
-	assert.AssertFalse(true, "undefined padding mode %d", padd.Padding)
+	styl := lines[index].Spec
+	line, _ = applyVariantStyles(styl, size, line)
 
 	return line
 }

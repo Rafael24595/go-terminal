@@ -7,18 +7,22 @@ import (
 )
 
 func Center(item any, width int) string {
-	return CenterCustom(item, width, " ")
+	return CenterCustom(item, width, "")
 }
 
 func Left(item any, width int) string {
-	return LeftCustom(item, width, " ")
+	return LeftCustom(item, width, "")
 }
 
 func Right(item any, width int) string {
-	return RightCustom(item, width, " ")
+	return RightCustom(item, width, "")
 }
 
 func CenterCustom(item any, width int, runes string) string {
+	if runes == "" {
+		runes = " "
+	}
+
 	text := fmt.Sprintf("%v", item)
 	if utf8.RuneCountInString(text) >= width {
 		return text
@@ -32,6 +36,10 @@ func CenterCustom(item any, width int, runes string) string {
 }
 
 func LeftCustom(item any, width int, runes string) string {
+	if runes == "" {
+		runes = " "
+	}
+
 	text := fmt.Sprintf("%v", item)
 	if utf8.RuneCountInString(text) >= width {
 		return text
@@ -43,6 +51,10 @@ func LeftCustom(item any, width int, runes string) string {
 }
 
 func RightCustom(item any, width int, runes string) string {
+	if runes == "" {
+		runes = " "
+	}
+
 	text := fmt.Sprintf("%v", item)
 	if utf8.RuneCountInString(text) >= width {
 		return text

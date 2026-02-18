@@ -12,14 +12,18 @@ func TestAdjustSize_NoReductionNeeded(t *testing.T) {
 		"B": 5,
 	}
 
-	separator := "|"
-	left := "|"
-	right := "|"
+	separator := SeparatorMeta{
+		center: "|",
+		left:   "|",
+		right:  "|",
+	}
 
 	termWidth := 20
 
-	rendered := renderedSize(size, separator, left, right)
-	result := adjustSize(size, termWidth, rendered)
+	rendered := renderedRowSize(size, separator)
+	result, status := adjustSize(size, termWidth, rendered)
+
+	assert.True(t, status)
 
 	assert.Equal(t, size["A"], result["A"])
 	assert.Equal(t, size["B"], result["B"])
@@ -31,16 +35,20 @@ func TestAdjustSize_ReducesLargestColumn(t *testing.T) {
 		"B": 5,
 	}
 
-	separator := "|"
-	left := "|"
-	right := "|"
+	separator := SeparatorMeta{
+		center: "|",
+		left:   "|",
+		right:  "|",
+	}
 
 	termWidth := 14
 
-	rendered := renderedSize(size, separator, left, right)
-	result := adjustSize(size, termWidth, rendered)
+	rendered := renderedRowSize(size, separator)
+	result, status := adjustSize(size, termWidth, rendered)
 
-	assert.GreaterOrEqual(t, termWidth, renderedSize(result, separator, left, right))
+	assert.True(t, status)
+
+	assert.GreaterOrEqual(t, termWidth, renderedRowSize(result, separator))
 	assert.Less(t, 10, result["A"])
 }
 
@@ -50,14 +58,17 @@ func TestAdjustSize_RespectsMinWidth(t *testing.T) {
 		"B": 4,
 	}
 
-	separator := "|"
-	left := "|"
-	right := "|"
-
+	separator := SeparatorMeta{
+		center: "|",
+		left:   "|",
+		right:  "|",
+	}
 	termWidth := 5
 
-	rendered := renderedSize(size, separator, left, right)
-	result := adjustSize(size, termWidth, rendered)
+	rendered := renderedRowSize(size, separator)
+	result, status := adjustSize(size, termWidth, rendered)
+
+	assert.False(t, status)
 
 	assert.GreaterOrEqual(t, 4, result["A"])
 	assert.GreaterOrEqual(t, 4, result["B"])
@@ -69,17 +80,21 @@ func TestAdjustSize_ExactFit(t *testing.T) {
 		"B": 6,
 	}
 
-	separator := "|"
-	left := "|"
-	right := "|"
+	separator := SeparatorMeta{
+		center: "|",
+		left:   "|",
+		right:  "|",
+	}
 
-	rendered := renderedSize(size, separator, left, right)
+	rendered := renderedRowSize(size, separator)
 
 	termWidth := rendered - 3
 
-	result := adjustSize(size, termWidth, rendered)
+	result, status := adjustSize(size, termWidth, rendered)
 
-	assert.Equal(t, termWidth, renderedSize(result, separator, left, right))
+	assert.True(t, status)
+
+	assert.Equal(t, termWidth, renderedRowSize(result, separator))
 }
 
 func TestAdjustSize_MultipleColumnsReduction(t *testing.T) {
@@ -89,16 +104,20 @@ func TestAdjustSize_MultipleColumnsReduction(t *testing.T) {
 		"C": 8,
 	}
 
-	separator := "|"
-	left := "|"
-	right := "|"
+	separator := SeparatorMeta{
+		center: "|",
+		left:   "|",
+		right:  "|",
+	}
 
 	termWidth := 20
 
-	rendered := renderedSize(size, separator, left, right)
-	result := adjustSize(size, termWidth, rendered)
+	rendered := renderedRowSize(size, separator)
+	result, status := adjustSize(size, termWidth, rendered)
 
-	assert.Equal(t, termWidth, renderedSize(result, separator, left, right))
+	assert.True(t, status)
+
+	assert.Equal(t, termWidth, renderedRowSize(result, separator))
 
 	assert.NotEqual(t, 10, result["A"])
 	assert.NotEqual(t, 9, result["B"])
@@ -107,8 +126,8 @@ func TestAdjustSize_MultipleColumnsReduction(t *testing.T) {
 
 func TestSplitTable_FitsInOne(t *testing.T) {
 	size := map[string]int{
-		"A": 10, 
-		"B": 20, 
+		"A": 10,
+		"B": 20,
 		"C": 10,
 	}
 

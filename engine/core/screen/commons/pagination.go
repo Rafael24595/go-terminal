@@ -8,6 +8,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
@@ -73,13 +74,13 @@ func (c *Pagination) View(state state.UIState) core.ViewModel {
 
 		footer := core.NewLines(
 			core.LineJump(),
-			core.NewLine(page, core.ModePadding(core.Right)),
+			core.NewLine(page, style.SpecFromKind(style.SpcKindRight)),
 		)
 
 		vm.Footer.Unshift(
 			line.LinesEagerDrawableFromLines(footer...),
 		)
 	}
-	
+
 	return vm
 }

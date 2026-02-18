@@ -8,6 +8,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
@@ -24,16 +25,16 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 
 	vm.Header.Shift(
 		line.LinesEagerDrawableFromLines(
-			core.NewLine("HEADER", core.ModePadding(core.Left)),
+			core.NewLine("HEADER", style.SpecFromKind(style.SpcKindLeft)),
 		),
 	)
 
 	vm.Lines.Shift(
 		line.LinesLazyDrawableFromLines(
-			core.NewLine("=", core.ModePadding(core.Fill)),
-			core.NewLine("LINE TWO", core.ModePadding(core.Left)),
-			core.NewLine("LINE THREE IS LONG", core.ModePadding(core.Left)),
-			core.NewLine("LINE FOUR", core.ModePadding(core.Left)),
+			core.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
+			core.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("LINE THREE IS LONG", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("LINE FOUR", style.SpecFromKind(style.SpcKindLeft)),
 		),
 	)
 
@@ -85,16 +86,16 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	vm.Header.Shift(
 		line.LinesEagerDrawableFromLines(
-			core.NewLine("H", core.ModePadding(core.Left)),
+			core.NewLine("H", style.SpecFromKind(style.SpcKindLeft)),
 		),
 	)
 
 	vm.Lines.Shift(
 		line.LinesLazyDrawableFromLines(
-			core.NewLine("AAAAAAA", core.ModePadding(core.Left)),
-			core.NewLine("BBBBBBB", core.ModePadding(core.Left)),
-			core.NewLine("CCCCCCC", core.ModePadding(core.Left)),
-			core.NewLine("DDDDDDD", core.ModePadding(core.Left)),
+			core.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("DDDDDDD", style.SpecFromKind(style.SpcKindLeft)),
 		),
 	)
 
@@ -123,7 +124,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 	sizeCols := 5
 
 	lines := []core.Line{
-		core.NewLine("HELLO WORLD", core.ModePadding(core.Left)),
+		core.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindLeft)),
 	}
 
 	layer := core.NewLayerStack().
@@ -190,17 +191,17 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 
 	vm.Header.Shift(
 		line.LinesEagerDrawableFromLines(
-			core.NewLine("golang", core.ModePadding(core.Left)),
+			core.NewLine("golang", style.SpecFromKind(style.SpcKindLeft)),
 		),
 	)
 	vm.Lines.Shift(
 		line.LinesLazyDrawableFromLines(
-			core.NewLine("rust", core.ModePadding(core.Left)),
+			core.NewLine("rust", style.SpecFromKind(style.SpcKindLeft)),
 		),
 	)
 	vm.Footer.Shift(
 		line.LinesEagerDrawableFromLines(
-			core.NewLine("Ziglang", core.ModePadding(core.Left)),
+			core.NewLine("Ziglang", style.SpecFromKind(style.SpcKindLeft)),
 		),
 	)
 

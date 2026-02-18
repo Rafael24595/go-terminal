@@ -41,13 +41,13 @@ func TokenizeLineWords(line Line) []WordToken {
 			fragments = make([]Fragment, 0)
 		}
 
-		return FragmentFromStyle(pf.Styles)
+		return EmptyFragment().AddAtom(pf.Atom)
 	}
 
 	inSpace := false
 
 	for _, frag := range line.Text {
-		fragment := FragmentFromStyle(frag.Styles)
+		fragment := EmptyFragment().AddAtom(frag.Atom)
 		for _, r := range frag.Text {
 			if unicode.IsSpace(r) {
 				if !inSpace {
@@ -91,7 +91,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 
 	flush := func() {
 		emmited = append(emmited, current)
-		current = LineFromPadding(current.Padding)
+		current = LineFromSpec(current.Spec)
 		width = 0
 	}
 
@@ -131,13 +131,13 @@ func takeFromFragment(f Fragment, n int) (taken Fragment, rest Fragment) {
 	runes := []rune(f.Text)
 
 	if n >= len(runes) {
-		return f, FragmentFromStyle(f.Styles)
+		return f, EmptyFragment().AddAtom(f.Atom)
 	}
 
-	taken = FragmentFromStyle(f.Styles)
+	taken = EmptyFragment().AddAtom(f.Atom)
 	taken.Text = string(runes[:n])
 
-	rest = FragmentFromStyle(f.Styles)
+	rest = EmptyFragment().AddAtom(f.Atom)
 	rest.Text = string(runes[n:])
 
 	return

@@ -3,75 +3,14 @@ package core
 import (
 	"strings"
 	"unicode/utf8"
+
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 )
-
-type Style uint8
-
-const (
-	None Style = 0
-	Bold Style = 1 << iota
-	Upper
-	Lower
-	Select
-)
-
-func MergeStyles(styles ...Style) Style {
-	var merged Style
-	for _, style := range styles {
-		merged |= style
-	}
-	return merged
-}
-
-func (s Style) HasAny(styles ...Style) bool {
-	for _, style := range styles {
-		if s&style != 0 {
-			return true
-		}
-	}
-	return false
-}
-
-func (s Style) HasNone(styles ...Style) bool {
-	return !s.HasAny(styles...)
-}
-
-type PaddingMode uint
-
-const (
-	Left PaddingMode = iota
-	Right
-	Center
-	Fill
-	FillUp
-	FillDown
-	Custom
-	Unstyled
-)
-
-type Padding struct {
-	Left    uint16
-	Right   uint16
-	Padding PaddingMode
-}
-
-func ModePadding(padding PaddingMode) Padding {
-	return Padding{
-		Padding: padding,
-	}
-}
-
-func CustomPadding(left, right uint16) Padding {
-	return Padding{
-		Left:    left,
-		Right:   right,
-		Padding: Custom,
-	}
-}
 
 type Fragment struct {
-	Text   string
-	Styles Style
+	Text string
+	Atom style.Atom
+	Spec style.Spec
 }
 
 func FragmentsFromString(text ...string) []Fragment {
@@ -82,81 +21,89 @@ func FragmentsFromString(text ...string) []Fragment {
 	return fragments
 }
 
-func FragmentFromStyle(styles ...Style) Fragment {
+func NewFragment(text string) Fragment {
 	return Fragment{
-		Text:   "",
-		Styles: MergeStyles(styles...),
+		Text: text,
+		Atom: style.AtmNone,
+		Spec: style.SpecEmpty(),
 	}
 }
 
-func NewFragment(text string, styles ...Style) Fragment {
-	return Fragment{
-		Text:   text,
-		Styles: MergeStyles(styles...),
-	}
+func EmptyFragment() Fragment {
+	return NewFragment("")
+}
+
+func (f Fragment) AddAtom(styles ...style.Atom) Fragment {
+	f.Atom = style.MergeAtom(styles...)
+	return f
+}
+
+func (f Fragment) AddSpec(styles ...style.Spec) Fragment {
+	f.Spec = style.MergeSpec(styles...)
+	return f
 }
 
 type Line struct {
-	Order   uint16
-	Text    []Fragment
-	Padding Padding
+	Order uint16
+	Text  []Fragment
+	Spec  style.Spec
 }
 
 func NewLines(lines ...Line) []Line {
 	return lines
 }
 
-func FixedLinesFromLines(padding Padding, lines ...Line) []Line {
+func FixedLinesFromLines(style style.Spec, lines ...Line) []Line {
 	for i := range lines {
-		lines[i].Padding = padding
+		lines[i].Spec = style
 	}
 	return lines
 }
 
 func LineFromFragments(fragments ...Fragment) Line {
 	return Line{
-		Text:    fragments,
-		Padding: ModePadding(Unstyled),
+		Text: fragments,
+		Spec: style.SpecEmpty(),
 	}
 }
 
-func NewLine(text string, padding Padding) Line {
+func NewLine(text string, style style.Spec) Line {
 	return Line{
 		Text: []Fragment{{
 			Text: text,
 		}},
-		Padding: padding,
+		Spec: style,
 	}
 }
 
-func LineFromString(text string, styles ...Style) Line {
+func LineFromString(text string, styles ...style.Atom) Line {
 	return Line{
 		Text: []Fragment{{
-			Text:   text,
-			Styles: MergeStyles(styles...),
+			Text: text,
+			Atom: style.MergeAtom(styles...),
 		}},
-		Padding: ModePadding(Unstyled),
+		Spec: style.SpecEmpty(),
 	}
 }
 
-func LineFromPadding(padding Padding) Line {
+func LineFromSpec(style style.Spec) Line {
 	return Line{
-		Text:    []Fragment{},
-		Padding: padding,
+		Text: []Fragment{},
+		Spec: style,
 	}
 }
 
 func LineJump() Line {
 	return Line{
-		Text:    FragmentsFromString(""),
-		Padding: ModePadding(Fill),
+		Text: FragmentsFromString(""),
+		Spec: style.SpecFromKind(style.SpcKindFill),
 	}
 }
 
-func FragmentLine(padding Padding, fragments ...Fragment) Line {
+func FragmentLine(style style.Spec, fragments ...Fragment) Line {
 	return Line{
-		Text:    fragments,
-		Padding: padding,
+		Text: fragments,
+		Spec: style,
 	}
 }
 

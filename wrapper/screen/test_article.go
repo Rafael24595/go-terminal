@@ -4,6 +4,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 )
 
 func NewTestArticle() screen.Screen {
@@ -11,7 +12,7 @@ func NewTestArticle() screen.Screen {
 		SetName("article - dolor").
 		AddTitle(
 			core.LineFromString("Ac accumsan dolor laoreet"),
-			core.NewLine("=", core.ModePadding(core.Fill)),
+			core.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
 			core.LineJump(),
 		).
 		AddArticle(

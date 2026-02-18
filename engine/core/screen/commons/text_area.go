@@ -10,12 +10,13 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/primitive"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/helper/line"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/helper/text"
 
-	dwawable_line "github.com/Rafael24595/go-terminal/engine/core/drawable/line"
+	drawable_line "github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 )
 
 const default_text_area_name = "TextArea"
@@ -457,22 +458,22 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 		end = 1
 	}
 
-	selectStyle := core.None
+	selectAtom := style.AtmNone
 	page := state.NewPageState(stt.Pager.Page)
 	cursor := state.EmptyCursorState()
 	if c.write {
-		selectStyle = c.caret.BlinkStyle()
+		selectAtom = c.caret.BlinkStyle()
 		page = state.EmptyPagerState()
 		cursor = state.NewCursorState(c.caret.Caret())
 	}
 
-	text := core.FragmentLine(core.ModePadding(core.Right))
+	text := core.FragmentLine(style.SpecFromKind(style.SpcKindRight))
 
 	beforeSelect := string(renderBuffer[0:start])
 	text.Text = append(text.Text, core.NewFragment(beforeSelect))
 
 	onSelect := string(renderBuffer[start:end])
-	text.Text = append(text.Text, core.NewFragment(onSelect, selectStyle))
+	text.Text = append(text.Text, core.NewFragment(onSelect).AddAtom(selectAtom))
 
 	afterSelect := string(renderBuffer[end:])
 	if len(afterSelect) > 0 {
@@ -485,15 +486,15 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	vm := core.ViewModelFromUIState(stt)
 
 	vm.Header.Shift(
-		dwawable_line.LinesEagerDrawableFromLines(c.title...),
+		drawable_line.LinesEagerDrawableFromLines(c.title...),
 	)
 	vm.Lines.Shift(
-		dwawable_line.LinesLazyDrawableFromLines(lines...),
+		drawable_line.LinesLazyDrawableFromLines(lines...),
 	)
 	vm.Footer.Shift(
-		dwawable_line.LinesEagerDrawableFromLines(c.footer...),
+		drawable_line.LinesEagerDrawableFromLines(c.footer...),
 	)
-	
+
 	vm.SetPager(page)
 	vm.SetCursor(cursor)
 
@@ -505,7 +506,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 
 	index := uint16(1)
 
-	currentLine := core.FragmentLine(text.Padding)
+	currentLine := core.FragmentLine(text.Spec)
 	if c.index {
 		currentLine.SetOrder(index)
 	}
@@ -517,7 +518,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 		if len(parts) == 1 {
 			currentLine.Text = append(
 				currentLine.Text,
-				core.NewFragment(parts[0], f.Styles),
+				core.NewFragment(parts[0]).AddAtom(f.Atom),
 			)
 
 			continue
@@ -530,7 +531,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 
 			currentLine.Text = append(
 				currentLine.Text,
-				core.NewFragment(part, f.Styles),
+				core.NewFragment(part).AddAtom(f.Atom),
 			)
 
 			if partIndex >= len(parts)-1 {
@@ -540,7 +541,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 			lines = append(lines, currentLine)
 			index++
 
-			currentLine = core.FragmentLine(text.Padding)
+			currentLine = core.FragmentLine(text.Spec)
 			if c.index {
 				currentLine.SetOrder(index)
 			}
@@ -557,12 +558,12 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 func (c *TextArea) fixEmptyLines(lines []core.Line) []core.Line {
 	for i, line := range lines {
 		if line.Len() == 0 {
-			styles := core.None
+			styles := style.AtmNone
 			if len(line.Text) > 0 {
-				styles = line.Text[len(line.Text)-1].Styles
+				styles = line.Text[len(line.Text)-1].Atom
 			}
 
-			lines[i].Text = append(line.Text, core.NewFragment(EMPTY_LINE_FIX, styles))
+			lines[i].Text = append(line.Text, core.NewFragment(EMPTY_LINE_FIX).AddAtom(styles))
 		}
 	}
 	return lines
@@ -571,7 +572,7 @@ func (c *TextArea) fixEmptyLines(lines []core.Line) []core.Line {
 func (c *TextArea) isCaretPrintable(text core.Line, textIndex int, part string, partIndex int) bool {
 	fragment := text.Text[textIndex]
 
-	isCaret := len(part) == 0 && fragment.Styles.HasAny(core.Select)
+	isCaret := len(part) == 0 && fragment.Atom.HasAny(style.AtmSelect)
 	if !isCaret {
 		return false
 	}
