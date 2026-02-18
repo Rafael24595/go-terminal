@@ -3,13 +3,17 @@ package primitive
 import (
 	"time"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
 const blink_ms = 750
 
 type clock func() int64
+
+func unixClock() int64 {
+	return time.Now().UnixMilli()
+}
 
 type Cursor struct {
 	clock  clock
@@ -22,7 +26,7 @@ type Cursor struct {
 
 func NewCursor(blink bool) *Cursor {
 	return &Cursor{
-		clock:  time.Now().UnixMilli,
+		clock:  unixClock,
 		blink:  blink,
 		status: true,
 		time:   0,
@@ -93,14 +97,14 @@ func (c *Cursor) MoveSelectTo(buff []rune, caret, anchor uint) {
 	c.time = c.clock()
 }
 
-func (c *Cursor) BlinkStyle() core.Style {
+func (c *Cursor) BlinkStyle() style.Atom {
 	if !c.blink || c.caret != c.anchor {
-		return core.Select
+		return style.AtmSelect
 	}
 
-	style := core.None
+	styl := style.AtmNone
 	if c.status {
-		style = core.Select
+		styl = style.AtmSelect
 	}
 
 	now := c.clock()
@@ -109,5 +113,5 @@ func (c *Cursor) BlinkStyle() core.Style {
 		c.status = !c.status
 	}
 
-	return style
+	return styl
 }

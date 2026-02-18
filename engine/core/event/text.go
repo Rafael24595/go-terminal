@@ -62,6 +62,10 @@ type Delta struct {
 
 type clock func() int64
 
+func unixClock() int64 {
+	return time.Now().UnixMilli()
+}
+
 type TextEventService struct {
 	clock   clock
 	actions []textAction
@@ -71,7 +75,7 @@ type TextEventService struct {
 
 func NewTextEventService() *TextEventService {
 	return &TextEventService{
-		clock:   time.Now().UnixMilli,
+		clock:   unixClock,
 		actions: make([]textAction, 0),
 		events:  make([]textEvent, 0, event_limit),
 	}
