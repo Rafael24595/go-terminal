@@ -68,3 +68,11 @@ func Digits[T Number](val T) uint32 {
 
 	return count
 }
+
+func Sum[T Number](items []T) T {
+	total := T(0)
+	for _, item := range items {
+		total += item
+	}
+	return total
+}

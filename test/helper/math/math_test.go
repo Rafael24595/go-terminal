@@ -135,3 +135,58 @@ func TestDigitsUnsigned(t *testing.T) {
 		assert.Equal(t, math.Digits(tt.val), tt.want)
 	}
 }
+
+func TestSum_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []int
+		expected int
+	}{
+		{"positive numbers", []int{1, 2, 3}, 6},
+		{"includes zero", []int{0, 1, 2}, 3},
+		{"single element", []int{42}, 42},
+		{"empty slice", []int{}, 0},
+		{"negative numbers", []int{-1, -2, -3}, -6},
+		{"mixed numbers", []int{-2, 3, -1}, 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, math.Sum(tt.input))
+		})
+	}
+}
+
+func TestSum_Int64(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []int64
+		expected int64
+	}{
+		{"normal", []int64{10, 20, 30}, 60},
+		{"empty", []int64{}, 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, math.Sum(tt.input))
+		})
+	}
+}
+
+func TestSum_Uint(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []uint
+		expected uint
+	}{
+		{"normal", []uint{1, 2, 3}, 6},
+		{"empty", []uint{}, 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, math.Sum(tt.input))
+		})
+	}
+}
