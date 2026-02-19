@@ -55,7 +55,7 @@ func (c *Article) definition() screen.Definition {
 	return screen.Definition{}
 }
 
-func (c *Article) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *Article) update(state state.UIState, _ screen.ScreenEvent) screen.ScreenResult {
 	return screen.ScreenResultFromUIState(state)
 }
 
