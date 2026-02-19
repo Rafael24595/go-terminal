@@ -9,13 +9,18 @@ import (
 
 type argMap = map[SpcArgKey]commons.Argument
 
-type SpecsKind uint8
+type SpecsKind uint64
 
 const (
 	SpcKindNone SpecsKind = 0
-	SpcKindLeft SpecsKind = 1 << iota
-	SpcKindRight
-	SpcKindCenter
+
+	SpcKindPaddingLeft SpecsKind = 1 << iota
+	SpcKindPaddingRight
+	SpcKindPaddingCenter
+
+	SpcKindRepeatLeft
+	SpcKindRepeatRight
+
 	SpcKindFill
 	SpcKindFillUp
 	SpcKindFillDown
@@ -52,14 +57,20 @@ func MergeSpec(styles ...Spec) Spec {
 type SpcArgKey uint8
 
 const (
-	SpcArgLeftSize SpcArgKey = iota
-	SpcArgLeftText
+	KeyPaddingLeftSize SpcArgKey = iota
+	KeyPaddingLeftText
 
-	SpcArgRightSize
-	SpcArgRightText
+	KeyPaddingRightSize
+	KeyPaddingRightText
 
-	SpcArgCenterSize
-	SpcArgCenterText
+	KeyPaddingCenterSize
+	KeyPaddingCenterText
+
+	KeyRepeatLeftSize
+	KeyRepeatLeftText
+
+	KeyRepeatRightSize
+	KeyRepeatRightText
 )
 
 type Spec struct {
@@ -89,31 +100,51 @@ func SpecFromKind(kind SpecsKind) Spec {
 	}
 }
 
-func SpecLeft(size uint, text ...string) Spec {
+func SpecPaddingLeft(size uint, text ...string) Spec {
 	return specDirection(
-		SpcKindLeft,
-		SpcArgLeftSize,
-		SpcArgLeftText,
+		SpcKindPaddingLeft,
+		KeyPaddingLeftSize,
+		KeyPaddingLeftText,
 		size,
 		text...,
 	)
 }
 
-func SpecRight(size uint, text ...string) Spec {
+func SpecPaddingRight(size uint, text ...string) Spec {
 	return specDirection(
-		SpcKindRight,
-		SpcArgRightSize,
-		SpcArgRightText,
+		SpcKindPaddingRight,
+		KeyPaddingRightSize,
+		KeyPaddingRightText,
 		size,
 		text...,
 	)
 }
 
-func VariantCenter(size uint, text ...string) Spec {
+func SpecPaddingCenter(size uint, text ...string) Spec {
 	return specDirection(
-		SpcKindCenter,
-		SpcArgCenterSize,
-		SpcArgCenterText,
+		SpcKindPaddingCenter,
+		KeyPaddingCenterSize,
+		KeyPaddingCenterText,
+		size,
+		text...,
+	)
+}
+
+func SpecRepeatLeft(size uint, text ...string) Spec {
+	return specDirection(
+		SpcKindRepeatLeft,
+		KeyRepeatLeftSize,
+		KeyRepeatLeftText,
+		size,
+		text...,
+	)
+}
+
+func SpecRepeatRight(size uint, text ...string) Spec {
+	return specDirection(
+		SpcKindRepeatRight,
+		KeyRepeatRightSize,
+		KeyRepeatRightText,
 		size,
 		text...,
 	)

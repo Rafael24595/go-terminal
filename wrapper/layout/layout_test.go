@@ -25,16 +25,16 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 
 	vm.Header.Shift(
 		line.LinesEagerDrawableFromLines(
-			core.NewLine("HEADER", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("HEADER", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Lines.Shift(
 		line.LinesLazyDrawableFromLines(
 			core.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
-			core.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindLeft)),
-			core.NewLine("LINE THREE IS LONG", style.SpecFromKind(style.SpcKindLeft)),
-			core.NewLine("LINE FOUR", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			core.NewLine("LINE THREE IS LONG", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			core.NewLine("LINE FOUR", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
@@ -86,16 +86,16 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	vm.Header.Shift(
 		line.LinesEagerDrawableFromLines(
-			core.NewLine("H", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Lines.Shift(
 		line.LinesLazyDrawableFromLines(
-			core.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindLeft)),
-			core.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindLeft)),
-			core.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindLeft)),
-			core.NewLine("DDDDDDD", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			core.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			core.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			core.NewLine("DDDDDDD", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
@@ -124,7 +124,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 	sizeCols := 5
 
 	lines := []core.Line{
-		core.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindLeft)),
+		core.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindPaddingLeft)),
 	}
 
 	layer := core.NewLayerStack().
@@ -191,17 +191,17 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 
 	vm.Header.Shift(
 		line.LinesEagerDrawableFromLines(
-			core.NewLine("golang", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Lines.Shift(
 		line.LinesLazyDrawableFromLines(
-			core.NewLine("rust", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Footer.Shift(
 		line.LinesEagerDrawableFromLines(
-			core.NewLine("Ziglang", style.SpecFromKind(style.SpcKindLeft)),
+			core.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 

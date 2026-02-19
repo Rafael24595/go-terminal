@@ -76,3 +76,23 @@ func Sum[T Number](items []T) T {
 	}
 	return total
 }
+
+func MaxMap[K comparable, V cmp.Ordered](m map[K]V) (K, V, bool) {	
+	if len(m) == 0 {
+		var zeroK K
+		var zeroV V
+		return zeroK, zeroV, false
+	}
+
+	var maxK K
+	var maxV V
+	for k, v := range m {
+		if v < maxV {
+			continue
+		}
+		maxK = k
+		maxV = v
+	}
+
+	return maxK, maxV, true
+}

@@ -20,7 +20,7 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 
 	inputLines := make([]core.Line, 0)
 	if vm.Input != nil {
-		inputLine := core.NewLine(vm.Input.Prompt+vm.Input.Value, style.SpecFromKind(style.SpcKindLeft))
+		inputLine := core.NewLine(vm.Input.Prompt+vm.Input.Value, style.SpecFromKind(style.SpcKindPaddingLeft))
 		if inputLine.Len() > int(size.Cols) {
 			inputLines = append(inputLines, line.WrapLineWords(int(size.Cols), inputLine)...)
 		} else {

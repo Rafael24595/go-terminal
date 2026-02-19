@@ -74,7 +74,7 @@ func (c *Pagination) View(state state.UIState) core.ViewModel {
 
 		footer := core.NewLines(
 			core.LineJump(),
-			core.NewLine(page, style.SpecFromKind(style.SpcKindRight)),
+			core.NewLine(page, style.SpecFromKind(style.SpcKindPaddingRight)),
 		)
 
 		vm.Footer.Unshift(

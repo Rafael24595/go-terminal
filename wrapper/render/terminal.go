@@ -39,44 +39,40 @@ func renderLineFragments(line core.Line, size terminal.Winsize) string {
 	var buffer strings.Builder
 
 	fragments := ""
-	styles := style.AtmNone
-
-	flush := func(f core.Fragment) {
-		atom := applyAtomStyles(fragments, styles)
-		spec, _ := applyVariantStyles(f.Spec, size, atom)
-
-		buffer.WriteString(spec)
-
-		fragments = ""
-
-		fragments += f.Text
-		styles = f.Atom
-	}
+	atomStyles := style.AtmNone
 
 	for _, f := range line.Text {
-		if styles != f.Atom && len(fragments) != 0 {
-			flush(f)
+		spec, _ := applySpecStyles(f.Spec, size, f.Text)
+
+		if atomStyles != f.Atom && len(fragments) != 0 {
+			atom := applyAtomStyles(fragments, atomStyles)
+			buffer.WriteString(atom)
+
+			fragments = spec
+			atomStyles = f.Atom
+
 			continue
 		}
 
-		fragments += f.Text
-		styles = f.Atom
+		fragments += spec
+		atomStyles = f.Atom
 	}
 
 	if len(fragments) != 0 {
-		flush(core.EmptyFragment())
+		atom := applyAtomStyles(fragments, atomStyles)
+		buffer.WriteString(atom)
 	}
 
 	return buffer.String()
 }
 
 func renderLine(lines []core.Line, index int, size terminal.Winsize, line string) string {
-	if line, ok := applyLineVariantStyles(lines, index, size, line); ok {
+	if line, ok := applyLineSpecStyles(lines, index, size, line); ok {
 		return line
 	}
 
 	styl := lines[index].Spec
-	line, _ = applyVariantStyles(styl, size, line)
+	line, _ = applySpecStyles(styl, size, line)
 
 	return line
 }

@@ -1,6 +1,7 @@
 package line
 
 import (
+	"strings"
 	"testing"
 	"unicode/utf8"
 
@@ -12,7 +13,7 @@ import (
 func TestSplitLineWords_Simple(t *testing.T) {
 	line := core.NewLine(
 		"HELLO WORLD",
-		style.SpecFromKind(style.SpcKindLeft),
+		style.SpecFromKind(style.SpcKindPaddingLeft),
 	)
 
 	maxWidth := 5
@@ -23,18 +24,18 @@ func TestSplitLineWords_Simple(t *testing.T) {
 	assert.Equal(t, len(expected), len(lines))
 
 	for i, l := range lines {
-		text := ""
+		var text strings.Builder
 		for _, f := range l.Text {
-			text += f.Text
+			text .WriteString(f.Text)
 		}
 
-		assert.Equal(t, expected[i], text)
+		assert.Equal(t, expected[i], text.String())
 	}
 }
 
 func TestSplitLineWords_Styles(t *testing.T) {
 	line := core.FragmentLine(
-		style.SpecFromKind(style.SpcKindLeft),
+		style.SpecFromKind(style.SpcKindPaddingLeft),
 		core.NewFragment("HELLO").AddAtom(style.AtmBold),
 		core.NewFragment(" "),
 		core.NewFragment("WORLD"),
@@ -58,7 +59,7 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 
 	line := core.NewLine(
 		text,
-		style.SpecFromKind(style.SpcKindLeft),
+		style.SpecFromKind(style.SpcKindPaddingLeft),
 	)
 
 	maxWidth := 10
@@ -87,7 +88,7 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 
 func TestSplitLineWords_MultipleFragments(t *testing.T) {
 	line := core.FragmentLine(
-		style.SpecFromKind(style.SpcKindLeft),
+		style.SpecFromKind(style.SpcKindPaddingLeft),
 		core.NewFragment("HELLO").AddAtom(style.AtmBold),
 		core.NewFragment("WORLD").AddAtom(style.AtmBold),
 		core.NewFragment("GO"),

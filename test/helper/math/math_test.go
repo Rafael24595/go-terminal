@@ -190,3 +190,51 @@ func TestSum_Uint(t *testing.T) {
 		})
 	}
 }
+
+func TestMaxMap_IntValues(t *testing.T) {
+	m := map[string]int{
+		"rust":   10,
+		"golang": 15,
+		"zig":    8,
+	}
+
+	k, v, ok := math.MaxMap(m)
+
+	assert.True(t, ok)
+	assert.Equal(t, 15, v)
+	assert.Equal(t, "golang", k)
+}
+
+func TestMaxMap_EmptyMap(t *testing.T) {
+	m := map[string]int{}
+
+	_, _, ok := math.MaxMap(m)
+
+	assert.False(t, ok)
+}
+
+func TestMaxMap_FloatValues(t *testing.T) {
+	m := map[int]float64{
+		1: 3.5,
+		2: 7.2,
+		3: 1.1,
+	}
+
+	k, v, ok := math.MaxMap(m)
+
+	assert.True(t, ok)
+	assert.Equal(t, 7.2, v)
+	assert.Equal(t, 2, k)
+}
+
+func TestMaxMap_SingleElement(t *testing.T) {
+	m := map[string]int{
+		"golang": 11,
+	}
+
+	k, v, ok := math.MaxMap(m)
+
+	assert.True(t, ok)
+	assert.Equal(t, 11, v)
+	assert.Equal(t, "golang", k)
+}

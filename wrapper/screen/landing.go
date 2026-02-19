@@ -13,7 +13,7 @@ func NewLanding() screen.Screen {
 	title := core.NewLines(
 		core.NewLine(
 			"Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor",
-			style.SpecFromKind(style.SpcKindRight),
+			style.SpecFromKind(style.SpcKindPaddingRight),
 		),
 		core.NewLine(
 			"-",
@@ -24,6 +24,7 @@ func NewLanding() screen.Screen {
 	options := commons.NewMenuOptions(
 		commons.NewMenuOption(core.LineFromString("Option Article"), NewTestArticle),
 		commons.NewMenuOption(core.LineFromString("Option TextArea"), NewTestTextArea),
+		commons.NewMenuOption(core.LineFromString("Option Table"), NewTestTable),
 	)
 
 	for i := range 30 {

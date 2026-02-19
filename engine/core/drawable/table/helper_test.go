@@ -3,19 +3,104 @@ package table
 import (
 	"testing"
 
+	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/table"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
+
+var separator = table.SeparatorMeta{
+	Center: "|",
+	Left:   "|",
+	Right:  "|",
+}
+
+func TestHeadersFromSize_FiltersCorrectly(t *testing.T) {
+	size := map[string]int{
+		"id":   5,
+		"name": 10,
+	}
+
+	headers := []string{"id", "name", "email"}
+
+	result := headersFromSize(size, headers)
+
+	assert.Len(t, 2, result)
+	assert.Equal(t, "id", result[0])
+	assert.Equal(t, "name", result[1])
+}
+
+func TestMakeHeaders_Basic(t *testing.T) {
+	size := map[string]int{
+		"id":   4,
+		"name": 6,
+	}
+
+	headers := []string{"id", "name"}
+
+	line := makeHeaders(size, headers, separator)
+
+	assert.Equal(t, "| id | name |", line.String())
+}
+
+func TestMakeHeaders_Structure(t *testing.T) {
+	size := map[string]int{
+		"id":   4,
+		"name": 6,
+	}
+
+	headers := []string{"id", "name"}
+
+	sep := table.SeparatorMeta{
+		Left:   "|",
+		Center: "|",
+		Right:  "|",
+	}
+
+	line := makeHeaders(size, headers, sep)
+
+	expectedFragments := 2*len(headers) + 1
+	
+	assert.Len(t, expectedFragments, line.Text)
+
+	assert.Equal(t, "|", line.Text[0].Text)
+
+	assert.Equal(t, "id", line.Text[1].Text)
+
+	assert.Equal(t, "|", line.Text[2].Text)
+
+	assert.Equal(t, "name", line.Text[3].Text)
+
+	assert.Equal(t, "|", line.Text[4].Text)
+
+	assert.NotEqual(t, style.SpcKindNone, line.Text[1].Spec.Kind())
+	assert.NotEqual(t, style.SpcKindNone, line.Text[3].Spec.Kind())
+}
+
+func TestMakeTable_Basic(t *testing.T) {
+	size := map[string]int{
+		"id":   4,
+		"name": 6,
+	}
+
+	headers := []string{"id", "name"}
+
+	cols := map[string][]string{
+		"id":   {"1", "2"},
+		"name": {"golang", "ziglang"},
+	}
+
+	lines := makeTable(size, headers, cols, separator)
+
+	assert.Len(t, 2, lines)
+
+	assert.Equal(t, "| 1 | golang |", lines[0].String())
+	assert.Equal(t, "| 2 | ziglang |", lines[1].String())
+}
 
 func TestAdjustSize_NoReductionNeeded(t *testing.T) {
 	size := map[string]int{
 		"A": 5,
 		"B": 5,
-	}
-
-	separator := SeparatorMeta{
-		center: "|",
-		left:   "|",
-		right:  "|",
 	}
 
 	termWidth := 20
@@ -35,12 +120,6 @@ func TestAdjustSize_ReducesLargestColumn(t *testing.T) {
 		"B": 5,
 	}
 
-	separator := SeparatorMeta{
-		center: "|",
-		left:   "|",
-		right:  "|",
-	}
-
 	termWidth := 14
 
 	rendered := renderedRowSize(size, separator)
@@ -58,11 +137,6 @@ func TestAdjustSize_RespectsMinWidth(t *testing.T) {
 		"B": 4,
 	}
 
-	separator := SeparatorMeta{
-		center: "|",
-		left:   "|",
-		right:  "|",
-	}
 	termWidth := 5
 
 	rendered := renderedRowSize(size, separator)
@@ -78,12 +152,6 @@ func TestAdjustSize_ExactFit(t *testing.T) {
 	size := map[string]int{
 		"A": 8,
 		"B": 6,
-	}
-
-	separator := SeparatorMeta{
-		center: "|",
-		left:   "|",
-		right:  "|",
 	}
 
 	rendered := renderedRowSize(size, separator)
@@ -102,12 +170,6 @@ func TestAdjustSize_MultipleColumnsReduction(t *testing.T) {
 		"A": 10,
 		"B": 9,
 		"C": 8,
-	}
-
-	separator := SeparatorMeta{
-		center: "|",
-		left:   "|",
-		right:  "|",
 	}
 
 	termWidth := 20

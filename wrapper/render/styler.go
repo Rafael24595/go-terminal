@@ -9,7 +9,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-func applyLineVariantStyles(lines []core.Line, index int, size terminal.Winsize, line string) (string, bool) {
+func applyLineSpecStyles(lines []core.Line, index int, size terminal.Winsize, line string) (string, bool) {
 	styl := lines[index].Spec
 
 	baseCols := int(size.Cols)
@@ -41,21 +41,29 @@ func applyLineVariantStyles(lines []core.Line, index int, size terminal.Winsize,
 	return line, false
 }
 
-func applyVariantStyles(styl style.Spec, size terminal.Winsize, line string) (string, bool) {
+func applySpecStyles(styl style.Spec, size terminal.Winsize, line string) (string, bool) {
 	baseCols := int(size.Cols)
 
 	kind := styl.Kind()
 
-	if kind.HasAny(style.SpcKindCenter) {
+	if kind.HasAny(style.SpcKindPaddingCenter) {
 		return paddingCenter(styl, baseCols, line), true
 	}
 
-	if kind.HasAny(style.SpcKindLeft) {
+	if kind.HasAny(style.SpcKindPaddingLeft) {
 		return paddingLeft(styl, baseCols, line), true
 	}
 
-	if kind.HasAny(style.SpcKindRight) {
+	if kind.HasAny(style.SpcKindPaddingRight) {
 		return paddingRight(styl, baseCols, line), true
+	}
+
+	if kind.HasAny(style.SpcKindRepeatLeft) {
+		return repeatLeft(styl, baseCols, line), true
+	}
+
+	if kind.HasAny(style.SpcKindRepeatRight) {
+		return repeatRight(styl, baseCols, line), true
 	}
 
 	return line, false
@@ -86,25 +94,56 @@ func applyAtomStyles(text string, styles ...style.Atom) string {
 func paddingCenter(styl style.Spec, cols int, data string) string {
 	args := styl.Args()
 
-	size := args[style.SpcArgCenterSize].Intd(cols)
-	text := args[style.SpcArgCenterText].String()
+	size := args[style.KeyPaddingCenterSize].Intd(cols)
+	text := args[style.KeyPaddingCenterText].String()
+
 	return helper.CenterCustom(data, min(cols, size), text)
 }
 
 func paddingLeft(styl style.Spec, cols int, data string) string {
 	args := styl.Args()
 
-	size := args[style.SpcArgLeftSize].Intd(cols)
-	text := args[style.SpcArgLeftText].String()
+	size := args[style.KeyPaddingLeftSize].Intd(cols)
+	text := args[style.KeyPaddingLeftText].String()
+
 	return helper.LeftCustom(data, min(cols, size), text)
 }
 
 func paddingRight(styl style.Spec, cols int, data string) string {
 	args := styl.Args()
 
-	size := args[style.SpcArgRightSize].Intd(cols)
-	text := args[style.SpcArgRightText].String()
+	size := args[style.KeyPaddingRightSize].Intd(cols)
+	text := args[style.KeyPaddingRightText].String()
+
 	return helper.RightCustom(data, min(cols, size), text)
+}
+
+func repeatLeft(styl style.Spec, cols int, data string) string {
+	args := styl.Args()
+
+	size := args[style.KeyRepeatLeftSize].Intd(0)
+	text := args[style.KeyRepeatLeftText].String()
+
+	if text == "" {
+		text = data
+		data = ""
+	}
+
+	return helper.RepeatLeftCustom(data, min(cols, size), text)
+}
+
+func repeatRight(styl style.Spec, cols int, data string) string {
+	args := styl.Args()
+
+	size := args[style.KeyRepeatRightSize].Intd(0)
+	text := args[style.KeyRepeatRightText].String()
+
+	if text == "" {
+		text = data
+		data = ""
+	}
+
+	return helper.RepeatRightCustom(data, min(cols, size), text)
 }
 
 func fill(cols, size int, data string) string {

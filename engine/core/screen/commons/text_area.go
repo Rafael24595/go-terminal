@@ -467,7 +467,7 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 		cursor = state.NewCursorState(c.caret.Caret())
 	}
 
-	text := core.FragmentLine(style.SpecFromKind(style.SpcKindRight))
+	text := core.FragmentLine(style.SpecFromKind(style.SpcKindPaddingRight))
 
 	beforeSelect := string(renderBuffer[0:start])
 	text.Text = append(text.Text, core.NewFragment(beforeSelect))

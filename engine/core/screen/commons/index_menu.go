@@ -171,7 +171,7 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 		}
 
 		styledLine := core.FragmentLine(
-			style.SpecLeft(2),
+			style.SpecRepeatLeft(2),
 			append(selector, o.line.Text...)...,
 		)
 

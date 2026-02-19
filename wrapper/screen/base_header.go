@@ -9,7 +9,7 @@ import (
 
 func NewBaseHeader(screen screen.Screen) screen.Screen {
 	header := core.FixedLinesFromLines(
-		style.SpecFromKind(style.SpcKindCenter),
+		style.SpecFromKind(style.SpcKindPaddingCenter),
 		core.LineFromString("Lorem ipsum dolor sit amet", style.AtmUpper),
 		core.LineFromString("consectetur adipiscing", style.AtmUpper),
 		core.LineFromString("-Server 00-", style.AtmUpper),

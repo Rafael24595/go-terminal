@@ -75,13 +75,29 @@ func Fill(item any, width int) string {
 }
 
 func RepeatLeft(item any, width int) string {
+	return RepeatLeftCustom(item, width, "")
+}
+
+func RepeatLeftCustom(item any, width int, runes string) string {
+	if runes == "" {
+		runes = " "
+	}
+
 	text := fmt.Sprintf("%v", item)
-	return strings.Repeat(" ", width) + text
+	return strings.Repeat(runes, width) + text
 }
 
 func RepeatRight(item any, width int) string {
+	return RepeatRightCustom(item, width, "")
+}
+
+func RepeatRightCustom(item any, width int, runes string) string {
+	if runes == "" {
+		runes = " "
+	}
+
 	text := fmt.Sprintf("%v", item)
-	return text + strings.Repeat(" ", width)
+	return text + strings.Repeat(runes, width)
 }
 
 func NumberToAlpha(n int) string {
