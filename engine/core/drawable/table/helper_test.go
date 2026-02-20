@@ -14,6 +14,14 @@ var separator = table.SeparatorMeta{
 	Right:  "|",
 }
 
+func keys(size map[string]int) []string {
+	keys := make([]string, 0, len(size))
+	for k := range size {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func TestHeadersFromSize_FiltersCorrectly(t *testing.T) {
 	size := map[string]int{
 		"id":   5,
@@ -59,7 +67,7 @@ func TestMakeHeaders_Structure(t *testing.T) {
 	line := makeHeaders(size, headers, sep)
 
 	expectedFragments := 2*len(headers) + 1
-	
+
 	assert.Len(t, expectedFragments, line.Text)
 
 	assert.Equal(t, "|", line.Text[0].Text)
@@ -106,7 +114,7 @@ func TestAdjustSize_NoReductionNeeded(t *testing.T) {
 	termWidth := 20
 
 	rendered := renderedRowSize(size, separator)
-	result, status := adjustSize(size, termWidth, rendered)
+	result, status := adjustSize(size, keys(size), termWidth, rendered)
 
 	assert.True(t, status)
 
@@ -123,7 +131,7 @@ func TestAdjustSize_ReducesLargestColumn(t *testing.T) {
 	termWidth := 14
 
 	rendered := renderedRowSize(size, separator)
-	result, status := adjustSize(size, termWidth, rendered)
+	result, status := adjustSize(size, keys(size), termWidth, rendered)
 
 	assert.True(t, status)
 
@@ -140,7 +148,7 @@ func TestAdjustSize_RespectsMinWidth(t *testing.T) {
 	termWidth := 5
 
 	rendered := renderedRowSize(size, separator)
-	result, status := adjustSize(size, termWidth, rendered)
+	result, status := adjustSize(size, keys(size), termWidth, rendered)
 
 	assert.False(t, status)
 
@@ -158,7 +166,7 @@ func TestAdjustSize_ExactFit(t *testing.T) {
 
 	termWidth := rendered - 3
 
-	result, status := adjustSize(size, termWidth, rendered)
+	result, status := adjustSize(size, keys(size), termWidth, rendered)
 
 	assert.True(t, status)
 
@@ -175,7 +183,7 @@ func TestAdjustSize_MultipleColumnsReduction(t *testing.T) {
 	termWidth := 20
 
 	rendered := renderedRowSize(size, separator)
-	result, status := adjustSize(size, termWidth, rendered)
+	result, status := adjustSize(size, keys(size), termWidth, rendered)
 
 	assert.True(t, status)
 
@@ -243,4 +251,37 @@ func TestSplitTable_EmptyMap(t *testing.T) {
 	size := map[string]int{}
 	result := splitTable(size, 80)
 	assert.Equal(t, 0, len(result))
+}
+
+func TestAdjustSize_Deterministic(t *testing.T) {
+	size := map[string]int{
+		"A": 12,
+		"B": 10,
+		"C": 8,
+		"D": 6,
+		"E": 10,
+		"F": 8,
+		"G": 12,
+	}
+
+	termWidth := 40
+	keys := keys(size)
+
+	rendered := renderedRowSize(size, separator)
+
+	var firstResult map[string]int
+
+	for i := range 100 {
+		result, status := adjustSize(size, keys, termWidth, rendered)
+		assert.True(t, status)
+
+		if i == 0 {
+			firstResult = result
+			continue
+		}
+
+		for _, k := range keys {
+			assert.Equal(t, firstResult[k], result[k])
+		}
+	}
 }

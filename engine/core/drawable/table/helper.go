@@ -1,6 +1,8 @@
 package table
 
 import (
+	"unicode/utf8"
+
 	"github.com/Rafael24595/go-terminal/engine/commons/structure"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	drawable_line "github.com/Rafael24595/go-terminal/engine/core/drawable/line"
@@ -22,10 +24,11 @@ func makeDrawables(t table.Table, size terminal.Winsize) []core.Drawable {
 
 	cols := int(size.Cols)
 	separator := t.GetSeparator()
+	headers := t.GetHeaders()
 
 	baseSize := t.Size()
 	rendSize := renderedRowSize(baseSize, separator)
-	realSize, status := adjustSize(baseSize, cols, rendSize)
+	realSize, status := adjustSize(baseSize, headers, cols, rendSize)
 
 	var tables []map[string]int
 	if !status {
@@ -37,7 +40,7 @@ func makeDrawables(t table.Table, size terminal.Winsize) []core.Drawable {
 	for _, table := range tables {
 		lines := make([]core.Line, 0)
 
-		headers := headersFromSize(table, t.GetHeaders())
+		headers := headersFromSize(table, headers)
 
 		capacity := renderedRowSize(table, separator)
 		specCover := style.SpecRepeatRight(uint(capacity))
@@ -85,7 +88,11 @@ func makeHeaders(size map[string]int, headers []string, separator table.Separato
 	fragments = append(fragments, core.NewFragment(separator.Left))
 
 	for i, h := range headers {
-		spec := style.SpecPaddingCenter(uint(size[h]))
+		width := uint(size[h])
+		spec := style.MergeSpec(
+			style.SpecPaddingCenter(width),
+			style.SpecTrimRight(width),
+		)
 		fragments = append(fragments, core.NewFragment(h).AddSpec(spec))
 
 		if i < len(headers)-1 {
@@ -109,14 +116,17 @@ func makeTable(size map[string]int, headers []string, cols map[string][]string, 
 		fragments = append(fragments, core.NewFragment(separator.Left))
 
 		for i, h := range headers {
-			size := uint(size[h])
+			width := uint(size[h])
 			col := cols[h]
 
 			if y >= 0 && y < len(col) {
-				spec := style.SpecPaddingRight(size)
+				spec := style.MergeSpec(
+					style.SpecPaddingRight(width),
+					style.SpecTrimRight(width),
+				)
 				fragments = append(fragments, core.NewFragment(col[y]).AddSpec(spec))
 			} else {
-				spec := style.SpecRepeatRight(size)
+				spec := style.SpecRepeatRight(width)
 				fragments = append(fragments, core.NewFragment("").AddSpec(spec))
 			}
 
@@ -134,8 +144,12 @@ func makeTable(size map[string]int, headers []string, cols map[string][]string, 
 }
 
 func renderedRowSize(size map[string]int, separator table.SeparatorMeta) int {
-	joinSize := (len(size) - 1) * len(separator.Center)
-	borderSize := len(separator.Right) + len(separator.Right)
+	sepCenterLen := utf8.RuneCountInString(separator.Center)
+	sepLeftLen := utf8.RuneCountInString(separator.Left)
+	sepRightLen := utf8.RuneCountInString(separator.Right)
+
+	joinSize := (len(size) - 1) * sepCenterLen
+	borderSize := sepLeftLen + sepRightLen
 
 	total := 0
 	for _, v := range size {
@@ -145,7 +159,7 @@ func renderedRowSize(size map[string]int, separator table.SeparatorMeta) int {
 	return total + joinSize + borderSize
 }
 
-func adjustSize(size map[string]int, cols int, rowSize int) (map[string]int, bool) {
+func adjustSize(size map[string]int, headers []string, cols int, rowSize int) (map[string]int, bool) {
 	if rowSize <= cols {
 		return size, true
 	}
@@ -156,8 +170,8 @@ func adjustSize(size map[string]int, cols int, rowSize int) (map[string]int, boo
 		return c.size
 	})
 
-	for k, v := range size {
-		h.Push(col{k, v})
+	for _, v := range headers {
+		h.Push(col{v, size[v]})
 	}
 
 	for excess > 0 {
