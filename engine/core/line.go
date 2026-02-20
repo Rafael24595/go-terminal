@@ -43,6 +43,11 @@ func (f Fragment) AddSpec(styles ...style.Spec) Fragment {
 	return f
 }
 
+func (f Fragment) Len() int {
+	lineLen := utf8.RuneCountInString(f.Text)
+	return style.SpecLen(f.Spec, lineLen)
+}
+
 type Line struct {
 	Order uint16
 	Text  []Fragment
@@ -115,7 +120,7 @@ func (l *Line) SetOrder(order uint16) *Line {
 func (l Line) Len() int {
 	lineLen := 0
 	for _, v := range l.Text {
-		lineLen += utf8.RuneCountInString(v.Text)
+		lineLen += v.Len()
 	}
 	return lineLen
 }
