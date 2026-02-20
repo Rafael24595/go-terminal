@@ -2,7 +2,8 @@ package core
 
 import (
 	"unicode"
-	"unicode/utf8"
+
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 )
 
 type WordToken struct {
@@ -18,7 +19,7 @@ func WordTokenFromFragments(fragments ...Fragment) WordToken {
 func (t WordToken) Size() int {
 	size := 0
 	for _, v := range t.Text {
-		size += utf8.RuneCountInString(v.Text)
+		size += v.Len()
 	}
 	return size
 }
@@ -41,13 +42,26 @@ func TokenizeLineWords(line Line) []WordToken {
 			fragments = make([]Fragment, 0)
 		}
 
-		return EmptyFragment().AddAtom(pf.Atom)
+		return EmptyFragment().
+			AddAtom(pf.Atom).
+			AddSpec(pf.Spec)
 	}
 
 	inSpace := false
 
 	for _, frag := range line.Text {
-		fragment := EmptyFragment().AddAtom(frag.Atom)
+		if frag.Spec.Kind() != style.SpcKindNone {
+			tokens = append(tokens, WordToken{
+				Text: []Fragment{frag},
+			})
+
+			continue
+		}
+
+		fragment := EmptyFragment().
+			AddAtom(frag.Atom).
+			AddSpec(frag.Spec)
+
 		for _, r := range frag.Text {
 			if unicode.IsSpace(r) {
 				if !inSpace {
@@ -103,7 +117,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 		}
 
 		fragment := fragments[0]
-		size := utf8.RuneCountInString(fragment.Text)
+		size := fragment.Len()
 
 		if size <= remaining {
 			current.Text = append(current.Text, fragment)
@@ -117,7 +131,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 		taken, rest := takeFromFragment(fragment, remaining)
 
 		current.Text = append(current.Text, taken)
-		width += utf8.RuneCountInString(taken.Text)
+		width += taken.Len()
 
 		fragments[0] = rest
 
@@ -127,18 +141,18 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 	return current, emmited, width
 }
 
-func takeFromFragment(f Fragment, n int) (taken Fragment, rest Fragment) {
+func takeFromFragment(f Fragment, n int) (Fragment, Fragment) {
 	runes := []rune(f.Text)
 
 	if n >= len(runes) {
-		return f, EmptyFragment().AddAtom(f.Atom)
+		return f, EmptyFragment().AddAtom(f.Atom).AddSpec(f.Spec)
 	}
 
-	taken = EmptyFragment().AddAtom(f.Atom)
+	taken := EmptyFragment().AddAtom(f.Atom).AddSpec(f.Spec)
 	taken.Text = string(runes[:n])
 
-	rest = EmptyFragment().AddAtom(f.Atom)
+	rest := EmptyFragment().AddAtom(f.Atom).AddSpec(f.Spec)
 	rest.Text = string(runes[n:])
 
-	return
+	return taken, rest
 }
