@@ -38,12 +38,12 @@ func (d *LinesEagerDrawable) draw() ([]core.Line, bool) {
 		return lines, d.status
 	}
 
-	for _, header := range d.lines {
-		if int(d.cols) > header.Len() {
-			lines = append(lines, header)
+	for _, line := range d.lines {
+		if int(d.cols) >= line.Len() {
+			lines = append(lines, line)
 			continue
 		}
-		lines = append(lines, WrapLineWords(int(d.cols), header)...)
+		lines = append(lines, WrapLineWords(int(d.cols), line)...)
 	}
 
 	d.status = false

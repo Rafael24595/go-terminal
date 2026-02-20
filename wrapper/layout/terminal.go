@@ -116,7 +116,7 @@ func drawDynamicLines(state *state.UIState, layer *core.LayerStack, rows, cols i
 }
 
 func fixLineSize(lin core.Line, col int) []core.Line {
-	if col > lin.Len() {
+	if col >= lin.Len() {
 		return []core.Line{lin}
 	}
 	return line.WrapLineWords(int(col), lin)
