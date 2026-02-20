@@ -42,7 +42,7 @@ func renderLineFragments(line core.Line, size terminal.Winsize) string {
 	atomStyles := style.AtmNone
 
 	for _, f := range line.Text {
-		spec, _ := applySpecStyles(f.Spec, size, f.Text)
+		spec := applySpecStyles(f.Spec, size, f.Text)
 
 		if atomStyles != f.Atom && len(fragments) != 0 {
 			atom := applyAtomStyles(fragments, atomStyles)
@@ -72,7 +72,7 @@ func renderLine(lines []core.Line, index int, size terminal.Winsize, line string
 	}
 
 	styl := lines[index].Spec
-	line, _ = applySpecStyles(styl, size, line)
+	line = applySpecStyles(styl, size, line)
 
 	return line
 }

@@ -138,7 +138,7 @@ func computeIndexMeta(lines []core.Line) *IndexMeta {
 
 	return &IndexMeta{
 		sufix:      separator,
-		prefixBody: helper.Fill(" ", int(size)),
+		prefixBody: helper.FillRight(" ", int(size)),
 		digits:     uint16(size),
 		totalWidth: size + uint32(len(separator)),
 	}

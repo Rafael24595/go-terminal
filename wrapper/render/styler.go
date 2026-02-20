@@ -2,6 +2,7 @@ package wrapper_render
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
@@ -41,32 +42,40 @@ func applyLineSpecStyles(lines []core.Line, index int, size terminal.Winsize, li
 	return line, false
 }
 
-func applySpecStyles(styl style.Spec, size terminal.Winsize, line string) (string, bool) {
+func applySpecStyles(styl style.Spec, size terminal.Winsize, text string) string {
 	baseCols := int(size.Cols)
 
 	kind := styl.Kind()
 
+	if kind.HasAny(style.SpcKindTrimLeft) {
+		text = trimLeft(styl, text)
+	}
+
+	if kind.HasAny(style.SpcKindTrimRight) {
+		text = trimRight(styl, text)
+	}
+
 	if kind.HasAny(style.SpcKindPaddingCenter) {
-		return paddingCenter(styl, baseCols, line), true
+		text = paddingCenter(styl, baseCols, text)
 	}
 
 	if kind.HasAny(style.SpcKindPaddingLeft) {
-		return paddingLeft(styl, baseCols, line), true
+		text = paddingLeft(styl, baseCols, text)
 	}
 
 	if kind.HasAny(style.SpcKindPaddingRight) {
-		return paddingRight(styl, baseCols, line), true
+		text = paddingRight(styl, baseCols, text)
 	}
 
 	if kind.HasAny(style.SpcKindRepeatLeft) {
-		return repeatLeft(styl, baseCols, line), true
+		text = repeatLeft(styl, baseCols, text)
 	}
 
 	if kind.HasAny(style.SpcKindRepeatRight) {
-		return repeatRight(styl, baseCols, line), true
+		text = repeatRight(styl, baseCols, text)
 	}
 
-	return line, false
+	return text
 }
 
 func applyAtomStyles(text string, styles ...style.Atom) string {
@@ -146,6 +155,40 @@ func repeatRight(styl style.Spec, cols int, data string) string {
 	return helper.RepeatRightCustom(data, min(cols, size), text)
 }
 
+func trimLeft(styl style.Spec, data string) string {
+	if data == "" {
+		return data
+	}
+
+	args := styl.Args()
+
+	size := args[style.KeyTrimLeftSize].Intd(0)
+	size = max(1, size)
+
+	if size >= utf8.RuneCountInString(data) {
+		return data
+	}
+
+	return data[size:]
+}
+
+func trimRight(styl style.Spec, data string) string {
+	if data == "" {
+		return data
+	}
+
+	args := styl.Args()
+
+	size := args[style.KeyTrimRightSize].Intd(0)
+	size = max(1, size)
+
+	if size >= utf8.RuneCountInString(data) {
+		return data
+	}
+
+	return data[:size]
+}
+
 func fill(cols, size int, data string) string {
-	return helper.Fill(data, min(cols, size))
+	return helper.FillRight(data, min(cols, size))
 }

@@ -65,13 +65,44 @@ func RightCustom(item any, width int, runes string) string {
 	return text + strings.Repeat(runes, padding)
 }
 
-func Fill(item any, width int) string {
+func FillLeft(item any, width int) string {
 	text := fmt.Sprintf("%v", item)
 	if utf8.RuneCountInString(text) >= width {
 		return text
 	}
 
-	return strings.Repeat(text, width)
+	if text == "" {
+		text = " "
+	}
+
+	fix := ""
+	if rest := width % len(text); rest != 0 {
+		fix = text[rest:]
+	}
+
+	width = width / len(text)
+
+	return fix + strings.Repeat(text, width)
+}
+
+func FillRight(item any, width int) string {
+	text := fmt.Sprintf("%v", item)
+	if utf8.RuneCountInString(text) >= width {
+		return text
+	}
+
+	if text == "" {
+		text = " "
+	}
+
+	fix := ""
+	if rest := width % len(text); rest != 0 {
+		fix = text[:rest]
+	}
+
+	width = width / len(text)
+
+	return strings.Repeat(text, width) + fix
 }
 
 func RepeatLeft(item any, width int) string {
@@ -79,12 +110,8 @@ func RepeatLeft(item any, width int) string {
 }
 
 func RepeatLeftCustom(item any, width int, runes string) string {
-	if runes == "" {
-		runes = " "
-	}
-
 	text := fmt.Sprintf("%v", item)
-	return strings.Repeat(runes, width) + text
+	return FillLeft(runes, width) + text
 }
 
 func RepeatRight(item any, width int) string {
@@ -92,12 +119,8 @@ func RepeatRight(item any, width int) string {
 }
 
 func RepeatRightCustom(item any, width int, runes string) string {
-	if runes == "" {
-		runes = " "
-	}
-
 	text := fmt.Sprintf("%v", item)
-	return text + strings.Repeat(runes, width)
+	return text + FillRight(runes, width)
 }
 
 func NumberToAlpha(n int) string {

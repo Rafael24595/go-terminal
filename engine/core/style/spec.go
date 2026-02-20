@@ -21,6 +21,9 @@ const (
 	SpcKindRepeatLeft
 	SpcKindRepeatRight
 
+	SpcKindTrimLeft
+	SpcKindTrimRight
+
 	SpcKindFill
 	SpcKindFillUp
 	SpcKindFillDown
@@ -71,6 +74,9 @@ const (
 
 	KeyRepeatRightSize
 	KeyRepeatRightText
+
+	KeyTrimLeftSize
+	KeyTrimRightSize
 )
 
 type Spec struct {
@@ -150,6 +156,35 @@ func SpecRepeatRight(size uint, text ...string) Spec {
 	)
 }
 
+func SpecTrimLeft(size uint) Spec {
+	return specTrim(
+		SpcKindTrimLeft,
+		KeyTrimLeftSize,
+		size,
+	)
+}
+
+func SpecTrimRight(size uint) Spec {
+	return specTrim(
+		SpcKindTrimRight,
+		KeyTrimRightSize,
+		size,
+	)
+}
+
+func specTrim(kind SpecsKind, sizeKey SpcArgKey, size uint) Spec {
+	args := make(argMap)
+
+	if size > 0 {
+		args[sizeKey] = *commons.ArgumentFrom(size)
+	}
+
+	return Spec{
+		kind: kind,
+		args: args,
+	}
+}
+
 func specDirection(
 	kind SpecsKind,
 	sizeKey,
@@ -171,4 +206,17 @@ func specDirection(
 		kind: kind,
 		args: args,
 	}
+}
+
+func SpecLen(s Spec, size int) int {
+
+	if s.kind.HasAny(SpcKindTrimLeft) {
+		size = s.args[KeyTrimLeftSize].Intd(size)
+	}
+
+	if s.kind.HasAny(SpcKindTrimRight) {
+		size = s.args[KeyTrimRightSize].Intd(size)
+	}
+
+	return size
 }

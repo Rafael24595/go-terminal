@@ -3,7 +3,6 @@ package wrapper_layout
 import (
 	"strings"
 	"testing"
-	"unicode/utf8"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
@@ -67,7 +66,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	for i := 1; i < len(lines)-1; i++ {
 		width := 0
 		for _, f := range lines[i].Text {
-			width += utf8.RuneCountInString(f.Text)
+			width += f.Len()
 		}
 
 		assert.LessOrEqual(t, int(size.Cols), width)
@@ -142,7 +141,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 	for _, l := range paged {
 		width := 0
 		for _, f := range l.Text {
-			width += utf8.RuneCountInString(f.Text)
+			width += f.Len()
 		}
 		assert.LessOrEqual(t, sizeCols, width)
 	}

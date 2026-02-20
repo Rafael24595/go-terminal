@@ -53,13 +53,13 @@ func (r *FixedTerminalRender) Render(lines []core.Line, size terminal.Winsize) s
 	buffer := make([]string, size.Rows)
 
 	for i := range size.Rows {
-		buffer[i] = helper.Fill(" ", int(size.Cols))
+		buffer[i] = helper.FillRight(" ", int(size.Cols))
 	}
 
 	index := topPadding
 	for _, line := range renderedLines {
 		fixed := helper.Right(" ", leftPadding)
-		buffer[index] = helper.Right(fixed + line, int(size.Cols))
+		buffer[index] = helper.Right(fixed+line, int(size.Cols))
 		index += 1
 	}
 
