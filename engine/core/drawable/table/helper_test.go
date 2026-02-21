@@ -203,7 +203,7 @@ func TestSplitTable_FitsInOne(t *testing.T) {
 
 	termWidth := 50
 
-	result := splitTable(size, termWidth)
+	result := splitTable(size, keys(size), separator, termWidth)
 
 	assert.Equal(t, 1, len(result))
 	assert.Equal(t, 10, result[0]["A"])
@@ -221,7 +221,7 @@ func TestSplitTable_MustSplit(t *testing.T) {
 
 	termWidth := 25
 
-	result := splitTable(size, termWidth)
+	result := splitTable(size, keys(size), separator, termWidth)
 
 	assert.True(t, len(result) > 1)
 
@@ -241,7 +241,7 @@ func TestSplitTable_ColumnWiderThanTerminal(t *testing.T) {
 
 	termWidth := 80
 
-	result := splitTable(size, termWidth)
+	result := splitTable(size, keys(size), separator, termWidth)
 
 	assert.Equal(t, 1, len(result))
 	assert.Equal(t, 80, result[0]["XL"])
@@ -249,7 +249,7 @@ func TestSplitTable_ColumnWiderThanTerminal(t *testing.T) {
 
 func TestSplitTable_EmptyMap(t *testing.T) {
 	size := map[string]int{}
-	result := splitTable(size, 80)
+	result := splitTable(size, keys(size), separator, 80)
 	assert.Equal(t, 0, len(result))
 }
 

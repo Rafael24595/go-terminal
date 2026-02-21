@@ -32,7 +32,7 @@ func makeDrawables(t table.Table, size terminal.Winsize) []core.Drawable {
 
 	var tables []map[string]int
 	if !status {
-		tables = splitTable(realSize, cols)
+		tables = splitTable(realSize, headers, separator, cols)
 	} else {
 		tables = []map[string]int{realSize}
 	}
@@ -82,7 +82,9 @@ func headersFromSize(size map[string]int, headers []string) []string {
 }
 
 func makeHeaders(size map[string]int, headers []string, separator table.SeparatorMeta) core.Line {
-	capacity := 2*len(headers) + 1
+	headersLen := len(headers)
+
+	capacity := 2*headersLen + 1
 	fragments := make([]core.Fragment, 0, capacity)
 
 	fragments = append(fragments, core.NewFragment(separator.Left))
@@ -95,7 +97,7 @@ func makeHeaders(size map[string]int, headers []string, separator table.Separato
 		)
 		fragments = append(fragments, core.NewFragment(h).AddSpec(spec))
 
-		if i < len(headers)-1 {
+		if i < headersLen-1 {
 			fragments = append(fragments, core.NewFragment(separator.Center))
 		}
 	}
@@ -106,7 +108,9 @@ func makeHeaders(size map[string]int, headers []string, separator table.Separato
 }
 
 func makeTable(size map[string]int, headers []string, cols map[string][]string, separator table.SeparatorMeta) []core.Line {
-	capacity := 2*len(headers) + 1
+	headersLen := len(headers)
+
+	capacity := 2*headersLen + 1
 	colSize := table.Cols(headers, cols)
 
 	lines := make([]core.Line, colSize)
@@ -130,7 +134,7 @@ func makeTable(size map[string]int, headers []string, cols map[string][]string, 
 				fragments = append(fragments, core.NewFragment("").AddSpec(spec))
 			}
 
-			if i < len(headers)-1 {
+			if i < headersLen-1 {
 				fragments = append(fragments, core.NewFragment(separator.Center))
 			}
 		}
@@ -195,13 +199,17 @@ func adjustSize(size map[string]int, headers []string, cols int, rowSize int) (m
 	return newSize, excess == 0
 }
 
-func splitTable(size map[string]int, cols int) []map[string]int {
+func splitTable(size map[string]int, headers []string, splitTable table.SeparatorMeta, cols int) []map[string]int {
 	tables := make([]map[string]int, 0)
 
-	table := make(map[string]int)
-	count := 0
+	leftLen := utf8.RuneCountInString(splitTable.Left)
+	centerLen := utf8.RuneCountInString(splitTable.Center)
+	headersLen := len(headers)
 
-	for k := range size {
+	table := make(map[string]int)
+	count := leftLen
+
+	for i, k := range headers {
 		v := min(size[k], cols)
 
 		if count+v >= cols && len(table) > 0 {
@@ -213,6 +221,10 @@ func splitTable(size map[string]int, cols int) []map[string]int {
 
 		table[k] = v
 		count += v
+
+		if i < headersLen-1 {
+			count += centerLen
+		}
 	}
 
 	if len(table) != 0 {
