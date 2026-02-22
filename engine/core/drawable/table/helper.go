@@ -14,13 +14,19 @@ import (
 // TODO: Use as a argument.
 const min_width = 4
 
+type section struct {
+	header core.Drawable
+	rows   core.Drawable
+	footer core.Drawable
+}
+
 type col struct {
 	name string
 	size int
 }
 
-func makeDrawables(t table.Table, size terminal.Winsize) []core.Drawable {
-	drawables := make([]core.Drawable, 0)
+func makeSections(t table.Table, size terminal.Winsize) []section {
+	sections := make([]section, 0)
 
 	cols := int(size.Cols)
 	separator := t.GetSeparator()
@@ -38,8 +44,6 @@ func makeDrawables(t table.Table, size terminal.Winsize) []core.Drawable {
 	}
 
 	for _, table := range tables {
-		lines := make([]core.Line, 0)
-
 		headers := headersFromSize(table, headers)
 
 		capacity := renderedRowSize(table, separator)
@@ -48,27 +52,28 @@ func makeDrawables(t table.Table, size terminal.Winsize) []core.Drawable {
 		top := core.LineFromFragments(
 			core.NewFragment(separator.Top).AddSpec(specCover),
 		)
-		lines = append(lines, top)
-
-		headerRow := makeHeaders(table, headers, separator)
-		lines = append(lines, headerRow)
-		lines = append(lines, top)
-
-		rows := makeTable(table, headers, t.GetColumns(), separator)
-		lines = append(lines, rows...)
 
 		bottom := core.LineFromFragments(
 			core.NewFragment(separator.Bottom).AddSpec(specCover),
 		)
-		lines = append(lines, bottom)
 
-		if len(lines) > 0 {
-			drawable := drawable_line.LinesEagerDrawableFromLines(lines...)
-			drawables = append(drawables, drawable)
+		rows := makeTable(table, headers, t.GetColumns(), separator)
+		if len(rows) == 0 {
+			continue
 		}
+
+		headerRow := makeHeaders(table, headers, separator)
+
+		sections = append(sections, section{
+			header: drawable_line.EagerLoopDrawableFromLines(
+				top, headerRow, top,
+			),
+			rows:   drawable_line.LazyDrawableFromLines(rows...),
+			footer: drawable_line.EagerLoopDrawableFromLines(bottom),
+		})
 	}
 
-	return drawables
+	return sections
 }
 
 func headersFromSize(size map[string]int, headers []string) []string {
@@ -204,6 +209,7 @@ func splitTable(size map[string]int, headers []string, splitTable table.Separato
 
 	leftLen := utf8.RuneCountInString(splitTable.Left)
 	centerLen := utf8.RuneCountInString(splitTable.Center)
+	rightLen := utf8.RuneCountInString(splitTable.Right)
 	headersLen := len(headers)
 
 	table := make(map[string]int)
@@ -212,7 +218,14 @@ func splitTable(size map[string]int, headers []string, splitTable table.Separato
 	for i, k := range headers {
 		v := min(size[k], cols)
 
-		if count+v >= cols && len(table) > 0 {
+		needed := count + v
+		if len(table) > 0 {
+			needed += centerLen
+		}
+
+		needed += rightLen
+
+		if needed > cols && len(table) > 0 {
 			tables = append(tables, table)
 
 			table = make(map[string]int)
