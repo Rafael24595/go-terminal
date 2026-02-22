@@ -189,11 +189,11 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 	vm := core.ViewModelFromUIState(stt)
 
 	vm.Header.Shift(
-		line.LinesEagerDrawableFromLines(c.title...),
+		line.EagerDrawableFromLines(c.title...),
 	)
 
 	vm.Lines.Shift(
-		line.LinesEagerDrawableFromLines(lines...),
+		line.EagerDrawableFromLines(lines...),
 	)
 
 	vm.SetCursor(

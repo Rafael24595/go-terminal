@@ -76,7 +76,7 @@ func (c *History) view(state state.UIState) core.ViewModel {
 	)
 
 	vm.Footer.Unshift(
-		line.LinesEagerDrawableFromLines(footer...),
+		line.EagerDrawableFromLines(footer...),
 	)
 
 	return vm

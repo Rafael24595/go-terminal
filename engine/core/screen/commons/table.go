@@ -81,7 +81,7 @@ func (c *Table[T]) view(state state.UIState) core.ViewModel {
 	vm := core.ViewModelFromUIState(state)
 
 	vm.Header.Shift(
-		line.LinesEagerDrawableFromLines(c.title...),
+		line.EagerDrawableFromLines(c.title...),
 	)
 	vm.Lines.Shift(
 		drawable_table.TableDrawableFromTable(*c.table),

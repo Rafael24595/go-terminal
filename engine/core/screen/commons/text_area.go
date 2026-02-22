@@ -486,13 +486,13 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	vm := core.ViewModelFromUIState(stt)
 
 	vm.Header.Shift(
-		drawable_line.LinesEagerDrawableFromLines(c.title...),
+		drawable_line.EagerDrawableFromLines(c.title...),
 	)
 	vm.Lines.Shift(
-		drawable_line.LinesLazyDrawableFromLines(lines...),
+		drawable_line.LazyDrawableFromLines(lines...),
 	)
 	vm.Footer.Shift(
-		drawable_line.LinesEagerDrawableFromLines(c.footer...),
+		drawable_line.EagerDrawableFromLines(c.footer...),
 	)
 
 	vm.SetPager(page)

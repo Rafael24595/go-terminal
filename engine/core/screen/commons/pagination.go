@@ -78,7 +78,7 @@ func (c *Pagination) View(state state.UIState) core.ViewModel {
 		)
 
 		vm.Footer.Unshift(
-			line.LinesEagerDrawableFromLines(footer...),
+			line.EagerDrawableFromLines(footer...),
 		)
 	}
 

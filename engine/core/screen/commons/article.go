@@ -63,11 +63,11 @@ func (c *Article) view(state state.UIState) core.ViewModel {
 	vm := core.ViewModelFromUIState(state)
 
 	vm.Header.Shift(
-		line.LinesEagerDrawableFromLines(c.title...),
+		line.EagerDrawableFromLines(c.title...),
 	)
 	vm.Lines.Shift(
-		line.LinesLazyDrawableFromLines(c.article...),
+		line.LazyDrawableFromLines(c.article...),
 	)
-	
+
 	return *vm
 }

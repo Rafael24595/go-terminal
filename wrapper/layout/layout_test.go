@@ -23,13 +23,13 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	vm := core.ViewModelFromUIState(*stt)
 
 	vm.Header.Shift(
-		line.LinesEagerDrawableFromLines(
+		line.EagerDrawableFromLines(
 			core.NewLine("HEADER", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Lines.Shift(
-		line.LinesLazyDrawableFromLines(
+		line.LazyDrawableFromLines(
 			core.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
 			core.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			core.NewLine("LINE THREE IS LONG", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -84,13 +84,13 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	vm := core.ViewModelFromUIState(*stt)
 
 	vm.Header.Shift(
-		line.LinesEagerDrawableFromLines(
+		line.EagerDrawableFromLines(
 			core.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Lines.Shift(
-		line.LinesLazyDrawableFromLines(
+		line.LazyDrawableFromLines(
 			core.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			core.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			core.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -127,7 +127,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 	}
 
 	layer := core.NewLayerStack().
-		Shift(line.LinesEagerDrawableFromLines(lines...))
+		Shift(line.EagerDrawableFromLines(lines...))
 
 	stt := state.NewUIState()
 	stt.Pager = state.PagerState{
@@ -155,7 +155,7 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 	)
 
 	layer := core.NewLayerStack().
-		Shift(line.LinesEagerDrawableFromLines(lines...))
+		Shift(line.EagerDrawableFromLines(lines...))
 
 	result := drawStaticLines(layer, 2, 80)
 
@@ -168,7 +168,7 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 	)
 
 	layer := core.NewLayerStack().
-		Shift(line.LinesEagerDrawableFromLines(lines...))
+		Shift(line.EagerDrawableFromLines(lines...))
 
 	result := drawStaticLines(layer, 3, 7)
 
@@ -189,17 +189,17 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 	vm := core.ViewModelFromUIState(*stt)
 
 	vm.Header.Shift(
-		line.LinesEagerDrawableFromLines(
+		line.EagerDrawableFromLines(
 			core.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Lines.Shift(
-		line.LinesLazyDrawableFromLines(
+		line.LazyDrawableFromLines(
 			core.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Footer.Shift(
-		line.LinesEagerDrawableFromLines(
+		line.EagerDrawableFromLines(
 			core.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)

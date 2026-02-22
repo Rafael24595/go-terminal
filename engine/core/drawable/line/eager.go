@@ -2,36 +2,43 @@ package line
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-type LinesEagerDrawable struct {
-	rows   uint16
-	cols   uint16
-	status bool
-	lines  []core.Line
+type EagerDrawable struct {
+	initialized bool
+	rows        uint16
+	cols        uint16
+	status      bool
+	lines       []core.Line
 }
 
-func NewLinesEagerDrawable(lines ...core.Line) *LinesEagerDrawable {
-	return &LinesEagerDrawable{
-		rows:   0,
-		cols:   0,
-		status: true,
-		lines:  lines,
+func NewEagerDrawable(lines ...core.Line) *EagerDrawable {
+	return &EagerDrawable{
+		initialized: false,
+		rows:        0,
+		cols:        0,
+		status:      true,
+		lines:       lines,
 	}
 }
 
-func LinesEagerDrawableFromLines(lines ...core.Line) core.Drawable {
-	return NewLinesEagerDrawable(lines...).ToDrawable()
+func EagerDrawableFromLines(lines ...core.Line) core.Drawable {
+	return NewEagerDrawable(lines...).ToDrawable()
 }
 
-func (d *LinesEagerDrawable) init(size terminal.Winsize) {
+func (d *EagerDrawable) init(size terminal.Winsize) {
+	d.initialized = true
+
 	d.rows = size.Rows
 	d.cols = size.Cols
 	d.status = true
 }
 
-func (d *LinesEagerDrawable) draw() ([]core.Line, bool) {
+func (d *EagerDrawable) draw() ([]core.Line, bool) {
+	assert.AssertTrue(d.initialized, "the drawable should be initialized before draw")
+
 	lines := make([]core.Line, 0)
 
 	if !d.status {
@@ -50,7 +57,7 @@ func (d *LinesEagerDrawable) draw() ([]core.Line, bool) {
 	return lines, d.status
 }
 
-func (d *LinesEagerDrawable) ToDrawable() core.Drawable {
+func (d *EagerDrawable) ToDrawable() core.Drawable {
 	return core.Drawable{
 		Init: d.init,
 		Draw: d.draw,

@@ -48,8 +48,8 @@ func (c *Header) View(state state.UIState) core.ViewModel {
 	vm := c.screen.View(state)
 
 	vm.Header.Unshift(
-		line.LinesEagerDrawableFromLines(c.header...),
+		line.EagerDrawableFromLines(c.header...),
 	)
-	
+
 	return vm
 }
