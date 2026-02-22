@@ -40,6 +40,10 @@ func (v *ViewModel) SetCursor(cursor state.CursorState) *ViewModel {
 	return v
 }
 
-func (v *ViewModel) InitLayers(size terminal.Winsize) (*LayerStack, *LayerStack, *LayerStack) {
-	return v.Header.Init(size), v.Lines.Init(size), v.Footer.Init(size)
+func (v *ViewModel) InitStaticLayers(size terminal.Winsize) (*LayerStack, *LayerStack) {
+	return v.Header.Init(size), v.Footer.Init(size)
+}
+
+func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) *LayerStack {
+	return v.Lines.Init(size)
 }

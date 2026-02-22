@@ -13,7 +13,7 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	rows := int(size.Rows)
 	cols := int(size.Cols)
 
-	header, lines, footer := vm.InitLayers(size)
+	header, footer := vm.InitStaticLayers(size)
 
 	headerLines := drawStaticLines(header, rows, cols)
 	footerLines := drawStaticLines(footer, rows, cols)
@@ -34,6 +34,9 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 			core.LineFromString("Too low resolution"),
 		)
 	}
+
+	remSize := terminal.NewWinsize(uint16(rest), size.Cols)
+	lines := vm.InitDynamicLayers(remSize)
 
 	bodyLines, page, pagination := drawDynamicLines(state, lines, rest, int(size.Cols))
 
