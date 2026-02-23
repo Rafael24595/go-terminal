@@ -25,12 +25,13 @@ type col struct {
 	size int
 }
 
-func makeSections(t table.Table, size terminal.Winsize) []section {
+func makeSections(t table.Table, cursor Cursor, size terminal.Winsize) []section {
 	sections := make([]section, 0)
 
 	cols := int(size.Cols)
 	separator := t.GetSeparator()
 	headers := t.GetHeaders()
+	columns := t.GetColumns()
 
 	baseSize := t.Size()
 	rendSize := renderedRowSize(baseSize, separator)
@@ -44,7 +45,7 @@ func makeSections(t table.Table, size terminal.Winsize) []section {
 	}
 
 	for _, table := range tables {
-		headers := headersFromSize(table, headers)
+		headers, fixCursor := headersFromSize(table, headers, cursor)
 
 		capacity := renderedRowSize(table, separator)
 		specCover := style.SpecRepeatRight(uint(capacity))
@@ -57,7 +58,8 @@ func makeSections(t table.Table, size terminal.Winsize) []section {
 			core.NewFragment(separator.Bottom).AddSpec(specCover),
 		)
 
-		rows := makeTable(table, headers, t.GetColumns(), separator)
+		rows := makeTable(table, headers, columns, separator, fixCursor)
+
 		if len(rows) == 0 {
 			continue
 		}
@@ -76,14 +78,29 @@ func makeSections(t table.Table, size terminal.Winsize) []section {
 	return sections
 }
 
-func headersFromSize(size map[string]int, headers []string) []string {
+func headersFromSize(size map[string]int, headers []string, cursor Cursor) ([]string, *Cursor) {
 	filtered := make([]string, 0)
-	for _, header := range headers {
-		if _, ok := size[header]; ok {
-			filtered = append(filtered, header)
+
+	var fixCursor *Cursor
+
+	fixX := 0
+	for x, header := range headers {
+		if _, ok := size[header]; !ok {
+			continue
 		}
+
+		filtered = append(filtered, header)
+		if x == int(cursor.Col) {
+			fixCursor = NewCursor(
+				cursor.Row,
+				uint32(fixX),
+				cursor.Show,
+			)
+		}
+		fixX += 1
 	}
-	return filtered
+
+	return filtered, fixCursor
 }
 
 func makeHeaders(size map[string]int, headers []string, separator table.SeparatorMeta) core.Line {
@@ -112,34 +129,62 @@ func makeHeaders(size map[string]int, headers []string, separator table.Separato
 	return core.LineFromFragments(fragments...)
 }
 
-func makeTable(size map[string]int, headers []string, cols map[string][]string, separator table.SeparatorMeta) []core.Line {
+func makeTable(
+	size map[string]int,
+	headers []string,
+	cols map[string][]string,
+	separator table.SeparatorMeta,
+	cursor *Cursor,
+) []core.Line {
 	headersLen := len(headers)
 
 	capacity := 2*headersLen + 1
-	colSize := table.Cols(headers, cols)
+	maxRow := table.Rows(headers, cols)
 
-	lines := make([]core.Line, colSize)
+	lines := make([]core.Line, maxRow)
 
-	for y := range colSize {
+	for y := range maxRow {
 		fragments := make([]core.Fragment, 0, capacity)
 		fragments = append(fragments, core.NewFragment(separator.Left))
 
-		for i, h := range headers {
+		for x, h := range headers {
 			width := uint(size[h])
 			col := cols[h]
+
+			atom := style.AtmNone
+			focus := false
+			if cursor != nil &&
+				cursor.Show &&
+				y == int(cursor.Row) &&
+				x == int(cursor.Col) {
+				atom = style.AtmSelect
+				focus = true
+			}
 
 			if y >= 0 && y < len(col) {
 				spec := style.MergeSpec(
 					style.SpecPaddingRight(width),
 					style.SpecTrimRight(width),
 				)
-				fragments = append(fragments, core.NewFragment(col[y]).AddSpec(spec))
+
+				frag := core.NewFragment(col[y]).
+					SetFocus(focus).
+					AddSpec(spec).
+					AddAtom(atom)
+
+				fragments = append(fragments, frag)
 			} else {
 				spec := style.SpecRepeatRight(width)
-				fragments = append(fragments, core.NewFragment("").AddSpec(spec))
+
+				frag := core.NewFragment("").
+					SetFocus(focus).
+					AddSpec(spec).
+					AddAtom(atom)
+
+				fragments = append(fragments, frag)
 			}
 
-			if i < headersLen-1 {
+			if x < headersLen-1 {
 				fragments = append(fragments, core.NewFragment(separator.Center))
 			}
 		}

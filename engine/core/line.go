@@ -8,9 +8,10 @@ import (
 )
 
 type Fragment struct {
-	Text string
-	Atom style.Atom
-	Spec style.Spec
+	Text  string
+	Focus bool
+	Atom  style.Atom
+	Spec  style.Spec
 }
 
 func FragmentsFromString(text ...string) []Fragment {
@@ -40,6 +41,11 @@ func (f Fragment) AddAtom(styles ...style.Atom) Fragment {
 
 func (f Fragment) AddSpec(styles ...style.Spec) Fragment {
 	f.Spec = style.MergeSpec(styles...)
+	return f
+}
+
+func (f Fragment) SetFocus(focus bool) Fragment {
+	f.Focus = focus
 	return f
 }
 
@@ -123,6 +129,15 @@ func (l Line) Len() int {
 		lineLen += v.Len()
 	}
 	return lineLen
+}
+
+func (l Line) HasFocus() bool {
+	for _, v := range l.Text {
+		if v.Focus {
+			return true
+		}
+	}
+	return false
 }
 
 func (l Line) String() string {

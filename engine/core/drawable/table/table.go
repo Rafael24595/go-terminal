@@ -4,34 +4,71 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
+	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
+
+type Cursor struct {
+	Row  uint32
+	Col  uint32
+	Show bool
+}
+
+func NewCursor(row uint32, col uint32, show bool) *Cursor {
+	return &Cursor{
+		Row:  row,
+		Col:  col,
+		Show: show,
+	}
+}
+
+func (c *Cursor) IncRow(len uint32) *Cursor {
+	c.Row = min(len, c.Row+1)
+	return c
+}
+
+func (c *Cursor) DecRow() *Cursor {
+	c.Row = math.SubClampZero(c.Row, 1)
+	return c
+}
+
+func (c *Cursor) IncCol(len uint32) *Cursor {
+	c.Col = min(len, c.Col+1)
+	return c
+}
+
+func (c *Cursor) DecCol() *Cursor {
+	c.Col = math.SubClampZero(c.Col, 1)
+	return c
+}
 
 type TableDrawable struct {
 	initialized bool
 	table       table.Table
 	size        terminal.Winsize
 	sections    []section
+	cursor      Cursor
 }
 
-func NewTableDrawable(table table.Table) *TableDrawable {
+func NewTableDrawable(table table.Table, cursor Cursor) *TableDrawable {
 	return &TableDrawable{
 		initialized: false,
 		table:       table,
 		size:        terminal.Winsize{},
 		sections:    make([]section, 0),
+		cursor:      cursor,
 	}
 }
 
-func TableDrawableFromTable(table table.Table) core.Drawable {
-	return NewTableDrawable(table).ToDrawable()
+func TableDrawableFromTable(table table.Table, cursor Cursor) core.Drawable {
+	return NewTableDrawable(table, cursor).ToDrawable()
 }
 
 func (d *TableDrawable) init(size terminal.Winsize) {
 	d.initialized = true
 
 	d.size = size
-	d.sections = makeSections(d.table, size)
+	d.sections = makeSections(d.table, d.cursor, size)
 
 	for i := range d.sections {
 		d.sections[i].header.Init(size)

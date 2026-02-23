@@ -167,7 +167,7 @@ func TestLayerStack_BufferConcat(t *testing.T) {
 	buffer, _ := stack.Draw()
 
 	assert.Len(t, 2, buffer)
-	assert.Equal(t, "golang", buffer[0].String() + buffer[1].String())
+	assert.Equal(t, "golang", buffer[0].String()+buffer[1].String())
 }
 
 func TestLayerStack_ShortCircuitStopsPropagation(t *testing.T) {

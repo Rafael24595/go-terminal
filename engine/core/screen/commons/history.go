@@ -30,7 +30,7 @@ func (c *History) ToScreen() screen.Screen {
 	}
 }
 
-func (c *History) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *History) update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	requiredKey := isKeyRequired(c.screen.Definition(), event.Key)
 
 	if !requiredKey {
@@ -50,7 +50,7 @@ func (c *History) update(state state.UIState, event screen.ScreenEvent) screen.S
 	return result
 }
 
-func (c *History) localUpdate(_ state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
+func (c *History) localUpdate(_ *state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
 	if event.Key.Rune == 'b' && c.history != nil {
 		newBack := NewHistory(*c.history)
 		newScreen := newBack.ToScreen()

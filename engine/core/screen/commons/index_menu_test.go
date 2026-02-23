@@ -101,13 +101,13 @@ func TestIndexMenu_CursorNavigation(t *testing.T) {
 	assert.Equal(t, menu.cursor, uint(0))
 
 	scrn.Update(
-		*state.NewUIState(),
+		state.NewUIState(),
 		screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowDown)},
 	)
 	assert.Equal(t, menu.cursor, uint(1))
 
 	scrn.Update(
-		*state.NewUIState(),
+		state.NewUIState(),
 		screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowUp)},
 	)
 	assert.Equal(t, menu.cursor, uint(0))
@@ -128,7 +128,7 @@ func TestIndexMenu_Action(t *testing.T) {
 
 	scrn := menu.ToScreen()
 	result := scrn.Update(
-		*state.NewUIState(),
+		state.NewUIState(),
 		screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionEnter)},
 	)
 
@@ -149,15 +149,21 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 			),
 		)
 
+	stt := &state.UIState{}
+
+	ctx := state.PagerContext{
+		Cursor: uint(6),
+	}
+
 	menu.cursor = 1
-	vm := menu.view(state.UIState{})
+	vm := menu.view(*stt)
 
 	vm.Lines.Init(terminal.Winsize{})
 	lines, _ := vm.Lines.Draw()
 
-	assert.NotNil(t, vm.Cursor)
-	assert.True(t, vm.Cursor.Enabled)
-	assert.Equal(t, vm.Cursor.Cursor, uint(6))
+	assert.NotNil(t, vm.Pager)
+	assert.Equal(t, vm.Pager.Mode, state.PagerModeCursor)
+	assert.True(t, vm.Pager.Match(*stt, ctx))
 
 	assert.Equal(t, lines[0].String(), "-")
 }

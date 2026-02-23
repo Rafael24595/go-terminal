@@ -99,11 +99,9 @@ func (t *Table) Size() map[string]int {
 }
 
 func (t *Table) Cols() int {
-	colSize := 0
-	for _, h := range t.headers {
-		if len(t.cols[h]) > colSize {
-			colSize = len(t.cols[h])
-		}
-	}
-	return colSize
+	return len(t.headers)
+}
+
+func (t *Table) Rows() int {
+	return Rows(t.headers, t.cols)
 }

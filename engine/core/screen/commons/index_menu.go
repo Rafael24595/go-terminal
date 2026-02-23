@@ -127,7 +127,7 @@ func (c *IndexMenu) name() string {
 	return c.reference
 }
 
-func (c *IndexMenu) update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	size := uint(len(c.options))
 	if size == 0 {
 		return screen.EmptyScreenResult()
@@ -196,12 +196,9 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 		line.EagerDrawableFromLines(lines...),
 	)
 
-	vm.SetCursor(
-		state.NewCursorState(c.cursor),
+	vm.SetStrategy(
+		state.NewCursorPager(uint(cursor)),
 	)
-
-	vm.Pager.Enabled = false
-	vm.SetCursor(state.NewCursorState(uint(cursor)))
 
 	return *vm
 }

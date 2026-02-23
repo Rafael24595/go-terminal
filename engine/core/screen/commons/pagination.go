@@ -31,7 +31,7 @@ func (c *Pagination) ToScreen() screen.Screen {
 	}
 }
 
-func (c *Pagination) Update(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *Pagination) Update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	requiredKey := isKeyRequired(c.screen.Definition(), event.Key)
 
 	if !requiredKey {
@@ -51,7 +51,7 @@ func (c *Pagination) Update(state state.UIState, event screen.ScreenEvent) scree
 	return result
 }
 
-func (c *Pagination) localUpdate(state state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
+func (c *Pagination) localUpdate(state *state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
 	switch event.Key.Code {
 	case key.ActionArrowLeft:
 		state.Pager.Page = math.SubClampZero(state.Pager.Page, 1)
@@ -66,11 +66,11 @@ func (c *Pagination) localUpdate(state state.UIState, event screen.ScreenEvent) 
 	}
 }
 
-func (c *Pagination) View(state state.UIState) core.ViewModel {
-	vm := c.screen.View(state)
+func (c *Pagination) View(stt state.UIState) core.ViewModel {
+	vm := c.screen.View(stt)
 
-	if vm.Pager.Enabled {
-		page := fmt.Sprintf("page: %d", vm.Pager.Page)
+	if vm.IsPagerMode(state.PagerModePage) || stt.Pager.ShowPage {
+		page := fmt.Sprintf("page: %d", stt.Pager.Page)
 
 		footer := core.NewLines(
 			core.LineJump(),

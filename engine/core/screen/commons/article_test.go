@@ -73,7 +73,7 @@ func TestArticle_View(t *testing.T) {
 
 func TestArticle_Update(t *testing.T) {
 	article := NewArticle()
-	initialState := state.UIState{}
+	initialState := &state.UIState{}
 
 	article.update(initialState, screen.ScreenEvent{})
 

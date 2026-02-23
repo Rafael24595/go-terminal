@@ -5,6 +5,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+var default_pager = state.NewPagePager()
+
 type InputLine struct {
 	Prompt string
 	Value  string
@@ -16,28 +18,30 @@ type ViewModel struct {
 	Lines  *LayerStack
 	Footer *LayerStack
 	Input  *InputLine
-	Pager  state.PagerState
-	Cursor state.CursorState
+	Pager  state.PagerStrategy
 }
 
-func ViewModelFromUIState(state state.UIState) *ViewModel {
+func ViewModelFromUIState(stt state.UIState) *ViewModel {
 	return &ViewModel{
 		Header: NewLayerStack(),
 		Lines:  NewLayerStack(),
 		Footer: NewLayerStack(),
-		Pager:  state.Pager,
-		Cursor: state.Cursor,
+		Input:  nil,
+		Pager:  default_pager,
 	}
 }
 
-func (v *ViewModel) SetPager(pager state.PagerState) *ViewModel {
-	v.Pager = pager
+func (v *ViewModel) SetStrategy(strategy state.PagerStrategy) *ViewModel {
+	v.Pager = strategy
 	return v
 }
 
-func (v *ViewModel) SetCursor(cursor state.CursorState) *ViewModel {
-	v.Cursor = cursor
-	return v
+func (s *ViewModel) IsPagerMode(mode state.PagerMode) bool {
+	return s.Pager.Mode == mode
+}
+
+func (s *ViewModel) PagerMatch(state state.UIState, ctx state.PagerContext) bool {
+	return s.Pager.Match(state, ctx)
 }
 
 func (v *ViewModel) InitStaticLayers(size terminal.Winsize) (*LayerStack, *LayerStack) {

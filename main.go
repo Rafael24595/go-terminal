@@ -22,16 +22,7 @@ const paddingRows = 5
 
 // Move main and wrapper packages to a new project
 func main() {
-	state := state.UIState{
-		Pager: state.PagerState{
-			Page:    0,
-			Enabled: false,
-		},
-		Cursor: state.CursorState{
-			Cursor: 0,
-			Offset: 0,
-		},
-	}
+	state := &state.UIState{}
 
 	c := wrapper_terminal.NewConsole()
 	c.Color("\x1b[0;32m")
@@ -74,12 +65,9 @@ func main() {
 
 		size = newSize
 
-		vmd := s.View(state)
+		vmd := s.View(*state)
 
-		state.Pager = vmd.Pager
-		state.Cursor = vmd.Cursor
-
-		lns := l.Apply(&state, vmd, size)
+		lns := l.Apply(state, vmd, size)
 		str := r.Render(lns, size)
 
 		t.WriteAll(str)
@@ -98,7 +86,6 @@ func main() {
 			})
 
 			state.Pager = result.Pager
-			state.Cursor = result.Cursor
 
 			if result.Screen != nil {
 				s = *result.Screen

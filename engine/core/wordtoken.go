@@ -43,6 +43,7 @@ func TokenizeLineWords(line Line) []WordToken {
 		}
 
 		return EmptyFragment().
+			SetFocus(pf.Focus).
 			AddAtom(pf.Atom).
 			AddSpec(pf.Spec)
 	}
@@ -59,6 +60,7 @@ func TokenizeLineWords(line Line) []WordToken {
 		}
 
 		fragment := EmptyFragment().
+			SetFocus(frag.Focus).
 			AddAtom(frag.Atom).
 			AddSpec(frag.Spec)
 
@@ -145,13 +147,24 @@ func takeFromFragment(f Fragment, n int) (Fragment, Fragment) {
 	runes := []rune(f.Text)
 
 	if n >= len(runes) {
-		return f, EmptyFragment().AddAtom(f.Atom).AddSpec(f.Spec)
+		return f, EmptyFragment().
+			SetFocus(f.Focus).
+			AddAtom(f.Atom).
+			AddSpec(f.Spec)
 	}
 
-	taken := EmptyFragment().AddAtom(f.Atom).AddSpec(f.Spec)
+	taken := EmptyFragment().
+		SetFocus(f.Focus).
+		AddAtom(f.Atom).
+		AddSpec(f.Spec)
+
 	taken.Text = string(runes[:n])
 
-	rest := EmptyFragment().AddAtom(f.Atom).AddSpec(f.Spec)
+	rest := EmptyFragment().
+		SetFocus(f.Focus).
+		AddAtom(f.Atom).
+		AddSpec(f.Spec)
+		
 	rest.Text = string(runes[n:])
 
 	return taken, rest

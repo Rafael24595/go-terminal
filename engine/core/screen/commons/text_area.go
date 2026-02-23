@@ -149,14 +149,16 @@ func (c *TextArea) definition() screen.Definition {
 	return text_area_read_definition
 }
 
-func (c *TextArea) update(state state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+	state.Pager.ShowPage = true
+
 	if !c.write {
 		return c.updateRead(state, evnt)
 	}
 	return c.updateWrite(state, evnt)
 }
 
-func (c *TextArea) updateRead(state state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) updateRead(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
 	ky := evnt.Key
 
 	switch ky.Code {
@@ -167,7 +169,7 @@ func (c *TextArea) updateRead(state state.UIState, evnt screen.ScreenEvent) scre
 	return screen.ScreenResultFromUIState(state)
 }
 
-func (c *TextArea) updateWrite(state state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) updateWrite(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
 	ky := evnt.Key
 
 	switch ky.Code {
@@ -199,7 +201,7 @@ func (c *TextArea) updateWrite(state state.UIState, evnt screen.ScreenEvent) scr
 	return c.pushRune(state, ky)
 }
 
-func (c *TextArea) pushRune(state state.UIState, ky key.Key) screen.ScreenResult {
+func (c *TextArea) pushRune(state *state.UIState, ky key.Key) screen.ScreenResult {
 	end := c.caret.SelectEnd()
 
 	start := c.caret.SelectStart()
@@ -221,7 +223,7 @@ func (c *TextArea) pushRune(state state.UIState, ky key.Key) screen.ScreenResult
 	return screen.ScreenResultFromUIState(state)
 }
 
-func (c *TextArea) undoRedo(state state.UIState, ky key.Key) screen.ScreenResult {
+func (c *TextArea) undoRedo(state *state.UIState, ky key.Key) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	var delta *event.Delta
@@ -246,7 +248,7 @@ func (c *TextArea) undoRedo(state state.UIState, ky key.Key) screen.ScreenResult
 	return result
 }
 
-func (c *TextArea) moveHome(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) moveHome(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.HasAny(key.ModCtrl) {
@@ -267,7 +269,7 @@ func (c *TextArea) moveHome(state state.UIState, event screen.ScreenEvent) scree
 	return result
 }
 
-func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) moveEnd(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.HasAny(key.ModCtrl) {
@@ -288,7 +290,7 @@ func (c *TextArea) moveEnd(state state.UIState, event screen.ScreenEvent) screen
 	return result
 }
 
-func (c *TextArea) moveUp(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) moveUp(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	start := c.caret.Caret()
@@ -316,7 +318,7 @@ func (c *TextArea) moveUp(state state.UIState, event screen.ScreenEvent) screen.
 	return result
 }
 
-func (c *TextArea) moveDown(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) moveDown(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	start := c.caret.Caret()
@@ -344,7 +346,7 @@ func (c *TextArea) moveDown(state state.UIState, event screen.ScreenEvent) scree
 	return result
 }
 
-func (c *TextArea) moveBackward(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) moveBackward(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.HasNone(key.ModShift, key.ModCtrl) {
@@ -370,7 +372,7 @@ func (c *TextArea) moveBackward(state state.UIState, event screen.ScreenEvent) s
 	return result
 }
 
-func (c *TextArea) moveForward(state state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *TextArea) moveForward(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	if event.Key.Mod.HasNone(key.ModShift, key.ModCtrl) {
@@ -396,7 +398,7 @@ func (c *TextArea) moveForward(state state.UIState, event screen.ScreenEvent) sc
 	return result
 }
 
-func (c *TextArea) deleteBackward(state state.UIState, word bool) screen.ScreenResult {
+func (c *TextArea) deleteBackward(state *state.UIState, word bool) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	if len(c.buffer) == 0 {
@@ -421,7 +423,7 @@ func (c *TextArea) deleteBackward(state state.UIState, word bool) screen.ScreenR
 	return result
 }
 
-func (c *TextArea) deleteForward(state state.UIState, word bool) screen.ScreenResult {
+func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.ScreenResult {
 	result := screen.ScreenResultFromUIState(state)
 
 	if len(c.buffer) == 0 {
@@ -458,13 +460,9 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 		end = 1
 	}
 
-	selectAtom := style.AtmNone
-	page := state.NewPageState(stt.Pager.Page)
-	cursor := state.EmptyCursorState()
+	strategy := state.NewPagePager()
 	if c.write {
-		selectAtom = c.caret.BlinkStyle()
-		page = state.EmptyPagerState()
-		cursor = state.NewCursorState(c.caret.Caret())
+		strategy = state.NewFocusPager()
 	}
 
 	text := core.FragmentLine(style.SpecFromKind(style.SpcKindPaddingRight))
@@ -472,8 +470,8 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	beforeSelect := string(renderBuffer[0:start])
 	text.Text = append(text.Text, core.NewFragment(beforeSelect))
 
-	onSelect := string(renderBuffer[start:end])
-	text.Text = append(text.Text, core.NewFragment(onSelect).AddAtom(selectAtom))
+	onSelect := c.makeSelectedFragments(renderBuffer, start, end)
+	text.Text = append(text.Text, onSelect...)
 
 	afterSelect := string(renderBuffer[end:])
 	if len(afterSelect) > 0 {
@@ -495,10 +493,44 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 		drawable_line.EagerDrawableFromLines(c.footer...),
 	)
 
-	vm.SetPager(page)
-	vm.SetCursor(cursor)
+	vm.SetStrategy(strategy)
 
 	return *vm
+}
+
+func (c *TextArea) makeSelectedFragments(renderBuffer []rune, start uint, end uint) []core.Fragment {
+	onSelect := renderBuffer[start:end]
+
+	selectAtom := style.AtmNone
+	if c.write {
+		selectAtom = c.caret.BlinkStyle()
+	}
+
+	if c.caret.Caret() == c.caret.Anchor() {
+		return []core.Fragment{
+			core.NewFragment(string(onSelect)).
+				SetFocus(true).
+				AddAtom(selectAtom),
+		}
+	}
+
+	if end == c.caret.Anchor() {
+		return []core.Fragment{
+			core.NewFragment(string(onSelect[:1])).
+				SetFocus(true).
+				AddAtom(selectAtom),
+			core.NewFragment(string(onSelect[1:])).
+				AddAtom(selectAtom),
+		}
+	}
+
+	return []core.Fragment{
+		core.NewFragment(string(onSelect[:len(onSelect)-1])).
+			AddAtom(selectAtom),
+		core.NewFragment(string(onSelect[len(onSelect)-1])).
+			SetFocus(true).
+			AddAtom(selectAtom),
+	}
 }
 
 func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
@@ -518,7 +550,9 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 		if len(parts) == 1 {
 			currentLine.Text = append(
 				currentLine.Text,
-				core.NewFragment(parts[0]).AddAtom(f.Atom),
+				core.NewFragment(parts[0]).
+					SetFocus(f.Focus).
+					AddAtom(f.Atom),
 			)
 
 			continue
@@ -531,7 +565,9 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 
 			currentLine.Text = append(
 				currentLine.Text,
-				core.NewFragment(part).AddAtom(f.Atom),
+				core.NewFragment(part).
+					SetFocus(f.Focus).
+					AddAtom(f.Atom),
 			)
 
 			if partIndex >= len(parts)-1 {

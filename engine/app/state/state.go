@@ -1,54 +1,58 @@
 package state
 
-type PagerState struct {
-	Enabled bool
-	Page    uint
-}
+type PagerMode uint16
 
-func NewPageState(page uint) PagerState {
-	return PagerState{
-		Enabled: true,
-		Page:    page,
-	}
-}
-
-func EmptyPagerState() PagerState {
-	return PagerState{
-		Enabled: false,
-		Page:    0,
-	}
-}
-
-type CursorState struct {
-	Enabled bool
-	Cursor  uint
-	Offset  uint
-}
-
-func NewCursorState(cursor uint) CursorState {
-	return CursorState{
-		Enabled: true,
-		Cursor:  cursor,
-		Offset:  0,
-	}
-}
-
-func EmptyCursorState() CursorState {
-	return CursorState{
-		Enabled: false,
-		Cursor:  0,
-		Offset:  0,
-	}
-}
+const (
+	PagerModePage PagerMode = iota
+	PagerModeCursor
+	PagerModeFocus
+)
 
 type UIState struct {
-	Pager  PagerState
-	Cursor CursorState
+	Pager PagerContext
 }
 
 func NewUIState() *UIState {
 	return &UIState{
-		Pager:  EmptyPagerState(),
-		Cursor: EmptyCursorState(),
+		Pager: PagerContext{},
+	}
+}
+
+type PagerContext struct {
+	Page     uint
+	ShowPage bool
+	Cursor   uint
+	Focus    bool
+}
+
+type PagerStrategy struct {
+	Mode  PagerMode
+	Match func(state UIState, ctx PagerContext) bool
+}
+
+func NewPagePager() PagerStrategy {
+	return PagerStrategy{
+		Mode: PagerModePage,
+		Match: func(state UIState, ctx PagerContext) bool {
+			return ctx.Page == state.Pager.Page
+		},
+	}
+}
+
+func NewCursorPager(cursor uint) PagerStrategy {
+	return PagerStrategy{
+		Mode: PagerModeCursor,
+		Match: func(stt UIState, ctx PagerContext) bool {
+			return ctx.Cursor >= cursor
+		},
+	}
+}
+
+func NewFocusPager() PagerStrategy {
+	return PagerStrategy{
+		Mode: PagerModeFocus,
+		Match: func(_ UIState, ctx PagerContext) bool {
+			return ctx.Focus
+		},
 	}
 }

@@ -30,7 +30,7 @@ func TestHeadersFromSize_FiltersCorrectly(t *testing.T) {
 
 	headers := []string{"id", "name", "email"}
 
-	result := headersFromSize(size, headers)
+	result, _ := headersFromSize(size, headers, Cursor{})
 
 	assert.Len(t, 2, result)
 	assert.Equal(t, "id", result[0])
@@ -97,7 +97,7 @@ func TestMakeTable_Basic(t *testing.T) {
 		"name": {"golang", "ziglang"},
 	}
 
-	lines := makeTable(size, headers, cols, separator)
+	lines := makeTable(size, headers, cols, separator, &Cursor{})
 
 	assert.Len(t, 2, lines)
 

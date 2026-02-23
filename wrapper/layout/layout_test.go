@@ -16,9 +16,6 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	size := terminal.Winsize{Rows: 6, Cols: 10}
 
 	stt := state.NewUIState()
-	stt.Pager = state.PagerState{
-		Page: 0,
-	}
 
 	vm := core.ViewModelFromUIState(*stt)
 
@@ -42,11 +39,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 		Value:  "INPUT",
 	}
 
-	state := &state.UIState{
-		Pager: state.PagerState{
-			Page: 0,
-		},
-	}
+	state := &state.UIState{}
 
 	lines := TerminalApply(state, *vm, size)
 
@@ -77,9 +70,6 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	size := terminal.Winsize{Rows: 4, Cols: 8}
 
 	stt := state.NewUIState()
-	stt.Pager = state.PagerState{
-		Page: 0,
-	}
 
 	vm := core.ViewModelFromUIState(*stt)
 
@@ -130,11 +120,10 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 		Shift(line.EagerDrawableFromLines(lines...))
 
 	stt := state.NewUIState()
-	stt.Pager = state.PagerState{
-		Page: 0,
-	}
 
-	paged, _, _ := drawDynamicLines(stt, layer, 2, sizeCols)
+	vm := core.ViewModelFromUIState(*stt)
+
+	paged, _ := drawDynamicLines(stt, *vm, layer, 2, sizeCols)
 
 	assert.LessOrEqual(t, 2, len(paged))
 
@@ -182,9 +171,6 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 	size := terminal.Winsize{Rows: 4, Cols: 8}
 
 	stt := state.NewUIState()
-	stt.Pager = state.PagerState{
-		Page: 0,
-	}
 
 	vm := core.ViewModelFromUIState(*stt)
 

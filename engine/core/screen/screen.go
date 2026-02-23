@@ -13,38 +13,26 @@ type ScreenEvent struct {
 type ScreenResult struct {
 	IgnoreParents bool
 	Screen        *Screen
-	Pager         state.PagerState
-	Cursor        state.CursorState
+	Pager         state.PagerContext
 }
 
 type Definition struct {
 	RequireKeys []key.Key
 }
 
-func NewScreenResult(screen *Screen, pager state.PagerState, cursor state.CursorState) ScreenResult {
-	return ScreenResult{
-		IgnoreParents: false,
-		Screen:        screen,
-		Cursor:        cursor,
-		Pager:         pager,
-	}
-}
-
 func ScreenResultFromScreen(screen *Screen) ScreenResult {
 	return ScreenResult{
 		IgnoreParents: false,
 		Screen:        screen,
-		Pager:         state.EmptyPagerState(),
-		Cursor:        state.EmptyCursorState(),
+		Pager:         state.PagerContext{},
 	}
 }
 
-func ScreenResultFromUIState(state state.UIState) ScreenResult {
+func ScreenResultFromUIState(stt *state.UIState) ScreenResult {
 	return ScreenResult{
 		IgnoreParents: false,
 		Screen:        nil,
-		Pager:         state.Pager,
-		Cursor:        state.Cursor,
+		Pager:         stt.Pager,
 	}
 }
 
@@ -52,8 +40,7 @@ func EmptyScreenResult() ScreenResult {
 	return ScreenResult{
 		IgnoreParents: false,
 		Screen:        nil,
-		Pager:         state.EmptyPagerState(),
-		Cursor:        state.EmptyCursorState(),
+		Pager:         state.PagerContext{},
 	}
 }
 
@@ -61,6 +48,6 @@ type Screen struct {
 	//Init func (ctx)
 	Name       func() string
 	Definition func() Definition
-	Update     func(state.UIState, ScreenEvent) ScreenResult
+	Update     func(*state.UIState, ScreenEvent) ScreenResult
 	View       func(state.UIState) core.ViewModel
 }
