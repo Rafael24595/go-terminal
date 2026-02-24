@@ -209,7 +209,6 @@ func specDirection(
 }
 
 func SpecLen(s Spec, size int) int {
-
 	if s.kind.HasAny(SpcKindTrimLeft) {
 		size = s.args[KeyTrimLeftSize].Intd(size)
 	}
