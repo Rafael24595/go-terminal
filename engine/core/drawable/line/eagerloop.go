@@ -29,7 +29,7 @@ func (d *EagerLoopDrawable) init(size terminal.Winsize) {
 }
 
 func (d *EagerLoopDrawable) draw() ([]core.Line, bool) {
-	assert.AssertTrue(d.initialized, "the drawable should be initialized before draw")
+	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	lines, status := d.eager.draw()
 	if !status {

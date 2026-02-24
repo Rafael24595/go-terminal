@@ -10,14 +10,14 @@ func Unreachable(format string, a ...any) {
 	panic(msg)
 }
 
-func AssertTrue(cond bool, format string, a ...any) {
+func True(cond bool, format string, a ...any) {
 	if !cond {
 		msg := fmt.Sprintf(format, a...)
 		panic(msg)
 	}
 }
 
-func AssertFalse(cond bool, format string, a ...any) {
+func False(cond bool, format string, a ...any) {
 	if cond {
 		msg := fmt.Sprintf(format, a...)
 		panic(msg)

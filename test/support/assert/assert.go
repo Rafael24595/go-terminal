@@ -11,12 +11,7 @@ import (
 func NotNil(t *testing.T, item any, message ...any) {
 	t.Helper()
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	if item == nil {
 		t.Errorf("%sUnexpected nil value", custom)
@@ -34,12 +29,7 @@ func NotNil(t *testing.T, item any, message ...any) {
 func Nil(t *testing.T, item any, message ...any) {
 	t.Helper()
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	if item != nil {
 		t.Errorf("%sExpected nil value", custom)
@@ -61,12 +51,7 @@ func True(t *testing.T, result bool, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sExpected true, but got false", custom)
 }
@@ -78,12 +63,7 @@ func False(t *testing.T, result bool, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sExpected false, but got true", custom)
 }
@@ -95,12 +75,7 @@ func Equal[T comparable](t *testing.T, want, have T, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sExpected '%v', but got '%v'", custom, want, have)
 }
@@ -112,12 +87,7 @@ func NotEqual[T comparable](t *testing.T, want, have T, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sUnexpected '%v'", custom, want)
 }
@@ -129,12 +99,7 @@ func Greater[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sExpected greater than %v, but got %v", custom, want, have)
 }
@@ -146,12 +111,7 @@ func GreaterOrEqual[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sExpected greater or equal than %v, but got %v", custom, want, have)
 }
@@ -163,16 +123,10 @@ func Less[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sExpected less than %v, but got %v", custom, want, have)
 }
-
 
 func LessOrEqual[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
 	t.Helper()
@@ -181,12 +135,7 @@ func LessOrEqual[T cmp.Ordered](t *testing.T, want, have T, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sExpected less or equal than %v, but got %v", custom, want, have)
 }
@@ -198,12 +147,7 @@ func Error(t *testing.T, err error, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sExpected error found but nothing found", custom)
 }
@@ -215,12 +159,7 @@ func NotError(t *testing.T, err error, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Errorf("%sUnexpected error found: '%s'", custom, err.Error())
 }
@@ -232,12 +171,7 @@ func Len[T any](t *testing.T, want int, have []T, message ...any) {
 		return
 	}
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	t.Fatalf("%sExpected %v, but got %v", custom, want, len(have))
 }
@@ -245,12 +179,7 @@ func Len[T any](t *testing.T, want int, have []T, message ...any) {
 func Contains[T comparable](t *testing.T, container any, item T, message ...any) {
 	t.Helper()
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	val := reflect.ValueOf(container)
 
@@ -285,12 +214,7 @@ func Contains[T comparable](t *testing.T, container any, item T, message ...any)
 func NotContains[T comparable](t *testing.T, container any, item T, message ...any) {
 	t.Helper()
 
-	custom := ""
-	if len(message) > 0 {
-		if format, ok := message[0].(string); ok {
-			custom = fmt.Sprintf(format+" - ", message[1:]...)
-		}
-	}
+	custom := formatMessage(message...)
 
 	val := reflect.ValueOf(container)
 	switch val.Kind() {
@@ -318,4 +242,60 @@ func NotContains[T comparable](t *testing.T, container any, item T, message ...a
 	}
 
 	t.Fatalf("%sNotContains not supported for type %s", custom, val.Kind())
+}
+
+func Panic(t *testing.T, fn func(), message ...any) {
+	t.Helper()
+
+	custom := formatMessage(message...)
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatalf("%sexpected panic but function did not panic", custom)
+		}
+	}()
+
+	fn()
+}
+
+func PanicWithMessage(t *testing.T, expected string, fn func(), message ...any) {
+	t.Helper()
+
+	custom := formatMessage(message...)
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatalf("%sexpected panic but function did not panic", custom)
+		} else if expected != "" && fmt.Sprint(r) != expected {
+			t.Fatalf("%sexpected panic message %q but got %q", custom, expected, fmt.Sprint(r))
+		}
+	}()
+
+	fn()
+}
+
+func NotPanic(t *testing.T, fn func(), message ...any) {
+	t.Helper()
+
+	custom := formatMessage(message...)
+
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("%sexpected no panic but got: %v", custom, r)
+		}
+	}()
+
+	fn()
+}
+
+func formatMessage(message ...any) string {
+	if len(message) == 0 {
+		return ""
+	}
+
+	if format, ok := message[0].(string); ok {
+		return fmt.Sprintf(format+" - ", message[1:]...)
+	}
+
+	return ""
 }

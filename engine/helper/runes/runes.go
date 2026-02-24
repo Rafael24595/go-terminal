@@ -36,9 +36,9 @@ func AppendRange(slice []rune, insert []rune, start, end uint) []rune {
 
 	oldSize := len(slice)
 	newSize := len(insert)
-	
-	assert.AssertFalse(oldSize < e, "range[%d - %d] is greater than slice length %d", s, e, oldSize)
-	
+
+	assert.False(oldSize < e, "range[%d - %d] is greater than slice length %d", s, e, oldSize)
+
 	newSlice := make([]rune, oldSize-(e-s)+newSize)
 
 	copy(newSlice[0:s], slice[0:s])

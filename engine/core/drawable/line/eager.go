@@ -37,7 +37,7 @@ func (d *EagerDrawable) init(size terminal.Winsize) {
 }
 
 func (d *EagerDrawable) draw() ([]core.Line, bool) {
-	assert.AssertTrue(d.initialized, "the drawable should be initialized before draw")
+	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	lines := make([]core.Line, 0)
 

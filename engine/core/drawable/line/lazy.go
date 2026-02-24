@@ -40,7 +40,7 @@ func (d *LazyDrawable) init(size terminal.Winsize) {
 }
 
 func (d *LazyDrawable) draw() ([]core.Line, bool) {
-	assert.AssertTrue(d.initialized, "the drawable should be initialized before draw")
+	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	if d.cursor >= uint16(len(d.lines)) {
 		return make([]core.Line, 0), false
