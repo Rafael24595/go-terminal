@@ -44,7 +44,7 @@ func (t *Table) SetSeparator(separator SeparatorMeta) *Table {
 	return t
 }
 
-func (t *Table) GetHeaders(headers ...string) []string {
+func (t *Table) GetHeaders() []string {
 	return t.headers
 }
 
@@ -61,7 +61,7 @@ func (t *Table) SetHeaders(headers ...string) *Table {
 	return t
 }
 
-func (t *Table) GetColumns(headers ...string) map[string][]string {
+func (t *Table) GetColumns() map[string][]string {
 	return t.cols
 }
 
