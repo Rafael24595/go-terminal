@@ -38,9 +38,10 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	remSize := terminal.NewWinsize(uint16(rest), size.Cols)
 	lines := vm.InitDynamicLayers(remSize)
 
-	bodyLines, page := drawDynamicLines(state, vm, lines, rest, int(size.Cols))
+	bodyLines, page, remains := drawDynamicLines(state, vm, lines, rest, int(size.Cols))
 
 	state.Pager.Page = page
+	state.Pager.RestData = remains
 
 	allLines := headerLines
 	allLines = append(allLines, bodyLines...)
@@ -68,12 +69,12 @@ func drawStaticLines(layer *core.LayerStack, rows, cols int) []core.Line {
 	return buffer
 }
 
-func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerStack, rows, cols int) ([]core.Line, uint) {
+func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerStack, rows, cols int) ([]core.Line, uint, bool) {
 	buffer := make([]core.Line, rows)
 	page := uint(0)
 
 	if rows <= 0 {
-		return buffer, page
+		return buffer, page, false
 	}
 
 	row := 0
@@ -82,14 +83,14 @@ func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerSt
 	focus := false
 
 	for lines := range layer.Iterator() {
-		for _, line := range lines {
+		for i, line := range lines {
 			lineRunes := uint(max(1, line.Len()))
 
 			fixed := fixLineSize(line, cols)
-			for _, v := range fixed {
+			for j, v := range fixed {
 				buffer[row] = v
 
-				if f := v.HasFocus(); f {
+				if f := core.HasFocus(v); f {
 					focus = f
 				}
 
@@ -105,7 +106,9 @@ func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerSt
 				})
 
 				if matches {
-					return buffer, page
+					hasSpace := i < len(lines)-1 || j < len(fixed)-1
+					pagination := hasSpace || layer.HasNext() || page != 0
+					return buffer, page, pagination
 				}
 
 				row = 0
@@ -118,7 +121,8 @@ func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerSt
 		}
 	}
 
-	return buffer, page
+	pagination := layer.HasNext() || page != 0
+	return buffer, page, pagination
 }
 
 func fixLineSize(lin core.Line, col int) []core.Line {

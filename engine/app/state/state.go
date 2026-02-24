@@ -20,9 +20,10 @@ func NewUIState() *UIState {
 
 type PagerContext struct {
 	Page     uint
-	ShowPage bool
 	Cursor   uint
 	Focus    bool
+	ShowPage bool
+	RestData bool
 }
 
 type PagerStrategy struct {

@@ -69,7 +69,9 @@ func (c *Pagination) localUpdate(state *state.UIState, event screen.ScreenEvent)
 func (c *Pagination) View(stt state.UIState) core.ViewModel {
 	vm := c.screen.View(stt)
 
-	if vm.IsPagerMode(state.PagerModePage) || stt.Pager.ShowPage {
+	hasContent := stt.Pager.RestData || stt.Pager.Page > 0
+	canShowPage := stt.Pager.ShowPage || vm.IsPagerMode(state.PagerModePage)
+	if hasContent && canShowPage {
 		page := fmt.Sprintf("page: %d", stt.Pager.Page)
 
 		footer := core.NewLines(

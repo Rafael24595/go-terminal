@@ -116,14 +116,17 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 		core.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindPaddingLeft)),
 	}
 
-	layer := core.NewLayerStack().
-		Shift(line.EagerDrawableFromLines(lines...))
+	dw := line.EagerDrawableFromLines(lines...)
+
+	dw.Init(terminal.Winsize{})
+
+	layer := core.NewLayerStack().Shift(dw)
 
 	stt := state.NewUIState()
 
 	vm := core.ViewModelFromUIState(*stt)
 
-	paged, _ := drawDynamicLines(stt, *vm, layer, 2, sizeCols)
+	paged, _, _ := drawDynamicLines(stt, *vm, layer, 2, sizeCols)
 
 	assert.LessOrEqual(t, 2, len(paged))
 
@@ -143,8 +146,11 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 		core.LineFromString("ziglang"),
 	)
 
-	layer := core.NewLayerStack().
-		Shift(line.EagerDrawableFromLines(lines...))
+	dw := line.EagerDrawableFromLines(lines...)
+
+	dw.Init(terminal.Winsize{})
+
+	layer := core.NewLayerStack().Shift(dw)
 
 	result := drawStaticLines(layer, 2, 80)
 
@@ -156,8 +162,11 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 		core.LineFromString("golang ziglang"),
 	)
 
-	layer := core.NewLayerStack().
-		Shift(line.EagerDrawableFromLines(lines...))
+	dw := line.EagerDrawableFromLines(lines...)
+
+	dw.Init(terminal.Winsize{})
+
+	layer := core.NewLayerStack().Shift(dw)
 
 	result := drawStaticLines(layer, 3, 7)
 
