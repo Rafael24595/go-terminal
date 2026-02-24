@@ -42,10 +42,7 @@ func TokenizeLineWords(line Line) []WordToken {
 			fragments = make([]Fragment, 0)
 		}
 
-		return EmptyFragment().
-			SetFocus(pf.Focus).
-			AddAtom(pf.Atom).
-			AddSpec(pf.Spec)
+		return EmptyFragmentFrom(pf)
 	}
 
 	inSpace := false
@@ -59,10 +56,7 @@ func TokenizeLineWords(line Line) []WordToken {
 			continue
 		}
 
-		fragment := EmptyFragment().
-			SetFocus(frag.Focus).
-			AddAtom(frag.Atom).
-			AddSpec(frag.Spec)
+		fragment := EmptyFragmentFrom(frag)
 
 		for _, r := range frag.Text {
 			if unicode.IsSpace(r) {
@@ -145,26 +139,14 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 
 func takeFromFragment(f Fragment, n int) (Fragment, Fragment) {
 	runes := []rune(f.Text)
-
 	if n >= len(runes) {
-		return f, EmptyFragment().
-			SetFocus(f.Focus).
-			AddAtom(f.Atom).
-			AddSpec(f.Spec)
+		return f, EmptyFragmentFrom(f)
 	}
 
-	taken := EmptyFragment().
-		SetFocus(f.Focus).
-		AddAtom(f.Atom).
-		AddSpec(f.Spec)
-
+	taken := EmptyFragmentFrom(f)
 	taken.Text = string(runes[:n])
 
-	rest := EmptyFragment().
-		SetFocus(f.Focus).
-		AddAtom(f.Atom).
-		AddSpec(f.Spec)
-		
+	rest := EmptyFragmentFrom(f)
 	rest.Text = string(runes[n:])
 
 	return taken, rest

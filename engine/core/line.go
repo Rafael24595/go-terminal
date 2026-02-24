@@ -8,10 +8,9 @@ import (
 )
 
 type Fragment struct {
-	Text  string
-	Focus bool
-	Atom  style.Atom
-	Spec  style.Spec
+	Text string
+	Atom style.Atom
+	Spec style.Spec
 }
 
 func FragmentsFromString(text ...string) []Fragment {
@@ -30,8 +29,18 @@ func NewFragment(text string) Fragment {
 	}
 }
 
+func FragmentFrom(text string, frag Fragment) Fragment {
+	return NewFragment(text).
+		AddAtom(frag.Atom).
+		AddSpec(frag.Spec)
+}
+
 func EmptyFragment() Fragment {
 	return NewFragment("")
+}
+
+func EmptyFragmentFrom(frag Fragment) Fragment {
+	return FragmentFrom("", frag)
 }
 
 func (f Fragment) AddAtom(styles ...style.Atom) Fragment {
@@ -41,11 +50,6 @@ func (f Fragment) AddAtom(styles ...style.Atom) Fragment {
 
 func (f Fragment) AddSpec(styles ...style.Spec) Fragment {
 	f.Spec = style.MergeSpec(styles...)
-	return f
-}
-
-func (f Fragment) SetFocus(focus bool) Fragment {
-	f.Focus = focus
 	return f
 }
 
@@ -131,19 +135,19 @@ func (l Line) Len() int {
 	return lineLen
 }
 
-func (l Line) HasFocus() bool {
-	for _, v := range l.Text {
-		if v.Focus {
-			return true
-		}
-	}
-	return false
-}
-
 func (l Line) String() string {
 	buffer := make([]string, 0)
 	for _, v := range l.Text {
 		buffer = append(buffer, v.Text)
 	}
 	return strings.Join(buffer, " ")
+}
+
+func HasFocus(line Line) bool {
+	for _, v := range line.Text {
+		if v.Atom.HasAny(style.AtmFocus) {
+			return true
+		}
+	}
+	return false
 }

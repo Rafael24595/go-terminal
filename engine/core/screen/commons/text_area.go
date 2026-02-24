@@ -509,16 +509,14 @@ func (c *TextArea) makeSelectedFragments(renderBuffer []rune, start uint, end ui
 	if c.caret.Caret() == c.caret.Anchor() {
 		return []core.Fragment{
 			core.NewFragment(string(onSelect)).
-				SetFocus(true).
-				AddAtom(selectAtom),
+				AddAtom(selectAtom, style.AtmFocus),
 		}
 	}
 
 	if end == c.caret.Anchor() {
 		return []core.Fragment{
 			core.NewFragment(string(onSelect[:1])).
-				SetFocus(true).
-				AddAtom(selectAtom),
+				AddAtom(selectAtom, style.AtmFocus),
 			core.NewFragment(string(onSelect[1:])).
 				AddAtom(selectAtom),
 		}
@@ -528,8 +526,7 @@ func (c *TextArea) makeSelectedFragments(renderBuffer []rune, start uint, end ui
 		core.NewFragment(string(onSelect[:len(onSelect)-1])).
 			AddAtom(selectAtom),
 		core.NewFragment(string(onSelect[len(onSelect)-1])).
-			SetFocus(true).
-			AddAtom(selectAtom),
+			AddAtom(selectAtom, style.AtmFocus),
 	}
 }
 
@@ -550,9 +547,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 		if len(parts) == 1 {
 			currentLine.Text = append(
 				currentLine.Text,
-				core.NewFragment(parts[0]).
-					SetFocus(f.Focus).
-					AddAtom(f.Atom),
+				core.FragmentFrom(parts[0], f),
 			)
 
 			continue
@@ -565,9 +560,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 
 			currentLine.Text = append(
 				currentLine.Text,
-				core.NewFragment(part).
-					SetFocus(f.Focus).
-					AddAtom(f.Atom),
+				core.FragmentFrom(part, f),
 			)
 
 			if partIndex >= len(parts)-1 {
@@ -599,7 +592,8 @@ func (c *TextArea) fixEmptyLines(lines []core.Line) []core.Line {
 				styles = line.Text[len(line.Text)-1].Atom
 			}
 
-			lines[i].Text = append(line.Text, core.NewFragment(EMPTY_LINE_FIX).AddAtom(styles))
+			lines[i].Text = append(line.Text, core.NewFragment(EMPTY_LINE_FIX).
+				AddAtom(styles))
 		}
 	}
 	return lines
