@@ -26,11 +26,6 @@ var table_read_definition = screen.Definition{
 	RequireKeys: key.NewKeysCode(key.ActionEnter),
 }
 
-type Field struct {
-	Header string
-	Value  any
-}
-
 type Table[T any] struct {
 	reference string
 	write     bool
@@ -65,7 +60,7 @@ func (c *Table[T]) DefineHeaders(headers ...string) *Table[T] {
 	return c
 }
 
-func (c *Table[T]) AddItems(parser func(T) []Field, items ...T) *Table[T] {
+func (c *Table[T]) AddItems(parser func(T) []table.Field, items ...T) *Table[T] {
 	rows := c.table.Rows()
 	for i, item := range items {
 		for _, field := range parser(item) {

@@ -1,12 +1,11 @@
 package wrapper_screen
 
 import (
-	"reflect"
-
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/table"
 )
 
 type Language struct {
@@ -18,7 +17,7 @@ type Language struct {
 	Backend    bool
 }
 
-var headers = headersStruct[Language]()
+var headers = table.StructHeaders[Language]()
 
 var rows = []Language{
 	{
@@ -63,8 +62,8 @@ var rows = []Language{
 	},
 }
 
-func parser(lang Language) []commons.Field {
-	return parseStruct(lang)
+func parser(lang Language) []table.Field {
+	return table.StructFieds(lang)
 }
 
 func NewTestTable() screen.Screen {
@@ -78,38 +77,4 @@ func NewTestTable() screen.Screen {
 		DefineHeaders(headers...).
 		AddItems(parser, rows...).
 		ToScreen()
-}
-
-func headersStruct[T any]() []string {
-	var zero T
-
-	headers := make([]string, 0)
-	for _, v := range parseStruct(zero) {
-		headers = append(headers, v.Header)
-	}
-	return headers
-}
-
-func parseStruct(s any) []commons.Field {
-	v := reflect.ValueOf(s)
-	t := reflect.TypeOf(s)
-
-	if t.Kind() == reflect.Pointer {
-		v = v.Elem()
-		t = t.Elem()
-	}
-
-	var result []commons.Field
-
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		value := v.Field(i).Interface()
-
-		result = append(result, commons.Field{
-			Header: field.Name,
-			Value:  value,
-		})
-	}
-
-	return result
 }
