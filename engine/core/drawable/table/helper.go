@@ -148,41 +148,8 @@ func makeTable(
 		fragments = append(fragments, core.NewFragment(separator.Left))
 
 		for x, h := range headers {
-			width := uint(size[h])
-			col := cols[h]
-
-			atom := style.AtmNone
-			focus := false
-			if cursor != nil &&
-				cursor.Show &&
-				y == int(cursor.Row) &&
-				x == int(cursor.Col) {
-				atom = style.AtmSelect
-				focus = true
-			}
-
-			if y >= 0 && y < len(col) {
-				spec := style.MergeSpec(
-					style.SpecPaddingRight(width),
-					style.SpecTrimRight(width),
-				)
-
-				frag := core.NewFragment(col[y]).
-					SetFocus(focus).
-					AddSpec(spec).
-					AddAtom(atom)
-
-				fragments = append(fragments, frag)
-			} else {
-				spec := style.SpecRepeatRight(width)
-
-				frag := core.NewFragment("").
-					SetFocus(focus).
-					AddSpec(spec).
-					AddAtom(atom)
-
-				fragments = append(fragments, frag)
-			}
+			frag := makeCell(size, cols, cursor, h, y, x)
+			fragments = append(fragments, frag)
 
 			if x < headersLen-1 {
 				fragments = append(fragments, core.NewFragment(separator.Center))
@@ -195,6 +162,42 @@ func makeTable(
 	}
 
 	return lines
+}
+
+func makeCell(
+	size map[string]int,
+	cols map[string][]string,
+	cursor *Cursor,
+	header string,
+	y int,
+	x int,
+) core.Fragment {
+	width := uint(size[header])
+	col := cols[header]
+
+	atom := style.AtmNone
+
+	cursorShow := cursor != nil && cursor.Show
+	if cursorShow && y == int(cursor.Row) && x == int(cursor.Col) {
+		atom = style.AtmSelect | style.AtmFocus
+	}
+
+	if y >= 0 && y < len(col) {
+		spec := style.MergeSpec(
+			style.SpecPaddingRight(width),
+			style.SpecTrimRight(width),
+		)
+
+		return core.NewFragment(col[y]).
+			AddSpec(spec).
+			AddAtom(atom)
+	}
+
+	spec := style.SpecRepeatRight(width)
+
+	return core.NewFragment("").
+		AddSpec(spec).
+		AddAtom(atom)
 }
 
 func renderedRowSize(size map[string]int, separator table.SeparatorMeta) int {

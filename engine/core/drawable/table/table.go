@@ -4,43 +4,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
-
-type Cursor struct {
-	Row  uint32
-	Col  uint32
-	Show bool
-}
-
-func NewCursor(row uint32, col uint32, show bool) *Cursor {
-	return &Cursor{
-		Row:  row,
-		Col:  col,
-		Show: show,
-	}
-}
-
-func (c *Cursor) IncRow(len uint32) *Cursor {
-	c.Row = min(len, c.Row+1)
-	return c
-}
-
-func (c *Cursor) DecRow() *Cursor {
-	c.Row = math.SubClampZero(c.Row, 1)
-	return c
-}
-
-func (c *Cursor) IncCol(len uint32) *Cursor {
-	c.Col = min(len, c.Col+1)
-	return c
-}
-
-func (c *Cursor) DecCol() *Cursor {
-	c.Col = math.SubClampZero(c.Col, 1)
-	return c
-}
 
 type TableDrawable struct {
 	initialized bool
@@ -78,8 +43,26 @@ func (d *TableDrawable) init(size terminal.Winsize) {
 }
 
 func (d *TableDrawable) draw() ([]core.Line, bool) {
-	assert.AssertTrue(d.initialized, "the drawable should be initialized before draw")
+	assert.True(d.initialized, "the drawable should be initialized before draw")
 
+	headers, footers, remaining := d.drawStatic()
+	bodies := d.drawDynamic(remaining)
+
+	result := make([]core.Line, 0)
+	for i, v := range bodies {
+		if len(v) == 0 {
+			continue
+		}
+
+		result = append(result, headers[i]...)
+		result = append(result, v...)
+		result = append(result, footers[i]...)
+	}
+
+	return result, len(result) != 0
+}
+
+func (d *TableDrawable) drawStatic() ([][]core.Line, [][]core.Line, int) {
 	headers := make([][]core.Line, len(d.sections))
 	footers := make([][]core.Line, len(d.sections))
 
@@ -94,6 +77,10 @@ func (d *TableDrawable) draw() ([]core.Line, bool) {
 		remaining -= (len(header) + len(footer))
 	}
 
+	return headers, footers, remaining
+}
+
+func (d *TableDrawable) drawDynamic(remaining int) [][]core.Line {
 	empty := make(map[int]int)
 
 	bodies := make([][]core.Line, len(d.sections))
@@ -114,18 +101,7 @@ func (d *TableDrawable) draw() ([]core.Line, bool) {
 		}
 	}
 
-	result := make([]core.Line, 0)
-	for i, v := range bodies {
-		if len(v) == 0 {
-			continue
-		}
-
-		result = append(result, headers[i]...)
-		result = append(result, v...)
-		result = append(result, footers[i]...)
-	}
-
-	return result, len(result) != 0
+	return bodies
 }
 
 func (d *TableDrawable) ToDrawable() core.Drawable {
