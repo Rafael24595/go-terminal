@@ -1,0 +1,4 @@
+{
+    "go.testTags": "debug",
+    "go.buildTags": "debug"
+}

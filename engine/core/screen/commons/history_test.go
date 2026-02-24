@@ -90,7 +90,9 @@ func TestHistory_ViewFooter(t *testing.T) {
 
 	h.history = &base
 	vm = h.view(*state.NewUIState())
+
+	vm.Footer.Init(terminal.Winsize{})
 	footer, _ = vm.Footer.Draw()
-	
+
 	assert.True(t, len(footer) > 0)
 }
