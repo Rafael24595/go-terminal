@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
+	drawable_test "github.com/Rafael24595/go-terminal/test/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -34,10 +35,15 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 		),
 	)
 
-	vm.Input = &core.InputLine{
-		Prompt: ">",
-		Value:  "INPUT",
+	frag := core.FragmentsFromString("INPUT")
+	mock := &drawable_test.MockDrawable{
+		Status: false,
+		Lines: []core.Line{
+			core.LineFromFragments(frag...),
+		},
 	}
+
+	vm.SetInput(core.NewInputLine(mock.ToDrawable()))
 
 	state := &state.UIState{}
 
@@ -47,7 +53,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	assert.Equal(t, "HEADER", lines[0].Text[0].Text)
 
 	inputLine := lines[len(lines)-1]
-	expectedInput := ">INPUT"
+	expectedInput := "> INPUT"
 
 	var text strings.Builder
 	for _, f := range inputLine.Text {
@@ -59,7 +65,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	for i := 1; i < len(lines)-1; i++ {
 		width := 0
 		for _, f := range lines[i].Text {
-			width += f.Len()
+			width += core.FragmentMeasure(f)
 		}
 
 		assert.LessOrEqual(t, int(size.Cols), width)
@@ -88,16 +94,21 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		),
 	)
 
-	vm.Input = &core.InputLine{
-		Prompt: ">",
-		Value:  "X",
+	frag := core.FragmentsFromString("X")
+	mock := &drawable_test.MockDrawable{
+		Status: false,
+		Lines: []core.Line{
+			core.LineFromFragments(frag...),
+		},
 	}
+
+	vm.SetInput(core.NewInputLine(mock.ToDrawable()))
 
 	lines0 := TerminalApply(stt, *vm, size)
 
 	assert.Len(t, int(size.Rows), lines0)
 	assert.Equal(t, "H", lines0[0].Text[0].Text)
-	assert.Equal(t, ">X", lines0[len(lines0)-1].Text[0].Text)
+	assert.Equal(t, "> X", core.LineToString(lines0[len(lines0)-1]))
 
 	vm.Header.Init(size)
 
@@ -106,7 +117,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	assert.Len(t, int(size.Rows), lines1)
 	assert.Equal(t, "H", lines1[0].Text[0].Text)
-	assert.Equal(t, ">X", lines1[len(lines1)-1].Text[0].Text)
+	assert.Equal(t, "> X", core.LineToString(lines0[len(lines0)-1]))
 }
 
 func TestDrawDynamicLines_WordWrap(t *testing.T) {
@@ -133,7 +144,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 	for _, l := range paged {
 		width := 0
 		for _, f := range l.Text {
-			width += f.Len()
+			width += core.FragmentMeasure(f)
 		}
 		assert.LessOrEqual(t, sizeCols, width)
 	}
@@ -171,9 +182,9 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 	result := drawStaticLines(layer, 3, 7)
 
 	assert.Equal(t, 3, len(result))
-	assert.Equal(t, "golang", result[0].String())
-	assert.Equal(t, " ", result[1].String())
-	assert.Equal(t, "ziglang", result[2].String())
+	assert.Equal(t, "golang", core.LineToString(result[0]))
+	assert.Equal(t, " ", core.LineToString(result[1]))
+	assert.Equal(t, "ziglang", core.LineToString(result[2]))
 }
 
 func TestTerminalApply_InitializeLayers(t *testing.T) {
@@ -199,10 +210,15 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 		),
 	)
 
-	vm.Input = &core.InputLine{
-		Prompt: ">",
-		Value:  "X",
+	frag := core.FragmentsFromString("X")
+	mock := &drawable_test.MockDrawable{
+		Status: false,
+		Lines: []core.Line{
+			core.LineFromFragments(frag...),
+		},
 	}
+
+	vm.SetInput(core.NewInputLine(mock.ToDrawable()))
 
 	assert.True(t, vm.Header.HasNext())
 	assert.True(t, vm.Lines.HasNext())

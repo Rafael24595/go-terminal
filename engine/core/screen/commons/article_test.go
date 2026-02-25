@@ -42,9 +42,9 @@ func TestArticle_AddTitleAndArticle(t *testing.T) {
 		AddArticle(body)
 
 	assert.Equal(t, len(article.title), 1, "title lines count")
-	assert.Equal(t, article.title[0].String(), title.String(), "title content")
+	assert.Equal(t, core.LineToString(article.title[0]), core.LineToString(title), "title content")
 	assert.Equal(t, len(article.article), 1, "article lines count")
-	assert.Equal(t, article.article[0].String(), body.String(), "article content")
+	assert.Equal(t, core.LineToString(article.article[0]), core.LineToString(body), "article content")
 }
 
 func TestArticle_View(t *testing.T) {
@@ -67,8 +67,8 @@ func TestArticle_View(t *testing.T) {
 
 	assert.Equal(t, len(headers), 1, "ViewModel header count")
 	assert.Equal(t, len(lines), 1, "ViewModel lines count")
-	assert.Equal(t, headers[0].String(), title.String(), "first line should be title")
-	assert.Equal(t, lines[0].String(), body.String(), "second line should be article")
+	assert.Equal(t, core.LineToString(headers[0]), core.LineToString(title), "first line should be title")
+	assert.Equal(t, core.LineToString(lines[0]), core.LineToString(body), "second line should be article")
 }
 
 func TestArticle_Update(t *testing.T) {

@@ -6,68 +6,97 @@ import (
 	"unicode/utf8"
 )
 
-func Center(item any, width int) string {
-	return CenterCustom(item, width, "")
+type TextLayoutOpts struct {
+	LogicalSize int
+	Runes       string
 }
 
-func Left(item any, width int) string {
-	return LeftCustom(item, width, "")
-}
-
-func Right(item any, width int) string {
-	return RightCustom(item, width, "")
-}
-
-func CenterCustom(item any, width int, runes string) string {
-	if runes == "" {
-		runes = " "
+func fixDirectionOps(text string, opts TextLayoutOpts) TextLayoutOpts {
+	if opts.LogicalSize == 0 {
+		opts.LogicalSize = utf8.RuneCountInString(text)
 	}
 
+	if opts.Runes == "" {
+		opts.Runes = " "
+	}
+
+	return opts
+}
+
+type LogicalSizeOpts struct {
+	LogicalSize int
+}
+
+func fixLogicalSizeOpts(text string, opts LogicalSizeOpts) LogicalSizeOpts {
+	if opts.LogicalSize == 0 {
+		opts.LogicalSize = utf8.RuneCountInString(text)
+	}
+
+	return opts
+}
+
+func Center(item any, width int) string {
+	return CenterWithOpts(item, width, TextLayoutOpts{})
+}
+
+func CenterWithOpts(item any, width int, opts TextLayoutOpts) string {
 	text := fmt.Sprintf("%v", item)
-	if utf8.RuneCountInString(text) >= width {
+
+	opts = fixDirectionOps(text, opts)
+	if opts.LogicalSize >= width {
 		return text
 	}
 
-	padding := width - utf8.RuneCountInString(text)
+	padding := width - opts.LogicalSize
 	left := padding / 2
 	right := padding - left
 
-	return strings.Repeat(runes, left) + text + strings.Repeat(runes, right)
+	return strings.Repeat(opts.Runes, left) + text + strings.Repeat(opts.Runes, right)
 }
 
-func LeftCustom(item any, width int, runes string) string {
-	if runes == "" {
-		runes = " "
-	}
+func Left(item any, width int) string {
+	return LeftWithOpts(item, width, TextLayoutOpts{})
+}
 
+func LeftWithOpts(item any, width int, opts TextLayoutOpts) string {
 	text := fmt.Sprintf("%v", item)
-	if utf8.RuneCountInString(text) >= width {
+
+	opts = fixDirectionOps(text, opts)
+	if opts.LogicalSize >= width {
 		return text
 	}
 
-	padding := width - utf8.RuneCountInString(text)
+	padding := width - opts.LogicalSize
 
-	return strings.Repeat(runes, padding) + text
+	return strings.Repeat(opts.Runes, padding) + text
 }
 
-func RightCustom(item any, width int, runes string) string {
-	if runes == "" {
-		runes = " "
-	}
+func Right(item any, width int) string {
+	return RightWithOpts(item, width, TextLayoutOpts{})
+}
 
+func RightWithOpts(item any, width int, opts TextLayoutOpts) string {
 	text := fmt.Sprintf("%v", item)
-	if utf8.RuneCountInString(text) >= width {
+
+	opts = fixDirectionOps(text, opts)
+	if opts.LogicalSize >= width {
 		return text
 	}
 
-	padding := width - utf8.RuneCountInString(text)
+	padding := width - opts.LogicalSize
 
-	return text + strings.Repeat(runes, padding)
+	return text + strings.Repeat(opts.Runes, padding)
 }
 
 func FillLeft(item any, width int) string {
+	return FillLeftWithOpts(item, width, LogicalSizeOpts{})
+}
+
+func FillLeftWithOpts(item any, width int, opts LogicalSizeOpts) string {
 	text := fmt.Sprintf("%v", item)
-	if utf8.RuneCountInString(text) >= width {
+
+	opts = fixLogicalSizeOpts(text, opts)
+	if opts.LogicalSize >= width {
 		return text
 	}
 
@@ -86,8 +115,14 @@ func FillLeft(item any, width int) string {
 }
 
 func FillRight(item any, width int) string {
+	return FillRightWithOpts(item, width, LogicalSizeOpts{})
+}
+
+func FillRightWithOpts(item any, width int, opts LogicalSizeOpts) string {
 	text := fmt.Sprintf("%v", item)
-	if utf8.RuneCountInString(text) >= width {
+
+	opts = fixLogicalSizeOpts(text, opts)
+	if opts.LogicalSize >= width {
 		return text
 	}
 
@@ -105,22 +140,22 @@ func FillRight(item any, width int) string {
 	return strings.Repeat(text, width) + fix
 }
 
-func RepeatLeft(item any, width int) string {
-	return RepeatLeftCustom(item, width, "")
+func RepeatLeft(item any, runes string, width int) string {
+	return RepeatLeftWithOpts(item, runes, width, LogicalSizeOpts{})
 }
 
-func RepeatLeftCustom(item any, width int, runes string) string {
+func RepeatLeftWithOpts(item any, runes string, width int, opts LogicalSizeOpts) string {
 	text := fmt.Sprintf("%v", item)
-	return FillLeft(runes, width) + text
+	return FillLeftWithOpts(runes, width, opts) + text
 }
 
-func RepeatRight(item any, width int) string {
-	return RepeatRightCustom(item, width, "")
+func RepeatRight(item any, runes string, width int) string {
+	return RepeatRightWithOpts(item, runes, width, LogicalSizeOpts{})
 }
 
-func RepeatRightCustom(item any, width int, runes string) string {
+func RepeatRightWithOpts(item any, runes string, width int, opts LogicalSizeOpts) string {
 	text := fmt.Sprintf("%v", item)
-	return text + FillRight(runes, width)
+	return text + FillRightWithOpts(runes, width, opts)
 }
 
 func NumberToAlpha(n int) string {

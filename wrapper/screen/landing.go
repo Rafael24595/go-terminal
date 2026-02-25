@@ -2,6 +2,7 @@ package wrapper_screen
 
 import (
 	"fmt"
+	"unicode/utf8"
 
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
@@ -10,14 +11,18 @@ import (
 )
 
 func NewLanding() screen.Screen {
+	textTitle := "Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor"
+	sizeTitle := utf8.RuneCountInString(textTitle)
+	
+
 	title := core.NewLines(
 		core.NewLine(
-			"Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor",
+			textTitle,
 			style.SpecFromKind(style.SpcKindPaddingRight),
 		),
 		core.NewLine(
 			"-",
-			style.SpecFromKind(style.SpcKindFillUp),
+			style.SpecFill(uint(sizeTitle)),
 		),
 	)
 

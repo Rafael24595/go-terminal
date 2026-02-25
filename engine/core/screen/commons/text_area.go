@@ -586,7 +586,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 
 func (c *TextArea) fixEmptyLines(lines []core.Line) []core.Line {
 	for i, line := range lines {
-		if line.Len() == 0 {
+		if core.LineFragmentsMeasure(line) == 0 {
 			styles := style.AtmNone
 			if len(line.Text) > 0 {
 				styles = line.Text[len(line.Text)-1].Atom

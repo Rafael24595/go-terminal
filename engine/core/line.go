@@ -54,8 +54,15 @@ func (f Fragment) AddSpec(styles ...style.Spec) Fragment {
 }
 
 func (f Fragment) Len() int {
-	lineLen := utf8.RuneCountInString(f.Text)
-	return style.SpecLen(f.Spec, lineLen)
+	return utf8.RuneCountInString(f.Text)
+}
+
+func FragmentMeasure(frag Fragment) int {
+	return style.SpecMeasure(frag.Spec, frag.Len())
+}
+
+func FragmentMeasureWithContext(frag Fragment, ctx style.LayoutContext) int {
+	return style.SpecMeasureWithContext(frag.Spec, frag.Len(), ctx)
 }
 
 type Line struct {
@@ -127,20 +134,31 @@ func (l *Line) SetOrder(order uint16) *Line {
 	return l
 }
 
-func (l Line) Len() int {
-	lineLen := 0
-	for _, v := range l.Text {
-		lineLen += v.Len()
+func LineFragmentsMeasure(line Line) int {
+	fragsLen := 0
+	for _, f := range line.Text {
+		fragsLen += FragmentMeasure(f)
 	}
-	return lineLen
+	return fragsLen
 }
 
-func (l Line) String() string {
-	buffer := make([]string, 0)
-	for _, v := range l.Text {
-		buffer = append(buffer, v.Text)
+func LineFragmentsMeasurWithContext(line Line, ctx style.LayoutContext) int {
+	fragsLen := 0
+	for _, f := range line.Text {
+		fragsLen += FragmentMeasureWithContext(f, ctx)
 	}
-	return strings.Join(buffer, " ")
+	return fragsLen
+}
+
+
+func LineMeasure(line Line) int {
+	fragsLen := LineFragmentsMeasure(line)
+	return style.SpecMeasure(line.Spec, fragsLen)
+}
+
+func LineMeasureWithContext(line Line, ctx style.LayoutContext) int {
+	fragsLen := LineFragmentsMeasure(line)
+	return style.SpecMeasureWithContext(line.Spec, fragsLen, ctx)
 }
 
 func HasFocus(line Line) bool {
@@ -150,4 +168,12 @@ func HasFocus(line Line) bool {
 		}
 	}
 	return false
+}
+
+func LineToString(line Line) string {
+	buffer := make([]string, 0)
+	for _, v := range line.Text {
+		buffer = append(buffer, v.Text)
+	}
+	return strings.Join(buffer, "")
 }

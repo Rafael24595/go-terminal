@@ -21,14 +21,19 @@ func TerminalRender(lines []core.Line, size terminal.Winsize) string {
 func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
 	buffer := make([]string, len(lines))
 
+	ctx := style.LayoutContext{
+		Cols: int(size.Cols),
+	}
+
 	for i, line := range lines {
+		measure := core.LineFragmentsMeasurWithContext(line, ctx)
 		styled := renderLineFragments(line, size)
 
-		buffer[i] = renderLine(
-			lines,
-			i,
+		buffer[i] = applySpecStyles(
+			line.Spec,
 			size,
 			styled,
+			measure,
 		)
 	}
 
@@ -42,7 +47,7 @@ func renderLineFragments(line core.Line, size terminal.Winsize) string {
 	atomStyles := style.AtmNone
 
 	for _, f := range line.Text {
-		spec := applySpecStyles(f.Spec, size, f.Text)
+		spec := applySpecStyles(f.Spec, size, f.Text, f.Len())
 
 		if atomStyles != f.Atom && len(fragments) != 0 {
 			atom := applyAtomStyles(fragments, atomStyles)
@@ -64,15 +69,4 @@ func renderLineFragments(line core.Line, size terminal.Winsize) string {
 	}
 
 	return buffer.String()
-}
-
-func renderLine(lines []core.Line, index int, size terminal.Winsize, line string) string {
-	if line, ok := applyLineSpecStyles(lines, index, size, line); ok {
-		return line
-	}
-
-	styl := lines[index].Spec
-	line = applySpecStyles(styl, size, line)
-
-	return line
 }

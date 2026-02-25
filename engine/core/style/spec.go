@@ -7,6 +7,10 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/commons"
 )
 
+type LayoutContext struct {
+	Cols int
+}
+
 type argMap = map[SpcArgKey]commons.Argument
 
 type SpecsKind uint64
@@ -25,8 +29,6 @@ const (
 	SpcKindTrimRight
 
 	SpcKindFill
-	SpcKindFillUp
-	SpcKindFillDown
 )
 
 func (s SpecsKind) HasAny(styles ...SpecsKind) bool {
@@ -77,6 +79,8 @@ const (
 
 	KeyTrimLeftSize
 	KeyTrimRightSize
+
+	KeyFillSize
 )
 
 type Spec struct {
@@ -157,7 +161,7 @@ func SpecRepeatRight(size uint, text ...string) Spec {
 }
 
 func SpecTrimLeft(size uint) Spec {
-	return specTrim(
+	return specSize(
 		SpcKindTrimLeft,
 		KeyTrimLeftSize,
 		size,
@@ -165,14 +169,22 @@ func SpecTrimLeft(size uint) Spec {
 }
 
 func SpecTrimRight(size uint) Spec {
-	return specTrim(
+	return specSize(
 		SpcKindTrimRight,
 		KeyTrimRightSize,
 		size,
 	)
 }
 
-func specTrim(kind SpecsKind, sizeKey SpcArgKey, size uint) Spec {
+func SpecFill(size uint) Spec {
+	return specSize(
+		SpcKindFill,
+		KeyFillSize,
+		size,
+	)
+}
+
+func specSize(kind SpecsKind, sizeKey SpcArgKey, size uint) Spec {
 	args := make(argMap)
 
 	if size > 0 {
@@ -208,13 +220,46 @@ func specDirection(
 	}
 }
 
-func SpecLen(s Spec, size int) int {
+func SpecMeasureWithContext(s Spec, size int, ctx LayoutContext) int {
+	if s.kind.HasAny(SpcKindFill) {
+		size = s.args[KeyFillSize].Intd(ctx.Cols)
+	}
+
+	return SpecMeasure(s, size)
+}
+
+func SpecMeasure(s Spec, size int) int {
 	if s.kind.HasAny(SpcKindTrimLeft) {
 		size = s.args[KeyTrimLeftSize].Intd(size)
 	}
 
 	if s.kind.HasAny(SpcKindTrimRight) {
 		size = s.args[KeyTrimRightSize].Intd(size)
+	}
+
+	if s.kind.HasAny(SpcKindPaddingCenter) {
+		arg := s.args[KeyPaddingCenterSize].Intd(size)
+		size = max(size, arg)
+	}
+
+	if s.kind.HasAny(SpcKindPaddingLeft) {
+		arg := s.args[KeyPaddingLeftSize].Intd(size)
+		size = max(size, arg)
+	}
+
+	if s.kind.HasAny(SpcKindPaddingRight) {
+		arg := s.args[KeyPaddingRightSize].Intd(size)
+		size = max(size, arg)
+	}
+
+	if s.kind.HasAny(SpcKindRepeatLeft) {
+		arg := s.args[KeyRepeatLeftSize].Intd(size)
+		size = max(size, arg)
+	}
+
+	if s.kind.HasAny(SpcKindRepeatRight) {
+		arg := s.args[KeyRepeatRightSize].Intd(size)
+		size = max(size, arg)
 	}
 
 	return size

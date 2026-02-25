@@ -165,5 +165,5 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	assert.Equal(t, vm.Pager.Mode, state.PagerModeCursor)
 	assert.True(t, vm.Pager.Match(*stt, ctx))
 
-	assert.Equal(t, lines[0].String(), "-")
+	assert.Equal(t, core.LineToString(lines[0]), "-")
 }

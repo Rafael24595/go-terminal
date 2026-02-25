@@ -150,7 +150,7 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 		assert.Unreachable(
 			"menu actions should not be nil: %s - %s",
 			c.reference,
-			option.line,
+			core.LineToString(option.line),
 		)
 	}
 
@@ -178,7 +178,7 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 		lines = append(lines, styledLine)
 
 		if !found {
-			cursor += styledLine.Len()
+			cursor += core.LineFragmentsMeasure(styledLine)
 		}
 
 		if i == int(c.cursor) {

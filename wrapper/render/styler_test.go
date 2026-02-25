@@ -2,6 +2,7 @@ package wrapper_render
 
 import (
 	"testing"
+	"unicode/utf8"
 
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
@@ -11,7 +12,10 @@ func TestPaddingLeft_Strict(t *testing.T) {
 	spec := style.SpecPaddingLeft(6, "-")
 	cols := 20
 
-	got := paddingLeft(spec, cols, "hi")
+	text := "hi"
+	size := utf8.RuneCountInString(text)
+
+	got := paddingLeft(spec, cols, text, size)
 
 	assert.Equal(t, "----hi", got)
 	assert.Equal(t, 6, len(got))
@@ -21,7 +25,10 @@ func TestPaddingLeft_RespectsCols(t *testing.T) {
 	spec := style.SpecPaddingLeft(10, "-")
 	cols := 5
 
-	got := paddingLeft(spec, cols, "hi")
+	text := "hi"
+	size := utf8.RuneCountInString(text)
+
+	got := paddingLeft(spec, cols, text, size)
 
 	assert.Equal(t, "---hi", got)
 	assert.Equal(t, 5, len(got))
@@ -31,7 +38,10 @@ func TestPaddingRight_Strict(t *testing.T) {
 	spec := style.SpecPaddingRight(6, ".")
 	cols := 20
 
-	got := paddingRight(spec, cols, "hi")
+	text := "hi"
+	size := utf8.RuneCountInString(text)
+
+	got := paddingRight(spec, cols, text, size)
 
 	assert.Equal(t, "hi....", got)
 	assert.Equal(t, 6, len(got))
@@ -41,7 +51,10 @@ func TestPaddingRight_RespectsCols(t *testing.T) {
 	spec := style.SpecPaddingRight(10, ".")
 	cols := 5
 
-	got := paddingRight(spec, cols, "hi")
+	text := "hi"
+	size := utf8.RuneCountInString(text)
+
+	got := paddingRight(spec, cols, text, size)
 
 	assert.Equal(t, "hi...", got)
 	assert.Equal(t, 5, len(got))
@@ -51,7 +64,10 @@ func TestPaddingCenter_Strict(t *testing.T) {
 	spec := style.SpecPaddingCenter(6, "-")
 	cols := 20
 
-	got := paddingCenter(spec, cols, "hi")
+	text := "hi"
+	size := utf8.RuneCountInString(text)
+
+	got := paddingCenter(spec, cols, text, size)
 
 	assert.Equal(t, "--hi--", got)
 	assert.Equal(t, 6, len(got))
@@ -61,7 +77,10 @@ func TestPaddingCenter_RespectsCols(t *testing.T) {
 	spec := style.SpecPaddingCenter(6, "-")
 	cols := 4
 
-	got := paddingCenter(spec, cols, "hi")
+	text := "hi"
+	size := utf8.RuneCountInString(text)
+
+	got := paddingCenter(spec, cols, text, size)
 
 	assert.Equal(t, "-hi-", got)
 	assert.Equal(t, 4, len(got))
@@ -71,7 +90,10 @@ func TestPaddingCenter_OddSize(t *testing.T) {
 	spec := style.SpecPaddingCenter(7, "-")
 	cols := 20
 
-	got := paddingCenter(spec, cols, "hi")
+	text := "hi"
+	size := utf8.RuneCountInString(text)
+
+	got := paddingCenter(spec, cols, text, size)
 
 	assert.Equal(t, "--hi---", got)
 	assert.Equal(t, 7, len(got))
@@ -79,28 +101,44 @@ func TestPaddingCenter_OddSize(t *testing.T) {
 
 func TestRepeatLeft_WithText_Strict(t *testing.T) {
 	spec := style.SpecRepeatLeft(3, "-")
-	got := repeatLeft(spec, 20, "hi")
+
+	text := "hi"
+	size := utf8.RuneCountInString(text)
+
+	got := repeatLeft(spec, 20, text, size)
 
 	assert.Equal(t, "---hi", got)
 }
 
 func TestRepeatLeft_WithoutText_Strict(t *testing.T) {
 	spec := style.SpecRepeatLeft(3)
-	got := repeatLeft(spec, 20, "ab")
+
+	text := "ab"
+	size := utf8.RuneCountInString(text)
+
+	got := repeatLeft(spec, 20, text, size)
 
 	assert.Equal(t, "bab", got)
 }
 
 func TestRepeatRight_WithText_Strict(t *testing.T) {
 	spec := style.SpecRepeatRight(3, "-")
-	got := repeatRight(spec, 20, "hi")
+
+	text := "hi"
+	size := utf8.RuneCountInString(text)
+
+	got := repeatRight(spec, 20, text, size)
 
 	assert.Equal(t, "hi---", got)
 }
 
 func TestRepeatRight_WithoutText_Strict(t *testing.T) {
 	spec := style.SpecRepeatRight(3)
-	got := repeatRight(spec, 20, "ab")
+
+	text := "ab"
+	size := utf8.RuneCountInString(text)
+
+	got := repeatRight(spec, 20, text, size)
 
 	assert.Equal(t, "aba", got)
 }
@@ -121,7 +159,10 @@ func TestTrimLeft(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			spec := style.SpecTrimLeft(tt.size)
-			got := trimLeft(spec, tt.in)
+
+			size := utf8.RuneCountInString(tt.in)
+			got := trimLeft(spec, tt.in, size)
+
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -143,28 +184,43 @@ func TestTrimRight(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			spec := style.SpecTrimRight(tt.size)
-			got := trimRight(spec, tt.in)
+
+			size := utf8.RuneCountInString(tt.in)
+			got := trimRight(spec, tt.in, size)
+
 			assert.Equal(t, tt.want, got)
 		})
 	}
 }
 
 func TestFill_Strict(t *testing.T) {
-	got := fill(10, 6, "-")
+	text := "-"
+	size := utf8.RuneCountInString(text)
+
+	spec := style.SpecFill(10)
+	got := fill(spec, 6, text, size)
 
 	assert.Equal(t, 6, len(got))
 	assert.Equal(t, "------", got)
 }
 
 func TestFill_Strict_LongText_Even(t *testing.T) {
-	got := fill(20, 10, "go")
+	text := "go"
+	size := utf8.RuneCountInString(text)
+
+	spec := style.SpecFill(20)
+	got := fill(spec, 10, text, size)
 
 	assert.Equal(t, 10, len(got))
 	assert.Equal(t, "gogogogogo", got)
 }
 
 func TestFill_Strict_LongText_Odd(t *testing.T) {
-	got := fill(20, 10, "zig")
+	text := "zig"
+	size := utf8.RuneCountInString(text)
+
+	spec := style.SpecFill(20)
+	got := fill(spec, 10, text, size)
 
 	assert.Equal(t, 10, len(got))
 	assert.Equal(t, "zigzigzigz", got)

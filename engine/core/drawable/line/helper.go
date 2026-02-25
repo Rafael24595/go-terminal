@@ -24,8 +24,10 @@ func (i IndexMeta) body() string {
 }
 
 func indexLines(cols int, line core.Line, meta *IndexMeta) []core.Line {
-	isGreaterWithoutIndex := line.Len() > int(cols)
-	isGreaterWithIndex := meta != nil && line.Len()+int(meta.totalWidth) > cols
+	measure := core.LineFragmentsMeasure(line)
+
+	isGreaterWithoutIndex := measure > int(cols)
+	isGreaterWithIndex := meta != nil && measure+int(meta.totalWidth) > cols
 
 	if isGreaterWithoutIndex || isGreaterWithIndex {
 		return WrapLineWordsWithIndex(int(cols), line, meta)
