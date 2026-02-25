@@ -188,7 +188,7 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 }
 
 func TestTerminalApply_InitializeLayers(t *testing.T) {
-	size := terminal.Winsize{Rows: 4, Cols: 8}
+	size := terminal.Winsize{Rows: 5, Cols: 8}
 
 	stt := state.NewUIState()
 
