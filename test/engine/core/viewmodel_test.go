@@ -203,11 +203,11 @@ func TestSplitLongToken_PreservesStyles(t *testing.T) {
 
 	assert.Equal(t, 3, width)
 
-	assert.Equal(t, 3, line.Len())
-	assert.Equal(t, "def", line.String())
+	assert.Equal(t, 3, core.LineFragmentsMeasure(line))
+	assert.Equal(t, "def", core.LineToString(line))
 
 	assert.Equal(t, 1, len(emitted))
-	assert.Equal(t, "abc", emitted[0].String())
+	assert.Equal(t, "abc", core.LineToString(emitted[0]))
 
 	assert.True(t, emitted[0].Text[0].Atom.HasAny(style.AtmBold))
 }
@@ -225,7 +225,7 @@ func TestSplitLongToken_WithInitialWidth(t *testing.T) {
 		current, 2,
 	)
 
-	assert.Equal(t, "cdef", line.String())
+	assert.Equal(t, "cdef", core.LineToString(line))
 
 	assert.Equal(t, 1, len(emitted))
 	assert.Equal(t, 2, len(emitted[0].Text))
@@ -249,8 +249,8 @@ func TestSplitLongToken_CurrentAlreadyFull(t *testing.T) {
 		current, 4,
 	)
 
-	assert.Equal(t, "abc", line.String())
+	assert.Equal(t, "abc", core.LineToString(line))
 	assert.Equal(t, 1, len(emitted))
-	assert.Equal(t, "WXYZ", emitted[0].String())
+	assert.Equal(t, "WXYZ", core.LineToString(emitted[0]))
 	assert.Equal(t, 3, width)
 }

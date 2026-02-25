@@ -4,7 +4,6 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
-	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -19,13 +18,8 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	footerLines := drawStaticLines(footer, rows, cols)
 
 	inputLines := make([]core.Line, 0)
-	if vm.Input != nil {
-		inputLine := core.NewLine(vm.Input.Prompt+vm.Input.Value, style.SpecFromKind(style.SpcKindPaddingLeft))
-		if inputLine.Len() > int(size.Cols) {
-			inputLines = append(inputLines, line.WrapLineWords(int(size.Cols), inputLine)...)
-		} else {
-			inputLines = append(inputLines, inputLine)
-		}
+	if input, ok := vm.InitInputLine(size); ok {
+		inputLines = drawLines(*input, rows, cols)
 	}
 
 	rest := int(size.Rows) - (len(headerLines) + len(footerLines) + len(inputLines))
@@ -49,6 +43,32 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	allLines = append(allLines, inputLines...)
 
 	return allLines
+}
+
+func drawLines(drawable core.Drawable, rows, cols int) []core.Line {
+	buffer := make([]core.Line, 0)
+
+	content := true
+	for content {
+		lines, status := drawable.Draw()
+		content = status
+
+		if len(lines) == 0 {
+			break
+		}
+
+		for _, line := range lines {
+			buffer = append(buffer,
+				fixLineSize(line, cols)...,
+			)
+
+			if len(buffer) >= rows {
+				break
+			}
+		}
+	}
+
+	return buffer
 }
 
 func drawStaticLines(layer *core.LayerStack, rows, cols int) []core.Line {
@@ -84,7 +104,7 @@ func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerSt
 
 	for lines := range layer.Iterator() {
 		for i, line := range lines {
-			lineRunes := uint(max(1, line.Len()))
+			lineRunes := uint(max(1, core.LineFragmentsMeasure(line)))
 
 			fixed := fixLineSize(line, cols)
 			for j, v := range fixed {
@@ -126,7 +146,7 @@ func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerSt
 }
 
 func fixLineSize(lin core.Line, col int) []core.Line {
-	if col >= lin.Len() {
+	if col >= core.LineFragmentsMeasure(lin) {
 		return []core.Line{lin}
 	}
 	return line.WrapLineWords(int(col), lin)

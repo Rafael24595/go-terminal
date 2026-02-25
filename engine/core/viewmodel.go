@@ -7,12 +7,6 @@ import (
 
 var default_pager = state.NewPagePager()
 
-type InputLine struct {
-	Prompt string
-	Value  string
-	Cursor int
-}
-
 type ViewModel struct {
 	Header *LayerStack
 	Lines  *LayerStack
@@ -29,6 +23,11 @@ func ViewModelFromUIState(stt state.UIState) *ViewModel {
 		Input:  nil,
 		Pager:  default_pager,
 	}
+}
+
+func (v *ViewModel) SetInput(input *InputLine) *ViewModel {
+	v.Input = input
+	return v
 }
 
 func (v *ViewModel) SetStrategy(strategy state.PagerStrategy) *ViewModel {
@@ -50,4 +49,15 @@ func (v *ViewModel) InitStaticLayers(size terminal.Winsize) (*LayerStack, *Layer
 
 func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) *LayerStack {
 	return v.Lines.Init(size)
+}
+
+func (v *ViewModel) InitInputLine(size terminal.Winsize) (*Drawable, bool) {
+	if v.Input == nil {
+		return nil, false
+	}
+
+	drawable := v.Input.ToDrawable()
+	drawable.Init(size)
+
+	return &drawable, true
 }

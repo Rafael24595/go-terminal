@@ -5,48 +5,25 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
+	drawable_test "github.com/Rafael24595/go-terminal/test/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
-
-type mockDrawable struct {
-	order      int
-	initCalled bool
-	drawCalls  int
-	lines      []core.Line
-	status     bool
-}
-
-func (m *mockDrawable) Init(size terminal.Winsize) {
-	m.initCalled = true
-}
-
-func (m *mockDrawable) Draw() ([]core.Line, bool) {
-	m.drawCalls++
-	return m.lines, m.status
-}
-
-func (m *mockDrawable) toDrawable() core.Drawable {
-	return core.Drawable{
-		Init: m.Init,
-		Draw: m.Draw,
-	}
-}
 
 func TestLayerStack_Init(t *testing.T) {
 	stack := &core.LayerStack{}
 
-	d1 := &mockDrawable{}
-	d2 := &mockDrawable{}
+	d1 := &drawable_test.MockDrawable{}
+	d2 := &drawable_test.MockDrawable{}
 
 	stack.Shift(
-		d1.toDrawable(),
-		d2.toDrawable(),
+		d1.ToDrawable(),
+		d2.ToDrawable(),
 	)
 
 	stack.Init(terminal.Winsize{})
 
-	assert.True(t, d1.initCalled)
-	assert.True(t, d2.initCalled)
+	assert.True(t, d1.InitCalled)
+	assert.True(t, d2.InitCalled)
 }
 
 func TestLayerStack_Shift_Order(t *testing.T) {
@@ -54,20 +31,20 @@ func TestLayerStack_Shift_Order(t *testing.T) {
 
 	count := 0
 
-	m1 := &mockDrawable{status: false}
-	m2 := &mockDrawable{status: false}
+	m1 := &drawable_test.MockDrawable{Status: false}
+	m2 := &drawable_test.MockDrawable{Status: false}
 
-	d1 := m1.toDrawable()
-	d2 := m2.toDrawable()
+	d1 := m1.ToDrawable()
+	d2 := m2.ToDrawable()
 
 	d1.Draw = func() ([]core.Line, bool) {
-		m1.order = count
+		m1.Order = count
 		count++
 		return m1.Draw()
 	}
 
 	d2.Draw = func() ([]core.Line, bool) {
-		m2.order = count
+		m2.Order = count
 		count++
 		return m2.Draw()
 	}
@@ -77,8 +54,8 @@ func TestLayerStack_Shift_Order(t *testing.T) {
 
 	stack.Draw()
 
-	assert.Equal(t, 0, m1.order)
-	assert.Equal(t, 1, m2.order)
+	assert.Equal(t, 0, m1.Order)
+	assert.Equal(t, 1, m2.Order)
 }
 
 func TestLayerStack_Unshift_Order(t *testing.T) {
@@ -86,20 +63,20 @@ func TestLayerStack_Unshift_Order(t *testing.T) {
 
 	count := 0
 
-	m1 := &mockDrawable{status: false}
-	m2 := &mockDrawable{status: false}
+	m1 := &drawable_test.MockDrawable{Status: false}
+	m2 := &drawable_test.MockDrawable{Status: false}
 
-	d1 := m1.toDrawable()
-	d2 := m2.toDrawable()
+	d1 := m1.ToDrawable()
+	d2 := m2.ToDrawable()
 
 	d1.Draw = func() ([]core.Line, bool) {
-		m1.order = count
+		m1.Order = count
 		count++
 		return m1.Draw()
 	}
 
 	d2.Draw = func() ([]core.Line, bool) {
-		m2.order = count
+		m2.Order = count
 		count++
 		return m2.Draw()
 	}
@@ -109,38 +86,38 @@ func TestLayerStack_Unshift_Order(t *testing.T) {
 
 	stack.Draw()
 
-	assert.Equal(t, 1, m1.order)
-	assert.Equal(t, 0, m2.order)
+	assert.Equal(t, 1, m1.Order)
+	assert.Equal(t, 0, m2.Order)
 }
 
 func TestLayerStack_Draw_BreaksOnTrue(t *testing.T) {
 	stack := &core.LayerStack{}
 
-	d1 := &mockDrawable{status: true}
-	d2 := &mockDrawable{status: false}
+	d1 := &drawable_test.MockDrawable{Status: true}
+	d2 := &drawable_test.MockDrawable{Status: false}
 
 	stack.Shift(
-		d1.toDrawable(),
-		d2.toDrawable(),
+		d1.ToDrawable(),
+		d2.ToDrawable(),
 	)
 
 	_, global := stack.Draw()
 
 	assert.True(t, global)
-	assert.Equal(t, 0, d2.drawCalls)
+	assert.Equal(t, 0, d2.DrawCalls)
 }
 
 func TestLayerStack_DisablesLayer(t *testing.T) {
 	stack := &core.LayerStack{}
 
-	d1 := &mockDrawable{status: false}
+	d1 := &drawable_test.MockDrawable{Status: false}
 
-	stack.Shift(d1.toDrawable())
+	stack.Shift(d1.ToDrawable())
 
 	stack.Draw()
 	stack.Draw()
 
-	assert.Equal(t, 1, d1.drawCalls)
+	assert.Equal(t, 1, d1.DrawCalls)
 }
 
 func TestLayerStack_BufferConcat(t *testing.T) {
@@ -149,43 +126,43 @@ func TestLayerStack_BufferConcat(t *testing.T) {
 	line1 := core.LineFromString("go")
 	line2 := core.LineFromString("lang")
 
-	d1 := &mockDrawable{
-		lines:  []core.Line{line1},
-		status: false,
+	d1 := &drawable_test.MockDrawable{
+		Lines:  []core.Line{line1},
+		Status: false,
 	}
 
-	d2 := &mockDrawable{
-		lines:  []core.Line{line2},
-		status: false,
+	d2 := &drawable_test.MockDrawable{
+		Lines:  []core.Line{line2},
+		Status: false,
 	}
 
 	stack.Shift(
-		d1.toDrawable(),
-		d2.toDrawable(),
+		d1.ToDrawable(),
+		d2.ToDrawable(),
 	)
 
 	buffer, _ := stack.Draw()
 
 	assert.Len(t, 2, buffer)
-	assert.Equal(t, "golang", buffer[0].String()+buffer[1].String())
+	assert.Equal(t, "golang", core.LineToString(buffer[0])+core.LineToString(buffer[1]))
 }
 
 func TestLayerStack_ShortCircuitStopsPropagation(t *testing.T) {
 	stack := &core.LayerStack{}
 
-	d1 := &mockDrawable{status: false}
-	d2 := &mockDrawable{status: true}
-	d3 := &mockDrawable{status: false}
+	d1 := &drawable_test.MockDrawable{Status: false}
+	d2 := &drawable_test.MockDrawable{Status: true}
+	d3 := &drawable_test.MockDrawable{Status: false}
 
 	stack.Shift(
-		d1.toDrawable(),
-		d2.toDrawable(),
-		d3.toDrawable(),
+		d1.ToDrawable(),
+		d2.ToDrawable(),
+		d3.ToDrawable(),
 	)
 
 	stack.Draw()
 
-	assert.Equal(t, 1, d1.drawCalls)
-	assert.Equal(t, 1, d2.drawCalls)
-	assert.Equal(t, 0, d3.drawCalls)
+	assert.Equal(t, 1, d1.DrawCalls)
+	assert.Equal(t, 1, d2.DrawCalls)
+	assert.Equal(t, 0, d3.DrawCalls)
 }
