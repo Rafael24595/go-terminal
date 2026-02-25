@@ -33,7 +33,7 @@ func TestField_ShouldExpandRowsDynamically(t *testing.T) {
 	tbl := NewTable()
 	tbl.SetHeaders("Name")
 
-	tbl.Field("Name", 2, "Golang")
+	tbl.SetCell("Name", 2, "Golang")
 
 	col := tbl.GetColumns()["Name"]
 
@@ -47,7 +47,7 @@ func TestField_WithInvalidHeader_ShouldDoNothing(t *testing.T) {
 	tbl := NewTable()
 	tbl.SetHeaders("ID")
 
-	tbl.Field("Invalid", 0, "X")
+	tbl.SetCell("Invalid", 0, "X")
 
 	assert.Len(t, 0, tbl.GetColumns()["ID"])
 }
@@ -56,8 +56,8 @@ func TestSize_ShouldCalculateMaxWidth(t *testing.T) {
 	tbl := NewTable()
 	tbl.SetHeaders("Name")
 
-	tbl.Field("Name", 0, "zig")
-	tbl.Field("Name", 1, "golang")
+	tbl.SetCell("Name", 0, "zig")
+	tbl.SetCell("Name", 1, "golang")
 
 	size := tbl.Size()
 
@@ -68,7 +68,7 @@ func TestSize_ShouldConsiderHeaderLength(t *testing.T) {
 	tbl := NewTable()
 	tbl.SetHeaders("VeryLongHeader")
 
-	tbl.Field("VeryLongHeader", 0, "go")
+	tbl.SetCell("VeryLongHeader", 0, "go")
 
 	size := tbl.Size()
 
@@ -86,8 +86,8 @@ func TestRows_ShouldReturnMaxRowCount(t *testing.T) {
 	tbl := NewTable()
 	tbl.SetHeaders("A", "B")
 
-	tbl.Field("A", 0, "x")
-	tbl.Field("B", 2, "y")
+	tbl.SetCell("A", 0, "x")
+	tbl.SetCell("B", 2, "y")
 
 	assert.Equal(t, 3, tbl.Rows())
 }

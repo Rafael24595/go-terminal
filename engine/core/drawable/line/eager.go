@@ -28,6 +28,13 @@ func EagerDrawableFromLines(lines ...core.Line) core.Drawable {
 	return NewEagerDrawable(lines...).ToDrawable()
 }
 
+func EagerDrawableFromString(text ...string) core.Drawable {
+	lines := core.LineFromFragments(
+		core.FragmentsFromString(text...)...,
+	)
+	return EagerDrawableFromLines(lines)
+}
+
 func (d *EagerDrawable) init(size terminal.Winsize) {
 	d.initialized = true
 
@@ -46,7 +53,7 @@ func (d *EagerDrawable) draw() ([]core.Line, bool) {
 	}
 
 	for _, line := range d.lines {
-		if int(d.cols) >= line.Len() {
+		if int(d.cols) >= core.LineFragmentsMeasure(line) {
 			lines = append(lines, line)
 			continue
 		}

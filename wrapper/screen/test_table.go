@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
+	drawable_table "github.com/Rafael24595/go-terminal/engine/core/drawable/table"
 )
 
 type Language struct {
@@ -69,6 +70,7 @@ func parser(lang Language) []table.Field {
 func NewTestTable() screen.Screen {
 	return commons.NewTable[Language]().
 		SetName("article - ipsum").
+		DefinePadding(drawable_table.Center).
 		AddTitle(
 			core.LineFromString("Donec massa sem"),
 			core.NewLine("=", style.SpecFromKind(style.SpcKindFill)),

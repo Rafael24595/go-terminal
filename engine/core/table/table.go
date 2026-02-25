@@ -65,7 +65,22 @@ func (t *Table) GetColumns() map[string][]string {
 	return t.cols
 }
 
-func (t *Table) Field(header string, row int, data any) *Table {
+func (t *Table) FindCellByCoords(row, col int) (string, bool) {
+	if col >= len(t.headers) {
+		return "", false
+	}
+
+	header := t.headers[col]
+
+	cols, ok := t.cols[header]
+	if !ok || row > len(cols) {
+		return "", false
+	}
+
+	return cols[row], true
+}
+
+func (t *Table) SetCell(header string, row int, data any) *Table {
 	col, ok := t.cols[header]
 	if !ok {
 		return t

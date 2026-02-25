@@ -32,6 +32,7 @@ type Table[T any] struct {
 	title     []core.Line
 	table     *table.Table
 	cursor    *drawable_table.Cursor
+	padding   drawable_table.TablePadding
 }
 
 func NewTable[T any]() *Table[T] {
@@ -41,11 +42,17 @@ func NewTable[T any]() *Table[T] {
 		title:     make([]core.Line, 0),
 		table:     table.NewTable(),
 		cursor:    drawable_table.NewCursor(0, 0, false),
+		padding:   drawable_table.Right,
 	}
 }
 
 func (c *Table[T]) SetName(name string) *Table[T] {
 	c.reference = name
+	return c
+}
+
+func (c *Table[T]) DefinePadding(padding drawable_table.TablePadding) *Table[T] {
+	c.padding = padding
 	return c
 }
 
@@ -64,7 +71,7 @@ func (c *Table[T]) AddItems(parser func(T) []table.Field, items ...T) *Table[T] 
 	rows := c.table.Rows()
 	for i, item := range items {
 		for _, field := range parser(item) {
-			c.table.Field(field.Header, rows+i, field.Value)
+			c.table.SetCell(field.Header, rows+i, field.Value)
 		}
 	}
 	return c
@@ -92,7 +99,7 @@ func (c *Table[T]) definition() screen.Definition {
 
 func (c *Table[T]) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
 	state.Pager.ShowPage = true
-	
+
 	if !c.write {
 		return c.updateRead(state, evnt)
 	}
@@ -138,17 +145,20 @@ func (c *Table[T]) view(stt state.UIState) core.ViewModel {
 		line.EagerDrawableFromLines(c.title...),
 	)
 	vm.Lines.Shift(
-		drawable_table.TableDrawableFromTable(*c.table, *c.cursor),
+		drawable_table.TableDrawableFromTable(*c.table, *c.cursor, c.padding),
 	)
 
+	var input *core.InputLine
 	strategy := state.NewPagePager()
 	if c.write {
 		strategy = state.NewFocusPager()
+
+		cell, _ := c.table.FindCellByCoords(int(c.cursor.Row), int(c.cursor.Col))
+		input = core.NewInputLine(line.EagerDrawableFromString(cell))
 	}
 
+	vm.SetInput(input)
 	vm.SetStrategy(strategy)
-
-	//vm.Cursor = state.NewCursorState(999)
 
 	return *vm
 }

@@ -3,21 +3,34 @@ package table
 import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+type TablePadding uint
+
+const (
+	Left TablePadding = iota
+	Center
+	Right
+)
+
 type TableDrawable struct {
 	initialized bool
+	padding     TablePadding
+	spec        style.Spec
 	table       table.Table
 	size        terminal.Winsize
 	sections    []section
 	cursor      Cursor
 }
 
-func NewTableDrawable(table table.Table, cursor Cursor) *TableDrawable {
+func NewTableDrawable(table table.Table, cursor Cursor, padding TablePadding) *TableDrawable {
 	return &TableDrawable{
 		initialized: false,
+		padding:     padding,
+		spec:        style.SpecEmpty(),
 		table:       table,
 		size:        terminal.Winsize{},
 		sections:    make([]section, 0),
@@ -25,13 +38,14 @@ func NewTableDrawable(table table.Table, cursor Cursor) *TableDrawable {
 	}
 }
 
-func TableDrawableFromTable(table table.Table, cursor Cursor) core.Drawable {
-	return NewTableDrawable(table, cursor).ToDrawable()
+func TableDrawableFromTable(table table.Table, cursor Cursor, padding TablePadding) core.Drawable {
+	return NewTableDrawable(table, cursor, padding).ToDrawable()
 }
 
 func (d *TableDrawable) init(size terminal.Winsize) {
 	d.initialized = true
 
+	d.spec = makeSpec(d.spec, size, d.padding)
 	d.size = size
 	d.sections = makeSections(d.table, d.cursor, size)
 
@@ -49,17 +63,31 @@ func (d *TableDrawable) draw() ([]core.Line, bool) {
 	bodies := d.drawDynamic(remaining)
 
 	result := make([]core.Line, 0)
-	for i, v := range bodies {
-		if len(v) == 0 {
+	for i, body := range bodies {
+		if len(body) == 0 {
 			continue
 		}
 
-		result = append(result, headers[i]...)
-		result = append(result, v...)
-		result = append(result, footers[i]...)
+		formatHeaders := addStyle(d.spec, headers[i]...)
+		formatBody := addStyle(d.spec, body...)
+		formatFooter := addStyle(d.spec, footers[i]...)
+
+		result = append(result, formatHeaders...)
+		result = append(result, formatBody...)
+		result = append(result, formatFooter...)
 	}
 
+	result = d.fillRest(result)
 	return result, len(result) != 0
+}
+
+func (d *TableDrawable) fillRest(result []core.Line) []core.Line {
+	resultSize := min(int(d.size.Rows), len(result))
+	for range int(d.size.Rows) - resultSize {
+		result = append(result, core.LineFromString(""))
+	}
+
+	return result
 }
 
 func (d *TableDrawable) drawStatic() ([][]core.Line, [][]core.Line, int) {
@@ -83,9 +111,15 @@ func (d *TableDrawable) drawStatic() ([][]core.Line, [][]core.Line, int) {
 func (d *TableDrawable) drawDynamic(remaining int) [][]core.Line {
 	empty := make(map[int]int)
 
+	fixRemaining := remaining - (remaining % len(d.sections))
+
 	bodies := make([][]core.Line, len(d.sections))
-	for remaining > 0 && len(empty) != len(d.sections) {
+	for fixRemaining > 0 && len(empty) != len(d.sections) {
 		for i, s := range d.sections {
+			if fixRemaining <= 0 {
+				break
+			}
+
 			if _, exists := empty[i]; exists {
 				continue
 			}
@@ -97,7 +131,7 @@ func (d *TableDrawable) drawDynamic(remaining int) [][]core.Line {
 
 			bodies[i] = append(bodies[i], lines...)
 
-			remaining -= len(lines)
+			fixRemaining -= len(lines)
 		}
 	}
 
@@ -109,4 +143,29 @@ func (d *TableDrawable) ToDrawable() core.Drawable {
 		Init: d.init,
 		Draw: d.draw,
 	}
+}
+
+func makeSpec(base style.Spec, size terminal.Winsize, padding TablePadding) style.Spec {
+	cols := uint(size.Cols)
+
+	var spec style.Spec
+	switch padding {
+	case Left:
+		spec = style.SpecPaddingLeft(cols)
+	case Center:
+		spec = style.SpecPaddingCenter(cols)
+	case Right:
+		spec = style.SpecPaddingRight(cols)
+	default:
+		return base
+	}
+
+	return style.MergeSpec(base, spec)
+}
+
+func addStyle(spec style.Spec, lines ...core.Line) []core.Line {
+	for i := range lines {
+		lines[i].Spec = style.MergeSpec(lines[i].Spec, spec)
+	}
+	return lines
 }
