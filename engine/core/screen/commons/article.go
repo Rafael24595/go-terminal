@@ -52,7 +52,7 @@ func (c *Article) name() string {
 }
 
 func (c *Article) definition() screen.Definition {
-	return screen.Definition{}
+	return screen.DefinitionFromKeys()
 }
 
 func (c *Article) update(state *state.UIState, _ screen.ScreenEvent) screen.ScreenResult {

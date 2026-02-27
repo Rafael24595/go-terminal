@@ -47,13 +47,13 @@ var next_line_runes = []runes.RuneDefinition{
 	},
 }
 
-var text_area_write_definition = screen.Definition{
-	RequireKeys: key.NewKeysCode(key.ActionAll),
-}
+var text_area_write_definition = screen.DefinitionFromKeys(
+	key.NewKeysCode(key.ActionAll)...
+)
 
-var text_area_read_definition = screen.Definition{
-	RequireKeys: key.NewKeysCode(key.ActionEnter),
-}
+var text_area_read_definition = screen.DefinitionFromKeys(
+	key.NewKeysCode(key.ActionEnter)...
+)
 
 type TextArea struct {
 	reference string

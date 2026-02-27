@@ -20,6 +20,12 @@ type Definition struct {
 	RequireKeys []key.Key
 }
 
+func DefinitionFromKeys(keys ...key.Key) Definition {
+	return Definition{
+		RequireKeys: keys,
+	}
+}
+
 func ScreenResultFromScreen(screen *Screen) ScreenResult {
 	return ScreenResult{
 		IgnoreParents: false,

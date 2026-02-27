@@ -33,7 +33,7 @@ func TestPagination_ToScreen(t *testing.T) {
 func TestPagination_LocalUpdate(t *testing.T) {
 	stt := state.NewUIState()
 	base := screen.Screen{
-		Definition: func() screen.Definition { return screen.Definition{} },
+		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
 		Name:       func() string { return "Base" },
 		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			return screen.EmptyScreenResult()
@@ -60,7 +60,7 @@ func TestPagination_ViewFooter(t *testing.T) {
 	stt.Pager.Page = 3
 
 	base := screen.Screen{
-		Definition: func() screen.Definition { return screen.Definition{} },
+		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
 		Name:       func() string { return "Base" },
 		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			return screen.EmptyScreenResult()
@@ -84,7 +84,7 @@ func TestPagination_UpdateDelegates(t *testing.T) {
 	called := false
 
 	base := screen.Screen{
-		Definition: func() screen.Definition { return screen.Definition{} },
+		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
 		Name:       func() string { return "Base" },
 		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			called = true
@@ -108,7 +108,7 @@ func TestPagination_PageNeverNegative(t *testing.T) {
 	stt.Pager.Page = 0
 
 	base := screen.Screen{
-		Definition: func() screen.Definition { return screen.Definition{} },
+		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
 		Name:       func() string { return "Base" },
 		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			return screen.EmptyScreenResult()
