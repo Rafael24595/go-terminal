@@ -12,23 +12,49 @@ import (
 
 const default_table_name = "Table"
 
-var table_navigation_definition = screen.Definition{
-	RequireKeys: key.NewKeysCode(
+var table_navigation_definition = screen.DefinitionFromKeys(
+	key.NewKeysCode(
 		key.ActionEsc,
 		key.ActionArrowLeft,
 		key.ActionArrowRight,
 		key.ActionArrowUp,
 		key.ActionArrowDown,
-	),
+	)...
+)
+
+var table_read_definition = screen.DefinitionFromKeys(
+	key.NewKeysCode(key.ActionEnter)...
+)
+
+type actionHandler = func(drawable_table.Cursor)
+
+func defaultHandler(_ drawable_table.Cursor) {}
+
+type action struct {
+	enable  bool
+	mode    bool
+	handler actionHandler
 }
 
-var table_read_definition = screen.Definition{
-	RequireKeys: key.NewKeysCode(key.ActionEnter),
+func enabledAction(handler actionHandler) *action {
+	return &action{
+		enable:  true,
+		mode:    false,
+		handler: handler,
+	}
+}
+
+func disabledAction() *action {
+	return &action{
+		enable:  false,
+		mode:    false,
+		handler: defaultHandler,
+	}
 }
 
 type Table[T any] struct {
 	reference string
-	write     bool
+	action    *action
 	title     []core.Line
 	table     *table.Table
 	cursor    *drawable_table.Cursor
@@ -38,7 +64,7 @@ type Table[T any] struct {
 func NewTable[T any]() *Table[T] {
 	return &Table[T]{
 		reference: default_table_name,
-		write:     false,
+		action:    disabledAction(),
 		title:     make([]core.Line, 0),
 		table:     table.NewTable(),
 		cursor:    drawable_table.NewCursor(0, 0, false),
@@ -48,6 +74,16 @@ func NewTable[T any]() *Table[T] {
 
 func (c *Table[T]) SetName(name string) *Table[T] {
 	c.reference = name
+	return c
+}
+
+func (c *Table[T]) EnableAction(handler actionHandler) *Table[T] {
+	c.action = enabledAction(handler)
+	return c
+}
+
+func (c *Table[T]) DisableAction() *Table[T] {
+	c.action = disabledAction()
 	return c
 }
 
@@ -91,7 +127,11 @@ func (c *Table[T]) name() string {
 }
 
 func (c *Table[T]) definition() screen.Definition {
-	if c.write {
+	if !c.action.enable {
+		return screen.DefinitionFromKeys()
+	}
+
+	if c.action.mode {
 		return table_navigation_definition
 	}
 	return table_read_definition
@@ -100,7 +140,11 @@ func (c *Table[T]) definition() screen.Definition {
 func (c *Table[T]) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
 	state.Pager.ShowPage = true
 
-	if !c.write {
+	if !c.action.enable {
+		return screen.ScreenResultFromUIState(state)
+	}
+
+	if !c.action.mode {
 		return c.updateRead(state, evnt)
 	}
 	return c.updateNavigation(state, evnt)
@@ -111,8 +155,8 @@ func (c *Table[T]) updateNavigation(state *state.UIState, evnt screen.ScreenEven
 
 	switch ky.Code {
 	case key.ActionEsc:
-		c.write = false
-		c.cursor.Show = c.write
+		c.action.mode = false
+		c.cursor.Show = c.action.mode
 	case key.ActionArrowLeft:
 		c.cursor.DecCol()
 	case key.ActionArrowRight:
@@ -131,8 +175,8 @@ func (c *Table[T]) updateRead(state *state.UIState, evnt screen.ScreenEvent) scr
 
 	switch ky.Code {
 	case key.ActionEnter:
-		c.write = true
-		c.cursor.Show = c.write
+		c.action.mode = true
+		c.cursor.Show = c.action.mode
 	}
 
 	return screen.ScreenResultFromUIState(state)
@@ -150,7 +194,7 @@ func (c *Table[T]) view(stt state.UIState) core.ViewModel {
 
 	var input *core.InputLine
 	strategy := state.NewPagePager()
-	if c.write {
+	if c.action.enable && c.action.mode {
 		strategy = state.NewFocusPager()
 
 		cell, _ := c.table.FindCellByCoords(int(c.cursor.Row), int(c.cursor.Col))
