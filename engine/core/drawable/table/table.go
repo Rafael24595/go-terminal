@@ -60,7 +60,7 @@ func (d *TableDrawable) draw() ([]core.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	headers, footers, remaining := d.drawStatic()
-	bodies := d.drawDynamic(remaining)
+	bodies, hasNext := d.drawDynamic(remaining)
 
 	result := make([]core.Line, 0)
 	for i, body := range bodies {
@@ -78,7 +78,7 @@ func (d *TableDrawable) draw() ([]core.Line, bool) {
 	}
 
 	result = d.fillRest(result)
-	return result, len(result) != 0
+	return result, hasNext
 }
 
 func (d *TableDrawable) fillRest(result []core.Line) []core.Line {
@@ -108,7 +108,7 @@ func (d *TableDrawable) drawStatic() ([][]core.Line, [][]core.Line, int) {
 	return headers, footers, remaining
 }
 
-func (d *TableDrawable) drawDynamic(remaining int) [][]core.Line {
+func (d *TableDrawable) drawDynamic(remaining int) ([][]core.Line, bool) {
 	empty := make(map[int]int)
 
 	fixRemaining := remaining - (remaining % len(d.sections))
@@ -135,7 +135,7 @@ func (d *TableDrawable) drawDynamic(remaining int) [][]core.Line {
 		}
 	}
 
-	return bodies
+	return bodies, len(empty) != len(d.sections)
 }
 
 func (d *TableDrawable) ToDrawable() core.Drawable {
