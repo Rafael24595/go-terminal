@@ -120,7 +120,7 @@ func (c *IndexMenu) ToScreen() screen.Screen {
 }
 
 func (c *IndexMenu) definition() screen.Definition {
-	return screen.Definition{}
+	return screen.DefinitionFromKeys()
 }
 
 func (c *IndexMenu) name() string {
@@ -200,6 +200,11 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 		state.NewCursorPager(uint(cursor)),
 	)
 
+	option := min(len(c.options) - 1, int(c.cursor))
+	text := core.LineToString(c.options[option].line)
+	input := core.NewInputLine(line.EagerDrawableFromString(text))
+	vm.SetInput(input)
+
 	return *vm
 }
 
@@ -226,5 +231,6 @@ func (c *IndexMenu) makeIndex(cursor, digits int) core.Fragment {
 	if cursor == int(c.cursor) {
 		index = c.index.cursor
 	}
+
 	return core.NewFragment(index)
 }
