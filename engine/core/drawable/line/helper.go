@@ -46,6 +46,9 @@ func indexLines(cols int, line core.Line, meta *IndexMeta) []core.Line {
 }
 
 func WrapLineWords(cols int, line core.Line) []core.Line {
+	if cols >= core.LineFragmentsMeasure(line) {
+		return []core.Line{line}
+	}
 	return WrapLineWordsWithIndex(cols, line, nil)
 }
 

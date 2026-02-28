@@ -57,9 +57,9 @@ func drawLines(drawable core.Drawable, rows, cols int) []core.Line {
 			break
 		}
 
-		for _, line := range lines {
+		for _, lin := range lines {
 			buffer = append(buffer,
-				fixLineSize(line, cols)...,
+				line.WrapLineWords(cols, lin)...,
 			)
 
 			if len(buffer) >= rows {
@@ -75,9 +75,9 @@ func drawStaticLines(layer *core.LayerStack, rows, cols int) []core.Line {
 	buffer := make([]core.Line, 0)
 
 	for lines := range layer.Iterator() {
-		for _, line := range lines {
+		for _, lin := range lines {
 			buffer = append(buffer,
-				fixLineSize(line, cols)...,
+				line.WrapLineWords(cols, lin)...,
 			)
 
 			if len(buffer) >= rows {
@@ -103,10 +103,10 @@ func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerSt
 	focus := false
 
 	for lines := range layer.Iterator() {
-		for i, line := range lines {
-			lineRunes := uint(max(1, core.LineFragmentsMeasure(line)))
+		for i, lin := range lines {
+			lineRunes := uint(max(1, core.LineFragmentsMeasure(lin)))
 
-			fixed := fixLineSize(line, cols)
+			fixed := line.WrapLineWords(cols, lin)
 			for j, v := range fixed {
 				buffer[row] = v
 
@@ -143,11 +143,4 @@ func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerSt
 
 	pagination := layer.HasNext() || page != 0
 	return buffer, page, pagination
-}
-
-func fixLineSize(lin core.Line, col int) []core.Line {
-	if col >= core.LineFragmentsMeasure(lin) {
-		return []core.Line{lin}
-	}
-	return line.WrapLineWords(int(col), lin)
 }

@@ -53,10 +53,6 @@ func (d *EagerDrawable) draw() ([]core.Line, bool) {
 	}
 
 	for _, line := range d.lines {
-		if int(d.cols) >= core.LineFragmentsMeasure(line) {
-			lines = append(lines, line)
-			continue
-		}
 		lines = append(lines, WrapLineWords(int(d.cols), line)...)
 	}
 
