@@ -134,6 +134,11 @@ func (l *Line) SetOrder(order uint16) *Line {
 	return l
 }
 
+func (l Line) AddSpec(styles ...style.Spec) Line {
+	l.Spec = style.MergeSpec(styles...)
+	return l
+}
+
 func LineFragmentsMeasure(line Line) int {
 	fragsLen := 0
 	for _, f := range line.Text {
