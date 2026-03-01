@@ -18,10 +18,10 @@ const (
 
 type TableDrawable struct {
 	initialized bool
+	size        terminal.Winsize
 	padding     TablePadding
 	spec        style.Spec
 	table       table.Table
-	size        terminal.Winsize
 	sections    []section
 	cursor      Cursor
 }
@@ -29,10 +29,10 @@ type TableDrawable struct {
 func NewTableDrawable(table table.Table, cursor Cursor, padding TablePadding) *TableDrawable {
 	return &TableDrawable{
 		initialized: false,
+		size:        terminal.Winsize{},
 		padding:     padding,
 		spec:        style.SpecEmpty(),
 		table:       table,
-		size:        terminal.Winsize{},
 		sections:    make([]section, 0),
 		cursor:      cursor,
 	}
