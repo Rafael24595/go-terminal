@@ -2,6 +2,8 @@ package core
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -9,17 +11,17 @@ const DefaultPrompt = ">"
 
 type InputLine struct {
 	Prompt string
-	Value  Drawable
+	Value  drawable.Drawable
 }
 
-func NewInputLine(drawable Drawable) *InputLine {
+func NewInputLine(drawable drawable.Drawable) *InputLine {
 	return &InputLine{
 		Prompt: DefaultPrompt,
 		Value:  drawable,
 	}
 }
 
-func (i *InputLine) ToDrawable() Drawable {
+func (i *InputLine) ToDrawable() drawable.Drawable {
 	return toDrawable(i)
 }
 
@@ -27,19 +29,19 @@ type inputLineDrawable struct {
 	initialized bool
 	status      bool
 	prompt      string
-	input       Drawable
+	input       drawable.Drawable
 }
 
-func toDrawable(input *InputLine) Drawable {
-	drawable := inputLineDrawable{
+func toDrawable(input *InputLine) drawable.Drawable {
+	drw := inputLineDrawable{
 		initialized: false,
 		status:      true,
 		prompt:      input.Prompt,
 		input:       input.Value,
 	}
-	return Drawable{
-		Init: drawable.init,
-		Draw: drawable.draw,
+	return drawable.Drawable{
+		Init: drw.init,
+		Draw: drw.draw,
 	}
 }
 
@@ -49,10 +51,10 @@ func (d *inputLineDrawable) init(size terminal.Winsize) {
 	d.input.Init(size)
 }
 
-func (d *inputLineDrawable) draw() ([]Line, bool) {
+func (d *inputLineDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
-	lines := make([]Line, 0)
+	lines := make([]text.Line, 0)
 
 	if !d.status {
 		return lines, false
@@ -66,12 +68,12 @@ func (d *inputLineDrawable) draw() ([]Line, bool) {
 	}
 
 	if len(lines) == 0 {
-		line := LineFromString(d.prompt)
-		return []Line{line}, false
+		line := text.LineFromString(d.prompt)
+		return []text.Line{line}, false
 	}
 
-	prompt := FragmentsFromString(d.prompt + " ")
+	prompt := text.FragmentsFromString(d.prompt + " ")
 	lines[0].Text = append(prompt, lines[0].Text...)
 
-	return append([]Line{ LineFromString("") }, lines...), false
+	return append([]text.Line{text.LineFromString("")}, lines...), false
 }

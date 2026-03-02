@@ -4,37 +4,36 @@ import (
 	"fmt"
 	"unicode/utf8"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
 
 func NewLanding() screen.Screen {
 	textTitle := "Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor"
 	sizeTitle := utf8.RuneCountInString(textTitle)
-	
 
-	title := core.NewLines(
-		core.NewLine(
+	title := text.NewLines(
+		text.NewLine(
 			textTitle,
 			style.SpecFromKind(style.SpcKindPaddingRight),
 		),
-		core.NewLine(
+		text.NewLine(
 			"-",
 			style.SpecFill(uint(sizeTitle)),
 		),
 	)
 
 	options := commons.NewMenuOptions(
-		commons.NewMenuOption(core.LineFromString("Option Article"), NewTestArticle),
-		commons.NewMenuOption(core.LineFromString("Option TextArea"), NewTestTextArea),
-		commons.NewMenuOption(core.LineFromString("Option Table"), NewTestTable),
+		commons.NewMenuOption(text.LineFromString("Option Article"), NewTestArticle),
+		commons.NewMenuOption(text.LineFromString("Option TextArea"), NewTestTextArea),
+		commons.NewMenuOption(text.LineFromString("Option Table"), NewTestTable),
 	)
 
 	for i := range 30 {
 		options = append(options,
-			commons.NewMenuOption(core.LineFromString(fmt.Sprintf("Option %d", i+1)), NewTestTextArea),
+			commons.NewMenuOption(text.LineFromString(fmt.Sprintf("Option %d", i+1)), NewTestTextArea),
 		)
 	}
 

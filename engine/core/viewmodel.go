@@ -2,24 +2,26 @@ package core
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 var default_pager = state.NewPagePager()
 
 type ViewModel struct {
-	Header *LayerStack
-	Lines  *LayerStack
-	Footer *LayerStack
+	Header *stack.StackDrawable
+	Lines  *stack.StackDrawable
+	Footer *stack.StackDrawable
 	Input  *InputLine
 	Pager  state.PagerStrategy
 }
 
 func ViewModelFromUIState(stt state.UIState) *ViewModel {
 	return &ViewModel{
-		Header: NewLayerStack(),
-		Lines:  NewLayerStack(),
-		Footer: NewLayerStack(),
+		Header: stack.NewStackDrawable(),
+		Lines:  stack.NewStackDrawable(),
+		Footer: stack.NewStackDrawable(),
 		Input:  nil,
 		Pager:  default_pager,
 	}
@@ -43,15 +45,15 @@ func (s *ViewModel) PagerMatch(state state.UIState, ctx state.PagerContext) bool
 	return s.Pager.Match(state, ctx)
 }
 
-func (v *ViewModel) InitStaticLayers(size terminal.Winsize) (*LayerStack, *LayerStack) {
+func (v *ViewModel) InitStaticLayers(size terminal.Winsize) (*stack.StackDrawable, *stack.StackDrawable) {
 	return v.Header.Init(size), v.Footer.Init(size)
 }
 
-func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) *LayerStack {
+func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) *stack.StackDrawable {
 	return v.Lines.Init(size)
 }
 
-func (v *ViewModel) InitInputLine(size terminal.Winsize) (*Drawable, bool) {
+func (v *ViewModel) InitInputLine(size terminal.Winsize) (*drawable.Drawable, bool) {
 	if v.Input == nil {
 		return nil, false
 	}

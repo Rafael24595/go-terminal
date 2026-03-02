@@ -3,7 +3,7 @@ package wrapper_render
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/render"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
@@ -35,7 +35,7 @@ func (r *FixedTerminalRender) ToRender() render.Render {
 	}
 }
 
-func (r *FixedTerminalRender) Render(lines []core.Line, size terminal.Winsize) string {
+func (r *FixedTerminalRender) Render(lines []text.Line, size terminal.Winsize) string {
 	rows := min(r.maxRows, size.Rows)
 	cols := min(r.maxCols, size.Cols)
 	newSize := terminal.NewWinsize(rows, cols)

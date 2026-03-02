@@ -1,8 +1,9 @@
 package line
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -11,11 +12,11 @@ type LazyDrawable struct {
 	rows        uint16
 	cols        uint16
 	index       *IndexMeta
-	lines       []core.Line
+	lines       []text.Line
 	cursor      uint16
 }
 
-func NewLazyDrawable(lines ...core.Line) *LazyDrawable {
+func NewLazyDrawable(lines ...text.Line) *LazyDrawable {
 	return &LazyDrawable{
 		initialized: false,
 		rows:        0,
@@ -26,7 +27,7 @@ func NewLazyDrawable(lines ...core.Line) *LazyDrawable {
 	}
 }
 
-func LazyDrawableFromLines(lines ...core.Line) core.Drawable {
+func LazyDrawableFromLines(lines ...text.Line) drawable.Drawable {
 	return NewLazyDrawable(lines...).ToDrawable()
 }
 
@@ -39,11 +40,11 @@ func (d *LazyDrawable) init(size terminal.Winsize) {
 	d.cursor = 0
 }
 
-func (d *LazyDrawable) draw() ([]core.Line, bool) {
+func (d *LazyDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	if d.cursor >= uint16(len(d.lines)) {
-		return make([]core.Line, 0), false
+		return make([]text.Line, 0), false
 	}
 
 	lines := indexLines(int(d.cols), d.lines[d.cursor], d.index)
@@ -52,8 +53,8 @@ func (d *LazyDrawable) draw() ([]core.Line, bool) {
 	return lines, d.cursor < uint16(len(d.lines))
 }
 
-func (d *LazyDrawable) ToDrawable() core.Drawable {
-	return core.Drawable{
+func (d *LazyDrawable) ToDrawable() drawable.Drawable {
+	return drawable.Drawable{
 		Init: d.init,
 		Draw: d.draw,
 	}

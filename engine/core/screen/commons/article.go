@@ -5,21 +5,22 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
 
 const default_article_name = "Article"
 
 type Article struct {
 	reference string
-	title     []core.Line
-	article   []core.Line
+	title     []text.Line
+	article   []text.Line
 }
 
 func NewArticle() *Article {
 	return &Article{
 		reference: default_article_name,
-		title:     make([]core.Line, 0),
-		article:   make([]core.Line, 0),
+		title:     make([]text.Line, 0),
+		article:   make([]text.Line, 0),
 	}
 }
 
@@ -28,12 +29,12 @@ func (c *Article) SetName(name string) *Article {
 	return c
 }
 
-func (c *Article) AddTitle(title ...core.Line) *Article {
+func (c *Article) AddTitle(title ...text.Line) *Article {
 	c.title = append(c.title, title...)
 	return c
 }
 
-func (c *Article) AddArticle(article ...core.Line) *Article {
+func (c *Article) AddArticle(article ...text.Line) *Article {
 	c.article = append(c.article, article...)
 	return c
 }

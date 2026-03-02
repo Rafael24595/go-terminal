@@ -1,10 +1,11 @@
 package table
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -38,7 +39,7 @@ func NewTableDrawable(table table.Table, cursor Cursor, padding TablePadding) *T
 	}
 }
 
-func TableDrawableFromTable(table table.Table, cursor Cursor, padding TablePadding) core.Drawable {
+func TableDrawableFromTable(table table.Table, cursor Cursor, padding TablePadding) drawable.Drawable {
 	return NewTableDrawable(table, cursor, padding).ToDrawable()
 }
 
@@ -56,13 +57,13 @@ func (d *TableDrawable) init(size terminal.Winsize) {
 	}
 }
 
-func (d *TableDrawable) draw() ([]core.Line, bool) {
+func (d *TableDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	headers, footers, remaining := d.drawStatic()
 	bodies, hasNext := d.drawDynamic(remaining)
 
-	result := make([]core.Line, 0)
+	result := make([]text.Line, 0)
 	for i, body := range bodies {
 		if len(body) == 0 {
 			continue
@@ -81,18 +82,18 @@ func (d *TableDrawable) draw() ([]core.Line, bool) {
 	return result, hasNext
 }
 
-func (d *TableDrawable) fillRest(result []core.Line) []core.Line {
+func (d *TableDrawable) fillRest(result []text.Line) []text.Line {
 	resultSize := min(int(d.size.Rows), len(result))
 	for range int(d.size.Rows) - resultSize {
-		result = append(result, core.LineFromString(""))
+		result = append(result, text.LineFromString(""))
 	}
 
 	return result
 }
 
-func (d *TableDrawable) drawStatic() ([][]core.Line, [][]core.Line, int) {
-	headers := make([][]core.Line, len(d.sections))
-	footers := make([][]core.Line, len(d.sections))
+func (d *TableDrawable) drawStatic() ([][]text.Line, [][]text.Line, int) {
+	headers := make([][]text.Line, len(d.sections))
+	footers := make([][]text.Line, len(d.sections))
 
 	remaining := int(d.size.Rows)
 	for i, s := range d.sections {
@@ -108,12 +109,12 @@ func (d *TableDrawable) drawStatic() ([][]core.Line, [][]core.Line, int) {
 	return headers, footers, remaining
 }
 
-func (d *TableDrawable) drawDynamic(remaining int) ([][]core.Line, bool) {
+func (d *TableDrawable) drawDynamic(remaining int) ([][]text.Line, bool) {
 	empty := make(map[int]int)
 
 	fixRemaining := remaining - (remaining % len(d.sections))
 
-	bodies := make([][]core.Line, len(d.sections))
+	bodies := make([][]text.Line, len(d.sections))
 	for fixRemaining > 0 && len(empty) != len(d.sections) {
 		for i, s := range d.sections {
 			if fixRemaining <= 0 {
@@ -138,8 +139,8 @@ func (d *TableDrawable) drawDynamic(remaining int) ([][]core.Line, bool) {
 	return bodies, len(empty) != len(d.sections)
 }
 
-func (d *TableDrawable) ToDrawable() core.Drawable {
-	return core.Drawable{
+func (d *TableDrawable) ToDrawable() drawable.Drawable {
+	return drawable.Drawable{
 		Init: d.init,
 		Draw: d.draw,
 	}
@@ -163,7 +164,7 @@ func makeSpec(base style.Spec, size terminal.Winsize, padding TablePadding) styl
 	return style.MergeSpec(base, spec)
 }
 
-func addStyle(spec style.Spec, lines ...core.Line) []core.Line {
+func addStyle(spec style.Spec, lines ...text.Line) []text.Line {
 	for i := range lines {
 		lines[i].Spec = style.MergeSpec(lines[i].Spec, spec)
 	}

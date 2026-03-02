@@ -1,8 +1,9 @@
 package line
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -11,14 +12,14 @@ type EagerLoopDrawable struct {
 	eager       *EagerDrawable
 }
 
-func NewEagerLoopDrawable(lines ...core.Line) *EagerLoopDrawable {
+func NewEagerLoopDrawable(lines ...text.Line) *EagerLoopDrawable {
 	return &EagerLoopDrawable{
 		initialized: false,
 		eager:       NewEagerDrawable(lines...),
 	}
 }
 
-func EagerLoopDrawableFromLines(lines ...core.Line) core.Drawable {
+func EagerLoopDrawableFromLines(lines ...text.Line) drawable.Drawable {
 	return NewEagerLoopDrawable(lines...).ToDrawable()
 }
 
@@ -28,7 +29,7 @@ func (d *EagerLoopDrawable) init(size terminal.Winsize) {
 	d.eager.init(size)
 }
 
-func (d *EagerLoopDrawable) draw() ([]core.Line, bool) {
+func (d *EagerLoopDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	lines, status := d.eager.draw()
@@ -39,8 +40,8 @@ func (d *EagerLoopDrawable) draw() ([]core.Line, bool) {
 	return lines, true
 }
 
-func (d *EagerLoopDrawable) ToDrawable() core.Drawable {
-	return core.Drawable{
+func (d *EagerLoopDrawable) ToDrawable() drawable.Drawable {
+	return drawable.Drawable{
 		Init: d.init,
 		Draw: d.draw,
 	}

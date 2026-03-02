@@ -4,10 +4,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/Rafael24595/go-terminal/engine/commons/structure"
-	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	drawable_line "github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -15,9 +16,9 @@ import (
 const min_width = 4
 
 type section struct {
-	header core.Drawable
-	rows   core.Drawable
-	footer core.Drawable
+	header drawable.Drawable
+	rows   drawable.Drawable
+	footer drawable.Drawable
 }
 
 type col struct {
@@ -50,12 +51,12 @@ func makeSections(t table.Table, cursor Cursor, size terminal.Winsize) []section
 		capacity := renderedRowSize(table, separator)
 		specCover := style.SpecRepeatRight(uint(capacity))
 
-		top := core.LineFromFragments(
-			core.NewFragment(separator.Top).AddSpec(specCover),
+		top := text.LineFromFragments(
+			text.NewFragment(separator.Top).AddSpec(specCover),
 		)
 
-		bottom := core.LineFromFragments(
-			core.NewFragment(separator.Bottom).AddSpec(specCover),
+		bottom := text.LineFromFragments(
+			text.NewFragment(separator.Bottom).AddSpec(specCover),
 		)
 
 		rows := makeTable(table, headers, columns, separator, fixCursor)
@@ -103,13 +104,13 @@ func headersFromSize(size map[string]int, headers []string, cursor Cursor) ([]st
 	return filtered, fixCursor
 }
 
-func makeHeaders(size map[string]int, headers []string, separator table.SeparatorMeta) core.Line {
+func makeHeaders(size map[string]int, headers []string, separator table.SeparatorMeta) text.Line {
 	headersLen := len(headers)
 
 	capacity := 2*headersLen + 1
-	fragments := make([]core.Fragment, 0, capacity)
+	fragments := make([]text.Fragment, 0, capacity)
 
-	fragments = append(fragments, core.NewFragment(separator.Left))
+	fragments = append(fragments, text.NewFragment(separator.Left))
 
 	for i, h := range headers {
 		width := uint(size[h])
@@ -117,16 +118,16 @@ func makeHeaders(size map[string]int, headers []string, separator table.Separato
 			style.SpecPaddingCenter(width),
 			style.SpecTrimRight(width),
 		)
-		fragments = append(fragments, core.NewFragment(h).AddSpec(spec))
+		fragments = append(fragments, text.NewFragment(h).AddSpec(spec))
 
 		if i < headersLen-1 {
-			fragments = append(fragments, core.NewFragment(separator.Center))
+			fragments = append(fragments, text.NewFragment(separator.Center))
 		}
 	}
 
-	fragments = append(fragments, core.NewFragment(separator.Right))
+	fragments = append(fragments, text.NewFragment(separator.Right))
 
-	return core.LineFromFragments(fragments...)
+	return text.LineFromFragments(fragments...)
 }
 
 func makeTable(
@@ -135,30 +136,30 @@ func makeTable(
 	cols map[string][]string,
 	separator table.SeparatorMeta,
 	cursor *Cursor,
-) []core.Line {
+) []text.Line {
 	headersLen := len(headers)
 
 	capacity := 2*headersLen + 1
 	maxRow := table.Rows(headers, cols)
 
-	lines := make([]core.Line, maxRow)
+	lines := make([]text.Line, maxRow)
 
 	for y := range maxRow {
-		fragments := make([]core.Fragment, 0, capacity)
-		fragments = append(fragments, core.NewFragment(separator.Left))
+		fragments := make([]text.Fragment, 0, capacity)
+		fragments = append(fragments, text.NewFragment(separator.Left))
 
 		for x, h := range headers {
 			frag := makeCell(size, cols, cursor, h, y, x)
 			fragments = append(fragments, frag)
 
 			if x < headersLen-1 {
-				fragments = append(fragments, core.NewFragment(separator.Center))
+				fragments = append(fragments, text.NewFragment(separator.Center))
 			}
 		}
 
-		fragments = append(fragments, core.NewFragment(separator.Right))
+		fragments = append(fragments, text.NewFragment(separator.Right))
 
-		lines[y] = core.LineFromFragments(fragments...)
+		lines[y] = text.LineFromFragments(fragments...)
 	}
 
 	return lines
@@ -171,7 +172,7 @@ func makeCell(
 	header string,
 	y int,
 	x int,
-) core.Fragment {
+) text.Fragment {
 	width := uint(size[header])
 	col := cols[header]
 
@@ -188,14 +189,14 @@ func makeCell(
 			style.SpecTrimRight(width),
 		)
 
-		return core.NewFragment(col[y]).
+		return text.NewFragment(col[y]).
 			AddSpec(spec).
 			AddAtom(atom)
 	}
 
 	spec := style.SpecRepeatRight(width)
 
-	return core.NewFragment("").
+	return text.NewFragment("").
 		AddSpec(spec).
 		AddAtom(atom)
 }

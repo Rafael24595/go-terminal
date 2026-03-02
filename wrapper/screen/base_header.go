@@ -1,19 +1,19 @@
 package wrapper_screen
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
 
 func NewBaseHeader(screen screen.Screen) screen.Screen {
-	header := core.FixedLinesFromLines(
+	header := text.FixedLinesFromLines(
 		style.SpecFromKind(style.SpcKindPaddingCenter),
-		core.LineFromString("Lorem ipsum dolor sit amet", style.AtmUpper),
-		core.LineFromString("consectetur adipiscing", style.AtmUpper),
-		core.LineFromString("-Server 00-", style.AtmUpper),
-		core.LineJump(),
+		text.LineFromString("Lorem ipsum dolor sit amet", style.AtmUpper),
+		text.LineFromString("consectetur adipiscing", style.AtmUpper),
+		text.LineFromString("-Server 00-", style.AtmUpper),
+		text.LineJump(),
 	)
 
 	return commons.NewHeader(screen).

@@ -3,20 +3,20 @@ package wrapper_render
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestRenderLineFragments_MergeSameStyles(t *testing.T) {
-	line := core.LineFromFragments(
-		core.NewFragment("G").AddAtom(style.AtmBold),
-		core.NewFragment("o").AddAtom(style.AtmBold),
-		core.NewFragment("l").AddAtom(style.AtmBold),
-		core.NewFragment("a").AddAtom(style.AtmBold),
-		core.NewFragment("n").AddAtom(style.AtmBold),
-		core.NewFragment("g").AddAtom(style.AtmBold),
+	line := text.LineFromFragments(
+		text.NewFragment("G").AddAtom(style.AtmBold),
+		text.NewFragment("o").AddAtom(style.AtmBold),
+		text.NewFragment("l").AddAtom(style.AtmBold),
+		text.NewFragment("a").AddAtom(style.AtmBold),
+		text.NewFragment("n").AddAtom(style.AtmBold),
+		text.NewFragment("g").AddAtom(style.AtmBold),
 	)
 
 	out := renderLineFragments(line, terminal.Winsize{})
@@ -25,10 +25,10 @@ func TestRenderLineFragments_MergeSameStyles(t *testing.T) {
 }
 
 func TestRenderLineFragments_StyleChange(t *testing.T) {
-	line := core.LineFromFragments(
-		core.NewFragment("Hi").AddAtom(style.AtmBold),
-		core.NewFragment(" "),
-		core.NewFragment("Ziglang").AddAtom(style.AtmSelect),
+	line := text.LineFromFragments(
+		text.NewFragment("Hi").AddAtom(style.AtmBold),
+		text.NewFragment(" "),
+		text.NewFragment("Ziglang").AddAtom(style.AtmSelect),
 	)
 
 	out := renderLineFragments(line, terminal.Winsize{})
@@ -42,10 +42,10 @@ func TestRenderLineFragments_StyleChange(t *testing.T) {
 }
 
 func TestRenderLineFragments_DoNotMergeNonContiguous(t *testing.T) {
-	line := core.LineFromFragments(
-		core.NewFragment("R").AddAtom(style.AtmBold),
-		core.NewFragment("us"),
-		core.NewFragment("t").AddAtom(style.AtmBold),
+	line := text.LineFromFragments(
+		text.NewFragment("R").AddAtom(style.AtmBold),
+		text.NewFragment("us"),
+		text.NewFragment("t").AddAtom(style.AtmBold),
 	)
 
 	out := renderLineFragments(line, terminal.Winsize{})
@@ -59,7 +59,7 @@ func TestRenderLineFragments_DoNotMergeNonContiguous(t *testing.T) {
 }
 
 func TestRenderLineFragments_EmptyLine(t *testing.T) {
-	line := core.Line{}
+	line := text.Line{}
 
 	out := renderLineFragments(line, terminal.Winsize{})
 

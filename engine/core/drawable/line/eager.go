@@ -1,8 +1,9 @@
 package line
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -11,10 +12,10 @@ type EagerDrawable struct {
 	rows        uint16
 	cols        uint16
 	status      bool
-	lines       []core.Line
+	lines       []text.Line
 }
 
-func NewEagerDrawable(lines ...core.Line) *EagerDrawable {
+func NewEagerDrawable(lines ...text.Line) *EagerDrawable {
 	return &EagerDrawable{
 		initialized: false,
 		rows:        0,
@@ -24,13 +25,13 @@ func NewEagerDrawable(lines ...core.Line) *EagerDrawable {
 	}
 }
 
-func EagerDrawableFromLines(lines ...core.Line) core.Drawable {
+func EagerDrawableFromLines(lines ...text.Line) drawable.Drawable {
 	return NewEagerDrawable(lines...).ToDrawable()
 }
 
-func EagerDrawableFromString(text ...string) core.Drawable {
-	lines := core.LineFromFragments(
-		core.FragmentsFromString(text...)...,
+func EagerDrawableFromString(txt ...string) drawable.Drawable {
+	lines := text.LineFromFragments(
+		text.FragmentsFromString(txt...)...,
 	)
 	return EagerDrawableFromLines(lines)
 }
@@ -43,10 +44,10 @@ func (d *EagerDrawable) init(size terminal.Winsize) {
 	d.status = true
 }
 
-func (d *EagerDrawable) draw() ([]core.Line, bool) {
+func (d *EagerDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
-	lines := make([]core.Line, 0)
+	lines := make([]text.Line, 0)
 
 	if !d.status {
 		return lines, d.status
@@ -60,8 +61,8 @@ func (d *EagerDrawable) draw() ([]core.Line, bool) {
 	return lines, d.status
 }
 
-func (d *EagerDrawable) ToDrawable() core.Drawable {
-	return core.Drawable{
+func (d *EagerDrawable) ToDrawable() drawable.Drawable {
+	return drawable.Drawable{
 		Init: d.init,
 		Draw: d.draw,
 	}

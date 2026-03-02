@@ -3,10 +3,11 @@ package box
 import (
 	"unicode/utf8"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
@@ -46,29 +47,29 @@ var default_separator = SeparatorMeta{
 
 type BoxDrawable struct {
 	initialized  bool
+	size         terminal.Winsize
 	innerPadding uint
 	vertical     BoxVerticalPadding
 	horizontal   BoxHorizontalPadding
 	spec         style.Spec
 	separator    SeparatorMeta
-	drawable     core.Drawable
-	size         terminal.Winsize
+	drawable     drawable.Drawable
 }
 
-func NewBoxDrawable(drawable core.Drawable) *BoxDrawable {
+func NewBoxDrawable(drawable drawable.Drawable) *BoxDrawable {
 	return &BoxDrawable{
 		initialized:  false,
+		size:         terminal.Winsize{},
 		innerPadding: default_inner_padding,
 		horizontal:   Middle,
 		vertical:     Center,
 		spec:         style.SpecEmpty(),
 		separator:    default_separator,
 		drawable:     drawable,
-		size:         terminal.Winsize{},
 	}
 }
 
-func BoxDrawableFromDrawable(drawable core.Drawable) core.Drawable {
+func BoxDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
 	return NewBoxDrawable(drawable).ToDrawable()
 }
 
@@ -87,8 +88,8 @@ func (d *BoxDrawable) Separator(separator SeparatorMeta) *BoxDrawable {
 	return d
 }
 
-func (d *BoxDrawable) ToDrawable() core.Drawable {
-	return core.Drawable{
+func (d *BoxDrawable) ToDrawable() drawable.Drawable {
+	return drawable.Drawable{
 		Init: d.init,
 		Draw: d.draw,
 	}
@@ -100,10 +101,11 @@ func (d *BoxDrawable) init(size terminal.Winsize) {
 	d.spec = makeSpec(d.spec, size, d.vertical)
 	d.size = size
 
-	d.drawable.Init(size)
+	clampSize := d.clampSize(size)
+	d.drawable.Init(clampSize)
 }
 
-func (d *BoxDrawable) draw() ([]core.Line, bool) {
+func (d *BoxDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	lines, hasNext := d.drawChild()
@@ -119,11 +121,11 @@ func (d *BoxDrawable) draw() ([]core.Line, bool) {
 	return base, hasNext
 }
 
-func (d *BoxDrawable) defineBase(lines []core.Line) []core.Line {
+func (d *BoxDrawable) defineBase(lines []text.Line) []text.Line {
 	size := len(lines)
 
 	if d.horizontal == Up || size >= int(d.size.Rows) {
-		return make([]core.Line, 0)
+		return make([]text.Line, 0)
 	}
 
 	start := (d.size.Rows - uint16(size))
@@ -131,23 +133,25 @@ func (d *BoxDrawable) defineBase(lines []core.Line) []core.Line {
 		start /= 2
 	}
 
-	return make([]core.Line, start)
+	return make([]text.Line, start)
 }
 
-func (d *BoxDrawable) fillEmpty(result []core.Line) []core.Line {
+func (d *BoxDrawable) fillEmpty(result []text.Line) []text.Line {
 	for i := range result {
-		if len(result[i].Text) == 0 {
-			result[i].Text = append(
-				result[i].Text,
-				core.EmptyFragment(),
-			)
+		if len(result[i].Text) > 0 {
+			continue
 		}
+
+		result[i].Text = append(
+			result[i].Text,
+			text.EmptyFragment(),
+		)
 	}
 	return result
 }
 
-func (d *BoxDrawable) drawChild() ([]core.Line, bool) {
-	lines := make([]core.Line, 0)
+func (d *BoxDrawable) drawChild() ([]text.Line, bool) {
+	lines := make([]text.Line, 0)
 
 	remaining := int(d.size.Rows)
 	for remaining > 0 {
@@ -169,9 +173,8 @@ func (d *BoxDrawable) drawChild() ([]core.Line, bool) {
 	return lines, remaining <= 0
 }
 
-func (d *BoxDrawable) addStyle(lines ...core.Line) []core.Line {
-	borderSize := utf8.RuneCountInString(d.separator.Left) +
-		utf8.RuneCountInString(d.separator.Right)
+func (d *BoxDrawable) addStyle(lines ...text.Line) []text.Line {
+	borderSize := borderSize(d.separator)
 
 	spaceSize := utf8.RuneCountInString(d.separator.Space)
 	paddingSize := d.innerPadding * uint(spaceSize)
@@ -181,23 +184,23 @@ func (d *BoxDrawable) addStyle(lines ...core.Line) []core.Line {
 	size := min(uint(d.size.Cols), maxLineSize(lines...)+styleSize)
 
 	specCover := style.SpecRepeatRight(uint(size))
-	cover := core.LineFromFragments(
-		core.NewFragment(d.separator.Top).AddSpec(specCover),
+	cover := text.LineFromFragments(
+		text.NewFragment(d.separator.Top).AddSpec(specCover),
 	)
 
 	specSpace := style.SpecRepeatRight(paddingSize)
 
-	left := []core.Fragment{
-		core.NewFragment(d.separator.Left),
-		core.NewFragment(d.separator.Space).AddSpec(specSpace),
+	left := []text.Fragment{
+		text.NewFragment(d.separator.Left),
+		text.NewFragment(d.separator.Space).AddSpec(specSpace),
 	}
 
-	right := []core.Fragment{
-		core.NewFragment(d.separator.Space).AddSpec(specSpace),
-		core.NewFragment(d.separator.Right),
+	right := []text.Fragment{
+		text.NewFragment(d.separator.Space).AddSpec(specSpace),
+		text.NewFragment(d.separator.Right),
 	}
 
-	result := make([]core.Line, 0)
+	result := make([]text.Line, 0)
 
 	result = append(result, cover)
 	result = d.addPadding(size, uint(borderSize), result...)
@@ -206,7 +209,7 @@ func (d *BoxDrawable) addStyle(lines ...core.Line) []core.Line {
 
 	for _, lin := range lines {
 		for _, v := range line.WrapLineWords(available, lin) {
-			frags := make([]core.Fragment, 0)
+			frags := make([]text.Fragment, 0)
 
 			frags = append(frags, left...)
 			frags = append(frags, v.Text...)
@@ -225,21 +228,36 @@ func (d *BoxDrawable) addStyle(lines ...core.Line) []core.Line {
 	return result
 }
 
-func (d *BoxDrawable) addPadding(size, borderSize uint, lines ...core.Line) []core.Line {
+func (d *BoxDrawable) addPadding(size, borderSize uint, lines ...text.Line) []text.Line {
 	available := math.SubClampZero(size, borderSize)
 
 	specSpace := style.SpecRepeatRight(available)
 	for range d.innerPadding {
 		lines = append(lines,
-			core.LineFromFragments(
-				core.NewFragment(d.separator.Left),
-				core.NewFragment(d.separator.Space).AddSpec(specSpace),
-				core.NewFragment(d.separator.Right),
+			text.LineFromFragments(
+				text.NewFragment(d.separator.Left),
+				text.NewFragment(d.separator.Space).AddSpec(specSpace),
+				text.NewFragment(d.separator.Right),
 			),
 		)
 	}
 
 	return lines
+}
+
+func (d *BoxDrawable) clampSize(size terminal.Winsize) terminal.Winsize {
+	horizontal := (d.innerPadding * 2) + 2
+	rows := math.SubClampZero(size.Rows, uint16(horizontal))
+
+	vertical := (d.innerPadding * 2) + borderSize(d.separator)
+	cols := math.SubClampZero(size.Cols, uint16(vertical))
+
+	return terminal.NewWinsize(rows, cols)
+}
+
+func borderSize(separator SeparatorMeta) uint {
+	return uint(utf8.RuneCountInString(separator.Left) +
+		utf8.RuneCountInString(separator.Right))
 }
 
 func makeSpec(base style.Spec, size terminal.Winsize, padding BoxVerticalPadding) style.Spec {
@@ -260,10 +278,10 @@ func makeSpec(base style.Spec, size terminal.Winsize, padding BoxVerticalPadding
 	return style.MergeSpec(base, spec)
 }
 
-func maxLineSize(lines ...core.Line) uint {
+func maxLineSize(lines ...text.Line) uint {
 	size := uint(0)
 	for _, v := range lines {
-		measure := core.LineFragmentsMeasure(v)
+		measure := text.LineFragmentsMeasure(v)
 		size = max(size, uint(measure))
 	}
 	return size

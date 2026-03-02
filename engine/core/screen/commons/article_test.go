@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
@@ -34,22 +34,22 @@ func TestArticle_SetName(t *testing.T) {
 }
 
 func TestArticle_AddTitleAndArticle(t *testing.T) {
-	title := core.LineFromString("Title")
-	body := core.LineFromString("Body")
+	title := text.LineFromString("Title")
+	body := text.LineFromString("Body")
 
 	article := NewArticle().
 		AddTitle(title).
 		AddArticle(body)
 
 	assert.Equal(t, len(article.title), 1, "title lines count")
-	assert.Equal(t, core.LineToString(article.title[0]), core.LineToString(title), "title content")
+	assert.Equal(t, text.LineToString(article.title[0]), text.LineToString(title), "title content")
 	assert.Equal(t, len(article.article), 1, "article lines count")
-	assert.Equal(t, core.LineToString(article.article[0]), core.LineToString(body), "article content")
+	assert.Equal(t, text.LineToString(article.article[0]), text.LineToString(body), "article content")
 }
 
 func TestArticle_View(t *testing.T) {
-	title := core.LineFromString("Title")
-	body := core.LineFromString("Body")
+	title := text.LineFromString("Title")
+	body := text.LineFromString("Body")
 
 	article := NewArticle().
 		AddTitle(title).
@@ -67,8 +67,8 @@ func TestArticle_View(t *testing.T) {
 
 	assert.Equal(t, len(headers), 1, "ViewModel header count")
 	assert.Equal(t, len(lines), 1, "ViewModel lines count")
-	assert.Equal(t, core.LineToString(headers[0]), core.LineToString(title), "first line should be title")
-	assert.Equal(t, core.LineToString(lines[0]), core.LineToString(body), "second line should be article")
+	assert.Equal(t, text.LineToString(headers[0]), text.LineToString(title), "first line should be title")
+	assert.Equal(t, text.LineToString(lines[0]), text.LineToString(body), "second line should be article")
 }
 
 func TestArticle_Update(t *testing.T) {

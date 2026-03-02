@@ -1,7 +1,7 @@
 package line
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
@@ -23,8 +23,8 @@ func (i IndexMeta) body() string {
 	return i.prefixBody + i.sufix
 }
 
-func indexLines(cols int, line core.Line, meta *IndexMeta) []core.Line {
-	measure := core.LineFragmentsMeasure(line)
+func indexLines(cols int, line text.Line, meta *IndexMeta) []text.Line {
+	measure := text.LineFragmentsMeasure(line)
 
 	isGreaterWithoutIndex := measure > int(cols)
 	isGreaterWithIndex := meta != nil && measure+int(meta.totalWidth) > cols
@@ -33,34 +33,34 @@ func indexLines(cols int, line core.Line, meta *IndexMeta) []core.Line {
 		return WrapLineWordsWithIndex(int(cols), line, meta)
 	}
 
-	fragments := core.FragmentsFromString()
+	fragments := text.FragmentsFromString()
 	if meta != nil {
-		fragments = append(fragments, core.NewFragment(meta.header(int(line.Order))))
+		fragments = append(fragments, text.NewFragment(meta.header(int(line.Order))))
 	}
 
-	newLine := core.LineFromFragments(
+	newLine := text.LineFromFragments(
 		append(fragments, line.Text...)...,
 	)
 
-	return core.FixedLinesFromLines(line.Spec, newLine)
+	return text.FixedLinesFromLines(line.Spec, newLine)
 }
 
-func WrapLineWords(cols int, line core.Line) []core.Line {
-	if cols >= core.LineFragmentsMeasure(line) {
-		return []core.Line{line}
+func WrapLineWords(cols int, line text.Line) []text.Line {
+	if cols >= text.LineFragmentsMeasure(line) {
+		return []text.Line{line}
 	}
 	return WrapLineWordsWithIndex(cols, line, nil)
 }
 
-func WrapLineWordsWithIndex(cols int, line core.Line, meta *IndexMeta) []core.Line {
-	result := make([]core.Line, 0)
-	current := core.LineFromSpec(line.Spec)
+func WrapLineWordsWithIndex(cols int, line text.Line, meta *IndexMeta) []text.Line {
+	result := make([]text.Line, 0)
+	current := text.LineFromSpec(line.Spec)
 	width := 0
 
-	words := core.TokenizeLineWords(line)
+	words := text.TokenizeLineWords(line)
 
 	if meta != nil {
-		fragments := core.FragmentsFromString(meta.header(int(line.Order)))
+		fragments := text.FragmentsFromString(meta.header(int(line.Order)))
 		current.Text = append(current.Text, fragments...)
 		cols -= int(meta.totalWidth)
 	}
@@ -77,10 +77,10 @@ func WrapLineWordsWithIndex(cols int, line core.Line, meta *IndexMeta) []core.Li
 
 		if wordlen <= cols {
 			result = append(result, current)
-			current = core.LineFromSpec(line.Spec)
+			current = text.LineFromSpec(line.Spec)
 
 			if meta != nil {
-				fragments := core.FragmentsFromString(meta.body())
+				fragments := text.FragmentsFromString(meta.body())
 				current.Text = append(current.Text, fragments...)
 			}
 
@@ -105,18 +105,18 @@ func WrapLineWordsWithIndex(cols int, line core.Line, meta *IndexMeta) []core.Li
 }
 
 func wrapLongTokenWithIndex(
-	word core.WordToken,
+	word text.WordToken,
 	cols int,
-	current core.Line,
+	current text.Line,
 	width int,
 	meta *IndexMeta,
-) (core.Line, []core.Line, int) {
-	current, lines, width := core.SplitLongToken(word, cols, current, width)
+) (text.Line, []text.Line, int) {
+	current, lines, width := text.SplitLongToken(word, cols, current, width)
 	if meta == nil || len(lines) == 0 {
 		return current, lines, width
 	}
 
-	index := core.FragmentsFromString(meta.body())
+	index := text.FragmentsFromString(meta.body())
 
 	current.Text = append(index, current.Text...)
 
@@ -127,7 +127,7 @@ func wrapLongTokenWithIndex(
 	return current, lines, width
 }
 
-func computeIndexMeta(lines []core.Line) *IndexMeta {
+func computeIndexMeta(lines []text.Line) *IndexMeta {
 	size := uint32(0)
 
 	for _, line := range lines {

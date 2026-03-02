@@ -5,13 +5,13 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestSplitLineWords_Simple(t *testing.T) {
-	line := core.NewLine(
+	line := text.NewLine(
 		"HELLO WORLD",
 		style.SpecFromKind(style.SpcKindPaddingLeft),
 	)
@@ -26,7 +26,7 @@ func TestSplitLineWords_Simple(t *testing.T) {
 	for i, l := range lines {
 		var text strings.Builder
 		for _, f := range l.Text {
-			text .WriteString(f.Text)
+			text.WriteString(f.Text)
 		}
 
 		assert.Equal(t, expected[i], text.String())
@@ -34,11 +34,11 @@ func TestSplitLineWords_Simple(t *testing.T) {
 }
 
 func TestSplitLineWords_Styles(t *testing.T) {
-	line := core.FragmentLine(
+	line := text.FragmentLine(
 		style.SpecFromKind(style.SpcKindPaddingLeft),
-		core.NewFragment("HELLO").AddAtom(style.AtmBold),
-		core.NewFragment(" "),
-		core.NewFragment("WORLD"),
+		text.NewFragment("HELLO").AddAtom(style.AtmBold),
+		text.NewFragment(" "),
+		text.NewFragment("WORLD"),
 	)
 
 	maxWidth := 7
@@ -55,10 +55,10 @@ func TestSplitLineWords_Styles(t *testing.T) {
 }
 
 func TestSplitLineWords_LongWord(t *testing.T) {
-	text := "HELLO WORLD FROM GOLANG"
+	txt := "HELLO WORLD FROM GOLANG"
 
-	line := core.NewLine(
-		text,
+	line := text.NewLine(
+		txt,
 		style.SpecFromKind(style.SpcKindPaddingLeft),
 	)
 
@@ -81,17 +81,17 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 			totalRunes += utf8.RuneCountInString(f.Text)
 		}
 	}
-	if totalRunes != utf8.RuneCountInString(text) {
+	if totalRunes != utf8.RuneCountInString(txt) {
 		t.Errorf("total runes mismatch")
 	}
 }
 
 func TestSplitLineWords_MultipleFragments(t *testing.T) {
-	line := core.FragmentLine(
+	line := text.FragmentLine(
 		style.SpecFromKind(style.SpcKindPaddingLeft),
-		core.NewFragment("HELLO").AddAtom(style.AtmBold),
-		core.NewFragment("WORLD").AddAtom(style.AtmBold),
-		core.NewFragment("GO"),
+		text.NewFragment("HELLO").AddAtom(style.AtmBold),
+		text.NewFragment("WORLD").AddAtom(style.AtmBold),
+		text.NewFragment("GO"),
 	)
 
 	maxWidth := 8

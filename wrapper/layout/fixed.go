@@ -3,6 +3,7 @@ package wrapper_layout
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -32,7 +33,7 @@ func (l *FixedLayout) ToLayout() core.Layout {
 	}
 }
 
-func (l *FixedLayout) Appy(state *state.UIState, vm core.ViewModel, size terminal.Winsize) []core.Line {
+func (l *FixedLayout) Appy(state *state.UIState, vm core.ViewModel, size terminal.Winsize) []text.Line {
 	rows := min(l.maxRows, size.Rows)
 	cols := min(l.maxCols, size.Cols)
 	winsize := terminal.NewWinsize(rows, cols)

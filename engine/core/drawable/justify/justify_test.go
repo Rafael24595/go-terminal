@@ -1,16 +1,16 @@
-package grid
+package justify
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
-func fragmentTexts(frags []core.Fragment) string {
+func fragmentTexts(frags []text.Fragment) string {
 	var s strings.Builder
 	for _, f := range frags {
 		s.WriteString(f.Text)
@@ -18,7 +18,7 @@ func fragmentTexts(frags []core.Fragment) string {
 	return s.String()
 }
 
-func renderFragments(frags []core.Fragment) string {
+func renderFragments(frags []text.Fragment) string {
 	var s strings.Builder
 	for _, f := range frags {
 		s.WriteString(f.Text)
@@ -34,7 +34,7 @@ func renderFragments(frags []core.Fragment) string {
 	return s.String()
 }
 
-func renderLine(cols int, mode JustifyMode, line core.Line) string {
+func renderLine(cols int, mode JustifyMode, line text.Line) string {
 	frags := renderFragments(line.Text)
 
 	switch mode {
@@ -50,7 +50,7 @@ func renderLine(cols int, mode JustifyMode, line core.Line) string {
 }
 
 func TestAddGaps_SingleFragment(t *testing.T) {
-	frags := core.FragmentsFromString(
+	frags := text.FragmentsFromString(
 		"abc",
 	)
 
@@ -67,7 +67,7 @@ func TestAddGaps_SingleFragment(t *testing.T) {
 }
 
 func TestAddGaps_IntercalatedSpaces(t *testing.T) {
-	frags := core.FragmentsFromString(
+	frags := text.FragmentsFromString(
 		"aa", "bb", "cc",
 	)
 
@@ -84,7 +84,7 @@ func TestAddGaps_IntercalatedSpaces(t *testing.T) {
 }
 
 func TestAddGaps_Between(t *testing.T) {
-	frags := core.FragmentsFromString(
+	frags := text.FragmentsFromString(
 		"aa", "bb", "cc",
 	)
 
@@ -100,7 +100,7 @@ func TestAddGaps_Between(t *testing.T) {
 }
 
 func TestAddGaps_Around(t *testing.T) {
-	frags := core.FragmentsFromString(
+	frags := text.FragmentsFromString(
 		"aa", "bb", "cc",
 	)
 
@@ -116,7 +116,7 @@ func TestAddGaps_Around(t *testing.T) {
 }
 
 func TestAddGaps_Overflow_Start(t *testing.T) {
-	frags := core.FragmentsFromString(
+	frags := text.FragmentsFromString(
 		"aaaa", "bbbb",
 	)
 
@@ -125,7 +125,7 @@ func TestAddGaps_Overflow_Start(t *testing.T) {
 }
 
 func TestAddGaps_DoesNotMutateOriginal(t *testing.T) {
-	frags := core.FragmentsFromString(
+	frags := text.FragmentsFromString(
 		"aa", "bb",
 	)
 
@@ -137,7 +137,7 @@ func TestAddGaps_DoesNotMutateOriginal(t *testing.T) {
 }
 
 func TestJustifyLine_Start(t *testing.T) {
-	frags := core.FragmentsFromString("aa", "bb", "cc")
+	frags := text.FragmentsFromString("aa", "bb", "cc")
 	line := justifyLine(10, frags, 6, JustifyStart)
 
 	assert.Len(t, 5, line.Text)
@@ -147,7 +147,7 @@ func TestJustifyLine_Start(t *testing.T) {
 }
 
 func TestJustifyLine_End(t *testing.T) {
-	frags := core.FragmentsFromString("aa", "bb", "cc")
+	frags := text.FragmentsFromString("aa", "bb", "cc")
 	line := justifyLine(10, frags, 6, JustifyEnd)
 
 	assert.Len(t, 5, line.Text)
@@ -157,7 +157,7 @@ func TestJustifyLine_End(t *testing.T) {
 }
 
 func TestJustifyLine_Center(t *testing.T) {
-	frags := core.FragmentsFromString("aa", "bb", "cc")
+	frags := text.FragmentsFromString("aa", "bb", "cc")
 	line := justifyLine(10, frags, 6, JustifyCenter)
 
 	assert.Len(t, 5, line.Text)
@@ -167,7 +167,7 @@ func TestJustifyLine_Center(t *testing.T) {
 }
 
 func TestJustifyLine_Between(t *testing.T) {
-	frags := core.FragmentsFromString("aa", "bb", "cc")
+	frags := text.FragmentsFromString("aa", "bb", "cc")
 	line := justifyLine(10, frags, 6, JustifyBetween)
 
 	assert.Len(t, 3, line.Text)
@@ -177,7 +177,7 @@ func TestJustifyLine_Between(t *testing.T) {
 }
 
 func TestJustifyLine_Around(t *testing.T) {
-	frags := core.FragmentsFromString("aa", "bb", "cc")
+	frags := text.FragmentsFromString("aa", "bb", "cc")
 	line := justifyLine(18, frags, 6, JustifyAround)
 
 	assert.Len(t, 3, line.Text)
@@ -187,7 +187,7 @@ func TestJustifyLine_Around(t *testing.T) {
 }
 
 func TestJustifyLine_Evenly(t *testing.T) {
-	frags := core.FragmentsFromString("aa", "bb", "cc")
+	frags := text.FragmentsFromString("aa", "bb", "cc")
 	line := justifyLine(18, frags, 6, JustifyEvenly)
 
 	assert.Len(t, 3, line.Text)

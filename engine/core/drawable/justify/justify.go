@@ -1,9 +1,10 @@
-package grid
+package justify
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -31,11 +32,11 @@ type JustifyDrawable struct {
 	size        terminal.Winsize
 	limit       uint8
 	justify     JustifyMode
-	fragments   []core.Fragment
+	fragments   []text.Fragment
 	cursor      uint16
 }
 
-func NewJustifyDrawable(fragments []core.Fragment) *JustifyDrawable {
+func NewJustifyDrawable(fragments []text.Fragment) *JustifyDrawable {
 	return &JustifyDrawable{
 		initialized: false,
 		size:        terminal.Winsize{},
@@ -46,7 +47,7 @@ func NewJustifyDrawable(fragments []core.Fragment) *JustifyDrawable {
 	}
 }
 
-func JustifyDrawableFromFragments(fragments []core.Fragment) core.Drawable {
+func JustifyDrawableFromFragments(fragments []text.Fragment) drawable.Drawable {
 	return NewJustifyDrawable(fragments).ToDrawable()
 }
 
@@ -60,8 +61,8 @@ func (d *JustifyDrawable) Justify(justify JustifyMode) *JustifyDrawable {
 	return d
 }
 
-func (d *JustifyDrawable) ToDrawable() core.Drawable {
-	return core.Drawable{
+func (d *JustifyDrawable) ToDrawable() drawable.Drawable {
+	return drawable.Drawable{
 		Init: d.init,
 		Draw: d.draw,
 	}
@@ -73,18 +74,18 @@ func (d *JustifyDrawable) init(size terminal.Winsize) {
 	d.size = size
 }
 
-func (d *JustifyDrawable) draw() ([]core.Line, bool) {
+func (d *JustifyDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	if d.cursor >= uint16(len(d.fragments)) {
-		return make([]core.Line, 0), false
+		return make([]text.Line, 0), false
 	}
 
 	limit := int(d.limit)
 	cols := int(d.size.Cols)
 
 	size := 0
-	frags := make([]core.Fragment, 0)
+	frags := make([]text.Fragment, 0)
 
 	for i := int(d.cursor); i < len(d.fragments); i++ {
 		fragsLen := len(frags)
@@ -93,21 +94,21 @@ func (d *JustifyDrawable) draw() ([]core.Line, bool) {
 
 		if fragsLen > 0 && fragsLen >= limit || size >= cols {
 			line := justifyLine(cols, frags, size, d.justify)
-			return []core.Line{line}, d.cursor < uint16(len(d.fragments))
+			return []text.Line{line}, d.cursor < uint16(len(d.fragments))
 		}
 
 		frag := d.fragments[i]
 
-		size += core.FragmentMeasure(frag)
+		size += text.FragmentMeasure(frag)
 		frags = append(frags, frag)
 	}
 
 	line := justifyLine(cols, frags, size, d.justify)
-	return []core.Line{line}, d.cursor < uint16(len(d.fragments))
+	return []text.Line{line}, d.cursor < uint16(len(d.fragments))
 }
 
-func justifyLine(cols int, frags []core.Fragment, size int, mode JustifyMode) core.Line {
-	line := core.LineFromFragments(
+func justifyLine(cols int, frags []text.Fragment, size int, mode JustifyMode) text.Line {
+	line := text.LineFromFragments(
 		addGaps(cols, frags, size, mode)...,
 	)
 
@@ -126,12 +127,12 @@ func justifyLine(cols int, frags []core.Fragment, size int, mode JustifyMode) co
 	return line
 }
 
-func addGaps(cols int, frags []core.Fragment, size int, mode JustifyMode) []core.Fragment {
+func addGaps(cols int, frags []text.Fragment, size int, mode JustifyMode) []text.Fragment {
 	if len(frags) == 0 {
 		return frags
 	}
 
-	out := make([]core.Fragment, len(frags))
+	out := make([]text.Fragment, len(frags))
 	copy(out, frags)
 
 	free := cols - size
@@ -156,7 +157,7 @@ func addGaps(cols int, frags []core.Fragment, size int, mode JustifyMode) []core
 	return addSpaceBetween(out)
 }
 
-func distributeSpace(free int, out []core.Fragment, extraSlots int) []core.Fragment {
+func distributeSpace(free int, out []text.Fragment, extraSlots int) []text.Fragment {
 	gaps := len(out) - 1
 
 	slots := gaps + extraSlots
@@ -183,12 +184,12 @@ func distributeSpace(free int, out []core.Fragment, extraSlots int) []core.Fragm
 	return out
 }
 
-func addSpaceBetween(frags []core.Fragment) []core.Fragment {
-	spaced := make([]core.Fragment, 0, (len(frags)*2)-1)
+func addSpaceBetween(frags []text.Fragment) []text.Fragment {
+	spaced := make([]text.Fragment, 0, (len(frags)*2)-1)
 	for i, f := range frags {
 		spaced = append(spaced, f)
 		if i < len(frags)-1 {
-			spaced = append(spaced, core.NewFragment(" "))
+			spaced = append(spaced, text.NewFragment(" "))
 		}
 	}
 	return spaced

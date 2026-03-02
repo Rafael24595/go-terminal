@@ -3,9 +3,9 @@ package table
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -48,7 +48,7 @@ func TestMakeHeaders_Basic(t *testing.T) {
 
 	line := makeHeaders(size, headers, separator)
 
-	assert.Equal(t, "|id|name|", core.LineToString(line))
+	assert.Equal(t, "|id|name|", text.LineToString(line))
 }
 
 func TestMakeHeaders_Structure(t *testing.T) {
@@ -102,8 +102,8 @@ func TestMakeTable_Basic(t *testing.T) {
 
 	assert.Len(t, 2, lines)
 
-	assert.Equal(t, "|1|golang|", core.LineToString(lines[0]))
-	assert.Equal(t, "|2|ziglang|", core.LineToString(lines[1]))
+	assert.Equal(t, "|1|golang|", text.LineToString(lines[0]))
+	assert.Equal(t, "|2|ziglang|", text.LineToString(lines[1]))
 }
 
 func TestAdjustSize_NoReductionNeeded(t *testing.T) {

@@ -3,14 +3,14 @@ package commons
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestTextArea_ToScreen(t *testing.T) {
 	menu := NewTextArea().
 		SetName("base").
-		AddTitle(core.LineFromString("Welcome"))
+		AddTitle(text.LineFromString("Welcome"))
 
 	screen := menu.ToScreen()
 

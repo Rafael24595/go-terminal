@@ -4,20 +4,20 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
-func tokenString(tok core.WordToken) string {
+func tokenString(token text.WordToken) string {
 	var b strings.Builder
-	for _, f := range tok.Text {
+	for _, f := range token.Text {
 		b.WriteString(f.Text)
 	}
 	return b.String()
 }
 
-func tokenStrings(tokens []core.WordToken) []string {
+func tokenStrings(tokens []text.WordToken) []string {
 	out := make([]string, len(tokens))
 	for i, t := range tokens {
 		out[i] = tokenString(t)
@@ -28,55 +28,55 @@ func tokenStrings(tokens []core.WordToken) []string {
 func TestTokenizeLine(t *testing.T) {
 	tests := []struct {
 		name     string
-		line     core.Line
+		line     text.Line
 		expected []string
 	}{
 		{
 			name: "single word",
-			line: core.LineFromFragments(
-				core.FragmentsFromString("Golang")...,
+			line: text.LineFromFragments(
+				text.FragmentsFromString("Golang")...,
 			),
 			expected: []string{"Golang"},
 		},
 		{
 			name: "word split across fragments",
-			line: core.LineFromFragments(
-				core.FragmentsFromString("Z", "ig", "lang")...,
+			line: text.LineFromFragments(
+				text.FragmentsFromString("Z", "ig", "lang")...,
 			),
 			expected: []string{"Ziglang"},
 		},
 		{
 			name: "two words with space",
-			line: core.LineFromFragments(
-				core.FragmentsFromString("hello cargo")...,
+			line: text.LineFromFragments(
+				text.FragmentsFromString("hello cargo")...,
 			),
 			expected: []string{"hello", " ", "cargo"},
 		},
 		{
 			name: "multiple spaces preserved",
-			line: core.LineFromFragments(
-				core.FragmentsFromString("hello   golangci")...,
+			line: text.LineFromFragments(
+				text.FragmentsFromString("hello   golangci")...,
 			),
 			expected: []string{"hello", "   ", "golangci"},
 		},
 		{
 			name: "spaces across fragments",
-			line: core.LineFromFragments(
-				core.FragmentsFromString("hello", "  ", "zig")...,
+			line: text.LineFromFragments(
+				text.FragmentsFromString("hello", "  ", "zig")...,
 			),
 			expected: []string{"hello", "  ", "zig"},
 		},
 		{
 			name: "styled per character",
-			line: core.LineFromFragments(
-				core.FragmentsFromString("r", "u", "s", "t", "c")...,
+			line: text.LineFromFragments(
+				text.FragmentsFromString("r", "u", "s", "t", "c")...,
 			),
 			expected: []string{"rustc"},
 		},
 		{
 			name: "leading and trailing spaces",
-			line: core.LineFromFragments(
-				core.FragmentsFromString("  Golang  ")...,
+			line: text.LineFromFragments(
+				text.FragmentsFromString("  Golang  ")...,
 			),
 			expected: []string{"  ", "Golang", "  "},
 		},
@@ -84,7 +84,7 @@ func TestTokenizeLine(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tokens := core.TokenizeLineWords(tt.line)
+			tokens := text.TokenizeLineWords(tt.line)
 			got := tokenStrings(tokens)
 
 			assert.Equal(t, len(tt.expected), len(got))
@@ -96,43 +96,43 @@ func TestTokenizeLine(t *testing.T) {
 }
 
 func TestTokenizeLine_EmptyLine(t *testing.T) {
-	line := core.LineFromFragments()
+	line := text.LineFromFragments()
 
-	tokens := core.TokenizeLineWords(line)
+	tokens := text.TokenizeLineWords(line)
 
 	assert.Equal(t, 0, len(tokens))
 }
 
 func TestTokenizeLine_EmptyFragmentIgnored(t *testing.T) {
-	line := core.LineFromFragments(
-		core.NewFragment(""),
-		core.NewFragment("Golang"),
+	line := text.LineFromFragments(
+		text.NewFragment(""),
+		text.NewFragment("Golang"),
 	)
 
-	tokens := core.TokenizeLineWords(line)
+	tokens := text.TokenizeLineWords(line)
 
 	assert.Equal(t, 1, len(tokens))
 	assert.Equal(t, "Golang", tokenString(tokens[0]))
 }
 
 func TestTokenizeLine_OnlySpaces(t *testing.T) {
-	line := core.LineFromFragments(
-		core.NewFragment("   "),
+	line := text.LineFromFragments(
+		text.NewFragment("   "),
 	)
 
-	tokens := core.TokenizeLineWords(line)
+	tokens := text.TokenizeLineWords(line)
 
 	assert.Equal(t, 1, len(tokens))
 	assert.Equal(t, "   ", tokenString(tokens[0]))
 }
 
 func TestTokenizeLine_StyleChangeRequiresFragmentSplit(t *testing.T) {
-	line := core.LineFromFragments(
-		core.NewFragment("Zig").AddAtom(style.AtmBold),
-		core.NewFragment("lang").AddAtom(style.AtmBold),
+	line := text.LineFromFragments(
+		text.NewFragment("Zig").AddAtom(style.AtmBold),
+		text.NewFragment("lang").AddAtom(style.AtmBold),
 	)
 
-	tokens := core.TokenizeLineWords(line)
+	tokens := text.TokenizeLineWords(line)
 
 	assert.Equal(t, 1, len(tokens))
 	assert.Equal(t, 2, len(tokens[0].Text))
@@ -142,13 +142,13 @@ func TestTokenizeLine_StyleChangeRequiresFragmentSplit(t *testing.T) {
 }
 
 func TestTokenizeLine_PreservesStylesAcrossFragments(t *testing.T) {
-	line := core.LineFromFragments(
-		core.NewFragment("ru"),
-		core.NewFragment("st").AddAtom(style.AtmSelect),
-		core.NewFragment("up"),
+	line := text.LineFromFragments(
+		text.NewFragment("ru"),
+		text.NewFragment("st").AddAtom(style.AtmSelect),
+		text.NewFragment("up"),
 	)
 
-	tokens := core.TokenizeLineWords(line)
+	tokens := text.TokenizeLineWords(line)
 
 	assert.Equal(t, 1, len(tokens))
 
@@ -156,13 +156,13 @@ func TestTokenizeLine_PreservesStylesAcrossFragments(t *testing.T) {
 }
 
 func TestTokenizeLine_MultipleSpaceFragmentsKeepStyles(t *testing.T) {
-	line := core.LineFromFragments(
-		core.NewFragment(" ").AddAtom(style.AtmBold),
-		core.NewFragment(" ").AddAtom(style.AtmSelect),
-		core.NewFragment("c").AddAtom(style.AtmBold),
+	line := text.LineFromFragments(
+		text.NewFragment(" ").AddAtom(style.AtmBold),
+		text.NewFragment(" ").AddAtom(style.AtmSelect),
+		text.NewFragment("c").AddAtom(style.AtmBold),
 	)
 
-	tokens := core.TokenizeLineWords(line)
+	tokens := text.TokenizeLineWords(line)
 
 	assert.Equal(t, 2, len(tokens))
 
@@ -180,11 +180,11 @@ func TestTokenizeLine_MultipleSpaceFragmentsKeepStyles(t *testing.T) {
 }
 
 func TestTokenizeLine_FinalFlushPreservesStyles(t *testing.T) {
-	line := core.LineFromFragments(
-		core.NewFragment("c++").AddAtom(style.AtmBold),
+	line := text.LineFromFragments(
+		text.NewFragment("c++").AddAtom(style.AtmBold),
 	)
 
-	tokens := core.TokenizeLineWords(line)
+	tokens := text.TokenizeLineWords(line)
 
 	assert.Equal(t, 1, len(tokens))
 
@@ -192,40 +192,40 @@ func TestTokenizeLine_FinalFlushPreservesStyles(t *testing.T) {
 }
 
 func TestSplitLongToken_PreservesStyles(t *testing.T) {
-	token := core.WordTokenFromFragments(
-		core.NewFragment("abcdef").AddAtom(style.AtmBold),
+	token := text.WordTokenFromFragments(
+		text.NewFragment("abcdef").AddAtom(style.AtmBold),
 	)
 
-	line, emitted, width := core.SplitLongToken(
+	line, emitted, width := text.SplitLongToken(
 		token, 3,
-		core.LineFromSpec(style.SpecFromKind(style.SpcKindFill)), 0,
+		text.LineFromSpec(style.SpecFromKind(style.SpcKindFill)), 0,
 	)
 
 	assert.Equal(t, 3, width)
 
-	assert.Equal(t, 3, core.LineFragmentsMeasure(line))
-	assert.Equal(t, "def", core.LineToString(line))
+	assert.Equal(t, 3, text.LineFragmentsMeasure(line))
+	assert.Equal(t, "def", text.LineToString(line))
 
 	assert.Equal(t, 1, len(emitted))
-	assert.Equal(t, "abc", core.LineToString(emitted[0]))
+	assert.Equal(t, "abc", text.LineToString(emitted[0]))
 
 	assert.True(t, emitted[0].Text[0].Atom.HasAny(style.AtmBold))
 }
 
 func TestSplitLongToken_WithInitialWidth(t *testing.T) {
-	token := core.WordTokenFromFragments(
-		core.NewFragment("abcdef"),
+	token := text.WordTokenFromFragments(
+		text.NewFragment("abcdef"),
 	)
 
-	current := core.LineFromSpec(style.SpecFromKind(style.SpcKindFill))
-	current.Text = append(current.Text, core.NewFragment("XY"))
+	current := text.LineFromSpec(style.SpecFromKind(style.SpcKindFill))
+	current.Text = append(current.Text, text.NewFragment("XY"))
 
-	line, emitted, width := core.SplitLongToken(
+	line, emitted, width := text.SplitLongToken(
 		token, 4,
 		current, 2,
 	)
 
-	assert.Equal(t, "cdef", core.LineToString(line))
+	assert.Equal(t, "cdef", text.LineToString(line))
 
 	assert.Equal(t, 1, len(emitted))
 	assert.Equal(t, 2, len(emitted[0].Text))
@@ -237,20 +237,20 @@ func TestSplitLongToken_WithInitialWidth(t *testing.T) {
 }
 
 func TestSplitLongToken_CurrentAlreadyFull(t *testing.T) {
-	token := core.WordTokenFromFragments(
-		core.NewFragment("abc"),
+	token := text.WordTokenFromFragments(
+		text.NewFragment("abc"),
 	)
 
-	current := core.LineFromSpec(style.SpecFromKind(style.SpcKindFill))
-	current.Text = append(current.Text, core.NewFragment("WXYZ"))
+	current := text.LineFromSpec(style.SpecFromKind(style.SpcKindFill))
+	current.Text = append(current.Text, text.NewFragment("WXYZ"))
 
-	line, emitted, width := core.SplitLongToken(
+	line, emitted, width := text.SplitLongToken(
 		token, 4,
 		current, 4,
 	)
 
-	assert.Equal(t, "abc", core.LineToString(line))
+	assert.Equal(t, "abc", text.LineToString(line))
 	assert.Equal(t, 1, len(emitted))
-	assert.Equal(t, "WXYZ", core.LineToString(emitted[0]))
+	assert.Equal(t, "WXYZ", text.LineToString(emitted[0]))
 	assert.Equal(t, 3, width)
 }

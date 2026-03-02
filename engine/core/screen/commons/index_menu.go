@@ -10,6 +10,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
@@ -51,11 +52,11 @@ func CustomIndex(index string, cursor string) IndexMeta {
 }
 
 type MenuOption struct {
-	line   core.Line
+	line   text.Line
 	action func() screen.Screen
 }
 
-func NewMenuOption(line core.Line, action func() screen.Screen) MenuOption {
+func NewMenuOption(line text.Line, action func() screen.Screen) MenuOption {
 	return MenuOption{
 		line:   line,
 		action: action,
@@ -69,7 +70,7 @@ func NewMenuOptions(options ...MenuOption) []MenuOption {
 type IndexMenu struct {
 	reference string
 	index     IndexMeta
-	title     []core.Line
+	title     []text.Line
 	options   []MenuOption
 	cursor    uint
 }
@@ -78,7 +79,7 @@ func NewIndexMenu() *IndexMenu {
 	return &IndexMenu{
 		reference: default_index_menu_name,
 		index:     HyphenIndex,
-		title:     make([]core.Line, 0),
+		title:     make([]text.Line, 0),
 		options:   make([]MenuOption, 0),
 		cursor:    0,
 	}
@@ -94,7 +95,7 @@ func (c *IndexMenu) SetIndex(index IndexMeta) *IndexMenu {
 	return c
 }
 
-func (c *IndexMenu) AddTitle(title ...core.Line) *IndexMenu {
+func (c *IndexMenu) AddTitle(title ...text.Line) *IndexMenu {
 	c.title = append(c.title, title...)
 	return c
 }
@@ -150,7 +151,7 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 		assert.Unreachable(
 			"menu actions should not be nil: %s - %s",
 			c.reference,
-			core.LineToString(option.line),
+			text.LineToString(option.line),
 		)
 	}
 
@@ -158,19 +159,19 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 }
 
 func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
-	lines := make([]core.Line, 0)
+	lines := make([]text.Line, 0)
 
 	digits := math.Digits(len(c.options))
 
 	cursor := 0
 	found := false
 	for i, o := range c.options {
-		selector := []core.Fragment{
+		selector := []text.Fragment{
 			c.makeIndex(i, int(digits)),
-			core.NewFragment(" "),
+			text.NewFragment(" "),
 		}
 
-		styledLine := core.FragmentLine(
+		styledLine := text.FragmentLine(
 			style.SpecRepeatLeft(2),
 			append(selector, o.line.Text...)...,
 		)
@@ -178,7 +179,7 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 		lines = append(lines, styledLine)
 
 		if !found {
-			cursor += core.LineFragmentsMeasure(styledLine)
+			cursor += text.LineFragmentsMeasure(styledLine)
 		}
 
 		if i == int(c.cursor) {
@@ -200,18 +201,18 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 		state.NewCursorPager(uint(cursor)),
 	)
 
-	option := min(len(c.options) - 1, int(c.cursor))
-	text := core.LineToString(c.options[option].line)
+	option := min(len(c.options)-1, int(c.cursor))
+	text := text.LineToString(c.options[option].line)
 	input := core.NewInputLine(line.EagerDrawableFromString(text))
 	vm.SetInput(input)
 
 	return *vm
 }
 
-func (c *IndexMenu) makeIndex(cursor, digits int) core.Fragment {
+func (c *IndexMenu) makeIndex(cursor, digits int) text.Fragment {
 	if c.index.kind == Numeric {
-		text := helper.Right(strconv.Itoa(cursor+1), digits)
-		index := core.NewFragment(text + ".- ")
+		txt := helper.Right(strconv.Itoa(cursor+1), digits)
+		index := text.NewFragment(txt + ".- ")
 		if cursor == int(c.cursor) {
 			index.Atom |= style.AtmBold
 		}
@@ -219,8 +220,8 @@ func (c *IndexMenu) makeIndex(cursor, digits int) core.Fragment {
 	}
 
 	if c.index.kind == Alphabetic {
-		text := helper.Right(helper.NumberToAlpha(cursor), digits)
-		index := core.NewFragment(text + ".- ")
+		txt := helper.Right(helper.NumberToAlpha(cursor), digits)
+		index := text.NewFragment(txt + ".- ")
 		if cursor == int(c.cursor) {
 			index.Atom |= style.AtmBold
 		}
@@ -232,5 +233,5 @@ func (c *IndexMenu) makeIndex(cursor, digits int) core.Fragment {
 		index = c.index.cursor
 	}
 
-	return core.NewFragment(index)
+	return text.NewFragment(index)
 }

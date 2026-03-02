@@ -8,6 +8,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
 
 const default_table_name = "Table"
@@ -19,11 +20,11 @@ var table_navigation_definition = screen.DefinitionFromKeys(
 		key.ActionArrowRight,
 		key.ActionArrowUp,
 		key.ActionArrowDown,
-	)...
+	)...,
 )
 
 var table_read_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(key.ActionEnter)...
+	key.NewKeysCode(key.ActionEnter)...,
 )
 
 type actionHandler = func(drawable_table.Cursor)
@@ -55,7 +56,7 @@ func disabledAction() *action {
 type Table[T any] struct {
 	reference string
 	action    *action
-	title     []core.Line
+	title     []text.Line
 	table     *table.Table
 	cursor    *drawable_table.Cursor
 	padding   drawable_table.TablePadding
@@ -65,7 +66,7 @@ func NewTable[T any]() *Table[T] {
 	return &Table[T]{
 		reference: default_table_name,
 		action:    disabledAction(),
-		title:     make([]core.Line, 0),
+		title:     make([]text.Line, 0),
 		table:     table.NewTable(),
 		cursor:    drawable_table.NewCursor(0, 0, false),
 		padding:   drawable_table.Right,
@@ -92,7 +93,7 @@ func (c *Table[T]) DefinePadding(padding drawable_table.TablePadding) *Table[T] 
 	return c
 }
 
-func (c *Table[T]) AddTitle(title ...core.Line) *Table[T] {
+func (c *Table[T]) AddTitle(title ...text.Line) *Table[T] {
 	c.title = append(c.title, title...)
 	return c
 }

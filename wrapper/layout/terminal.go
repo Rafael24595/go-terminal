@@ -3,12 +3,15 @@ package wrapper_layout
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 // TODO: Implement tokenize lines method to prevent line feed injection.
-func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsize) []core.Line {
+func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsize) []text.Line {
 	rows := int(size.Rows)
 	cols := int(size.Cols)
 
@@ -17,15 +20,15 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	headerLines := drawStaticLines(header, rows, cols)
 	footerLines := drawStaticLines(footer, rows, cols)
 
-	inputLines := make([]core.Line, 0)
+	inputLines := make([]text.Line, 0)
 	if input, ok := vm.InitInputLine(size); ok {
 		inputLines = drawLines(*input, rows, cols)
 	}
 
 	rest := int(size.Rows) - (len(headerLines) + len(footerLines) + len(inputLines))
 	if rest < 0 {
-		return core.NewLines(
-			core.LineFromString("Too low resolution"),
+		return text.NewLines(
+			text.LineFromString("Too low resolution"),
 		)
 	}
 
@@ -45,8 +48,8 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	return allLines
 }
 
-func drawLines(drawable core.Drawable, rows, cols int) []core.Line {
-	buffer := make([]core.Line, 0)
+func drawLines(drawable drawable.Drawable, rows, cols int) []text.Line {
+	buffer := make([]text.Line, 0)
 
 	content := true
 	for content {
@@ -71,8 +74,8 @@ func drawLines(drawable core.Drawable, rows, cols int) []core.Line {
 	return buffer
 }
 
-func drawStaticLines(layer *core.LayerStack, rows, cols int) []core.Line {
-	buffer := make([]core.Line, 0)
+func drawStaticLines(layer *stack.StackDrawable, rows, cols int) []text.Line {
+	buffer := make([]text.Line, 0)
 
 	for lines := range layer.Iterator() {
 		for _, lin := range lines {
@@ -89,8 +92,8 @@ func drawStaticLines(layer *core.LayerStack, rows, cols int) []core.Line {
 	return buffer
 }
 
-func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerStack, rows, cols int) ([]core.Line, uint, bool) {
-	buffer := make([]core.Line, rows)
+func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *stack.StackDrawable, rows, cols int) ([]text.Line, uint, bool) {
+	buffer := make([]text.Line, rows)
 	page := uint(0)
 
 	if rows <= 0 {
@@ -104,13 +107,13 @@ func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerSt
 
 	for lines := range layer.Iterator() {
 		for i, lin := range lines {
-			lineRunes := uint(max(1, core.LineFragmentsMeasure(lin)))
+			lineRunes := uint(max(1, text.LineFragmentsMeasure(lin)))
 
 			fixed := line.WrapLineWords(cols, lin)
 			for j, v := range fixed {
 				buffer[row] = v
 
-				if f := core.HasFocus(v); f {
+				if f := text.HasFocus(v); f {
 					focus = f
 				}
 
@@ -132,7 +135,7 @@ func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *core.LayerSt
 				}
 
 				row = 0
-				buffer = make([]core.Line, rows)
+				buffer = make([]text.Line, rows)
 				focus = false
 
 				page++

@@ -11,10 +11,11 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/primitive"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper/line"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/engine/helper/text"
+	text_helper "github.com/Rafael24595/go-terminal/engine/helper/text"
 
 	drawable_line "github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 )
@@ -48,19 +49,19 @@ var next_line_runes = []runes.RuneDefinition{
 }
 
 var text_area_write_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(key.ActionAll)...
+	key.NewKeysCode(key.ActionAll)...,
 )
 
 var text_area_read_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(key.ActionEnter)...
+	key.NewKeysCode(key.ActionEnter)...,
 )
 
 type TextArea struct {
 	reference string
 	history   *event.TextEventService
 	write     bool
-	title     []core.Line
-	footer    []core.Line
+	title     []text.Line
+	footer    []text.Line
 	caret     *primitive.Cursor
 	buffer    []rune
 	index     bool
@@ -71,8 +72,8 @@ func NewTextArea() *TextArea {
 		reference: default_text_area_name,
 		history:   event.NewTextEventService(),
 		write:     false,
-		title:     make([]core.Line, 0),
-		footer:    make([]core.Line, 0),
+		title:     make([]text.Line, 0),
+		footer:    make([]text.Line, 0),
 		caret:     primitive.NewCursor(false),
 		buffer:    make([]rune, 0),
 	}
@@ -103,12 +104,12 @@ func (c *TextArea) DisableBlinking() *TextArea {
 	return c
 }
 
-func (c *TextArea) AddTitle(title ...core.Line) *TextArea {
+func (c *TextArea) AddTitle(title ...text.Line) *TextArea {
 	c.title = append(c.title, title...)
 	return c
 }
 
-func (c *TextArea) AddFooter(footer ...core.Line) *TextArea {
+func (c *TextArea) AddFooter(footer ...text.Line) *TextArea {
 	c.footer = append(c.footer, footer...)
 	return c
 }
@@ -211,7 +212,7 @@ func (c *TextArea) pushRune(state *state.UIState, ky key.Key) screen.ScreenResul
 		fixEnd += 1
 	}
 
-	text := text.FullTextTransformer.Apply(ky, start, end, c.buffer)
+	text := text_helper.FullTextTransformer.Apply(ky, start, end, c.buffer)
 
 	c.history.PushEvent(event.Insert, start, fixEnd, string(c.buffer[start:end]), string(text))
 
@@ -465,20 +466,20 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 		strategy = state.NewFocusPager()
 	}
 
-	text := core.FragmentLine(style.SpecFromKind(style.SpcKindPaddingRight))
+	txt := text.FragmentLine(style.SpecFromKind(style.SpcKindPaddingRight))
 
 	beforeSelect := string(renderBuffer[0:start])
-	text.Text = append(text.Text, core.NewFragment(beforeSelect))
+	txt.Text = append(txt.Text, text.NewFragment(beforeSelect))
 
 	onSelect := c.makeSelectedFragments(renderBuffer, start, end)
-	text.Text = append(text.Text, onSelect...)
+	txt.Text = append(txt.Text, onSelect...)
 
 	afterSelect := string(renderBuffer[end:])
 	if len(afterSelect) > 0 {
-		text.Text = append(text.Text, core.NewFragment(afterSelect))
+		txt.Text = append(txt.Text, text.NewFragment(afterSelect))
 	}
 
-	lines := c.normalizeLinesEnd(text)
+	lines := c.normalizeLinesEnd(txt)
 	lines = c.fixEmptyLines(lines)
 
 	vm := core.ViewModelFromUIState(stt)
@@ -498,7 +499,7 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	return *vm
 }
 
-func (c *TextArea) makeSelectedFragments(renderBuffer []rune, start uint, end uint) []core.Fragment {
+func (c *TextArea) makeSelectedFragments(renderBuffer []rune, start uint, end uint) []text.Fragment {
 	onSelect := renderBuffer[start:end]
 
 	selectAtom := style.AtmNone
@@ -507,60 +508,60 @@ func (c *TextArea) makeSelectedFragments(renderBuffer []rune, start uint, end ui
 	}
 
 	if c.caret.Caret() == c.caret.Anchor() {
-		return []core.Fragment{
-			core.NewFragment(string(onSelect)).
+		return []text.Fragment{
+			text.NewFragment(string(onSelect)).
 				AddAtom(selectAtom, style.AtmFocus),
 		}
 	}
 
 	if end == c.caret.Anchor() {
-		return []core.Fragment{
-			core.NewFragment(string(onSelect[:1])).
+		return []text.Fragment{
+			text.NewFragment(string(onSelect[:1])).
 				AddAtom(selectAtom, style.AtmFocus),
-			core.NewFragment(string(onSelect[1:])).
+			text.NewFragment(string(onSelect[1:])).
 				AddAtom(selectAtom),
 		}
 	}
 
-	return []core.Fragment{
-		core.NewFragment(string(onSelect[:len(onSelect)-1])).
+	return []text.Fragment{
+		text.NewFragment(string(onSelect[:len(onSelect)-1])).
 			AddAtom(selectAtom),
-		core.NewFragment(string(onSelect[len(onSelect)-1])).
+		text.NewFragment(string(onSelect[len(onSelect)-1])).
 			AddAtom(selectAtom, style.AtmFocus),
 	}
 }
 
-func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
-	lines := make([]core.Line, 0)
+func (c *TextArea) normalizeLinesEnd(txt text.Line) []text.Line {
+	lines := make([]text.Line, 0)
 
 	index := uint16(1)
 
-	currentLine := core.FragmentLine(text.Spec)
+	currentLine := text.FragmentLine(txt.Spec)
 	if c.index {
 		currentLine.SetOrder(index)
 	}
 
-	for textIndex, f := range text.Text {
+	for textIndex, f := range txt.Text {
 		normalized := runes.NormalizeLineEnd(f.Text)
 
 		parts := strings.Split(normalized, "\n")
 		if len(parts) == 1 {
 			currentLine.Text = append(
 				currentLine.Text,
-				core.FragmentFrom(parts[0], f),
+				text.FragmentFrom(parts[0], f),
 			)
 
 			continue
 		}
 
 		for partIndex, part := range parts {
-			if c.isCaretPrintable(text, textIndex, part, partIndex) {
+			if c.isCaretPrintable(txt, textIndex, part, partIndex) {
 				part += PRINTABLE_CARET
 			}
 
 			currentLine.Text = append(
 				currentLine.Text,
-				core.FragmentFrom(part, f),
+				text.FragmentFrom(part, f),
 			)
 
 			if partIndex >= len(parts)-1 {
@@ -570,7 +571,7 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 			lines = append(lines, currentLine)
 			index++
 
-			currentLine = core.FragmentLine(text.Spec)
+			currentLine = text.FragmentLine(txt.Spec)
 			if c.index {
 				currentLine.SetOrder(index)
 			}
@@ -584,22 +585,22 @@ func (c *TextArea) normalizeLinesEnd(text core.Line) []core.Line {
 	return lines
 }
 
-func (c *TextArea) fixEmptyLines(lines []core.Line) []core.Line {
+func (c *TextArea) fixEmptyLines(lines []text.Line) []text.Line {
 	for i, line := range lines {
-		if core.LineFragmentsMeasure(line) == 0 {
+		if text.LineFragmentsMeasure(line) == 0 {
 			styles := style.AtmNone
 			if len(line.Text) > 0 {
 				styles = line.Text[len(line.Text)-1].Atom
 			}
 
-			lines[i].Text = append(line.Text, core.NewFragment(EMPTY_LINE_FIX).
+			lines[i].Text = append(line.Text, text.NewFragment(EMPTY_LINE_FIX).
 				AddAtom(styles))
 		}
 	}
 	return lines
 }
 
-func (c *TextArea) isCaretPrintable(text core.Line, textIndex int, part string, partIndex int) bool {
+func (c *TextArea) isCaretPrintable(text text.Line, textIndex int, part string, partIndex int) bool {
 	fragment := text.Text[textIndex]
 
 	isCaret := len(part) == 0 && fragment.Atom.HasAny(style.AtmSelect)

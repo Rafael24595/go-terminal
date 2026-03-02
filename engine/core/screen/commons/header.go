@@ -5,21 +5,22 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
 
 type Header struct {
 	screen screen.Screen
-	header []core.Line
+	header []text.Line
 }
 
 func NewHeader(screen screen.Screen) *Header {
 	return &Header{
 		screen: screen,
-		header: make([]core.Line, 0),
+		header: make([]text.Line, 0),
 	}
 }
 
-func (c *Header) AddHeader(header ...core.Line) *Header {
+func (c *Header) AddHeader(header ...text.Line) *Header {
 	c.header = append(c.header, header...)
 	return c
 }

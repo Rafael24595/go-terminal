@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
@@ -74,9 +75,9 @@ func (c *Pagination) View(stt state.UIState) core.ViewModel {
 	if hasContent && canShowPage {
 		page := fmt.Sprintf("page: %d", stt.Pager.Page)
 
-		footer := core.NewLines(
-			core.LineJump(),
-			core.NewLine(page, style.SpecFromKind(style.SpcKindPaddingRight)),
+		footer := text.NewLines(
+			text.LineJump(),
+			text.NewLine(page, style.SpecFromKind(style.SpcKindPaddingRight)),
 		)
 
 		vm.Footer.Unshift(

@@ -3,12 +3,12 @@ package wrapper_render
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-func TerminalRender(lines []core.Line, size terminal.Winsize) string {
+func TerminalRender(lines []text.Line, size terminal.Winsize) string {
 	buffer := make([]string, size.Rows)
 
 	body := terminalRenderBuffer(lines, size)
@@ -18,7 +18,7 @@ func TerminalRender(lines []core.Line, size terminal.Winsize) string {
 	return strings.Join(buffer, "\n")
 }
 
-func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
+func terminalRenderBuffer(lines []text.Line, size terminal.Winsize) []string {
 	buffer := make([]string, len(lines))
 
 	ctx := style.LayoutContext{
@@ -26,7 +26,7 @@ func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
 	}
 
 	for i, line := range lines {
-		measure := core.LineFragmentsMeasurWithContext(line, ctx)
+		measure := text.LineFragmentsMeasurWithContext(line, ctx)
 		styled := renderLineFragments(line, size)
 
 		buffer[i] = applySpecStyles(
@@ -40,7 +40,7 @@ func terminalRenderBuffer(lines []core.Line, size terminal.Winsize) []string {
 	return buffer
 }
 
-func renderLineFragments(line core.Line, size terminal.Winsize) string {
+func renderLineFragments(line text.Line, size terminal.Winsize) string {
 	var buffer strings.Builder
 
 	fragments := ""
