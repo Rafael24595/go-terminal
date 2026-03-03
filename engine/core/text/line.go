@@ -63,6 +63,10 @@ func LineJump() Line {
 	}
 }
 
+func EmptyLine() Line {
+	return LineFromFragments(EmptyFragment())
+}
+
 func FragmentLine(style style.Spec, fragments ...Fragment) Line {
 	return Line{
 		Text: fragments,
