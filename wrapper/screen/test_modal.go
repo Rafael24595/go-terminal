@@ -9,6 +9,9 @@ import (
 func NewTestModal() screen.Screen {
 	return commons.NewModalMenu().
 		SetName("modal - dolor").
+		AddText(
+			text.LineFromString("AD Lorem ipsum dolor sit amet"),
+		).
 		AddOptions([]commons.ModalOption{
 			{
 				Fragment: text.NewFragment("Option_1"),

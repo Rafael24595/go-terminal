@@ -3,10 +3,7 @@ package commons
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable/box"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable/justify"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/modal"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
@@ -40,6 +37,11 @@ func NewModalMenu() *ModalMenu {
 
 func (c *ModalMenu) SetName(name string) *ModalMenu {
 	c.reference = name
+	return c
+}
+
+func (c *ModalMenu) AddText(text ...text.Line) *ModalMenu {
+	c.text = append(c.text, text...)
 	return c
 }
 
@@ -79,15 +81,14 @@ func (c *ModalMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 func (c *ModalMenu) view(stt state.UIState) core.ViewModel {
 	vm := core.ViewModelFromUIState(stt)
 
-	eager := line.EagerDrawableFromLines(c.text...)
-
 	frags := c.viewOptions()
-	justify := justify.JustifyDrawableFromFragments(frags)
 
-	stack := stack.StackDrawableFromDrawables(eager, justify)
-	box := box.BoxDrawableFromDrawable(stack)
+	modal := modal.NewModalDrawable().
+		AddText(c.text...).
+		AddOptions(frags...).
+		ToDrawable()
 
-	vm.Lines.Shift(box)
+	vm.Lines.Shift(modal)
 
 	return *vm
 }
