@@ -9,8 +9,7 @@ import (
 
 type EagerDrawable struct {
 	initialized bool
-	rows        uint16
-	cols        uint16
+	size        terminal.Winsize
 	status      bool
 	lines       []text.Line
 }
@@ -18,8 +17,7 @@ type EagerDrawable struct {
 func NewEagerDrawable(lines ...text.Line) *EagerDrawable {
 	return &EagerDrawable{
 		initialized: false,
-		rows:        0,
-		cols:        0,
+		size:        terminal.Winsize{},
 		status:      true,
 		lines:       lines,
 	}
@@ -39,8 +37,7 @@ func EagerDrawableFromString(txt ...string) drawable.Drawable {
 func (d *EagerDrawable) init(size terminal.Winsize) {
 	d.initialized = true
 
-	d.rows = size.Rows
-	d.cols = size.Cols
+	d.size = size
 	d.status = true
 }
 
@@ -54,7 +51,7 @@ func (d *EagerDrawable) draw() ([]text.Line, bool) {
 	}
 
 	for _, line := range d.lines {
-		lines = append(lines, WrapLineWords(int(d.cols), line)...)
+		lines = append(lines, WrapLineWords(int(d.size.Cols), line)...)
 	}
 
 	d.status = false
