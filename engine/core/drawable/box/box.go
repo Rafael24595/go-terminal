@@ -43,6 +43,7 @@ var default_separator = SeparatorMeta{
 	Bottom: "-",
 	Left:   "|",
 	Right:  "|",
+	Space:  " ",
 }
 
 type BoxDrawable struct {
@@ -156,6 +157,7 @@ func (d *BoxDrawable) drawChild() ([]text.Line, bool) {
 	remaining := int(d.size.Rows)
 	for remaining > 0 {
 		line, status := d.drawable.Draw()
+
 		if len(line) > 0 {
 			lines = append(lines, line...)
 		}
@@ -181,24 +183,12 @@ func (d *BoxDrawable) addStyle(lines ...text.Line) []text.Line {
 
 	styleSize := uint(borderSize) + (paddingSize * 2)
 
-	size := min(uint(d.size.Cols), maxLineSize(lines...)+styleSize)
+	size := min(uint(d.size.Cols), drawable.MaxLineSize(lines...)+styleSize)
 
-	specCover := style.SpecRepeatRight(uint(size))
+	specCover := style.SpecRepeatLeft(uint(size))
 	cover := text.LineFromFragments(
 		text.NewFragment(d.separator.Top).AddSpec(specCover),
-	)
-
-	specSpace := style.SpecRepeatRight(paddingSize)
-
-	left := []text.Fragment{
-		text.NewFragment(d.separator.Left),
-		text.NewFragment(d.separator.Space).AddSpec(specSpace),
-	}
-
-	right := []text.Fragment{
-		text.NewFragment(d.separator.Space).AddSpec(specSpace),
-		text.NewFragment(d.separator.Right),
-	}
+	).AddSpec(d.spec)
 
 	result := make([]text.Line, 0)
 
@@ -209,6 +199,29 @@ func (d *BoxDrawable) addStyle(lines ...text.Line) []text.Line {
 
 	for _, lin := range lines {
 		for _, v := range line.WrapLineWords(available, lin) {
+			totalWidth := uint(text.LineFragmentsMeasure(v))
+
+			leftWidth := uint(utf8.RuneCountInString(d.separator.Left))
+			rightWidth := uint(utf8.RuneCountInString(d.separator.Right))
+
+			remaining := size - totalWidth - (leftWidth + rightWidth)
+
+			paddingL := remaining / 2
+			paddingR := remaining - paddingL
+
+			specLeft := style.SpecRepeatRight(paddingL)
+			specRight := style.SpecRepeatRight(paddingR)
+
+			left := []text.Fragment{
+				text.NewFragment(d.separator.Left),
+				text.NewFragment(d.separator.Space).AddSpec(specLeft),
+			}
+
+			right := []text.Fragment{
+				text.NewFragment(d.separator.Space).AddSpec(specRight),
+				text.NewFragment(d.separator.Right),
+			}
+
 			frags := make([]text.Fragment, 0)
 
 			frags = append(frags, left...)
@@ -238,7 +251,7 @@ func (d *BoxDrawable) addPadding(size, borderSize uint, lines ...text.Line) []te
 				text.NewFragment(d.separator.Left),
 				text.NewFragment(d.separator.Space).AddSpec(specSpace),
 				text.NewFragment(d.separator.Right),
-			),
+			).AddSpec(d.spec),
 		)
 	}
 
@@ -276,13 +289,4 @@ func makeSpec(base style.Spec, size terminal.Winsize, padding BoxVerticalPadding
 	}
 
 	return style.MergeSpec(base, spec)
-}
-
-func maxLineSize(lines ...text.Line) uint {
-	size := uint(0)
-	for _, v := range lines {
-		measure := text.LineFragmentsMeasure(v)
-		size = max(size, uint(measure))
-	}
-	return size
 }
