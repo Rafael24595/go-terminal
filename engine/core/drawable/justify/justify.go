@@ -25,7 +25,7 @@ const (
 	SlotsAround  = 2
 )
 
-const default_limit = 5
+const DefaultLimit = 5
 
 type JustifyDrawable struct {
 	initialized bool
@@ -40,7 +40,7 @@ func NewJustifyDrawable(fragments []text.Fragment) *JustifyDrawable {
 	return &JustifyDrawable{
 		initialized: false,
 		size:        terminal.Winsize{},
-		limit:       default_limit,
+		limit:       DefaultLimit,
 		justify:     JustifyAround,
 		fragments:   fragments,
 		cursor:      0,
@@ -157,13 +157,17 @@ func addGaps(cols int, frags []text.Fragment, size int, mode JustifyMode) []text
 	return addSpaceBetween(out)
 }
 
-func distributeSpace(free int, out []text.Fragment, extraSlots int) []text.Fragment {
-	gaps := len(out) - 1
+func distributeSpace(free int, frags []text.Fragment, extraSlots int) []text.Fragment {
+	gaps := len(frags) - 1
 
 	slots := gaps + extraSlots
 	base := free / slots
 	remainder := free % slots
 
+	out := make([]text.Fragment, len(frags))
+	copy(out, frags)
+
+	fix := 0
 	for i := range gaps {
 		gap := base
 		if remainder > 0 {
@@ -175,10 +179,21 @@ func distributeSpace(free int, out []text.Fragment, extraSlots int) []text.Fragm
 			continue
 		}
 
-		out[i].Spec = style.MergeSpec(
-			out[i].Spec,
-			style.SpecRepeatRight(uint(gap), " "),
+		space := text.EmptyFragment().AddSpec(
+			style.SpecPaddingRight(uint(gap), " "),
 		)
+
+		at := i + fix + 1
+
+		next := make([]text.Fragment, 0, len(out)+1)
+
+		next = append(next, out[:at]...)
+		next = append(next, space)
+		next = append(next, out[at:]...)
+
+		out = next
+
+		fix += 1
 	}
 
 	return out
