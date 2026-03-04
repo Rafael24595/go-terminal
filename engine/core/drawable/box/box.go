@@ -114,7 +114,7 @@ func (d *BoxDrawable) draw() ([]text.Line, bool) {
 	styled := d.addStyle(lines...)
 
 	base := d.defineBase(styled)
-	for _, line := range lines {
+	for _, line := range styled {
 		base = append(base, line)
 	}
 
