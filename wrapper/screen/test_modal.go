@@ -21,6 +21,14 @@ func NewTestModal() screen.Screen {
 				Fragment: text.NewFragment("Option_2"),
 				Action: NewTestModal,
 			},
+			{
+				Fragment: text.NewFragment("Option_3"),
+				Action: NewTestModal,
+			},
+			{
+				Fragment: text.NewFragment("Option_4"),
+				Action: NewTestModal,
+			},
 		}...).
 		ToScreen()
 }
