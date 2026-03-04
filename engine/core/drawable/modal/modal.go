@@ -8,6 +8,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/static"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
@@ -78,11 +79,23 @@ func (d *ModalDrawable) init(size terminal.Winsize) {
 
 	d.size = size
 
-	cols := drawable.MaxLineSize(d.text...) +1
+	opts := make([]text.Fragment, len(d.options))
+	for i := range d.options {
+		old := d.options[i]
+		opts[i] = text.NewFragment(old.Text).
+			AddAtom(old.Atom).
+			AddSpec(old.Spec)
+
+		if i == int(d.cursor) {
+			opts[i] = opts[i].AddAtom(style.AtmSelect)
+		}
+	}
+
+	cols := drawable.MaxLineSize(d.text...) + 1
 	text := formatLines(d.text...)
 
 	eager := line.EagerDrawableFromLines(text...)
-	justify := justify.JustifyDrawableFromFragments(d.options)
+	justify := justify.JustifyDrawableFromFragments(opts)
 
 	eager.Init(size)
 	justify.Init(terminal.Winsize{
