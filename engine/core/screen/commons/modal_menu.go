@@ -10,8 +10,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
-var modal_menu_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(key.ActionEnter)...,
+var modal_definition = screen.DefinitionFromKeys(
+	key.NewKeysCode(key.ActionAll)...,
 )
 
 type ModalOption struct {
@@ -66,16 +66,31 @@ func (c *ModalMenu) ToScreen() screen.Screen {
 }
 
 func (c *ModalMenu) definition() screen.Definition {
-	return modal_menu_definition
+	return modal_definition
 }
 
 func (c *ModalMenu) name() string {
 	return c.reference
 }
 
-func (c *ModalMenu) update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	//TODO: ...
-	return screen.EmptyScreenResult()
+func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+	ky := evnt.Key
+
+	switch ky.Code {
+	case key.ActionArrowUp:
+		c.cursor = 0
+	case key.ActionArrowDown:
+		c.cursor = uint(max(0, len(c.options) -1))
+	case key.ActionArrowLeft:
+		c.cursor = math.SubClampZero(c.cursor, 1)
+	case key.ActionArrowRight:
+		size := uint(len(c.options))
+		if size > 0 {
+			c.cursor = min(size-1, c.cursor+1)
+		}
+	}
+
+	return screen.ScreenResultFromUIState(state)
 }
 
 func (c *ModalMenu) view(stt state.UIState) core.ViewModel {
@@ -86,6 +101,7 @@ func (c *ModalMenu) view(stt state.UIState) core.ViewModel {
 	modal := modal.NewModalDrawable().
 		AddText(c.text...).
 		AddOptions(frags...).
+		DefineCursor(c.cursor).
 		ToDrawable()
 
 	vm.Lines.Shift(modal)
