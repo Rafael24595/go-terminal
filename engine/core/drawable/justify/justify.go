@@ -88,19 +88,26 @@ func (d *JustifyDrawable) draw() ([]text.Line, bool) {
 	frags := make([]text.Fragment, 0)
 
 	for i := int(d.cursor); i < len(d.fragments); i++ {
-		fragsLen := len(frags)
-
-		d.cursor += 1
-
-		if fragsLen > 0 && fragsLen >= limit || size >= cols {
-			line := justifyLine(cols, frags, size, d.justify)
-			return []text.Line{line}, d.cursor < uint16(len(d.fragments))
-		}
-
 		frag := d.fragments[i]
 
-		size += text.FragmentMeasure(frag)
+		fragsLen := len(frags)
+		fragSize := text.FragmentMeasure(frag)
+
+		spacing := 0
+		if fragsLen > 0 {
+			spacing = 1
+		}
+
+		newSize := size + spacing + fragSize
+		if fragsLen > 0 && fragsLen >= limit || newSize > cols {
+			line := justifyLine(cols, frags, size, d.justify)
+			return []text.Line{line}, true
+		}
+
+		size = newSize
 		frags = append(frags, frag)
+
+		d.cursor += 1
 	}
 
 	line := justifyLine(cols, frags, size, d.justify)
