@@ -17,6 +17,16 @@ import (
 
 const default_index_menu_name = "IndexMenu"
 
+var index_menu_definition = screen.DefinitionFromKeys(
+	key.NewKeysCode(
+		key.ActionEnter,
+		key.ActionArrowLeft,
+		key.ActionArrowRight,
+		key.ActionArrowUp,
+		key.ActionArrowDown,
+	)...,
+)
+
 type IndexKind int
 
 const (
@@ -121,7 +131,7 @@ func (c *IndexMenu) ToScreen() screen.Screen {
 }
 
 func (c *IndexMenu) definition() screen.Definition {
-	return screen.DefinitionFromKeys()
+	return index_menu_definition
 }
 
 func (c *IndexMenu) name() string {
