@@ -2,7 +2,7 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/wrapper"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
@@ -16,7 +16,7 @@ func NewBaseHeader(screen screen.Screen) screen.Screen {
 		text.LineJump(),
 	)
 
-	return commons.NewHeader(screen).
+	return wrapper.NewHeader(screen).
 		AddHeader(header...).
 		ToScreen()
 }

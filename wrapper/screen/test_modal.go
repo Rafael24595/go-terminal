@@ -2,17 +2,17 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/primitive"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
 
 func NewTestModal() screen.Screen {
-	return commons.NewModalMenu().
+	return primitive.NewModalMenu().
 		SetName("modal - dolor").
 		AddText(
 			text.LineFromString("AD Lorem ipsum dolor sit amet"),
 		).
-		AddOptions([]commons.ModalOption{
+		AddOptions([]primitive.ModalOption{
 			{
 				Fragment: text.NewFragment("Option_1"),
 				Action: NewTestModal,

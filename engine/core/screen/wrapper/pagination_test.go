@@ -1,4 +1,4 @@
-package commons
+package wrapper
 
 import (
 	"testing"
@@ -10,6 +10,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
+
+	screen_test "github.com/Rafael24595/go-terminal/test/engine/core/screen"
 )
 
 func TestPagination_ToScreen(t *testing.T) {
@@ -26,7 +28,7 @@ func TestPagination_ToScreen(t *testing.T) {
 	p := NewPagination(base)
 	screen := p.ToScreen()
 
-	Helper_ToScreen(t, screen)
+	screen_test.Helper_ToScreen(t, screen)
 
 	assert.Equal(t, screen.Name(), "Base")
 }

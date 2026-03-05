@@ -1,4 +1,4 @@
-package commons
+package screen_test
 
 import (
 	"testing"

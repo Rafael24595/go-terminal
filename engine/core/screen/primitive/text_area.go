@@ -1,16 +1,13 @@
-package commons
+package primitive
 
 import (
-	"strings"
-
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/event"
+	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
-	"github.com/Rafael24595/go-terminal/engine/core/primitive"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper/line"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
@@ -18,35 +15,10 @@ import (
 	text_helper "github.com/Rafael24595/go-terminal/engine/helper/text"
 
 	drawable_line "github.com/Rafael24595/go-terminal/engine/core/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/textarea"
 )
 
 const default_text_area_name = "TextArea"
-
-var next_word_runes = []runes.RuneDefinition{
-	{
-		Rune: ' ',
-		Skip: false,
-	},
-	{
-		Rune: '.',
-		Skip: true,
-	},
-	{
-		Rune: ',',
-		Skip: true,
-	},
-	{
-		Rune: key.ENTER_LF,
-		Skip: true,
-	},
-}
-
-var next_line_runes = []runes.RuneDefinition{
-	{
-		Rune: key.ENTER_LF,
-		Skip: false,
-	},
-}
 
 var text_area_write_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(key.ActionAll)...,
@@ -59,22 +31,20 @@ var text_area_read_definition = screen.DefinitionFromKeys(
 type TextArea struct {
 	reference string
 	history   *event.TextEventService
-	write     bool
+	writeMode bool
+	indexMode bool
 	title     []text.Line
-	footer    []text.Line
-	caret     *primitive.Cursor
 	buffer    []rune
-	index     bool
+	caret     *input.Cursor
 }
 
 func NewTextArea() *TextArea {
 	return &TextArea{
 		reference: default_text_area_name,
 		history:   event.NewTextEventService(),
-		write:     false,
+		writeMode: false,
 		title:     make([]text.Line, 0),
-		footer:    make([]text.Line, 0),
-		caret:     primitive.NewCursor(false),
+		caret:     input.NewCursor(false),
 		buffer:    make([]rune, 0),
 	}
 }
@@ -85,12 +55,12 @@ func (c *TextArea) SetName(name string) *TextArea {
 }
 
 func (c *TextArea) WriteMode() *TextArea {
-	c.write = true
+	c.writeMode = true
 	return c
 }
 
 func (c *TextArea) ReadMode() *TextArea {
-	c.write = false
+	c.writeMode = false
 	return c
 }
 
@@ -109,11 +79,6 @@ func (c *TextArea) AddTitle(title ...text.Line) *TextArea {
 	return c
 }
 
-func (c *TextArea) AddFooter(footer ...text.Line) *TextArea {
-	c.footer = append(c.footer, footer...)
-	return c
-}
-
 func (c *TextArea) AddText(text string) *TextArea {
 	c.buffer = append(c.buffer, []rune(text)...)
 	c.caret.MoveCaretTo(c.buffer, uint(len(c.buffer)))
@@ -121,12 +86,12 @@ func (c *TextArea) AddText(text string) *TextArea {
 }
 
 func (c *TextArea) ShowIndex() *TextArea {
-	c.index = true
+	c.indexMode = true
 	return c
 }
 
 func (c *TextArea) HideIndex() *TextArea {
-	c.index = false
+	c.indexMode = false
 	return c
 }
 
@@ -144,7 +109,7 @@ func (c *TextArea) name() string {
 }
 
 func (c *TextArea) definition() screen.Definition {
-	if c.write {
+	if c.writeMode {
 		return text_area_write_definition
 	}
 	return text_area_read_definition
@@ -153,7 +118,7 @@ func (c *TextArea) definition() screen.Definition {
 func (c *TextArea) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
 	state.Pager.ShowPage = true
 
-	if !c.write {
+	if !c.writeMode {
 		return c.updateRead(state, evnt)
 	}
 	return c.updateWrite(state, evnt)
@@ -164,7 +129,7 @@ func (c *TextArea) updateRead(state *state.UIState, evnt screen.ScreenEvent) scr
 
 	switch ky.Code {
 	case key.ActionEnter:
-		c.write = true
+		c.writeMode = true
 	}
 
 	return screen.ScreenResultFromUIState(state)
@@ -175,7 +140,7 @@ func (c *TextArea) updateWrite(state *state.UIState, evnt screen.ScreenEvent) sc
 
 	switch ky.Code {
 	case key.ActionEsc:
-		c.write = false
+		c.writeMode = false
 		return screen.ScreenResultFromUIState(state)
 	case key.ActionHome:
 		return c.moveHome(state, evnt)
@@ -257,7 +222,7 @@ func (c *TextArea) moveHome(state *state.UIState, event screen.ScreenEvent) scre
 		return result
 	}
 
-	caret := runes.BackwardIndexWithLimit(c.buffer, next_line_runes, c.caret.Caret())
+	caret := runes.BackwardIndexWithLimit(c.buffer, runes.NextLineRunes, c.caret.Caret())
 
 	anchor := c.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModShift) {
@@ -278,7 +243,7 @@ func (c *TextArea) moveEnd(state *state.UIState, event screen.ScreenEvent) scree
 		return result
 	}
 
-	caret := runes.ForwardIndexWithLimit(c.buffer, next_line_runes, c.caret.Caret())
+	caret := runes.ForwardIndexWithLimit(c.buffer, runes.NextLineRunes, c.caret.Caret())
 
 	anchor := c.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModShift) {
@@ -363,7 +328,7 @@ func (c *TextArea) moveBackward(state *state.UIState, event screen.ScreenEvent) 
 		return result
 	}
 
-	caret := runes.BackwardIndex(c.buffer, next_word_runes, c.caret.Caret())
+	caret := runes.BackwardIndex(c.buffer, runes.NextWordRunes, c.caret.Caret())
 	if event.Key.Mod.HasNone(key.ModShift) {
 		c.caret.MoveCaretTo(c.buffer, caret)
 		return result
@@ -389,7 +354,7 @@ func (c *TextArea) moveForward(state *state.UIState, event screen.ScreenEvent) s
 		return result
 	}
 
-	caret := runes.ForwardIndex(c.buffer, next_word_runes, c.caret.Caret())
+	caret := runes.ForwardIndex(c.buffer, runes.NextWordRunes, c.caret.Caret())
 	if event.Key.Mod.HasNone(key.ModShift) {
 		c.caret.MoveCaretTo(c.buffer, caret)
 		return result
@@ -409,7 +374,7 @@ func (c *TextArea) deleteBackward(state *state.UIState, word bool) screen.Screen
 	start := c.caret.SelectStart()
 
 	if word {
-		start = runes.BackwardIndex(c.buffer, next_word_runes, start)
+		start = runes.BackwardIndex(c.buffer, runes.NextWordRunes, start)
 	} else {
 		start = math.SubClampZero(start, 1)
 	}
@@ -434,7 +399,7 @@ func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.ScreenR
 	end := c.caret.SelectEnd()
 
 	if word {
-		end = runes.ForwardIndex(c.buffer, next_word_runes, end)
+		end = runes.ForwardIndex(c.buffer, runes.NextWordRunes, end)
 	} else {
 		end = min(uint(len(c.buffer)), end+1)
 	}
@@ -450,37 +415,14 @@ func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.ScreenR
 }
 
 func (c *TextArea) view(stt state.UIState) core.ViewModel {
-	renderBuffer := c.buffer
-
-	start := math.SubClampZero(c.caret.SelectStart(), 1)
-	end := c.caret.SelectEnd()
-
-	if len(renderBuffer) == 0 {
-		renderBuffer = append(renderBuffer, []rune(PRINTABLE_CARET)...)
-		start = 0
-		end = 1
-	}
-
 	strategy := state.NewPagePager()
-	if c.write {
+	if c.writeMode {
 		strategy = state.NewFocusPager()
 	}
 
-	txt := text.FragmentLine(style.SpecFromKind(style.SpcKindPaddingRight))
-
-	beforeSelect := string(renderBuffer[0:start])
-	txt.Text = append(txt.Text, text.NewFragment(beforeSelect))
-
-	onSelect := c.makeSelectedFragments(renderBuffer, start, end)
-	txt.Text = append(txt.Text, onSelect...)
-
-	afterSelect := string(renderBuffer[end:])
-	if len(afterSelect) > 0 {
-		txt.Text = append(txt.Text, text.NewFragment(afterSelect))
-	}
-
-	lines := c.normalizeLinesEnd(txt)
-	lines = c.fixEmptyLines(lines)
+	textarea := textarea.NewTextAreaDrawable(c.buffer, *c.caret).
+		WriteMode(c.writeMode).
+		IndexMode(c.indexMode)
 
 	vm := core.ViewModelFromUIState(stt)
 
@@ -488,136 +430,10 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 		drawable_line.EagerDrawableFromLines(c.title...),
 	)
 	vm.Lines.Shift(
-		drawable_line.LazyDrawableFromLines(lines...),
-	)
-	vm.Footer.Shift(
-		drawable_line.EagerDrawableFromLines(c.footer...),
+		textarea.ToDrawable(),
 	)
 
 	vm.SetStrategy(strategy)
 
 	return *vm
-}
-
-func (c *TextArea) makeSelectedFragments(renderBuffer []rune, start uint, end uint) []text.Fragment {
-	onSelect := renderBuffer[start:end]
-
-	selectAtom := style.AtmNone
-	if c.write {
-		selectAtom = c.caret.BlinkStyle()
-	}
-
-	if c.caret.Caret() == c.caret.Anchor() {
-		return []text.Fragment{
-			text.NewFragment(string(onSelect)).
-				AddAtom(selectAtom, style.AtmFocus),
-		}
-	}
-
-	if end == c.caret.Anchor() {
-		return []text.Fragment{
-			text.NewFragment(string(onSelect[:1])).
-				AddAtom(selectAtom, style.AtmFocus),
-			text.NewFragment(string(onSelect[1:])).
-				AddAtom(selectAtom),
-		}
-	}
-
-	return []text.Fragment{
-		text.NewFragment(string(onSelect[:len(onSelect)-1])).
-			AddAtom(selectAtom),
-		text.NewFragment(string(onSelect[len(onSelect)-1])).
-			AddAtom(selectAtom, style.AtmFocus),
-	}
-}
-
-func (c *TextArea) normalizeLinesEnd(txt text.Line) []text.Line {
-	lines := make([]text.Line, 0)
-
-	index := uint16(1)
-
-	currentLine := text.FragmentLine(txt.Spec)
-	if c.index {
-		currentLine.SetOrder(index)
-	}
-
-	for textIndex, f := range txt.Text {
-		normalized := runes.NormalizeLineEnd(f.Text)
-
-		parts := strings.Split(normalized, "\n")
-		if len(parts) == 1 {
-			currentLine.Text = append(
-				currentLine.Text,
-				text.FragmentFrom(parts[0], f),
-			)
-
-			continue
-		}
-
-		for partIndex, part := range parts {
-			if c.isCaretPrintable(txt, textIndex, part, partIndex) {
-				part += PRINTABLE_CARET
-			}
-
-			currentLine.Text = append(
-				currentLine.Text,
-				text.FragmentFrom(part, f),
-			)
-
-			if partIndex >= len(parts)-1 {
-				continue
-			}
-
-			lines = append(lines, currentLine)
-			index++
-
-			currentLine = text.FragmentLine(txt.Spec)
-			if c.index {
-				currentLine.SetOrder(index)
-			}
-		}
-	}
-
-	if len(currentLine.Text) > 0 {
-		lines = append(lines, currentLine)
-	}
-
-	return lines
-}
-
-func (c *TextArea) fixEmptyLines(lines []text.Line) []text.Line {
-	for i, line := range lines {
-		if text.LineFragmentsMeasure(line) == 0 {
-			styles := style.AtmNone
-			if len(line.Text) > 0 {
-				styles = line.Text[len(line.Text)-1].Atom
-			}
-
-			lines[i].Text = append(line.Text, text.NewFragment(EMPTY_LINE_FIX).
-				AddAtom(styles))
-		}
-	}
-	return lines
-}
-
-func (c *TextArea) isCaretPrintable(text text.Line, textIndex int, part string, partIndex int) bool {
-	fragment := text.Text[textIndex]
-
-	isCaret := len(part) == 0 && fragment.Atom.HasAny(style.AtmSelect)
-	if !isCaret {
-		return false
-	}
-
-	atLineStart := partIndex == 0
-	if atLineStart {
-		return true
-	}
-
-	atBufferEnd := textIndex == len(text.Text)-1
-	if atBufferEnd {
-		return true
-	}
-
-	atEmptyLine := text.Text[textIndex+1].Text[0] == key.ENTER_LF
-	return atEmptyLine
 }

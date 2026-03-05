@@ -1,4 +1,4 @@
-package commons
+package primitive
 
 import (
 	"testing"
@@ -8,13 +8,15 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
+
+	screen_test "github.com/Rafael24595/go-terminal/test/engine/core/screen"
 )
 
 func TestArticle_ToScreen(t *testing.T) {
 	article := NewArticle().SetName("MyScreen")
 	screen := article.ToScreen()
 
-	Helper_ToScreen(t, screen)
+	screen_test.Helper_ToScreen(t, screen)
 }
 
 func TestNewArticle_DefaultValues(t *testing.T) {

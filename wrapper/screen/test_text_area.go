@@ -4,7 +4,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/primitive"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
@@ -13,7 +13,7 @@ func NewTestTextArea() screen.Screen {
 	textTitle := "Suspendisse sem arcu"
 	sizeTitle := utf8.RuneCountInString(textTitle)
 
-	return commons.NewTextArea().
+	return primitive.NewTextArea().
 		SetName("article - amet").
 		EnableBlinking().
 		AddTitle(

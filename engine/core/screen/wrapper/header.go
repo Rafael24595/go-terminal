@@ -1,4 +1,4 @@
-package commons
+package wrapper
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"

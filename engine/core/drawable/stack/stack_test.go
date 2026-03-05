@@ -22,6 +22,20 @@ func TestStackDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
 	})
 }
 
+func TestStackDrawable_ShouldPanicIfNewElementsAddedAfterInitialization(t *testing.T) {
+	bd := NewStackDrawable()
+
+	m1 := &drawable_test.MockDrawable{}
+	bd.Shift(m1.ToDrawable())
+
+	bd.Init(terminal.Winsize{})
+
+	assert.Panic(t, func() {
+		m2 := &drawable_test.MockDrawable{}
+		bd.Shift(m2.ToDrawable())
+	})
+}
+
 func TestStackDrawable_Init(t *testing.T) {
 	stack := &StackDrawable{}
 
@@ -182,7 +196,6 @@ func TestStackDrawable_ShortCircuitStopsPropagation(t *testing.T) {
 		d2.ToDrawable(),
 		d3.ToDrawable(),
 	)
-
 
 	stack.Init(terminal.Winsize{})
 

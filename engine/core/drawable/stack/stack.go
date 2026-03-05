@@ -42,12 +42,16 @@ func (d *StackDrawable) Init(size terminal.Winsize) *StackDrawable {
 }
 
 func (d *StackDrawable) Unshift(items ...drawable.Drawable) *StackDrawable {
+	assert.False(d.initialized, "no new elements should be added after initialization")
+
 	layers := drawableToLayer(items...)
 	d.items = append(layers, d.items...)
 	return d
 }
 
 func (d *StackDrawable) Shift(items ...drawable.Drawable) *StackDrawable {
+	assert.False(d.initialized, "no new elements should be added after initialization")
+
 	for _, item := range items {
 		d.items = append(d.items, layer{
 			drawable: item,

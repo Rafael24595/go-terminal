@@ -1,10 +1,12 @@
-package commons
+package primitive
 
 import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
+
+	screen_test "github.com/Rafael24595/go-terminal/test/engine/core/screen"
 )
 
 func TestTable_ToScreen(t *testing.T) {
@@ -14,7 +16,7 @@ func TestTable_ToScreen(t *testing.T) {
 
 	screen := menu.ToScreen()
 
-	Helper_ToScreen(t, screen)
+	screen_test.Helper_ToScreen(t, screen)
 
 	assert.Equal(t, screen.Name(), "base")
 }

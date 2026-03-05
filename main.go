@@ -7,7 +7,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/wrapper"
 	"github.com/Rafael24595/go-terminal/engine/render"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	wrapper_layout "github.com/Rafael24595/go-terminal/wrapper/layout"
@@ -35,8 +35,8 @@ func main() {
 	pr := size.Rows - paddingRows
 
 	i := wrapper_screen.NewLanding()
-	p := commons.NewPagination(i).ToScreen()
-	h := commons.NewHistory(p).ToScreen()
+	p := wrapper.NewPagination(i).ToScreen()
+	h := wrapper.NewHistory(p).ToScreen()
 	s := wrapper_screen.NewBaseHeader(h)
 
 	l := core.NewLayout(wrapper_layout.TerminalApply)

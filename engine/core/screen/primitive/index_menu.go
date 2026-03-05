@@ -1,17 +1,15 @@
-package commons
+package primitive
 
 import (
-	"strconv"
-
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/indexmenu"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
-	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
@@ -27,48 +25,14 @@ var index_menu_definition = screen.DefinitionFromKeys(
 	)...,
 )
 
-type IndexKind int
-
-const (
-	Numeric IndexKind = iota
-	Alphabetic
-	Custom
-)
-
-var NumericIndex = KindIndex(Numeric)
-var AlphabeticIndex = KindIndex(Alphabetic)
-
-var GreaterIndex = CustomIndex(">", "-")
-var HyphenIndex = CustomIndex("-", ">")
-
-type IndexMeta struct {
-	kind   IndexKind
-	index  string
-	cursor string
-}
-
-func KindIndex(kind IndexKind) IndexMeta {
-	return IndexMeta{
-		kind: kind,
-	}
-}
-
-func CustomIndex(index string, cursor string) IndexMeta {
-	return IndexMeta{
-		kind:   Custom,
-		index:  index,
-		cursor: cursor,
-	}
-}
-
 type MenuOption struct {
-	line   text.Line
+	text   text.Fragment
 	action func() screen.Screen
 }
 
-func NewMenuOption(line text.Line, action func() screen.Screen) MenuOption {
+func NewMenuOption(option text.Fragment, action func() screen.Screen) MenuOption {
 	return MenuOption{
-		line:   line,
+		text:   option,
 		action: action,
 	}
 }
@@ -77,9 +41,17 @@ func NewMenuOptions(options ...MenuOption) []MenuOption {
 	return options
 }
 
+func fragmentFromMenuOption(options ...MenuOption) []text.Fragment {
+	lines := make([]text.Fragment, len(options))
+	for i := range options {
+		lines[i] = options[i].text
+	}
+	return lines
+}
+
 type IndexMenu struct {
 	reference string
-	index     IndexMeta
+	index     marker.IndexMeta
 	title     []text.Line
 	options   []MenuOption
 	cursor    uint
@@ -88,7 +60,7 @@ type IndexMenu struct {
 func NewIndexMenu() *IndexMenu {
 	return &IndexMenu{
 		reference: default_index_menu_name,
-		index:     HyphenIndex,
+		index:     marker.HyphenIndex,
 		title:     make([]text.Line, 0),
 		options:   make([]MenuOption, 0),
 		cursor:    0,
@@ -100,7 +72,7 @@ func (c *IndexMenu) SetName(name string) *IndexMenu {
 	return c
 }
 
-func (c *IndexMenu) SetIndex(index IndexMeta) *IndexMenu {
+func (c *IndexMenu) SetIndex(index marker.IndexMeta) *IndexMenu {
 	c.index = index
 	return c
 }
@@ -161,7 +133,7 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 		assert.Unreachable(
 			"menu actions should not be nil: %s - %s",
 			c.reference,
-			text.LineToString(option.line),
+			option.text.Text,
 		)
 	}
 
@@ -169,79 +141,28 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 }
 
 func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
-	lines := make([]text.Line, 0)
+	frags := fragmentFromMenuOption(c.options...)
 
-	digits := math.Digits(len(c.options))
-
-	cursor := 0
-	found := false
-	for i, o := range c.options {
-		selector := []text.Fragment{
-			c.makeIndex(i, int(digits)),
-			text.NewFragment(" "),
-		}
-
-		styledLine := text.FragmentLine(
-			style.SpecRepeatLeft(2),
-			append(selector, o.line.Text...)...,
-		)
-
-		lines = append(lines, styledLine)
-
-		if !found {
-			cursor += text.LineFragmentsMeasure(styledLine)
-		}
-
-		if i == int(c.cursor) {
-			found = true
-		}
-	}
+	indexmenu := indexmenu.NewIndexMenuDrawable(c.index, frags).
+		Cursor(c.cursor)
 
 	vm := core.ViewModelFromUIState(stt)
 
 	vm.Header.Shift(
 		line.EagerDrawableFromLines(c.title...),
 	)
-
 	vm.Lines.Shift(
-		line.EagerDrawableFromLines(lines...),
+		indexmenu.ToDrawable(),
 	)
 
 	vm.SetStrategy(
-		state.NewCursorPager(uint(cursor)),
+		state.NewFocusPager(),
 	)
 
 	option := min(len(c.options)-1, int(c.cursor))
-	text := text.LineToString(c.options[option].line)
+	text := c.options[option].text.Text
 	input := core.NewInputLine(line.EagerDrawableFromString(text))
 	vm.SetInput(input)
 
 	return *vm
-}
-
-func (c *IndexMenu) makeIndex(cursor, digits int) text.Fragment {
-	if c.index.kind == Numeric {
-		txt := helper.Right(strconv.Itoa(cursor+1), digits)
-		index := text.NewFragment(txt + ".- ")
-		if cursor == int(c.cursor) {
-			index.Atom |= style.AtmBold
-		}
-		return index
-	}
-
-	if c.index.kind == Alphabetic {
-		txt := helper.Right(helper.NumberToAlpha(cursor), digits)
-		index := text.NewFragment(txt + ".- ")
-		if cursor == int(c.cursor) {
-			index.Atom |= style.AtmBold
-		}
-		return index
-	}
-
-	index := c.index.index
-	if cursor == int(c.cursor) {
-		index = c.index.cursor
-	}
-
-	return text.NewFragment(index)
 }

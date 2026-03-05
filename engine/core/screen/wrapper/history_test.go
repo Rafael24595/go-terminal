@@ -1,4 +1,4 @@
-package commons
+package wrapper
 
 import (
 	"testing"
@@ -9,6 +9,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
+
+	screen_test "github.com/Rafael24595/go-terminal/test/engine/core/screen"
 )
 
 func TestHistory_ToScreen(t *testing.T) {
@@ -23,11 +25,11 @@ func TestHistory_ToScreen(t *testing.T) {
 	}
 
 	h := NewHistory(base)
-	screen := h.ToScreen()
+	scrn := h.ToScreen()
 
-	Helper_ToScreen(t, screen)
+	screen_test.Helper_ToScreen(t, scrn)
 
-	assert.Equal(t, screen.Name(), "base")
+	assert.Equal(t, scrn.Name(), "base")
 }
 
 func TestHistory_BackNavigation(t *testing.T) {

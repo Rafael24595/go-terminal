@@ -3,7 +3,7 @@ package wrapper_screen
 import (
 	drawable_table "github.com/Rafael24595/go-terminal/engine/core/drawable/table"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/primitive"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
@@ -68,7 +68,7 @@ func parser(lang Language) []table.Field {
 }
 
 func NewTestTable() screen.Screen {
-	return commons.NewTable[Language]().
+	return primitive.NewTable[Language]().
 		SetName("article - ipsum").
 		DefinePadding(drawable_table.Center).
 		EnableAction(func(drawable_table.Cursor) {}).

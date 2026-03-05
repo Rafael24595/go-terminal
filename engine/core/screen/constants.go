@@ -1,7 +1,7 @@
 //go:build !dbg_space
 // +build !dbg_space
 
-package commons
+package screen
 
 const (
 	SPACE           = " "

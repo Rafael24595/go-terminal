@@ -4,8 +4,35 @@ import (
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
+
+var NextWordRunes = []RuneDefinition{
+	{
+		Rune: ' ',
+		Skip: false,
+	},
+	{
+		Rune: '.',
+		Skip: true,
+	},
+	{
+		Rune: ',',
+		Skip: true,
+	},
+	{
+		Rune: key.ENTER_LF,
+		Skip: true,
+	},
+}
+
+var NextLineRunes = []RuneDefinition{
+	{
+		Rune: key.ENTER_LF,
+		Skip: false,
+	},
+}
 
 type RuneDefinition struct {
 	Rune rune

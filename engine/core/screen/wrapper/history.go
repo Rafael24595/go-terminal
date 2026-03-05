@@ -1,4 +1,4 @@
-package commons
+package wrapper
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ func (c *History) ToScreen() screen.Screen {
 }
 
 func (c *History) update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
-	requiredKey := isKeyRequired(c.screen.Definition(), event.Key)
+	requiredKey := screen.IsKeyRequired(c.screen.Definition(), event.Key)
 
 	if !requiredKey {
 		result := c.localUpdate(state, event)

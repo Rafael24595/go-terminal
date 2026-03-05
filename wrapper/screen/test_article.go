@@ -2,13 +2,13 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/screen/commons"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/primitive"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
 
 func NewTestArticle() screen.Screen {
-	return commons.NewArticle().
+	return primitive.NewArticle().
 		SetName("article - dolor").
 		AddTitle(
 			text.LineFromString("Ac accumsan dolor laoreet"),

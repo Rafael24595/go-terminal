@@ -1,4 +1,4 @@
-package commons
+package primitive
 
 import (
 	"testing"
@@ -9,6 +9,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
+
+	screen_test "github.com/Rafael24595/go-terminal/test/engine/core/screen"
 )
 
 func TestIndexMenu_ToScreen(t *testing.T) {
@@ -17,14 +19,14 @@ func TestIndexMenu_ToScreen(t *testing.T) {
 		AddTitle(text.LineFromString("Welcome")).
 		AddOptions(
 			NewMenuOption(
-				text.LineFromString("Option 1"),
+				text.NewFragment("Option 1"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
 
 	screen := menu.ToScreen()
 
-	Helper_ToScreen(t, screen)
+	screen_test.Helper_ToScreen(t, screen)
 
 	assert.Equal(t, screen.Name(), "base")
 }
@@ -43,11 +45,11 @@ func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 		AddTitle(text.LineFromString("Title 1")).
 		AddOptions(
 			NewMenuOption(
-				text.LineFromString("Option 1"),
+				text.NewFragment("Option 1"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			NewMenuOption(
-				text.LineFromString("Option 2"),
+				text.NewFragment("Option 2"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
@@ -60,11 +62,11 @@ func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
 			NewMenuOption(
-				text.LineFromString("A"),
+				text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			NewMenuOption(
-				text.LineFromString("B"),
+				text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
@@ -87,11 +89,11 @@ func TestIndexMenu_CursorNavigation(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
 			NewMenuOption(
-				text.LineFromString("A"),
+				text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			NewMenuOption(
-				text.LineFromString("B"),
+				text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
@@ -121,7 +123,7 @@ func TestIndexMenu_Action(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
 			NewMenuOption(
-				text.LineFromString("Go"),
+				text.NewFragment("Go"),
 				func() screen.Screen { return expected },
 			),
 		)
@@ -140,11 +142,11 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
 			NewMenuOption(
-				text.LineFromString("A"),
+				text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			NewMenuOption(
-				text.LineFromString("B"),
+				text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
@@ -152,18 +154,19 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	stt := &state.UIState{}
 
 	ctx := state.PagerContext{
-		Cursor: uint(6),
+		Focus: true,
 	}
 
 	menu.cursor = 1
 	vm := menu.view(*stt)
 
-	vm.Lines.Init(terminal.Winsize{})
+	vm.Lines.Init(terminal.Winsize{Cols: 10, Rows: 2})
 	lines, _ := vm.Lines.Draw()
 
 	assert.NotNil(t, vm.Pager)
-	assert.Equal(t, vm.Pager.Mode, state.PagerModeCursor)
+	assert.Equal(t, state.PagerModeFocus, vm.Pager.Mode)
 	assert.True(t, vm.Pager.Match(*stt, ctx))
 
-	assert.Equal(t, text.LineToString(lines[0]), "-")
+	assert.Equal(t, "- A", text.LineToString(lines[0]))
+	assert.Equal(t, "> B", text.LineToString(lines[1]))
 }

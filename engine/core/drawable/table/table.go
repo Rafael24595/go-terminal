@@ -43,6 +43,13 @@ func TableDrawableFromTable(table table.Table, cursor Cursor, padding TablePaddi
 	return NewTableDrawable(table, cursor, padding).ToDrawable()
 }
 
+func (d *TableDrawable) ToDrawable() drawable.Drawable {
+	return drawable.Drawable{
+		Init: d.init,
+		Draw: d.draw,
+	}
+}
+
 func (d *TableDrawable) init(size terminal.Winsize) {
 	d.initialized = true
 
@@ -137,13 +144,6 @@ func (d *TableDrawable) drawDynamic(remaining int) ([][]text.Line, bool) {
 	}
 
 	return bodies, len(empty) != len(d.sections)
-}
-
-func (d *TableDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Init: d.init,
-		Draw: d.draw,
-	}
 }
 
 func makeSpec(base style.Spec, size terminal.Winsize, padding TablePadding) style.Spec {

@@ -1,4 +1,4 @@
-package commons
+package primitive
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
@@ -33,6 +33,14 @@ func NewModalMenu() *ModalMenu {
 		options:   make([]ModalOption, 0),
 		cursor:    0,
 	}
+}
+
+func fragmentFromModalMenu(options ...ModalOption) []text.Fragment {
+	frags := make([]text.Fragment, len(options))
+	for i := range options {
+		frags[i] = options[i].Fragment
+	}
+	return frags
 }
 
 func (c *ModalMenu) SetName(name string) *ModalMenu {
@@ -80,7 +88,7 @@ func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen
 	case key.ActionArrowUp:
 		c.cursor = 0
 	case key.ActionArrowDown:
-		c.cursor = uint(max(0, len(c.options) -1))
+		c.cursor = uint(max(0, len(c.options)-1))
 	case key.ActionArrowLeft:
 		c.cursor = math.SubClampZero(c.cursor, 1)
 	case key.ActionArrowRight:
@@ -96,7 +104,7 @@ func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen
 func (c *ModalMenu) view(stt state.UIState) core.ViewModel {
 	vm := core.ViewModelFromUIState(stt)
 
-	frags := c.viewOptions()
+	frags := fragmentFromModalMenu(c.options...)
 
 	modal := modal.NewModalDrawable().
 		AddText(c.text...).
@@ -107,12 +115,4 @@ func (c *ModalMenu) view(stt state.UIState) core.ViewModel {
 	vm.Lines.Shift(modal)
 
 	return *vm
-}
-
-func (c *ModalMenu) viewOptions() []text.Fragment {
-	frags := make([]text.Fragment, len(c.options))
-	for i := range c.options {
-		frags[i] = c.options[i].Fragment
-	}
-	return frags
 }
