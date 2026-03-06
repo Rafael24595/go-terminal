@@ -23,7 +23,6 @@ const (
 
 type ModalDrawable struct {
 	initialized bool
-	size        terminal.Winsize
 	text        []text.Line
 	options     []text.Fragment
 	limit       uint
@@ -34,10 +33,9 @@ type ModalDrawable struct {
 func NewModalDrawable() *ModalDrawable {
 	return &ModalDrawable{
 		initialized: false,
-		size:        terminal.Winsize{},
 		text:        make([]text.Line, 0),
 		options:     make([]text.Fragment, 0),
-		limit:       justify.DefaultLimit,
+		limit:       style.DefaultLimit,
 		cursor:      0,
 		box:         drawable.Drawable{},
 	}
@@ -76,8 +74,6 @@ func (d *ModalDrawable) ToDrawable() drawable.Drawable {
 
 func (d *ModalDrawable) init(size terminal.Winsize) {
 	d.initialized = true
-
-	d.size = size
 
 	opts := make([]text.Fragment, len(d.options))
 	for i := range d.options {

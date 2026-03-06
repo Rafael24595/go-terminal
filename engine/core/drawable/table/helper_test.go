@@ -3,13 +3,14 @@ package table
 import (
 	"testing"
 
+	"github.com/Rafael24595/go-terminal/engine/core/input"
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
-	"github.com/Rafael24595/go-terminal/engine/core/table"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
-var separator = table.SeparatorMeta{
+var separator = marker.TableSeparatorMeta{
 	Center: "|",
 	Left:   "|",
 	Right:  "|",
@@ -31,7 +32,7 @@ func TestHeadersFromSize_FiltersCorrectly(t *testing.T) {
 
 	headers := []string{"id", "name", "email"}
 
-	result, _ := headersFromSize(size, headers, Cursor{})
+	result, _ := headersFromSize(size, headers, input.MatrixCursor{})
 
 	assert.Len(t, 2, result)
 	assert.Equal(t, "id", result[0])
@@ -59,7 +60,7 @@ func TestMakeHeaders_Structure(t *testing.T) {
 
 	headers := []string{"id", "name"}
 
-	sep := table.SeparatorMeta{
+	sep := marker.TableSeparatorMeta{
 		Left:   "|",
 		Center: "|",
 		Right:  "|",
@@ -98,7 +99,7 @@ func TestMakeTable_Basic(t *testing.T) {
 		"name": {"golang", "ziglang"},
 	}
 
-	lines := makeTable(size, headers, cols, separator, &Cursor{})
+	lines := makeTable(size, headers, cols, separator, &input.MatrixCursor{})
 
 	assert.Len(t, 2, lines)
 

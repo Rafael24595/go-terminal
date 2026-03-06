@@ -5,8 +5,10 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	drawable_table "github.com/Rafael24595/go-terminal/engine/core/drawable/table"
+	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
@@ -27,9 +29,9 @@ var table_read_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(key.ActionEnter)...,
 )
 
-type actionHandler = func(drawable_table.Cursor)
+type actionHandler = func(input.MatrixCursor)
 
-func defaultHandler(_ drawable_table.Cursor) {}
+func defaultHandler(_ input.MatrixCursor) {}
 
 type action struct {
 	enable  bool
@@ -58,8 +60,8 @@ type Table[T any] struct {
 	action    *action
 	title     []text.Line
 	table     *table.Table
-	cursor    *drawable_table.Cursor
-	padding   drawable_table.TablePadding
+	cursor    *input.MatrixCursor
+	padding   style.VerticalPosition
 }
 
 func NewTable[T any]() *Table[T] {
@@ -68,8 +70,8 @@ func NewTable[T any]() *Table[T] {
 		action:    disabledAction(),
 		title:     make([]text.Line, 0),
 		table:     table.NewTable(),
-		cursor:    drawable_table.NewCursor(0, 0, false),
-		padding:   drawable_table.Right,
+		cursor:    input.NewMatrixCursor(0, 0, false),
+		padding:   style.Right,
 	}
 }
 
@@ -88,7 +90,7 @@ func (c *Table[T]) DisableAction() *Table[T] {
 	return c
 }
 
-func (c *Table[T]) DefinePadding(padding drawable_table.TablePadding) *Table[T] {
+func (c *Table[T]) DefinePadding(padding style.VerticalPosition) *Table[T] {
 	c.padding = padding
 	return c
 }

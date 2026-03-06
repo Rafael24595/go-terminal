@@ -35,7 +35,7 @@ type TextArea struct {
 	indexMode bool
 	title     []text.Line
 	buffer    []rune
-	caret     *input.Cursor
+	caret     *input.TextCursor
 }
 
 func NewTextArea() *TextArea {
@@ -44,7 +44,7 @@ func NewTextArea() *TextArea {
 		history:   event.NewTextEventService(),
 		writeMode: false,
 		title:     make([]text.Line, 0),
-		caret:     input.NewCursor(false),
+		caret:     input.NewTextCursor(false),
 		buffer:    make([]rune, 0),
 	}
 }

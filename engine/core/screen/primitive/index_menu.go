@@ -120,7 +120,8 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 	frags := input.FragmentFromMenuOption(c.options...)
 
-	indexmenu := indexmenu.NewIndexMenuDrawable(c.meta, frags).
+	indexmenu := indexmenu.NewIndexMenuDrawable(frags).
+		Meta(c.meta).
 		Cursor(c.cursor)
 
 	vm := core.ViewModelFromUIState(stt)

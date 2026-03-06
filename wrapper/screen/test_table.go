@@ -1,7 +1,7 @@
 package wrapper_screen
 
 import (
-	drawable_table "github.com/Rafael24595/go-terminal/engine/core/drawable/table"
+	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/primitive"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
@@ -70,8 +70,8 @@ func parser(lang Language) []table.Field {
 func NewTestTable() screen.Screen {
 	return primitive.NewTable[Language]().
 		SetName("article - ipsum").
-		DefinePadding(drawable_table.Center).
-		EnableAction(func(drawable_table.Cursor) {}).
+		DefinePadding(style.Center).
+		EnableAction(func(input.MatrixCursor) {}).
 		AddTitle(
 			text.LineFromString("Donec massa sem"),
 			text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),

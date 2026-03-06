@@ -9,12 +9,12 @@ import (
 )
 
 func TestTextArea_ToDrawable(t *testing.T) {
-	dw := TextAreaDrawableFromData([]rune{}, *input.NewCursor(false))
+	dw := TextAreaDrawableFromData([]rune{}, *input.NewTextCursor(false))
 	drawable_test.Helper_ToDrawable(t, dw)
 }
 
 func TestTextAreaDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
-	td := NewTextAreaDrawable([]rune{}, *input.NewCursor(false))
+	td := NewTextAreaDrawable([]rune{}, *input.NewTextCursor(false))
 
 	assert.Panic(t, func() {
 		td.draw()

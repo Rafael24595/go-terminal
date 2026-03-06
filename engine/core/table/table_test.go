@@ -3,6 +3,7 @@ package table
 import (
 	"testing"
 
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -11,7 +12,7 @@ func TestNewTable_ShouldInitializeEmptyTable(t *testing.T) {
 
 	assert.Equal(t, 0, tbl.Cols())
 	assert.Equal(t, 0, tbl.Rows())
-	assert.Equal(t, default_separator, tbl.GetSeparator())
+	assert.Equal(t, marker.DefaultTableSeparator, tbl.GetSeparator())
 }
 
 func TestSetHeaders_ShouldAddHeadersWithoutDuplicates(t *testing.T) {
@@ -95,7 +96,7 @@ func TestRows_ShouldReturnMaxRowCount(t *testing.T) {
 func TestSetSeparator_ShouldOverrideDefault(t *testing.T) {
 	tbl := NewTable()
 
-	sep := SeparatorMeta{
+	sep := marker.TableSeparatorMeta{
 		Top:    "=",
 		Bottom: "=",
 		Center: "::",

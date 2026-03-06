@@ -3,43 +3,29 @@ package table
 import (
 	"fmt"
 	"slices"
+
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 )
-
-type SeparatorMeta struct {
-	Top    string
-	Bottom string
-	Center string
-	Left   string
-	Right  string
-}
-
-var default_separator = SeparatorMeta{
-	Top:    "-",
-	Bottom: "-",
-	Center: " | ",
-	Left:   "| ",
-	Right:  " |",
-}
 
 type Table struct {
 	cols      map[string][]string
 	headers   []string
-	separator SeparatorMeta
+	separator marker.TableSeparatorMeta
 }
 
 func NewTable() *Table {
 	return &Table{
 		headers:   make([]string, 0),
 		cols:      make(map[string][]string),
-		separator: default_separator,
+		separator: marker.DefaultTableSeparator,
 	}
 }
 
-func (t *Table) GetSeparator() SeparatorMeta {
+func (t *Table) GetSeparator() marker.TableSeparatorMeta {
 	return t.separator
 }
 
-func (t *Table) SetSeparator(separator SeparatorMeta) *Table {
+func (t *Table) SetSeparator(separator marker.TableSeparatorMeta) *Table {
 	t.separator = separator
 	return t
 }

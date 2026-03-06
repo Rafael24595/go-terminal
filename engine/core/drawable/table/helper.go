@@ -6,6 +6,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/commons/structure"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	drawable_line "github.com/Rafael24595/go-terminal/engine/core/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/core/input"
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
@@ -26,7 +28,7 @@ type col struct {
 	size int
 }
 
-func makeSections(t table.Table, cursor Cursor, size terminal.Winsize) []section {
+func makeSections(t table.Table, cursor input.MatrixCursor, size terminal.Winsize) []section {
 	sections := make([]section, 0)
 
 	cols := int(size.Cols)
@@ -79,10 +81,10 @@ func makeSections(t table.Table, cursor Cursor, size terminal.Winsize) []section
 	return sections
 }
 
-func headersFromSize(size map[string]int, headers []string, cursor Cursor) ([]string, *Cursor) {
+func headersFromSize(size map[string]int, headers []string, cursor input.MatrixCursor) ([]string, *input.MatrixCursor) {
 	filtered := make([]string, 0)
 
-	var fixCursor *Cursor
+	var fixCursor *input.MatrixCursor
 
 	fixX := 0
 	for x, header := range headers {
@@ -92,7 +94,7 @@ func headersFromSize(size map[string]int, headers []string, cursor Cursor) ([]st
 
 		filtered = append(filtered, header)
 		if x == int(cursor.Col) {
-			fixCursor = NewCursor(
+			fixCursor = input.NewMatrixCursor(
 				cursor.Row,
 				uint32(fixX),
 				cursor.Show,
@@ -104,7 +106,7 @@ func headersFromSize(size map[string]int, headers []string, cursor Cursor) ([]st
 	return filtered, fixCursor
 }
 
-func makeHeaders(size map[string]int, headers []string, separator table.SeparatorMeta) text.Line {
+func makeHeaders(size map[string]int, headers []string, separator marker.TableSeparatorMeta) text.Line {
 	headersLen := len(headers)
 
 	capacity := 2*headersLen + 1
@@ -134,8 +136,8 @@ func makeTable(
 	size map[string]int,
 	headers []string,
 	cols map[string][]string,
-	separator table.SeparatorMeta,
-	cursor *Cursor,
+	separator marker.TableSeparatorMeta,
+	cursor *input.MatrixCursor,
 ) []text.Line {
 	headersLen := len(headers)
 
@@ -168,7 +170,7 @@ func makeTable(
 func makeCell(
 	size map[string]int,
 	cols map[string][]string,
-	cursor *Cursor,
+	cursor *input.MatrixCursor,
 	header string,
 	y int,
 	x int,
@@ -201,7 +203,7 @@ func makeCell(
 		AddAtom(atom)
 }
 
-func renderedRowSize(size map[string]int, separator table.SeparatorMeta) int {
+func renderedRowSize(size map[string]int, separator marker.TableSeparatorMeta) int {
 	sepCenterLen := utf8.RuneCountInString(separator.Center)
 	sepLeftLen := utf8.RuneCountInString(separator.Left)
 	sepRightLen := utf8.RuneCountInString(separator.Right)
@@ -253,7 +255,7 @@ func adjustSize(size map[string]int, headers []string, cols int, rowSize int) (m
 	return newSize, excess == 0
 }
 
-func splitTable(size map[string]int, headers []string, splitTable table.SeparatorMeta, cols int) []map[string]int {
+func splitTable(size map[string]int, headers []string, splitTable marker.TableSeparatorMeta, cols int) []map[string]int {
 	tables := make([]map[string]int, 0)
 
 	leftLen := utf8.RuneCountInString(splitTable.Left)

@@ -8,30 +8,17 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-type JustifyMode uint8
-
-const (
-	JustifyStart JustifyMode = iota
-	JustifyEnd
-	JustifyCenter
-	JustifyBetween
-	JustifyAround
-	JustifyEvenly
-)
-
 const (
 	SlotsBetween = 0
 	SlotsEvenly  = 1
 	SlotsAround  = 2
 )
 
-const DefaultLimit = 5
-
 type JustifyDrawable struct {
 	initialized bool
 	size        terminal.Winsize
 	limit       uint8
-	justify     JustifyMode
+	justify     style.Justify
 	fragments   []text.Fragment
 	cursor      uint16
 }
@@ -40,8 +27,8 @@ func NewJustifyDrawable(fragments []text.Fragment) *JustifyDrawable {
 	return &JustifyDrawable{
 		initialized: false,
 		size:        terminal.Winsize{},
-		limit:       DefaultLimit,
-		justify:     JustifyAround,
+		limit:       style.DefaultLimit,
+		justify:     style.JustifyAround,
 		fragments:   fragments,
 		cursor:      0,
 	}
@@ -56,7 +43,7 @@ func (d *JustifyDrawable) Limit(limit uint8) *JustifyDrawable {
 	return d
 }
 
-func (d *JustifyDrawable) Justify(justify JustifyMode) *JustifyDrawable {
+func (d *JustifyDrawable) Justify(justify style.Justify) *JustifyDrawable {
 	d.justify = justify
 	return d
 }
@@ -114,27 +101,27 @@ func (d *JustifyDrawable) draw() ([]text.Line, bool) {
 	return []text.Line{line}, d.cursor < uint16(len(d.fragments))
 }
 
-func justifyLine(cols int, frags []text.Fragment, size int, mode JustifyMode) text.Line {
+func justifyLine(cols int, frags []text.Fragment, size int, mode style.Justify) text.Line {
 	line := text.LineFromFragments(
 		addGaps(cols, frags, size, mode)...,
 	)
 
 	switch mode {
 
-	case JustifyStart:
+	case style.JustifyStart:
 		return line.AddSpec(style.SpecFromKind(style.SpcKindPaddingRight))
 
-	case JustifyEnd:
+	case style.JustifyEnd:
 		return line.AddSpec(style.SpecFromKind(style.SpcKindPaddingLeft))
 
-	case JustifyCenter, JustifyAround, JustifyEvenly:
+	case style.JustifyCenter, style.JustifyAround, style.JustifyEvenly:
 		return line.AddSpec(style.SpecFromKind(style.SpcKindPaddingCenter))
 	}
 
 	return line
 }
 
-func addGaps(cols int, frags []text.Fragment, size int, mode JustifyMode) []text.Fragment {
+func addGaps(cols int, frags []text.Fragment, size int, mode style.Justify) []text.Fragment {
 	if len(frags) == 0 {
 		return frags
 	}
@@ -151,13 +138,13 @@ func addGaps(cols int, frags []text.Fragment, size int, mode JustifyMode) []text
 
 	switch mode {
 
-	case JustifyBetween:
+	case style.JustifyBetween:
 		return distributeSpace(free, out, SlotsBetween)
 
-	case JustifyAround:
+	case style.JustifyAround:
 		return distributeSpace(free, out, SlotsAround)
 
-	case JustifyEvenly:
+	case style.JustifyEvenly:
 		return distributeSpace(free, out, SlotsEvenly)
 	}
 

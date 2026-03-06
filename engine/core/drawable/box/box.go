@@ -6,54 +6,23 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-type BoxVerticalPadding uint
-
-const (
-	Left BoxVerticalPadding = iota
-	Center
-	Right
-)
-
-type BoxHorizontalPadding uint
-
-const (
-	Up BoxHorizontalPadding = iota
-	Middle
-	Dow
-)
-
 const default_inner_padding = uint(1)
-
-type SeparatorMeta struct {
-	Top    string
-	Bottom string
-	Left   string
-	Right  string
-	Space  string
-}
-
-var default_separator = SeparatorMeta{
-	Top:    "-",
-	Bottom: "-",
-	Left:   "|",
-	Right:  "|",
-	Space:  " ",
-}
 
 type BoxDrawable struct {
 	initialized  bool
 	size         terminal.Winsize
 	innerPadding uint
-	vertical     BoxVerticalPadding
-	horizontal   BoxHorizontalPadding
+	vertical     style.VerticalPosition
+	horizontal   style.HorizontalPosition
 	spec         style.Spec
-	separator    SeparatorMeta
+	separator    marker.BoxSeparatorMeta
 	drawable     drawable.Drawable
 }
 
@@ -62,10 +31,10 @@ func NewBoxDrawable(drawable drawable.Drawable) *BoxDrawable {
 		initialized:  false,
 		size:         terminal.Winsize{},
 		innerPadding: default_inner_padding,
-		horizontal:   Middle,
-		vertical:     Center,
+		horizontal:   style.Middle,
+		vertical:     style.Center,
 		spec:         style.SpecEmpty(),
-		separator:    default_separator,
+		separator:    marker.DefaultBoxSeparator,
 		drawable:     drawable,
 	}
 }
@@ -74,17 +43,17 @@ func BoxDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
 	return NewBoxDrawable(drawable).ToDrawable()
 }
 
-func (d *BoxDrawable) Vertical(vertical BoxVerticalPadding) *BoxDrawable {
+func (d *BoxDrawable) Vertical(vertical style.VerticalPosition) *BoxDrawable {
 	d.vertical = vertical
 	return d
 }
 
-func (d *BoxDrawable) Horizontal(horizontal BoxHorizontalPadding) *BoxDrawable {
+func (d *BoxDrawable) Horizontal(horizontal style.HorizontalPosition) *BoxDrawable {
 	d.horizontal = horizontal
 	return d
 }
 
-func (d *BoxDrawable) Separator(separator SeparatorMeta) *BoxDrawable {
+func (d *BoxDrawable) Separator(separator marker.BoxSeparatorMeta) *BoxDrawable {
 	d.separator = separator
 	return d
 }
@@ -125,12 +94,12 @@ func (d *BoxDrawable) draw() ([]text.Line, bool) {
 func (d *BoxDrawable) defineBase(lines []text.Line) []text.Line {
 	size := len(lines)
 
-	if d.horizontal == Up || size >= int(d.size.Rows) {
+	if d.horizontal == style.Top || size >= int(d.size.Rows) {
 		return make([]text.Line, 0)
 	}
 
 	start := (d.size.Rows - uint16(size))
-	if d.horizontal == Middle {
+	if d.horizontal == style.Middle {
 		start /= 2
 	}
 
@@ -268,21 +237,21 @@ func (d *BoxDrawable) clampSize(size terminal.Winsize) terminal.Winsize {
 	return terminal.NewWinsize(rows, cols)
 }
 
-func borderSize(separator SeparatorMeta) uint {
+func borderSize(separator marker.BoxSeparatorMeta) uint {
 	return uint(utf8.RuneCountInString(separator.Left) +
 		utf8.RuneCountInString(separator.Right))
 }
 
-func makeSpec(base style.Spec, size terminal.Winsize, padding BoxVerticalPadding) style.Spec {
+func makeSpec(base style.Spec, size terminal.Winsize, padding style.VerticalPosition) style.Spec {
 	cols := uint(size.Cols)
 
 	var spec style.Spec
 	switch padding {
-	case Left:
+	case style.Left:
 		spec = style.SpecPaddingLeft(cols)
-	case Center:
+	case style.Center:
 		spec = style.SpecPaddingCenter(cols)
-	case Right:
+	case style.Right:
 		spec = style.SpecPaddingRight(cols)
 	default:
 		return base

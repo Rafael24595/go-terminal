@@ -3,31 +3,24 @@ package table
 import (
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable"
+	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/table"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-type TablePadding uint
-
-const (
-	Left TablePadding = iota
-	Center
-	Right
-)
-
 type TableDrawable struct {
 	initialized bool
 	size        terminal.Winsize
-	padding     TablePadding
+	padding     style.VerticalPosition
 	spec        style.Spec
 	table       table.Table
 	sections    []section
-	cursor      Cursor
+	cursor      input.MatrixCursor
 }
 
-func NewTableDrawable(table table.Table, cursor Cursor, padding TablePadding) *TableDrawable {
+func NewTableDrawable(table table.Table, cursor input.MatrixCursor, padding style.VerticalPosition) *TableDrawable {
 	return &TableDrawable{
 		initialized: false,
 		size:        terminal.Winsize{},
@@ -39,7 +32,7 @@ func NewTableDrawable(table table.Table, cursor Cursor, padding TablePadding) *T
 	}
 }
 
-func TableDrawableFromTable(table table.Table, cursor Cursor, padding TablePadding) drawable.Drawable {
+func TableDrawableFromTable(table table.Table, cursor input.MatrixCursor, padding style.VerticalPosition) drawable.Drawable {
 	return NewTableDrawable(table, cursor, padding).ToDrawable()
 }
 
@@ -146,16 +139,16 @@ func (d *TableDrawable) drawDynamic(remaining int) ([][]text.Line, bool) {
 	return bodies, len(empty) != len(d.sections)
 }
 
-func makeSpec(base style.Spec, size terminal.Winsize, padding TablePadding) style.Spec {
+func makeSpec(base style.Spec, size terminal.Winsize, padding style.VerticalPosition) style.Spec {
 	cols := uint(size.Cols)
 
 	var spec style.Spec
 	switch padding {
-	case Left:
+	case style.Left:
 		spec = style.SpecPaddingLeft(cols)
-	case Center:
+	case style.Center:
 		spec = style.SpecPaddingCenter(cols)
-	case Right:
+	case style.Right:
 		spec = style.SpecPaddingRight(cols)
 	default:
 		return base

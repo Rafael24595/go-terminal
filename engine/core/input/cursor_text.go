@@ -15,7 +15,7 @@ func unixClock() int64 {
 	return time.Now().UnixMilli()
 }
 
-type Cursor struct {
+type TextCursor struct {
 	clock  clock
 	blink  bool
 	status bool
@@ -24,8 +24,8 @@ type Cursor struct {
 	anchor uint
 }
 
-func NewCursor(blink bool) *Cursor {
-	return &Cursor{
+func NewTextCursor(blink bool) *TextCursor {
+	return &TextCursor{
 		clock:  unixClock,
 		blink:  blink,
 		status: true,
@@ -35,39 +35,39 @@ func NewCursor(blink bool) *Cursor {
 	}
 }
 
-func (c *Cursor) EnableBlinking() *Cursor {
+func (c *TextCursor) EnableBlinking() *TextCursor {
 	c.blink = true
 	return c
 }
 
-func (c *Cursor) DisableBlinking() *Cursor {
+func (c *TextCursor) DisableBlinking() *TextCursor {
 	c.blink = false
 	return c
 }
 
-func (c *Cursor) Caret() uint {
+func (c *TextCursor) Caret() uint {
 	return c.caret
 }
 
-func (c *Cursor) Anchor() uint {
+func (c *TextCursor) Anchor() uint {
 	return c.anchor
 }
 
-func (c *Cursor) SelectStart() uint {
+func (c *TextCursor) SelectStart() uint {
 	if c.anchor < c.caret {
 		return c.anchor
 	}
 	return c.caret
 }
 
-func (c *Cursor) SelectEnd() uint {
+func (c *TextCursor) SelectEnd() uint {
 	if c.anchor < c.caret {
 		return c.caret
 	}
 	return c.anchor
 }
 
-func (c *Cursor) MoveCaretTo(buff []rune, caret uint) {
+func (c *TextCursor) MoveCaretTo(buff []rune, caret uint) {
 	min := uint(1)
 	len := uint(len(buff))
 
@@ -82,7 +82,7 @@ func (c *Cursor) MoveCaretTo(buff []rune, caret uint) {
 	c.time = c.clock()
 }
 
-func (c *Cursor) MoveSelectTo(buff []rune, caret, anchor uint) {
+func (c *TextCursor) MoveSelectTo(buff []rune, caret, anchor uint) {
 	min := uint(1)
 	len := uint(len(buff))
 
@@ -97,7 +97,7 @@ func (c *Cursor) MoveSelectTo(buff []rune, caret, anchor uint) {
 	c.time = c.clock()
 }
 
-func (c *Cursor) BlinkStyle() style.Atom {
+func (c *TextCursor) BlinkStyle() style.Atom {
 	if !c.blink || c.caret != c.anchor {
 		return style.AtmSelect
 	}

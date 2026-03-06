@@ -16,27 +16,32 @@ import (
 
 type IndexMenuDrawable struct {
 	initialized bool
-	index       marker.IndexMeta
+	meta       marker.IndexMeta
 	options     []text.Fragment
 	cursor      uint
 	drawable    drawable.Drawable
 }
 
-func NewIndexMenuDrawable(index marker.IndexMeta, options []text.Fragment) *IndexMenuDrawable {
+func NewIndexMenuDrawable(options []text.Fragment) *IndexMenuDrawable {
 	clone := make([]text.Fragment, len(options))
 	copy(clone, options)
 
 	return &IndexMenuDrawable{
 		initialized: false,
-		index:       index,
+		meta:       marker.HyphenIndex,
 		options:     clone,
 		cursor:      0,
 		drawable:    drawable.Drawable{},
 	}
 }
 
-func TextIndexMenuFromData(index marker.IndexMeta, options []text.Fragment) drawable.Drawable {
-	return NewIndexMenuDrawable(index, options).ToDrawable()
+func TextIndexMenuFromData(options []text.Fragment) drawable.Drawable {
+	return NewIndexMenuDrawable(options).ToDrawable()
+}
+
+func (d *IndexMenuDrawable) Meta(meta marker.IndexMeta) *IndexMenuDrawable {
+	d.meta = meta
+	return d
 }
 
 func (d *IndexMenuDrawable) Cursor(cursor uint) *IndexMenuDrawable {
@@ -83,7 +88,7 @@ func (d *IndexMenuDrawable) init(size terminal.Winsize) {
 }
 
 func (d *IndexMenuDrawable) makeIndex(cursor, digits int) text.Fragment {
-	if d.index.Kind == marker.Numeric {
+	if d.meta.Kind == marker.Numeric {
 		txt := helper.Right(strconv.Itoa(cursor+1), digits)
 		index := text.NewFragment(txt + ".- ")
 		if cursor == int(d.cursor) {
@@ -92,7 +97,7 @@ func (d *IndexMenuDrawable) makeIndex(cursor, digits int) text.Fragment {
 		return index
 	}
 
-	if d.index.Kind == marker.Alphabetic {
+	if d.meta.Kind == marker.Alphabetic {
 		txt := helper.Right(helper.NumberToAlpha(cursor), digits)
 		index := text.NewFragment(txt + ".- ")
 		if cursor == int(d.cursor) {
@@ -101,9 +106,9 @@ func (d *IndexMenuDrawable) makeIndex(cursor, digits int) text.Fragment {
 		return index
 	}
 
-	index := d.index.Index
+	index := d.meta.Index
 	if cursor == int(d.cursor) {
-		index = d.index.Cursor
+		index = d.meta.Cursor
 	}
 
 	return text.NewFragment(index)

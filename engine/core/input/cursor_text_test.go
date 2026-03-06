@@ -9,7 +9,7 @@ import (
 )
 
 func TestCursor_SelectionLogic(t *testing.T) {
-	c := NewCursor(true)
+	c := NewTextCursor(true)
 	buff := []rune("Golang")
 
 	c.MoveSelectTo(buff, 3, 1)
@@ -27,7 +27,7 @@ func TestCursor_SelectionLogic(t *testing.T) {
 func TestCursor_BlinkingLogic(t *testing.T) {
 	clock := &mock.TestClock{Time: 0}
 
-	c := NewCursor(true)
+	c := NewTextCursor(true)
 	c.clock = clock.Now
 
 	clock.Advance(blink_ms + 1)
