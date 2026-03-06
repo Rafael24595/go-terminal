@@ -59,21 +59,21 @@ func (d *IndexMenuDrawable) init(size terminal.Winsize) {
 	digits := math.Digits(len(d.options))
 
 	for i, o := range d.options {
-		styl := style.AtmNone
+		focs := style.AtmNone
 		if i == int(d.cursor) {
-			styl = style.AtmFocus
+			focs = style.AtmFocus
 		}
 
-		styledLine := text.LineFromFragments(
-			text.EmptyFragment().
-				AddSpec(style.SpecPaddingLeft(2)),
-			d.makeIndex(i, int(digits)),
-			text.NewFragment(" "),
-			text.NewFragment(o.Text).
-				AddAtom(styl),
-		)
+		padd := text.EmptyFragment().
+			AddSpec(style.SpecPaddingLeft(2))
+		indx := d.makeIndex(i, int(digits))
+		spac := text.NewFragment(" ")
+		mark := text.NewFragment(o.Text).
+			AddAtom(focs)
 
-		lines = append(lines, styledLine)
+		lines = append(lines,
+			text.LineFromFragments(padd, indx, spac, mark),
+		)
 	}
 
 	drawable := line.EagerDrawableFromLines(lines...)
