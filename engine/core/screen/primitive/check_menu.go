@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
@@ -28,11 +29,13 @@ var check_menu_write_definition = screen.DefinitionFromKeys(
 )
 
 type CheckMenu struct {
-	reference string
-	meta      marker.CheckMeta
-	title     []text.Line
-	options   []input.CheckOption
-	cursor    uint
+	reference    string
+	meta         marker.CheckMeta
+	distribution style.Distribution
+	title        []text.Line
+	options      []input.CheckOption
+	limit        uint16
+	cursor       uint
 }
 
 func NewCheckMenu() *CheckMenu {
@@ -41,6 +44,7 @@ func NewCheckMenu() *CheckMenu {
 		meta:      marker.BracketsCheck,
 		title:     make([]text.Line, 0),
 		options:   make([]input.CheckOption, 0),
+		limit:     0,
 		cursor:    0,
 	}
 }
@@ -68,6 +72,16 @@ func (c *CheckMenu) AddOptions(options ...input.CheckOption) *CheckMenu {
 func (c *CheckMenu) SetCursor(cursor uint) *CheckMenu {
 	maxIdx := math.SubClampZero(len(c.options), 1)
 	c.cursor = math.Clamp(cursor, uint(0), uint(maxIdx))
+	return c
+}
+
+func (c *CheckMenu) SetDistribution(distribution style.Distribution) *CheckMenu {
+	c.distribution = distribution
+	return c
+}
+
+func (c *CheckMenu) SetLimit(limit uint16) *CheckMenu {
+	c.limit = min(uint16(len(c.options)), limit)
 	return c
 }
 

@@ -6,9 +6,10 @@ import (
 )
 
 type CheckOption struct {
-	Status bool
-	Label  text.Fragment
-	action func() screen.Screen
+	Status    bool
+	Label     text.Fragment
+	Timestamp int64
+	Action    func() screen.Screen
 }
 
 func FragmentFromCheckOption(options ...CheckOption) []text.Fragment {
