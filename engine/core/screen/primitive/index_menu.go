@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/indexmenu"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
@@ -25,44 +26,20 @@ var index_menu_definition = screen.DefinitionFromKeys(
 	)...,
 )
 
-type MenuOption struct {
-	text   text.Fragment
-	action func() screen.Screen
-}
-
-func NewMenuOption(option text.Fragment, action func() screen.Screen) MenuOption {
-	return MenuOption{
-		text:   option,
-		action: action,
-	}
-}
-
-func NewMenuOptions(options ...MenuOption) []MenuOption {
-	return options
-}
-
-func fragmentFromMenuOption(options ...MenuOption) []text.Fragment {
-	lines := make([]text.Fragment, len(options))
-	for i := range options {
-		lines[i] = options[i].text
-	}
-	return lines
-}
-
 type IndexMenu struct {
 	reference string
-	index     marker.IndexMeta
+	meta      marker.IndexMeta
 	title     []text.Line
-	options   []MenuOption
+	options   []input.MenuOption
 	cursor    uint
 }
 
 func NewIndexMenu() *IndexMenu {
 	return &IndexMenu{
 		reference: default_index_menu_name,
-		index:     marker.HyphenIndex,
+		meta:      marker.HyphenIndex,
 		title:     make([]text.Line, 0),
-		options:   make([]MenuOption, 0),
+		options:   make([]input.MenuOption, 0),
 		cursor:    0,
 	}
 }
@@ -72,8 +49,8 @@ func (c *IndexMenu) SetName(name string) *IndexMenu {
 	return c
 }
 
-func (c *IndexMenu) SetIndex(index marker.IndexMeta) *IndexMenu {
-	c.index = index
+func (c *IndexMenu) SetMeta(meta marker.IndexMeta) *IndexMenu {
+	c.meta = meta
 	return c
 }
 
@@ -82,7 +59,7 @@ func (c *IndexMenu) AddTitle(title ...text.Line) *IndexMenu {
 	return c
 }
 
-func (c *IndexMenu) AddOptions(options ...MenuOption) *IndexMenu {
+func (c *IndexMenu) AddOptions(options ...input.MenuOption) *IndexMenu {
 	c.options = append(c.options, options...)
 	return c
 }
@@ -123,8 +100,8 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 		c.cursor = (c.cursor + 1) % size
 	case key.ActionEnter:
 		option := c.options[c.cursor]
-		if option.action != nil {
-			scrn := c.options[c.cursor].action()
+		if option.Action().Name != nil {
+			scrn := c.options[c.cursor].Action()
 			return screen.ScreenResult{
 				Screen: &scrn,
 			}
@@ -133,7 +110,7 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 		assert.Unreachable(
 			"menu actions should not be nil: %s - %s",
 			c.reference,
-			option.text.Text,
+			option.Label.Text,
 		)
 	}
 
@@ -141,9 +118,9 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 }
 
 func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
-	frags := fragmentFromMenuOption(c.options...)
+	frags := input.FragmentFromMenuOption(c.options...)
 
-	indexmenu := indexmenu.NewIndexMenuDrawable(c.index, frags).
+	indexmenu := indexmenu.NewIndexMenuDrawable(c.meta, frags).
 		Cursor(c.cursor)
 
 	vm := core.ViewModelFromUIState(stt)
@@ -160,7 +137,7 @@ func (c *IndexMenu) view(stt state.UIState) core.ViewModel {
 	)
 
 	option := min(len(c.options)-1, int(c.cursor))
-	text := c.options[option].text.Text
+	text := c.options[option].Label.Text
 	input := core.NewInputLine(line.EagerDrawableFromString(text))
 	vm.SetInput(input)
 

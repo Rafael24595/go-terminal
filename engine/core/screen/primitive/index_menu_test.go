@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
@@ -18,7 +19,7 @@ func TestIndexMenu_ToScreen(t *testing.T) {
 		SetName("base").
 		AddTitle(text.LineFromString("Welcome")).
 		AddOptions(
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("Option 1"),
 				func() screen.Screen { return screen.Screen{} },
 			),
@@ -44,11 +45,11 @@ func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 	menu := NewIndexMenu().
 		AddTitle(text.LineFromString("Title 1")).
 		AddOptions(
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("Option 1"),
 				func() screen.Screen { return screen.Screen{} },
 			),
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("Option 2"),
 				func() screen.Screen { return screen.Screen{} },
 			),
@@ -61,11 +62,11 @@ func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
@@ -88,11 +89,11 @@ func TestIndexMenu_SetCursor_Empty(t *testing.T) {
 func TestIndexMenu_CursorNavigation(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
@@ -122,7 +123,7 @@ func TestIndexMenu_Action(t *testing.T) {
 
 	menu := NewIndexMenu().
 		AddOptions(
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("Go"),
 				func() screen.Screen { return expected },
 			),
@@ -141,11 +142,11 @@ func TestIndexMenu_Action(t *testing.T) {
 func TestIndexMenu_ViewCursor(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
-			NewMenuOption(
+			input.NewMenuOption(
 				text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),

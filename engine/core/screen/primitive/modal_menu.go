@@ -4,6 +4,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/modal"
+	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
@@ -14,15 +15,10 @@ var modal_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(key.ActionAll)...,
 )
 
-type ModalOption struct {
-	Fragment text.Fragment
-	Action   func() screen.Screen
-}
-
 type ModalMenu struct {
 	reference string
 	text      []text.Line
-	options   []ModalOption
+	options   []input.MenuOption
 	cursor    uint
 }
 
@@ -30,17 +26,9 @@ func NewModalMenu() *ModalMenu {
 	return &ModalMenu{
 		reference: default_index_menu_name,
 		text:      make([]text.Line, 0),
-		options:   make([]ModalOption, 0),
+		options:   make([]input.MenuOption, 0),
 		cursor:    0,
 	}
-}
-
-func fragmentFromModalMenu(options ...ModalOption) []text.Fragment {
-	frags := make([]text.Fragment, len(options))
-	for i := range options {
-		frags[i] = options[i].Fragment
-	}
-	return frags
 }
 
 func (c *ModalMenu) SetName(name string) *ModalMenu {
@@ -53,7 +41,7 @@ func (c *ModalMenu) AddText(text ...text.Line) *ModalMenu {
 	return c
 }
 
-func (c *ModalMenu) AddOptions(options ...ModalOption) *ModalMenu {
+func (c *ModalMenu) AddOptions(options ...input.MenuOption) *ModalMenu {
 	c.options = append(c.options, options...)
 	return c
 }
@@ -104,7 +92,7 @@ func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen
 func (c *ModalMenu) view(stt state.UIState) core.ViewModel {
 	vm := core.ViewModelFromUIState(stt)
 
-	frags := fragmentFromModalMenu(c.options...)
+	frags := input.FragmentFromMenuOption(c.options...)
 
 	modal := modal.NewModalDrawable().
 		AddText(c.text...).

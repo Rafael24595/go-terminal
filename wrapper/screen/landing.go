@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"unicode/utf8"
 
+	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/primitive"
@@ -26,24 +27,24 @@ func NewLanding() screen.Screen {
 		),
 	)
 
-	options := primitive.NewMenuOptions(
-		primitive.NewMenuOption(text.NewFragment("Option Article"), NewTestArticle),
-		primitive.NewMenuOption(text.NewFragment("Option TextArea"), NewTestTextArea),
-		primitive.NewMenuOption(text.NewFragment("Option Table"), NewTestTable),
-		primitive.NewMenuOption(text.NewFragment("Option Modal"), NewTestModal),
+	options := input.NewMenuOptions(
+		input.NewMenuOption(text.NewFragment("Option Article"), NewTestArticle),
+		input.NewMenuOption(text.NewFragment("Option TextArea"), NewTestTextArea),
+		input.NewMenuOption(text.NewFragment("Option Table"), NewTestTable),
+		input.NewMenuOption(text.NewFragment("Option Modal"), NewTestModal),
 	)
 
 	optsSize := len(options)
 
 	for i := range 30 {
 		options = append(options,
-			primitive.NewMenuOption(text.NewFragment(fmt.Sprintf("Option %d", i+1+optsSize)), NewTestTextArea),
+			input.NewMenuOption(text.NewFragment(fmt.Sprintf("Option %d", i+1+optsSize)), NewTestTextArea),
 		)
 	}
 
 	return primitive.NewIndexMenu().
 		SetName("menu - tortor").
-		SetIndex(marker.NumericIndex).
+		SetMeta(marker.NumericIndex).
 		AddTitle(title...).
 		AddOptions(options...).
 		SetCursor(0).
