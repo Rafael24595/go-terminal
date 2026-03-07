@@ -1,22 +1,15 @@
 package input
 
 import (
-	"time"
-
+	"github.com/Rafael24595/go-terminal/engine/core/clock"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
 const blink_ms = 750
 
-type clock func() int64
-
-func unixClock() int64 {
-	return time.Now().UnixMilli()
-}
-
 type TextCursor struct {
-	clock  clock
+	clock  clock.Clock
 	blink  bool
 	status bool
 	time   int64
@@ -26,7 +19,7 @@ type TextCursor struct {
 
 func NewTextCursor(blink bool) *TextCursor {
 	return &TextCursor{
-		clock:  unixClock,
+		clock:  clock.UnixMilliClock,
 		blink:  blink,
 		status: true,
 		time:   0,

@@ -2,8 +2,8 @@ package event
 
 import (
 	"strings"
-	"time"
 
+	"github.com/Rafael24595/go-terminal/engine/core/clock"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 )
@@ -60,14 +60,8 @@ type Delta struct {
 	Text  string
 }
 
-type clock func() int64
-
-func unixClock() int64 {
-	return time.Now().UnixMilli()
-}
-
 type TextEventService struct {
-	clock   clock
+	clock   clock.Clock
 	actions []textAction
 	events  []textEvent
 	cursor  int
@@ -75,7 +69,7 @@ type TextEventService struct {
 
 func NewTextEventService() *TextEventService {
 	return &TextEventService{
-		clock:   unixClock,
+		clock:   clock.UnixMilliClock,
 		actions: make([]textAction, 0),
 		events:  make([]textEvent, 0, event_limit),
 	}
