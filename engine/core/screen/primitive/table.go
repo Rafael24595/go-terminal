@@ -29,35 +29,35 @@ var table_read_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(key.ActionEnter)...,
 )
 
-type actionHandler = func(input.MatrixCursor)
+type tableActionHandler = func(input.MatrixCursor)
 
-func defaultHandler(_ input.MatrixCursor) {}
+func defaultTableHandler(_ input.MatrixCursor) {}
 
-type action struct {
+type tableAction struct {
 	enable  bool
 	mode    bool
-	handler actionHandler
+	handler tableActionHandler
 }
 
-func enabledAction(handler actionHandler) *action {
-	return &action{
+func enabledTableAction(handler tableActionHandler) *tableAction {
+	return &tableAction{
 		enable:  true,
 		mode:    false,
 		handler: handler,
 	}
 }
 
-func disabledAction() *action {
-	return &action{
+func disabledTableAction() *tableAction {
+	return &tableAction{
 		enable:  false,
 		mode:    false,
-		handler: defaultHandler,
+		handler: defaultTableHandler,
 	}
 }
 
 type Table[T any] struct {
 	reference string
-	action    *action
+	action    *tableAction
 	title     []text.Line
 	table     *table.Table
 	cursor    *input.MatrixCursor
@@ -67,7 +67,7 @@ type Table[T any] struct {
 func NewTable[T any]() *Table[T] {
 	return &Table[T]{
 		reference: default_table_name,
-		action:    disabledAction(),
+		action:    disabledTableAction(),
 		title:     make([]text.Line, 0),
 		table:     table.NewTable(),
 		cursor:    input.NewMatrixCursor(0, 0, false),
@@ -80,13 +80,13 @@ func (c *Table[T]) SetName(name string) *Table[T] {
 	return c
 }
 
-func (c *Table[T]) EnableAction(handler actionHandler) *Table[T] {
-	c.action = enabledAction(handler)
+func (c *Table[T]) EnableAction(handler tableActionHandler) *Table[T] {
+	c.action = enabledTableAction(handler)
 	return c
 }
 
 func (c *Table[T]) DisableAction() *Table[T] {
-	c.action = disabledAction()
+	c.action = disabledTableAction()
 	return c
 }
 
