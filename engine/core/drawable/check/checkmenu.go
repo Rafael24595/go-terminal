@@ -1,4 +1,4 @@
-package check
+package checkmenu
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
@@ -12,7 +12,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-type ChecMenukDrawable struct {
+type CheckMenuDrawable struct {
 	initialized  bool
 	meta         marker.CheckMeta
 	distribution style.Distribution
@@ -22,11 +22,11 @@ type ChecMenukDrawable struct {
 	drawable     drawable.Drawable
 }
 
-func NewCheckMenuDrawable(options []input.CheckOption) *ChecMenukDrawable {
+func NewCheckMenuDrawable(options []input.CheckOption) *CheckMenuDrawable {
 	clone := make([]input.CheckOption, len(options))
 	copy(clone, options)
 
-	return &ChecMenukDrawable{
+	return &CheckMenuDrawable{
 		initialized:  false,
 		meta:         marker.BracketsCheck,
 		distribution: style.DefaultDistribution,
@@ -40,29 +40,34 @@ func CheckMenuDrawableOptions(options []input.CheckOption) drawable.Drawable {
 	return NewCheckMenuDrawable(options).ToDrawable()
 }
 
-func (d *ChecMenukDrawable) Meta(meta marker.CheckMeta) *ChecMenukDrawable {
+func (d *CheckMenuDrawable) Meta(meta marker.CheckMeta) *CheckMenuDrawable {
 	d.meta = meta
 	return d
 }
 
-func (d *ChecMenukDrawable) Distribution(distribution style.Distribution) *ChecMenukDrawable {
+func (d *CheckMenuDrawable) Distribution(distribution style.Distribution) *CheckMenuDrawable {
 	d.distribution = distribution
 	return d
 }
 
-func (d *ChecMenukDrawable) Cursor(cursor uint) *ChecMenukDrawable {
+func (d *CheckMenuDrawable) WriteMode(writeMode bool) *CheckMenuDrawable {
+	d.writeMode = writeMode
+	return d
+}
+
+func (d *CheckMenuDrawable) Cursor(cursor uint) *CheckMenuDrawable {
 	d.cursor = cursor
 	return d
 }
 
-func (d *ChecMenukDrawable) ToDrawable() drawable.Drawable {
+func (d *CheckMenuDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Init: d.init,
 		Draw: d.draw,
 	}
 }
 
-func (d *ChecMenukDrawable) init(size terminal.Winsize) {
+func (d *CheckMenuDrawable) init(size terminal.Winsize) {
 	d.initialized = true
 
 	opts := d.addStyles()
@@ -76,9 +81,11 @@ func (d *ChecMenukDrawable) init(size terminal.Winsize) {
 		assert.Unreachable("undefined direction %d", d.distribution.Direction)
 		d.drawable = d.makeVertical(opts)
 	}
+
+	d.drawable.Init(size)
 }
 
-func (d *ChecMenukDrawable) makeVertical(opts []text.Fragment) drawable.Drawable {
+func (d *CheckMenuDrawable) makeVertical(opts []text.Fragment) drawable.Drawable {
 	lines := make([]text.Line, len(opts))
 	for i := range opts {
 		lines[i] = text.LineFromFragments(opts[i])
@@ -86,14 +93,14 @@ func (d *ChecMenukDrawable) makeVertical(opts []text.Fragment) drawable.Drawable
 	return line.LazyDrawableFromLines(lines...)
 }
 
-func (d *ChecMenukDrawable) makeHorizontal(opts []text.Fragment) drawable.Drawable {
+func (d *CheckMenuDrawable) makeHorizontal(opts []text.Fragment) drawable.Drawable {
 	return justify.NewJustifyDrawable(opts).
 		Justify(d.distribution.Justify).
 		Limit(d.distribution.Limit).
 		ToDrawable()
 }
 
-func (d *ChecMenukDrawable) addStyles() []text.Fragment {
+func (d *CheckMenuDrawable) addStyles() []text.Fragment {
 	frags := make([]text.Fragment, len(d.options))
 
 	for i := range frags {
@@ -108,9 +115,9 @@ func (d *ChecMenukDrawable) addStyles() []text.Fragment {
 		}
 
 		frags[i] = text.EmptyFragmentFrom(d.options[i].Label)
-		frags[i].Text = d.meta.Close + status + d.meta.Close + label
+		frags[i].Text = d.meta.Open + status + d.meta.Close + label
 
-		if i == int(d.cursor) {
+		if d.writeMode && i == int(d.cursor) {
 			frags[i] = frags[i].
 				AddAtom(style.AtmSelect, style.AtmFocus)
 		}
@@ -119,7 +126,7 @@ func (d *ChecMenukDrawable) addStyles() []text.Fragment {
 	return frags
 }
 
-func (d *ChecMenukDrawable) draw() ([]text.Line, bool) {
+func (d *CheckMenuDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
 	return d.drawable.Draw()
