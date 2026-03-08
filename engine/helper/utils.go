@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 )
 
 type TextLayoutOpts struct {
@@ -17,7 +19,7 @@ func fixDirectionOps(text string, opts TextLayoutOpts) TextLayoutOpts {
 	}
 
 	if opts.Runes == "" {
-		opts.Runes = " "
+		opts.Runes = marker.DefaultPaddingText
 	}
 
 	return opts
@@ -30,6 +32,24 @@ type LogicalSizeOpts struct {
 func fixLogicalSizeOpts(text string, opts LogicalSizeOpts) LogicalSizeOpts {
 	if opts.LogicalSize == 0 {
 		opts.LogicalSize = utf8.RuneCountInString(text)
+	}
+
+	return opts
+}
+
+type TextTrimOpts struct {
+	LogicalSize  int
+	EllipsisText string
+	EllipsisSize uint
+}
+
+func fixTextTrimOpts(text string, opts TextTrimOpts) TextTrimOpts {
+	if opts.LogicalSize == 0 {
+		opts.LogicalSize = utf8.RuneCountInString(text)
+	}
+
+	if opts.EllipsisSize == 0 {
+		opts.EllipsisSize = marker.DefaultElipsisSize
 	}
 
 	return opts
@@ -101,7 +121,7 @@ func FillLeftWithOpts(item any, width int, opts LogicalSizeOpts) string {
 	}
 
 	if text == "" {
-		text = " "
+		text = marker.DefaultPaddingText
 	}
 
 	fix := ""
@@ -127,7 +147,7 @@ func FillRightWithOpts(item any, width int, opts LogicalSizeOpts) string {
 	}
 
 	if text == "" {
-		text = " "
+		text = marker.DefaultPaddingText
 	}
 
 	fix := ""
@@ -156,6 +176,56 @@ func RepeatRight(item any, runes string, width int) string {
 func RepeatRightWithOpts(item any, runes string, width int, opts LogicalSizeOpts) string {
 	text := fmt.Sprintf("%v", item)
 	return text + FillRightWithOpts(runes, width, opts)
+}
+
+func TrimLeft(data string, width int, opts TextTrimOpts) string {
+	if data == "" {
+		return data
+	}
+
+	opts = fixTextTrimOpts(data, opts)
+
+	elipSize := utf8.RuneCountInString(opts.EllipsisText) * int(opts.EllipsisSize)
+
+	realSize := utf8.RuneCountInString(data)
+	if width >= opts.LogicalSize || width > realSize {
+		return data
+	}
+
+	width = realSize - width
+
+	runes := []rune(data)
+	if elipSize+width >= realSize {
+		return string(runes[width:])
+	}
+
+	elipTotal := strings.Repeat(opts.EllipsisText, int(opts.EllipsisSize))
+
+	return elipTotal + string(runes[width+elipSize:])
+}
+
+func TrimRight(data string, width int, opts TextTrimOpts) string {
+	if data == "" {
+		return data
+	}
+
+	opts = fixTextTrimOpts(data, opts)
+
+	elipSize := utf8.RuneCountInString(opts.EllipsisText) * int(opts.EllipsisSize)
+
+	realSize := utf8.RuneCountInString(data)
+	if width >= opts.LogicalSize || width > realSize {
+		return data
+	}
+
+	runes := []rune(data)
+	if elipSize > width {
+		return string(runes[:width])
+	}
+
+	elipTotal := strings.Repeat(opts.EllipsisText, int(opts.EllipsisSize))
+
+	return string(runes[:width-elipSize]) + elipTotal
 }
 
 func NumberToAlpha(n int) string {

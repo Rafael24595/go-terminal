@@ -79,6 +79,7 @@ const (
 
 	KeyTrimLeftSize
 	KeyTrimRightSize
+	KeyTrimEllipsisText
 
 	KeyFillSize
 )
@@ -176,6 +177,30 @@ func SpecTrimRight(size uint) Spec {
 	)
 }
 
+func SpecTrimTextLeft(size uint, ellipsis string) Spec {
+	spec := specSize(
+		SpcKindTrimLeft,
+		KeyTrimLeftSize,
+		size,
+	)
+
+	spec.args[KeyTrimEllipsisText] = commons.ArgumentFrom(ellipsis)
+
+	return spec
+}
+
+func SpecTrimTextRight(size uint, ellipsis string) Spec {
+	spec := specSize(
+		SpcKindTrimRight,
+		KeyTrimRightSize,
+		size,
+	)
+
+	spec.args[KeyTrimEllipsisText] = commons.ArgumentFrom(ellipsis)
+
+	return spec
+}
+
 func SpecFill(size uint) Spec {
 	return specSize(
 		SpcKindFill,
@@ -188,7 +213,7 @@ func specSize(kind SpecsKind, sizeKey SpcArgKey, size uint) Spec {
 	args := make(argMap)
 
 	if size > 0 {
-		args[sizeKey] = *commons.ArgumentFrom(size)
+		args[sizeKey] = commons.ArgumentFrom(size)
 	}
 
 	return Spec{
@@ -207,11 +232,11 @@ func specDirection(
 	args := make(argMap)
 
 	if size > 0 {
-		args[sizeKey] = *commons.ArgumentFrom(size)
+		args[sizeKey] = commons.ArgumentFrom(size)
 	}
 
 	if len(text) > 0 {
-		args[textKey] = *commons.ArgumentFrom(strings.Join(text, ""))
+		args[textKey] = commons.ArgumentFrom(strings.Join(text, ""))
 	}
 
 	return Spec{

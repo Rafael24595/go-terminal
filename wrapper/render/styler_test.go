@@ -143,17 +143,37 @@ func TestRepeatRight_WithoutText_Strict(t *testing.T) {
 	assert.Equal(t, "aba", got)
 }
 
-func TestTrimLeft(t *testing.T) {
+func TestTrimLeft_Standard(t *testing.T) {
 	tests := []struct {
 		name string
 		size uint
 		in   string
 		want string
 	}{
-		{"trim 2", 2, "golang", "lang"},
-		{"trim 1", 1, "zig", "ig"},
-		{"trim zero -> min 1", 0, "go", "o"},
-		{"empty input", 3, "", ""},
+		{
+			name: "keep last 2 characters",
+			size: 2,
+			in:   "golang",
+			want: "ng",
+		},
+		{
+			name: "keep last character",
+			size: 1,
+			in:   "zig",
+			want: "g",
+		},
+		{
+			name: "fallback to minimum 1 when size is 0",
+			size: 0,
+			in:   "go",
+			want: "o",
+		},
+		{
+			name: "handle empty string",
+			size: 3,
+			in:   "",
+			want: "",
+		},
 	}
 
 	for _, tt := range tests {
@@ -164,21 +184,91 @@ func TestTrimLeft(t *testing.T) {
 			got := trimLeft(spec, tt.in, size)
 
 			assert.Equal(t, tt.want, got)
+
+			if tt.size > 0 && size > 0 {
+				assert.Equal(t, int(tt.size), utf8.RuneCountInString(got))
+			}
 		})
 	}
 }
 
-func TestTrimRight(t *testing.T) {
+func TestTrimLeft_WithEllipsis(t *testing.T) {
+	tests := []struct {
+		name     string
+		size     uint
+		ellipsis string
+		in       string
+		want     string
+	}{
+		{
+			name:     "prepend ellipsis when space allows",
+			size:     5,
+			ellipsis: ".",
+			in:       "golang",
+			want:     "...ng",
+		},
+		{
+			name:     "skip ellipsis if it consumes too much space",
+			size:     2,
+			ellipsis: ".",
+			in:       "ziglang",
+			want:     "ng",
+		},
+		{
+			name:     "bypass ellipsis logic when size+elipSize exceeds logical limits",
+			size:     1,
+			ellipsis: "..",
+			in:       "rust",
+			want:     "t",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			spec := style.SpecTrimTextLeft(tt.size, tt.ellipsis)
+			size := utf8.RuneCountInString(tt.in)
+
+			got := trimLeft(spec, tt.in, size)
+
+			assert.Equal(t, tt.want, got)
+
+			if tt.size > 0 && size > 0 {
+				assert.Equal(t, int(tt.size), utf8.RuneCountInString(got))
+			}
+		})
+	}
+}
+
+func TestTrimRight_Standard(t *testing.T) {
 	tests := []struct {
 		name string
 		size uint
 		in   string
 		want string
 	}{
-		{"trim 2", 2, "golang", "go"},
-		{"trim 1", 1, "ziglang", "z"},
-		{"trim zero -> min 1", 0, "go", "g"},
-		{"empty input", 2, "", ""},
+		{
+			name: "keep first 2 characters",
+			size: 2,
+			in:   "golang",
+			want: "go",
+		},
+		{
+			name: "keep first character",
+			size: 1,
+			in:   "ziglang",
+			want: "z"},
+		{
+			name: "fallback to minimum 1 when size is 0",
+			size: 0,
+			in:   "go",
+			want: "g",
+		},
+		{
+			name: "handle empty string",
+			size: 2,
+			in:   "",
+			want: "",
+		},
 	}
 
 	for _, tt := range tests {
@@ -189,6 +279,57 @@ func TestTrimRight(t *testing.T) {
 			got := trimRight(spec, tt.in, size)
 
 			assert.Equal(t, tt.want, got)
+
+			if tt.size > 0 && size > 0 {
+				assert.Equal(t, int(tt.size), utf8.RuneCountInString(got))
+			}
+		})
+	}
+}
+
+func TestTrimRight_WithEllipsis(t *testing.T) {
+	tests := []struct {
+		name     string
+		size     uint
+		ellipsis string
+		in       string
+		want     string
+	}{
+		{
+			name:     "append ellipsis when space allows",
+			size:     5,
+			ellipsis: ".",
+			in:       "golang",
+			want:     "go...",
+		},
+		{
+			name:     "skip ellipsis and return raw trim when space is tight",
+			size:     2,
+			ellipsis: ".",
+			in:       "ziglang",
+			want:     "zi",
+		},
+		{
+			name:     "return direct trim when logical size is exceeded",
+			size:     1,
+			ellipsis: "...",
+			in:       "test",
+			want:     "t",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			spec := style.SpecTrimTextRight(tt.size, tt.ellipsis)
+			size := utf8.RuneCountInString(tt.in)
+
+			got := trimRight(spec, tt.in, size)
+
+			assert.Equal(t, tt.want, got)
+
+			if tt.size > 0 && size > 0 {
+				assert.Equal(t, int(tt.size), utf8.RuneCountInString(got))
+			}
 		})
 	}
 }

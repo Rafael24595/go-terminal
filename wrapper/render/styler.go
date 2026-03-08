@@ -158,11 +158,14 @@ func trimLeft(styl style.Spec, data string, logicalSize int) string {
 	size := args[style.KeyTrimLeftSize].Intd(0)
 	size = max(1, size)
 
-	if size >= logicalSize {
-		return data
+	elip := args[style.KeyTrimEllipsisText].String()
+
+	opts := helper.TextTrimOpts{
+		LogicalSize:  logicalSize,
+		EllipsisText: elip,
 	}
 
-	return data[size:]
+	return helper.TrimLeft(data, size, opts)
 }
 
 func trimRight(styl style.Spec, data string, logicalSize int) string {
@@ -175,11 +178,14 @@ func trimRight(styl style.Spec, data string, logicalSize int) string {
 	size := args[style.KeyTrimRightSize].Intd(0)
 	size = max(1, size)
 
-	if size >= logicalSize {
-		return data
+	elip := args[style.KeyTrimEllipsisText].String()
+
+	opts := helper.TextTrimOpts{
+		LogicalSize:  logicalSize,
+		EllipsisText: elip,
 	}
 
-	return data[:size]
+	return helper.TrimRight(data, size, opts)
 }
 
 func fill(styl style.Spec, cols int, data string, logicalSize int) string {
