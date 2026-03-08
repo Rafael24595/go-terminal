@@ -1,15 +1,21 @@
 package input
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
 
 type CheckOption struct {
+	Id        string
 	Status    bool
 	Label     text.Fragment
 	Timestamp int64
-	Action    func() screen.Screen
+}
+
+func NewCheckOption(id string, option text.Fragment) CheckOption {
+	return CheckOption{
+		Id:    id,
+		Label: option,
+	}
 }
 
 func FragmentFromCheckOption(options ...CheckOption) []text.Fragment {

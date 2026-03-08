@@ -1,0 +1,40 @@
+package wrapper_screen
+
+import (
+	"unicode/utf8"
+
+	"github.com/Rafael24595/go-terminal/engine/core/input"
+	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/primitive"
+	"github.com/Rafael24595/go-terminal/engine/core/style"
+	"github.com/Rafael24595/go-terminal/engine/core/text"
+)
+
+func NewTestCheck() screen.Screen {
+	textTitle := "Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor"
+	sizeTitle := utf8.RuneCountInString(textTitle)
+
+	title := text.NewLines(
+		text.NewLine(
+			textTitle,
+			style.SpecFromKind(style.SpcKindPaddingRight),
+		),
+		text.NewLine(
+			"-",
+			style.SpecFill(uint(sizeTitle)),
+		),
+	)
+
+	options := []input.CheckOption{
+		input.NewCheckOption("1", text.NewFragment("Check 1")),
+		input.NewCheckOption("2", text.NewFragment("Check 2")),
+		input.NewCheckOption("3", text.NewFragment("Check 3")),
+	}
+
+	return primitive.NewCheckMenu().
+		SetName("menu - tortor").
+		SetLimit(1).
+		AddTitle(title...).
+		AddOptions(options...).
+		ToScreen()
+}
