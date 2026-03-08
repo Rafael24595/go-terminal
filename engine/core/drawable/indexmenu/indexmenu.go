@@ -72,7 +72,7 @@ func (d *IndexMenuDrawable) init(size terminal.Winsize) {
 		padd := text.EmptyFragment().
 			AddSpec(style.SpecPaddingLeft(2))
 		indx := d.makeIndex(i, int(digits))
-		spac := text.NewFragment(" ")
+		spac := text.NewFragment(marker.DefaultPaddingText)
 		mark := text.NewFragment(o.Text).
 			AddAtom(focs)
 

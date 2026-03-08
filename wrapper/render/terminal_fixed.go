@@ -3,6 +3,7 @@ package wrapper_render
 import (
 	"strings"
 
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/render"
@@ -53,12 +54,12 @@ func (r *FixedTerminalRender) Render(lines []text.Line, size terminal.Winsize) s
 	buffer := make([]string, size.Rows)
 
 	for i := range size.Rows {
-		buffer[i] = helper.FillRight(" ", int(size.Cols))
+		buffer[i] = helper.FillRight(marker.DefaultPaddingText, int(size.Cols))
 	}
 
 	index := topPadding
 	for _, line := range renderedLines {
-		fixed := helper.Right(" ", leftPadding)
+		fixed := helper.Right(marker.DefaultPaddingText, leftPadding)
 		buffer[index] = helper.Right(fixed+line, int(size.Cols))
 		index += 1
 	}

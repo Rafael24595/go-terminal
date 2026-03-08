@@ -111,7 +111,7 @@ func (d *CheckMenuDrawable) addStyles() []text.Fragment {
 
 		label := d.options[i].Label.Text
 		if len(label) > 0 {
-			label = " " + label
+			label = marker.DefaultPaddingText + label
 		}
 
 		frags[i] = text.EmptyFragmentFrom(d.options[i].Label)

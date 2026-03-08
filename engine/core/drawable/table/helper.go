@@ -15,7 +15,7 @@ import (
 )
 
 // TODO: Use as a argument.
-const min_width = 6
+const min_width = int(3 + marker.DefaultElipsisSize)
 
 type section struct {
 	header drawable.Drawable

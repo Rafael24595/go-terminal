@@ -1,6 +1,7 @@
 package line
 
 import (
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
@@ -143,7 +144,7 @@ func computeIndexMeta(lines []text.Line) *IndexMeta {
 
 	return &IndexMeta{
 		sufix:      separator,
-		prefixBody: helper.FillRight(" ", int(size)),
+		prefixBody: helper.FillRight(marker.DefaultPaddingText, int(size)),
 		digits:     uint16(size),
 		totalWidth: size + uint32(len(separator)),
 	}

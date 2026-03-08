@@ -8,7 +8,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
-	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
@@ -67,7 +67,7 @@ func (d *TextAreaDrawable) init(size terminal.Winsize) {
 	end := d.caret.SelectEnd()
 
 	if len(d.buffer) == 0 {
-		d.buffer = append(d.buffer, []rune(screen.PRINTABLE_CARET)...)
+		d.buffer = append(d.buffer, []rune(marker.PrintableCaretText)...)
 		start = 0
 		end = 1
 	}
@@ -151,7 +151,7 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 
 		for partIndex, part := range parts {
 			if d.isCaretPrintable(txt, textIndex, part, partIndex) {
-				part += screen.PRINTABLE_CARET
+				part += marker.PrintableCaretText
 			}
 
 			currentLine.Text = append(
@@ -191,8 +191,10 @@ func (d *TextAreaDrawable) fixEmptyLines(lines []text.Line) []text.Line {
 			styles = line.Text[len(line.Text)-1].Atom
 		}
 
-		lines[i].Text = append(line.Text, text.NewFragment(screen.EMPTY_LINE_FIX).
-			AddAtom(styles))
+		lines[i].Text = append(line.Text, 
+			text.NewFragment(marker.DefaultPaddingText).
+			AddAtom(styles),
+		)
 	}
 	return lines
 }

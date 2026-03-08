@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable"
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
@@ -72,7 +73,7 @@ func (d *inputLineDrawable) draw() ([]text.Line, bool) {
 		return []text.Line{line}, false
 	}
 
-	prompt := text.FragmentsFromString(d.prompt + " ")
+	prompt := text.FragmentsFromString(d.prompt + marker.DefaultPaddingText)
 	lines[0].Text = append(prompt, lines[0].Text...)
 
 	return append([]text.Line{text.LineFromString("")}, lines...), false

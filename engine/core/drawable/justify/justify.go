@@ -3,6 +3,7 @@ package justify
 import (
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable"
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
@@ -174,7 +175,7 @@ func distributeSpace(free int, frags []text.Fragment, extraSlots int) []text.Fra
 		}
 
 		space := text.EmptyFragment().AddSpec(
-			style.SpecPaddingRight(uint(gap), " "),
+			style.SpecPaddingRight(uint(gap), marker.DefaultPaddingText),
 		)
 
 		at := i + fix + 1
@@ -198,7 +199,9 @@ func addSpaceBetween(frags []text.Fragment) []text.Fragment {
 	for i, f := range frags {
 		spaced = append(spaced, f)
 		if i < len(frags)-1 {
-			spaced = append(spaced, text.NewFragment(" "))
+			spaced = append(spaced,
+				text.NewFragment(marker.DefaultPaddingText),
+			)
 		}
 	}
 	return spaced
