@@ -10,8 +10,8 @@ type Argument struct {
 	item any
 }
 
-func ArgumentFrom(item any) *Argument {
-	return &Argument{
+func ArgumentFrom(item any) Argument {
+	return Argument{
 		item: item,
 	}
 }
