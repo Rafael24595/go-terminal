@@ -161,7 +161,7 @@ func TestAdjustSize_RespectsMinWidth(t *testing.T) {
 func TestAdjustSize_ExactFit(t *testing.T) {
 	size := map[string]int{
 		"A": 8,
-		"B": 6,
+		"B": 7,
 	}
 
 	rendered := renderedRowSize(size, separator)
@@ -182,7 +182,7 @@ func TestAdjustSize_MultipleColumnsReduction(t *testing.T) {
 		"C": 8,
 	}
 
-	termWidth := 20
+	termWidth := 22
 
 	rendered := renderedRowSize(size, separator)
 	result, status := adjustSize(size, keys(size), termWidth, rendered)
@@ -266,7 +266,7 @@ func TestAdjustSize_Deterministic(t *testing.T) {
 		"G": 12,
 	}
 
-	termWidth := 40
+	termWidth := 50
 	keys := keys(size)
 
 	rendered := renderedRowSize(size, separator)

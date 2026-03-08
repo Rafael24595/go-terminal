@@ -15,7 +15,7 @@ import (
 )
 
 // TODO: Use as a argument.
-const min_width = 4
+const min_width = 6
 
 type section struct {
 	header drawable.Drawable
@@ -118,7 +118,7 @@ func makeHeaders(size map[string]int, headers []string, separator marker.TableSe
 		width := uint(size[h])
 		spec := style.MergeSpec(
 			style.SpecPaddingCenter(width),
-			style.SpecTrimRight(width),
+			style.SpecTrimTextRight(width, marker.DefaultElipsisText),
 		)
 		fragments = append(fragments, text.NewFragment(h).AddSpec(spec))
 
@@ -188,7 +188,7 @@ func makeCell(
 	if y >= 0 && y < len(col) {
 		spec := style.MergeSpec(
 			style.SpecPaddingRight(width),
-			style.SpecTrimRight(width),
+			style.SpecTrimTextRight(width, marker.DefaultElipsisText),
 		)
 
 		return text.NewFragment(col[y]).
