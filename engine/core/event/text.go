@@ -3,6 +3,7 @@ package event
 import (
 	"strings"
 
+	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/clock"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
@@ -17,8 +18,12 @@ type ActionKind int
 
 const (
 	Insert ActionKind = iota
+
 	DeleteBackward
 	DeleteForward
+	
+	Cut
+	Paste
 )
 
 type textAction struct {
@@ -145,13 +150,15 @@ func (s *TextEventService) forgeEvent(action mergeAction) textEvent {
 	delete := ""
 
 	switch action.kind {
-	case Insert, DeleteForward:
+	case Insert, DeleteForward, Paste:
 		insert = strings.Join(action.insert, "")
 		delete = strings.Join(action.delete, "")
 
-	case DeleteBackward:
+	case DeleteBackward, Cut:
 		insert = runes.JoinReverse(action.insert)
 		delete = runes.JoinReverse(action.delete)
+	default:
+		assert.Unreachable("unhandled action kind")
 	}
 
 	return textEvent{

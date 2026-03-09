@@ -35,6 +35,7 @@ type TextArea struct {
 	indexMode bool
 	title     []text.Line
 	buffer    []rune
+	clipboard []rune
 	caret     *input.TextCursor
 }
 
@@ -44,8 +45,9 @@ func NewTextArea() *TextArea {
 		history:   event.NewTextEventService(),
 		writeMode: false,
 		title:     make([]text.Line, 0),
-		caret:     input.NewTextCursor(false),
 		buffer:    make([]rune, 0),
+		clipboard: make([]rune, 0),
+		caret:     input.NewTextCursor(false),
 	}
 }
 
@@ -142,40 +144,52 @@ func (c *TextArea) updateWrite(state *state.UIState, evnt screen.ScreenEvent) sc
 	case key.ActionEsc:
 		c.writeMode = false
 		return screen.ScreenResultFromUIState(state)
+
 	case key.ActionHome:
 		return c.moveHome(state, evnt)
+
 	case key.ActionEnd:
 		return c.moveEnd(state, evnt)
+
 	case key.ActionArrowLeft:
 		return c.moveBackward(state, evnt)
+
 	case key.ActionArrowRight:
 		return c.moveForward(state, evnt)
+
 	case key.ActionBackspace, key.ActionDeleteBackward:
-		return c.deleteBackward(state, ky.Code == key.ActionDeleteBackward)
+		word := ky.Code == key.ActionDeleteBackward
+		return c.deleteBackward(state, word)
+
 	case key.ActionDelete, key.ActionDeleteForward:
-		return c.deleteForward(state, ky.Code == key.ActionDeleteForward)
+		word := ky.Code == key.ActionDeleteForward
+		return c.deleteForward(state, word)
+
 	case key.ActionEnter:
 		ky = *key.NewKeyRune(key.ENTER_LF)
+
 	case key.ActionArrowUp:
 		return c.moveUp(state, evnt)
+
 	case key.ActionArrowDown:
 		return c.moveDown(state, evnt)
+
 	case key.CustomActionUndo, key.CustomActionRedo:
 		return c.undoRedo(state, ky)
+
+	case key.CustomActionCut, key.CustomActionCopy:
+		cut := ky.Code == key.CustomActionCut
+		return c.copyCut(state, cut)
+		
+	case key.CustomActionPaste:
+		return c.paste(state)
 	}
 
 	return c.pushRune(state, ky)
 }
 
 func (c *TextArea) pushRune(state *state.UIState, ky key.Key) screen.ScreenResult {
-	end := c.caret.SelectEnd()
-
-	start := c.caret.SelectStart()
-	fixEnd := end
-	if start != end {
-		start = math.SubClampZero(start, 1)
-		fixEnd += 1
-	}
+	start, end, fixEnd := c.insertSelection()
 
 	text := text_helper.FullTextTransformer.Apply(ky, start, end, c.buffer)
 
@@ -212,6 +226,41 @@ func (c *TextArea) undoRedo(state *state.UIState, ky key.Key) screen.ScreenResul
 	c.caret.MoveCaretTo(c.buffer, delta.Start+uint(len(newTextRunes)))
 
 	return result
+}
+
+func (c *TextArea) copyCut(state *state.UIState, cut bool) screen.ScreenResult {
+	result := screen.ScreenResultFromUIState(state)
+
+	if len(c.buffer) == 0 {
+		return result
+	}
+
+	start := math.SubClampZero(c.caret.SelectStart(), 1)
+	end := c.caret.SelectEnd()
+
+	c.clipboard = make([]rune, end-start)
+	copy(c.clipboard, c.buffer[start:end])
+
+	if cut {
+		c.history.PushEvent(event.Cut, start, end, string(c.clipboard), "")
+		c.buffer = append(c.buffer[:start], c.buffer[end:]...)
+		c.caret.MoveCaretTo(c.buffer, start)
+	}
+
+	return result
+}
+
+func (c *TextArea) paste(state *state.UIState) screen.ScreenResult {
+	start, end, fixEnd := c.insertSelection()
+
+	c.history.PushEvent(event.Paste, start, fixEnd, string(c.buffer[start:end]), string(c.clipboard))
+
+	c.buffer = runes.AppendRange(c.buffer, c.clipboard, start, end)
+
+	position := start + uint(len(c.clipboard))
+	c.caret.MoveCaretTo(c.buffer, position)
+
+	return screen.ScreenResultFromUIState(state)
 }
 
 func (c *TextArea) moveHome(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
@@ -436,4 +485,15 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	vm.SetStrategy(strategy)
 
 	return *vm
+}
+
+func (c *TextArea) insertSelection() (uint, uint, uint) {
+	start := c.caret.SelectStart()
+	end := c.caret.SelectEnd()
+
+	if start != end {
+		return math.SubClampZero(start, 1), end, end + 1
+	}
+
+	return start, end, end
 }

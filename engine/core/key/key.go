@@ -28,24 +28,32 @@ type KeyAction int
 
 const (
 	ActionRune KeyAction = iota
-	
+
 	ActionEsc
 	ActionExit
+
 	ActionDeleteBackward
 	ActionDeleteForward
+
 	ActionTab
 	ActionEnter
 	ActionBackspace
+
 	ActionArrowUp
 	ActionArrowDown
 	ActionArrowLeft
 	ActionArrowRight
+
 	ActionHome
 	ActionEnd
 	ActionDelete
 
 	CustomActionUndo
 	CustomActionRedo
+
+	CustomActionCut
+	CustomActionCopy
+	CustomActionPaste
 
 	ActionAll
 )
@@ -67,6 +75,9 @@ var ControlKeyMap = map[rune]*Key{
 
 var AltKeyMap = map[rune]*Key{
 	'd': NewKeyCode(ActionDeleteForward, ModAlt),
+	'x': NewKeyCode(CustomActionCut, ModAlt),
+	'c': NewKeyCode(CustomActionCopy, ModAlt),
+	'v': NewKeyCode(CustomActionPaste, ModAlt),
 }
 
 var CsiFinalMap = map[rune]KeyAction{
