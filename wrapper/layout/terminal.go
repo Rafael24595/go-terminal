@@ -22,10 +22,16 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 
 	inputLines := make([]text.Line, 0)
 	if input, ok := vm.InitInputLine(size); ok {
-		inputLines = drawLines(*input, rows, cols)
+		inputLines = drawLines(input, rows, cols)
 	}
 
-	rest := int(size.Rows) - (len(headerLines) + len(footerLines) + len(inputLines))
+	helperLines := make([]text.Line, 0)
+	if helper, ok := vm.InitHelper(size); ok {
+		helperLines = drawLines(helper, rows, cols)
+	}
+
+	static := len(headerLines) + len(footerLines) + len(inputLines) + len(helperLines)
+	rest := int(size.Rows) - static
 	if rest < 0 {
 		return text.NewLines(
 			text.LineFromString("Too low resolution"),
@@ -44,6 +50,7 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	allLines = append(allLines, bodyLines...)
 	allLines = append(allLines, footerLines...)
 	allLines = append(allLines, inputLines...)
+	allLines = append(allLines, helperLines...)
 
 	return allLines
 }

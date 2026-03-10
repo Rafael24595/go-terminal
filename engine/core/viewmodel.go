@@ -4,7 +4,10 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/core/help"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
+	
+	drawable_help "github.com/Rafael24595/go-terminal/engine/core/drawable/help"
 )
 
 var default_pager = state.NewPagePager()
@@ -15,6 +18,7 @@ type ViewModel struct {
 	Footer *stack.StackDrawable
 	Input  *InputLine
 	Pager  state.PagerStrategy
+	Helper *help.HelpMeta
 }
 
 func ViewModelFromUIState(stt state.UIState) *ViewModel {
@@ -24,6 +28,7 @@ func ViewModelFromUIState(stt state.UIState) *ViewModel {
 		Footer: stack.NewStackDrawable(),
 		Input:  nil,
 		Pager:  default_pager,
+		Helper: help.NewHelpMeta(),
 	}
 }
 
@@ -53,13 +58,24 @@ func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) *stack.StackDrawabl
 	return v.Lines.Init(size)
 }
 
-func (v *ViewModel) InitInputLine(size terminal.Winsize) (*drawable.Drawable, bool) {
+func (v *ViewModel) InitInputLine(size terminal.Winsize) (drawable.Drawable, bool) {
 	if v.Input == nil {
-		return nil, false
+		return drawable.Drawable{}, false
 	}
 
 	drawable := v.Input.ToDrawable()
 	drawable.Init(size)
 
-	return &drawable, true
+	return drawable, true
+}
+
+func (v *ViewModel) InitHelper(size terminal.Winsize) (drawable.Drawable, bool) {
+	if !v.Helper.Show {
+		return drawable.Drawable{}, false
+	}
+
+	drawable := drawable_help.HelpDrawableFromMeta(v.Helper)
+	drawable.Init(size)
+
+	return drawable, true
 }
