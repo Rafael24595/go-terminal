@@ -9,13 +9,19 @@ const (
 )
 
 type UIState struct {
-	Pager PagerContext
+	Helper HelperContext
+	Pager  PagerContext
 }
 
 func NewUIState() *UIState {
 	return &UIState{
-		Pager: PagerContext{},
+		Helper: HelperContext{},
+		Pager:  PagerContext{},
 	}
+}
+
+type HelperContext struct {
+	ShowHelp bool
 }
 
 type PagerContext struct {
