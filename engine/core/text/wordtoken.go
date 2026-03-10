@@ -48,7 +48,7 @@ func TokenizeLineWords(line Line) []WordToken {
 	inSpace := false
 
 	for _, frag := range line.Text {
-		if frag.Spec.Kind() != style.SpcKindNone {
+		if frag.Atom.HasAny(style.AtmWrap) {
 			tokens = append(tokens, WordToken{
 				Text: []Fragment{frag},
 			})
