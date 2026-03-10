@@ -1,5 +1,10 @@
 package key
 
+import (
+	"github.com/Rafael24595/go-terminal/engine/core/assert"
+	"github.com/Rafael24595/go-terminal/engine/core/help"
+)
+
 const (
 	CTRL_A = 0x01
 	CTRL_E = 0x05
@@ -48,6 +53,8 @@ const (
 	ActionEnd
 	ActionDelete
 
+	CustomActionHelp
+
 	CustomActionUndo
 	CustomActionRedo
 
@@ -75,6 +82,7 @@ var ControlKeyMap = map[rune]*Key{
 
 var AltKeyMap = map[rune]*Key{
 	'd': NewKeyCode(ActionDeleteForward, ModAlt),
+	'h': NewKeyCode(CustomActionHelp, ModAlt), // M-h
 	'x': NewKeyCode(CustomActionCut, ModAlt),
 	'c': NewKeyCode(CustomActionCopy, ModAlt),
 	'v': NewKeyCode(CustomActionPaste, ModAlt),
@@ -97,31 +105,64 @@ var CsiTildeMap = map[string]KeyAction{
 	"8": ActionEnd,
 }
 
-var actionMap = map[KeyAction][]string{
-	ActionEsc:            {"ESC"},
-	ActionExit:           {"CTRL+C"},
-	ActionDeleteBackward: {"CTRL+W"},
-	ActionDeleteForward:  {"CTRL+D"},
-	ActionTab:            {"TAB"},
-	ActionEnter:          {"ENTER"},
-	ActionBackspace:      {"BACKSPACE"},
-	ActionArrowUp:        {"UP"},
-	ActionArrowDown:      {"DOWN"},
-	ActionArrowLeft:      {"LEFT"},
-	ActionArrowRight:     {"RIGHT"},
-	ActionHome:           {"HOME", "CTRL+A"},
-	ActionEnd:            {"END", "CTRL+E"},
-	ActionDelete:         {"DELETE"},
-	CustomActionUndo:     {"CTRL+G"},
-	CustomActionRedo:     {"CTRL+T"},
-	ActionAll:            {"$_SYSTEM_ALL"},
+var actionHelpMap = map[KeyAction]help.HelpField{
+	ActionArrowUp:    {Code: []string{"↑"}, Detail: "Move up"},
+	ActionArrowDown:  {Code: []string{"↓"}, Detail: "Move down"},
+	ActionArrowLeft:  {Code: []string{"←"}, Detail: "Move left"},
+	ActionArrowRight: {Code: []string{"→"}, Detail: "Move right"},
+	ActionHome:       {Code: []string{"HOME", "^A"}, Detail: "Line start"},
+	ActionEnd:        {Code: []string{"END", "^E"}, Detail: "Line end"},
+
+	ActionEnter: {Code: []string{"RET"}, Detail: "New line/Accept"},
+	ActionTab:   {Code: []string{"TAB"}, Detail: "Next field"},
+	ActionEsc:   {Code: []string{"ESC"}, Detail: "Back/Cancel"},
+	ActionExit:  {Code: []string{"^C"}, Detail: "Exit"},
+
+	ActionBackspace:      {Code: []string{"BS"}, Detail: "Delete char"},
+	ActionDelete:         {Code: []string{"DEL"}, Detail: "Delete forward"},
+	ActionDeleteBackward: {Code: []string{"^W"}, Detail: "Delete word"},
+	ActionDeleteForward:  {Code: []string{"^D"}, Detail: "Delete word fwd"},
+
+	CustomActionUndo:  {Code: []string{"^G"}, Detail: "Undo"},
+	CustomActionRedo:  {Code: []string{"^T"}, Detail: "Redo"},
+	CustomActionCut:   {Code: []string{"M-x"}, Detail: "Cut"},
+	CustomActionCopy:  {Code: []string{"M-c"}, Detail: "Copy"},
+	CustomActionPaste: {Code: []string{"M-v"}, Detail: "Paste"},
 }
 
-func ActionToString(action KeyAction) []string {
-	if str, exist := actionMap[action]; exist {
+func ActionsToHelp(actions ...KeyAction) []help.HelpField {
+	return ActionsToHelpWithOverride(nil, actions...)
+}
+
+func ActionToHelp(action KeyAction) help.HelpField {
+	return ActionToHelpWithOverride(nil, action)
+}
+
+func ActionsToHelpWithOverride(overrides map[KeyAction]help.HelpField, actions ...KeyAction) []help.HelpField {
+	help := make([]help.HelpField, len(actions))
+	for i := range actions {
+		help[i] = ActionToHelpWithOverride(overrides, actions[i])
+	}
+	return help
+}
+
+func ActionToHelpWithOverride(overrides map[KeyAction]help.HelpField, action KeyAction) help.HelpField {
+	if overrides != nil {
+		if field, exists := overrides[action]; exists {
+			return field
+		}
+	}
+
+	if str, exist := actionHelpMap[action]; exist {
 		return str
 	}
-	return []string{"rune"}
+
+	assert.Unreachable("unhandled action: %d", action)
+
+	return help.HelpField{
+		Code:   []string{"???"},
+		Detail: "Unknown action",
+	}
 }
 
 type ModMask uint8
