@@ -29,6 +29,7 @@ func NewTestCheck() screen.Screen {
 		input.NewCheckOption("1", text.NewFragment("Check 1")),
 		input.NewCheckOption("2", text.NewFragment("Check 2")),
 		input.NewCheckOption("3", text.NewFragment("Check 3")),
+		input.NewCheckOption("4", text.NewFragment("Check 4")),
 	}
 
 	return primitive.NewCheckMenu().
