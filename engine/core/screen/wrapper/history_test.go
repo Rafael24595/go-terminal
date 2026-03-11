@@ -35,29 +35,19 @@ func TestHistory_ToScreen(t *testing.T) {
 func TestHistory_BackNavigation(t *testing.T) {
 	stt := &state.UIState{}
 
-	base := screen.Screen{
-		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
-		Name:       func() string { return "base" },
-		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.EmptyScreenResult()
-		},
-		View: func(state.UIState) core.ViewModel {
-			return *core.ViewModelFromUIState(state.UIState{})
-		},
+	mockBase := screen_test.MockScreen{
+		Name: "base",
 	}
 
-	next := screen.Screen{
-		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
-		Name:       func() string { return "next" },
+	mockNext := screen_test.MockScreen{
+		Name: "next",
 		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
+			base := mockBase.ToScreen()
 			return screen.ScreenResultFromScreen(&base)
 		},
-		View: func(state.UIState) core.ViewModel {
-			return *core.ViewModelFromUIState(state.UIState{})
-		},
 	}
 
-	h := NewHistory(next)
+	h := NewHistory(mockNext.ToScreen())
 	scrn := h.ToScreen()
 
 	assert.Equal(t, scrn.Name(), "next")
@@ -66,22 +56,19 @@ func TestHistory_BackNavigation(t *testing.T) {
 	assert.NotNil(t, result.Screen)
 	assert.Equal(t, result.Screen.Name(), "base")
 
-	backResult := result.Screen.Update(stt, screen.ScreenEvent{Key: *key.NewKeyRune('b')})
+	backResult := result.Screen.Update(stt, screen.ScreenEvent{
+		Key: *key.NewKeyCode(key.CustomActionBack),
+	})
+
 	assert.NotNil(t, backResult.Screen)
 	assert.Equal(t, backResult.Screen.Name(), "next")
 }
 
 func TestHistory_ViewFooter(t *testing.T) {
-	base := screen.Screen{
-		Name: func() string {
-			return "base"
-		},
-		View: func(state.UIState) core.ViewModel {
-			return *core.ViewModelFromUIState(state.UIState{})
-		},
-	}
+	mock := screen_test.MockScreen{}
+	scrn := mock.ToScreen()
 
-	h := NewHistory(base)
+	h := NewHistory(scrn)
 
 	vm := h.view(*state.NewUIState())
 
@@ -90,7 +77,7 @@ func TestHistory_ViewFooter(t *testing.T) {
 
 	assert.Equal(t, len(footer), 0)
 
-	h.history = &base
+	h.history = &scrn
 	vm = h.view(*state.NewUIState())
 
 	vm.Footer.Init(terminal.Winsize{})

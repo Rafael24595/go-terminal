@@ -6,9 +6,18 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
+)
+
+var history_actions = []key.KeyAction{
+	key.CustomActionBack,
+}
+
+var history_keys = key.NewKeysCode(
+	history_actions...,
 )
 
 type History struct {
@@ -25,10 +34,16 @@ func NewHistory(screen screen.Screen) *History {
 func (c *History) ToScreen() screen.Screen {
 	return screen.Screen{
 		Name:       c.screen.Name,
-		Definition: c.screen.Definition,
+		Definition: c.definition,
 		Update:     c.update,
 		View:       c.view,
 	}
+}
+
+func (c *History) definition() screen.Definition {
+	def := c.screen.Definition()
+	def.RequireKeys = append(def.RequireKeys, history_keys...)
+	return def
 }
 
 func (c *History) update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
@@ -48,18 +63,20 @@ func (c *History) update(state *state.UIState, event screen.ScreenEvent) screen.
 		newScreen := newBack.ToScreen()
 		result.Screen = &newScreen
 	}
+
 	return result
 }
 
 func (c *History) localUpdate(_ *state.UIState, event screen.ScreenEvent) *screen.ScreenResult {
-	if event.Key.Rune == 'b' && c.history != nil {
-		newBack := NewHistory(*c.history)
-		newScreen := newBack.ToScreen()
-		result := screen.ScreenResultFromScreen(&newScreen)
-		return &result
+	if c.history == nil || event.Key.Code != key.CustomActionBack {
+		return nil
 	}
 
-	return nil
+	newBack := NewHistory(*c.history)
+	newScreen := newBack.ToScreen()
+	result := screen.ScreenResultFromScreen(&newScreen)
+
+	return &result
 }
 
 func (c *History) view(state state.UIState) core.ViewModel {
@@ -78,6 +95,17 @@ func (c *History) view(state state.UIState) core.ViewModel {
 
 	vm.Footer.Unshift(
 		line.EagerDrawableFromLines(footer...),
+	)
+
+	actions := screen.FilterKeyRequired(
+		c.screen.Definition(),
+		history_actions...,
+	)
+
+	vm.Helper.Unshift(
+		key.ActionsToHelp(
+			actions...,
+		)...,
 	)
 
 	return vm
