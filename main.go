@@ -34,10 +34,11 @@ func main() {
 	pc := size.Cols - paddingCols
 	pr := size.Rows - paddingRows
 
-	i := wrapper_screen.NewLanding()
-	p := wrapper.NewPagination(i).ToScreen()
-	h := wrapper.NewHistory(p).ToScreen()
-	s := wrapper_screen.NewBaseHeader(h)
+	lnd := wrapper_screen.NewLanding()
+	pge := wrapper.NewPagination(lnd).ToScreen()
+	his := wrapper.NewHistory(pge).ToScreen()
+	hlp := wrapper.NewHelp(his).ToScreen()
+	hdr := wrapper_screen.NewBaseHeader(hlp)
 
 	l := core.NewLayout(wrapper_layout.TerminalApply)
 	lf := wrapper_layout.NewFixed(l, pr, pc)
@@ -65,7 +66,7 @@ func main() {
 
 		size = newSize
 
-		vmd := s.View(*state)
+		vmd := hdr.View(*state)
 
 		lns := l.Apply(state, vmd, size)
 		str := r.Render(lns, size)
@@ -81,14 +82,14 @@ func main() {
 			if !ok {
 				return
 			}
-			result := s.Update(state, screen.ScreenEvent{
+			result := hdr.Update(state, screen.ScreenEvent{
 				Key: key,
 			})
 
 			state.Pager = result.Pager
 
 			if result.Screen != nil {
-				s = *result.Screen
+				hdr = *result.Screen
 			}
 
 		default:
