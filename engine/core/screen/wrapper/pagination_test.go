@@ -74,7 +74,7 @@ func TestPagination_ViewFooter(t *testing.T) {
 	}
 
 	p := NewPagination(base)
-	vm := p.View(*stt)
+	vm := p.view(*stt)
 
 	vm.Footer.Init(terminal.Winsize{Cols: 10})
 	footer, _ := vm.Footer.Draw()
