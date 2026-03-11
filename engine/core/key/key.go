@@ -54,6 +54,7 @@ const (
 	ActionDelete
 
 	CustomActionHelp
+	CustomActionBack
 
 	CustomActionUndo
 	CustomActionRedo
@@ -82,7 +83,8 @@ var ControlKeyMap = map[rune]*Key{
 
 var AltKeyMap = map[rune]*Key{
 	'd': NewKeyCode(ActionDeleteForward, ModAlt),
-	'h': NewKeyCode(CustomActionHelp, ModAlt), // M-h
+	'b': NewKeyCode(CustomActionBack, ModAlt),
+	'h': NewKeyCode(CustomActionHelp, ModAlt),
 	'x': NewKeyCode(CustomActionCut, ModAlt),
 	'c': NewKeyCode(CustomActionCopy, ModAlt),
 	'v': NewKeyCode(CustomActionPaste, ModAlt),
@@ -125,6 +127,8 @@ var actionHelpMap = map[KeyAction]help.HelpField{
 
 	CustomActionUndo:  {Code: []string{"^G"}, Detail: "Undo"},
 	CustomActionRedo:  {Code: []string{"^T"}, Detail: "Redo"},
+	CustomActionHelp:  {Code: []string{"M-h"}, Detail: "Help"},
+	CustomActionBack:  {Code: []string{"M-b"}, Detail: "Back"},
 	CustomActionCut:   {Code: []string{"M-x"}, Detail: "Cut"},
 	CustomActionCopy:  {Code: []string{"M-c"}, Detail: "Copy"},
 	CustomActionPaste: {Code: []string{"M-v"}, Detail: "Paste"},
