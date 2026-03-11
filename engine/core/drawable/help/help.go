@@ -56,6 +56,10 @@ func (d *HelpDrawable) draw() ([]text.Line, bool) {
 }
 
 func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
+	if len(meta.Fields) == 0 {
+		return line.EagerDrawableFromLines()
+	}
+	
 	frags := make([]text.Fragment, len(meta.Fields))
 
 	for i, field := range meta.Fields {
