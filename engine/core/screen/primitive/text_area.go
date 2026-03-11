@@ -5,6 +5,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/assert"
 	"github.com/Rafael24595/go-terminal/engine/core/event"
+	"github.com/Rafael24595/go-terminal/engine/core/help"
 	"github.com/Rafael24595/go-terminal/engine/core/input"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
@@ -20,12 +21,50 @@ import (
 
 const default_text_area_name = "TextArea"
 
-var text_area_write_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(key.ActionAll)...,
-)
+var text_area_read_overrides = map[key.KeyAction]help.HelpField{
+	key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Exit/Back"},
+	key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit text"},
+}
+
+var text_area_write_overrides = map[key.KeyAction]help.HelpField{
+	key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Save & Quit"},
+	key.ActionEnter: {Code: []string{"RET"}, Detail: "New line"},
+}
+
+var text_area_read_actions = []key.KeyAction{
+	key.ActionEnter,
+}
 
 var text_area_read_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(key.ActionEnter)...,
+	key.NewKeysCode(
+		text_area_read_actions...,
+	)...,
+)
+
+var text_area_write_actions = []key.KeyAction{
+	key.ActionEsc,
+	key.ActionHome,
+	key.ActionEnd,
+	key.ActionArrowLeft,
+	key.ActionArrowRight,
+	key.ActionBackspace,
+	key.ActionDeleteBackward,
+	key.ActionDelete,
+	key.ActionDeleteForward,
+	key.ActionEnter,
+	key.ActionArrowUp,
+	key.ActionArrowDown,
+	key.CustomActionUndo,
+	key.CustomActionRedo,
+	key.CustomActionCut,
+	key.CustomActionCopy,
+	key.CustomActionPaste,
+}
+
+var text_area_write_definition = screen.DefinitionFromKeys(
+	key.NewKeysCode(
+		text_area_write_actions...,
+	)...,
 )
 
 type TextArea struct {
@@ -44,6 +83,7 @@ func NewTextArea() *TextArea {
 		reference: default_text_area_name,
 		history:   event.NewTextEventService(),
 		writeMode: false,
+		indexMode: false,
 		title:     make([]text.Line, 0),
 		buffer:    make([]rune, 0),
 		clipboard: make([]rune, 0),
@@ -117,6 +157,13 @@ func (c *TextArea) definition() screen.Definition {
 	return text_area_read_definition
 }
 
+func (c *TextArea) helpMeta() ([]key.KeyAction, map[key.KeyAction]help.HelpField) {
+	if c.writeMode {
+		return text_area_write_actions, text_area_write_overrides
+	}
+	return text_area_read_actions, text_area_read_overrides
+}
+
 func (c *TextArea) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
 	state.Pager.ShowPage = true
 
@@ -180,7 +227,7 @@ func (c *TextArea) updateWrite(state *state.UIState, evnt screen.ScreenEvent) sc
 	case key.CustomActionCut, key.CustomActionCopy:
 		cut := ky.Code == key.CustomActionCut
 		return c.copyCut(state, cut)
-		
+
 	case key.CustomActionPaste:
 		return c.paste(state)
 	}
@@ -464,6 +511,8 @@ func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.ScreenR
 }
 
 func (c *TextArea) view(stt state.UIState) core.ViewModel {
+	keys, overr := c.helpMeta()
+
 	strategy := state.NewPagePager()
 	if c.writeMode {
 		strategy = state.NewFocusPager()
@@ -483,6 +532,12 @@ func (c *TextArea) view(stt state.UIState) core.ViewModel {
 	)
 
 	vm.SetStrategy(strategy)
+
+	vm.Helper.Shift(
+		key.ActionsToHelpWithOverride(
+			overr, keys...,
+		)...,
+	)
 
 	return *vm
 }
