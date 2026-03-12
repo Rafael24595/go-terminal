@@ -28,7 +28,7 @@ type Console struct {
 }
 
 func NewConsole() *Console {
-	winsize := Size()
+	winsize, _ := Size()
 	return &Console{
 		reader:  newInputReader(),
 		buffer:  make([]string, winsize.Rows),
@@ -44,7 +44,7 @@ func (c *Console) Color(color string) *Console {
 }
 
 func (c *Console) Update() *Console {
-	winsize := Size()
+	winsize, _ := Size()
 	if winsize.Cols == c.winsize.Cols && winsize.Rows == c.winsize.Rows {
 		return c
 	}
@@ -82,7 +82,7 @@ func (c *Console) OnClose() error {
 	return nil
 }
 
-func (c *Console) Size() terminal.Winsize {
+func (c *Console) Size() (terminal.Winsize, error) {
 	return Size()
 }
 

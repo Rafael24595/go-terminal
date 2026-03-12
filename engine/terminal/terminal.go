@@ -7,7 +7,6 @@ import (
 type Winsize struct {
 	Rows uint16
 	Cols uint16
-	Err  error
 }
 
 func NewWinsize(rows, cols uint16) Winsize {
@@ -20,7 +19,7 @@ func NewWinsize(rows, cols uint16) Winsize {
 type Terminal struct {
 	OnStart   func() error
 	OnClose   func() error
-	Size      func() Winsize
+	Size      func() (Winsize, error)
 	Clear     func() error
 	ReadKey   func() (*key.Key, error)
 	Write     func(string) error

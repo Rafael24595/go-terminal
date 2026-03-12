@@ -29,7 +29,7 @@ func main() {
 
 	t := c.ToTerminal()
 
-	size := t.Size()
+	size, _ := t.Size()
 
 	pc := size.Cols - paddingCols
 	pr := size.Rows - paddingRows
@@ -55,7 +55,7 @@ func main() {
 	go readInput(t, inputChan)
 
 	for {
-		newSize := t.Size()
+		newSize, _ := t.Size()
 
 		//TODO: Replace with chan events
 		if newSize.Cols != size.Cols || newSize.Rows != size.Rows {

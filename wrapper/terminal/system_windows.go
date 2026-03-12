@@ -53,7 +53,7 @@ func onClose(rawmode uintptr) {
 	restoreRaw(rawmode)
 }
 
-func Size() terminal.Winsize {
+func Size() (terminal.Winsize, error) {
 	handle := syscall.Handle(syscall.Stdout)
 
 	var info consoleScreenBufferInfo
@@ -63,15 +63,13 @@ func Size() terminal.Winsize {
 	)
 
 	if r == 0 {
-		return terminal.Winsize{
-			Err: e,
-		}
+		return terminal.Winsize{}, e
 	}
 
 	return terminal.Winsize{
 		Rows: uint16(info.Window.Bottom-info.Window.Top) + 1,
 		Cols: uint16(info.Window.Right-info.Window.Left) + 1,
-	}
+	}, nil
 }
 
 func enableANSI() {
