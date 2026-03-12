@@ -165,7 +165,7 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 
 	layer.Init(terminal.Winsize{})
 
-	result := drawStaticLines(layer, 2, 80)
+	result := drawStaticLines(layer.ToDrawable(), 2, 80)
 
 	assert.LessOrEqual(t, 2, len(result))
 }
@@ -181,7 +181,7 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 
 	layer.Init(terminal.Winsize{})
 
-	result := drawStaticLines(layer, 3, 7)
+	result := drawStaticLines(layer.ToDrawable(), 3, 7)
 
 	assert.Equal(t, 3, len(result))
 	assert.Equal(t, "golang", text.LineToString(result[0]))

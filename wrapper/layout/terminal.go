@@ -17,17 +17,17 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 
 	header, footer := vm.InitStaticLayers(size)
 
-	headerLines := drawStaticLines(header, rows, cols)
-	footerLines := drawStaticLines(footer, rows, cols)
+	headerLines := drawStaticLines(header.ToDrawable(), rows, cols)
+	footerLines := drawStaticLines(footer.ToDrawable(), rows, cols)
 
 	inputLines := make([]text.Line, 0)
 	if input, ok := vm.InitInputLine(size); ok {
-		inputLines = drawLines(input, rows, cols)
+		inputLines = drawStaticLines(input, rows, cols)
 	}
 
 	helperLines := make([]text.Line, 0)
 	if helper, ok := vm.InitHelper(size); ok {
-		helperLines = drawLines(helper, rows, cols)
+		helperLines = drawStaticLines(helper, rows, cols)
 	}
 
 	static := len(headerLines) + len(footerLines) + len(inputLines) + len(helperLines)
@@ -55,7 +55,7 @@ func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsiz
 	return allLines
 }
 
-func drawLines(drawable drawable.Drawable, rows, cols int) []text.Line {
+func drawStaticLines(drawable drawable.Drawable, rows, cols int) []text.Line {
 	buffer := make([]text.Line, 0)
 
 	content := true
@@ -67,24 +67,6 @@ func drawLines(drawable drawable.Drawable, rows, cols int) []text.Line {
 			break
 		}
 
-		for _, lin := range lines {
-			buffer = append(buffer,
-				line.WrapLineWords(cols, lin)...,
-			)
-
-			if len(buffer) >= rows {
-				break
-			}
-		}
-	}
-
-	return buffer
-}
-
-func drawStaticLines(layer *stack.StackDrawable, rows, cols int) []text.Line {
-	buffer := make([]text.Line, 0)
-
-	for lines := range layer.Iterator() {
 		for _, lin := range lines {
 			buffer = append(buffer,
 				line.WrapLineWords(cols, lin)...,
