@@ -6,7 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/core/help"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
-	
+
 	drawable_help "github.com/Rafael24595/go-terminal/engine/core/drawable/help"
 )
 
