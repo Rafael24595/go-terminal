@@ -79,6 +79,11 @@ func (l *Line) SetOrder(order uint16) *Line {
 	return l
 }
 
+func (l Line) AddFragments(frags ...Fragment) Line {
+	l.Text = append(l.Text, frags...)
+	return l
+}
+
 func (l Line) AddSpec(styles ...style.Spec) Line {
 	l.Spec = style.MergeSpec(styles...)
 	return l
