@@ -90,11 +90,14 @@ func (c *History) view(state state.UIState) core.ViewModel {
 
 	footer := text.NewLines(
 		text.LineJump(),
-		text.NewLine(page, style.SpecFromKind(style.SpcKindPaddingRight)),
+		text.NewLine(page,
+			style.SpecFromKind(style.SpcKindPaddingRight),
+		),
 	)
 
 	vm.Footer.Unshift(
-		line.EagerDrawableFromLines(footer...),
+		line.EagerDrawableFromLines(footer...).
+			AddTag(screen.SystemScreenMeta),
 	)
 
 	actions := screen.FilterKeyRequired(
