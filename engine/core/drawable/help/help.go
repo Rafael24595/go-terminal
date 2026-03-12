@@ -59,7 +59,7 @@ func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
 	if len(meta.Fields) == 0 {
 		return line.EagerDrawableFromLines()
 	}
-	
+
 	frags := make([]text.Fragment, len(meta.Fields))
 
 	for i, field := range meta.Fields {
@@ -79,6 +79,12 @@ func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
 
 	return line.EagerDrawableFromLines(
 		text.EmptyLine(),
+		text.LineFromFragments(
+			text.NewFragment("--Help--"),
+			text.NewFragment("-").
+				AddSpec(style.SpecFromKind(style.SpcKindFill)),
+		),
 		text.LineFromFragments(frags...),
+		text.NewLine("-", style.SpecFromKind(style.SpcKindFill)),
 	)
 }
