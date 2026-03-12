@@ -5,6 +5,7 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
+	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
@@ -46,8 +47,16 @@ func renderLineFragments(line text.Line, size terminal.Winsize) string {
 	fragments := ""
 	atomStyles := style.AtmNone
 
+	lineSize := terminal.Winsize{
+		Rows: size.Rows,
+		Cols: size.Cols,
+	}
+
 	for _, f := range line.Text {
-		spec := applySpecStyles(f.Spec, size, f.Text, f.Len())
+		spec := applySpecStyles(f.Spec, lineSize, f.Text, f.Len())
+
+		fragSize := text.FragmentMeasure(f)
+		lineSize.Cols = math.SubClampZero(lineSize.Cols, uint16(fragSize))
 
 		if atomStyles != f.Atom && len(fragments) != 0 {
 			atom := applyAtomStyles(fragments, atomStyles)
