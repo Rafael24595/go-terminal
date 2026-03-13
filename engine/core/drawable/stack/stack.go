@@ -31,16 +31,6 @@ func StackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 	return NewStackDrawable(items...).ToDrawable()
 }
 
-func (d *StackDrawable) Init(size terminal.Winsize) *StackDrawable {
-	d.initialized = true
-	
-	for i := range d.items {
-		d.items[i].drawable.Init(size)
-		d.items[i].status = true
-	}
-	return d
-}
-
 func (d *StackDrawable) Unshift(items ...drawable.Drawable) *StackDrawable {
 	assert.False(d.initialized, "no new elements should be added after initialization")
 
@@ -57,6 +47,33 @@ func (d *StackDrawable) Shift(items ...drawable.Drawable) *StackDrawable {
 			drawable: item,
 			status:   true,
 		})
+	}
+	return d
+}
+
+func (d *StackDrawable) Items() []drawable.Drawable {
+	items := make([]drawable.Drawable, len(d.items))
+	for i := range d.items {
+		items[i] = d.items[i].drawable
+	}
+	return items
+}
+
+func (d *StackDrawable) ToDrawable() drawable.Drawable {
+	return drawable.Drawable{
+		Init: func(size terminal.Winsize) {
+			d.Init(size)
+		},
+		Draw: d.Draw,
+	}
+}
+
+func (d *StackDrawable) Init(size terminal.Winsize) *StackDrawable {
+	d.initialized = true
+
+	for i := range d.items {
+		d.items[i].drawable.Init(size)
+		d.items[i].status = true
 	}
 	return d
 }
@@ -110,15 +127,6 @@ func (d *StackDrawable) HasNext() bool {
 		}
 	}
 	return false
-}
-
-func (d *StackDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Init: func(size terminal.Winsize) {
-			d.Init(size)
-		},
-		Draw: d.Draw,
-	}
 }
 
 func drawableToLayer(items ...drawable.Drawable) []layer {
