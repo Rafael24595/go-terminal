@@ -8,12 +8,12 @@ import (
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
-func TestTextArea_ToDrawable(t *testing.T) {
+func TestIndexMenu_ToDrawable(t *testing.T) {
 	dw := TextIndexMenuFromData([]text.Fragment{})
 	drawable_test.Helper_ToDrawable(t, dw)
 }
 
-func TestTextAreaDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
+func TestIndexMenuDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
 	td := NewIndexMenuDrawable([]text.Fragment{})
 
 	assert.Panic(t, func() {
