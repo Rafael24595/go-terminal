@@ -1,14 +1,14 @@
-package structure
+package heap_test
 
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/commons/structure"
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/heap"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestMinHeap(t *testing.T) {
-	h := structure.NewMinHeap[int]()
+	h := heap.NewMinHeap[int]()
 
 	h.Push(20)
 	h.Push(10)
@@ -33,7 +33,7 @@ func TestMinHeap(t *testing.T) {
 }
 
 func TestMaxHeap(t *testing.T) {
-	h := structure.NewMaxHeap[int]()
+	h := heap.NewMaxHeap[int]()
 
 	h.Push(10)
 	h.Push(30)
@@ -51,7 +51,7 @@ func TestMaxHeapBy_Struct(t *testing.T) {
 		Priority int
 	}
 
-	h := structure.NewMaxHeapBy(func(t Task) int {
+	h := heap.NewMaxHeapBy(func(t Task) int {
 		return t.Priority
 	})
 
@@ -71,7 +71,7 @@ func TestMaxHeapBy_Struct(t *testing.T) {
 }
 
 func TestHeap_EmptyState(t *testing.T) {
-    h := structure.NewMinHeap[string]()
+    h := heap.NewMinHeap[string]()
     
     val, ok := h.Peek()
     assert.False(t, ok)

@@ -3,7 +3,7 @@ package table
 import (
 	"unicode/utf8"
 
-	"github.com/Rafael24595/go-terminal/engine/commons/structure"
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/heap"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable"
 	drawable_line "github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/input"
@@ -226,7 +226,7 @@ func adjustSize(size map[string]int, headers []string, cols int, rowSize int) (m
 
 	excess := rowSize - cols
 
-	h := structure.NewMaxHeapBy(func(c col) int {
+	h := heap.NewMaxHeapBy(func(c col) int {
 		return c.size
 	})
 
