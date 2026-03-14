@@ -20,8 +20,10 @@ func NewMapScreen(screen screen.Screen) *MapScreen {
 	}
 }
 
-func (c *MapScreen) PushAction(action action.Action) *MapScreen {
-	c.actions = append(c.actions, action)
+func (c *MapScreen) PushAction(actions ...action.Action) *MapScreen {
+	for _, a := range actions {
+		c.actions = append(c.actions, a)
+	}
 	return c
 }
 
