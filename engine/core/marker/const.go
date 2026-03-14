@@ -6,3 +6,5 @@ const PrintableCaretText = " "
 
 const DefaultElipsisText = "."
 const DefaultElipsisSize = uint(3)
+
+const DefaultInputLinePrompt = ">"

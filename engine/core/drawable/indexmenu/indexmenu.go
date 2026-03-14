@@ -14,9 +14,11 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameIndexMenuDrawable = "IndexMenuDrawable"
+
 type IndexMenuDrawable struct {
 	initialized bool
-	meta       marker.IndexMeta
+	meta        marker.IndexMeta
 	options     []text.Fragment
 	cursor      uint
 	drawable    drawable.Drawable
@@ -28,7 +30,7 @@ func NewIndexMenuDrawable(options []text.Fragment) *IndexMenuDrawable {
 
 	return &IndexMenuDrawable{
 		initialized: false,
-		meta:       marker.HyphenIndex,
+		meta:        marker.HyphenIndex,
 		options:     clone,
 		cursor:      0,
 		drawable:    drawable.Drawable{},
@@ -51,6 +53,7 @@ func (d *IndexMenuDrawable) Cursor(cursor uint) *IndexMenuDrawable {
 
 func (d *IndexMenuDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameIndexMenuDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

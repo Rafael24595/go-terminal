@@ -9,6 +9,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameStackDrawable = "StackDrawable"
+
 type layer struct {
 	drawable drawable.Drawable
 	status   bool
@@ -61,6 +63,7 @@ func (d *StackDrawable) Items() []drawable.Drawable {
 
 func (d *StackDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameStackDrawable,
 		Init: func(size terminal.Winsize) {
 			d.Init(size)
 		},

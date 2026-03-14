@@ -8,6 +8,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameInlineDrawable = "InlineDrawable"
+
 type InlineDrawable struct {
 	initialized bool
 	separator   string
@@ -35,6 +37,7 @@ func (d *InlineDrawable) Separator(separator string) *InlineDrawable {
 
 func (d *InlineDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameInlineDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

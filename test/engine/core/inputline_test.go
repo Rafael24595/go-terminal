@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/marker"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/core/drawable"
@@ -32,7 +33,7 @@ func TestNewInputLine_DefaultPrompt(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
 	input := core.NewInputLine(mock.ToDrawable())
 
-	assert.Equal(t, input.Prompt, core.DefaultPrompt)
+	assert.Equal(t, input.Prompt, marker.DefaultInputLinePrompt)
 }
 
 func TestDraw_NoContent_ReturnsPromptOnly(t *testing.T) {
@@ -49,7 +50,7 @@ func TestDraw_NoContent_ReturnsPromptOnly(t *testing.T) {
 
 	assert.False(t, status)
 	assert.Len(t, 1, lines)
-	assert.Equal(t, core.DefaultPrompt, text.LineToString(lines[0]))
+	assert.Equal(t, marker.DefaultInputLinePrompt, text.LineToString(lines[0]))
 }
 
 func TestDraw_WithSingleLine_AddsPrompt(t *testing.T) {
@@ -69,7 +70,7 @@ func TestDraw_WithSingleLine_AddsPrompt(t *testing.T) {
 	lines, _ := drawable.Draw()
 
 	assert.Len(t, 2, lines)
-	assert.Equal(t, core.DefaultPrompt+" golang", text.LineToString(lines[1]))
+	assert.Equal(t, marker.DefaultInputLinePrompt+" golang", text.LineToString(lines[1]))
 }
 
 func TestDraw_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
@@ -92,6 +93,6 @@ func TestDraw_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
 
 	assert.Len(t, 3, lines)
 
-	assert.Equal(t, core.DefaultPrompt+" ziglang", text.LineToString(lines[1]))
+	assert.Equal(t, marker.DefaultInputLinePrompt+" ziglang", text.LineToString(lines[1]))
 	assert.Equal(t, "golang", text.LineToString(lines[2]))
 }

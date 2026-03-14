@@ -13,6 +13,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameHelpDrawable = "HelpDrawable"
+
 type HelpDrawable struct {
 	initialized bool
 	size        terminal.Winsize
@@ -34,6 +36,7 @@ func HelpDrawableFromMeta(meta *help.HelpMeta) drawable.Drawable {
 
 func (d *HelpDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameHelpDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

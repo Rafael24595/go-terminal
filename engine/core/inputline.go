@@ -8,7 +8,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-const DefaultPrompt = ">"
+const NameInputLineDrawable  = "InputLineDrawable"
 
 type InputLine struct {
 	Prompt string
@@ -17,7 +17,7 @@ type InputLine struct {
 
 func NewInputLine(drawable drawable.Drawable) *InputLine {
 	return &InputLine{
-		Prompt: DefaultPrompt,
+		Prompt: marker.DefaultInputLinePrompt,
 		Value:  drawable,
 	}
 }
@@ -41,6 +41,7 @@ func toDrawable(input *InputLine) drawable.Drawable {
 		input:       input.Value,
 	}
 	return drawable.Drawable{
+		Name: NameInputLineDrawable,
 		Init: drw.init,
 		Draw: drw.draw,
 	}

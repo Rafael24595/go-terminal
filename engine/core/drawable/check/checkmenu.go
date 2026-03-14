@@ -12,6 +12,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameCheckMenuDrawable = "CheckMenuDrawable"
+
 type CheckMenuDrawable struct {
 	initialized  bool
 	meta         marker.CheckMeta
@@ -62,6 +64,7 @@ func (d *CheckMenuDrawable) Cursor(cursor uint) *CheckMenuDrawable {
 
 func (d *CheckMenuDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameCheckMenuDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

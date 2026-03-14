@@ -10,6 +10,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameTableDrawable = "TableDrawable"
+
 type TableDrawable struct {
 	initialized bool
 	size        terminal.Winsize
@@ -38,6 +40,7 @@ func TableDrawableFromTable(table table.Table, cursor input.MatrixCursor, paddin
 
 func (d *TableDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameTableDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

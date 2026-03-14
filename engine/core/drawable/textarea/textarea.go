@@ -16,6 +16,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameTextAreaDrawable = "TextAreaDrawable"
+
 type TextAreaDrawable struct {
 	initialized bool
 	writeMode   bool
@@ -55,6 +57,7 @@ func (d *TextAreaDrawable) IndexMode(indexMode bool) *TextAreaDrawable {
 
 func (d *TextAreaDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameTextAreaDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}
@@ -191,9 +194,9 @@ func (d *TextAreaDrawable) fixEmptyLines(lines []text.Line) []text.Line {
 			styles = line.Text[len(line.Text)-1].Atom
 		}
 
-		lines[i].Text = append(line.Text, 
+		lines[i].Text = append(line.Text,
 			text.NewFragment(marker.DefaultPaddingText).
-			AddAtom(styles),
+				AddAtom(styles),
 		)
 	}
 	return lines

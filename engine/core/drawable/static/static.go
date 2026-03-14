@@ -6,6 +6,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameStaticDrawable = "StaticDrawable"
+
 type StaticDrawable struct {
 	drawable drawable.Drawable
 }
@@ -28,6 +30,7 @@ func (s *StaticDrawable) draw() ([]text.Line, bool) {
 
 func (d *StaticDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameStaticDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

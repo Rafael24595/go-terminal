@@ -13,13 +13,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-type TablePadding uint
-
-const (
-	Left TablePadding = iota
-	Center
-	Right
-)
+const NameModalDrawable = "ModalDrawable"
 
 type ModalDrawable struct {
 	initialized bool
@@ -67,6 +61,7 @@ func (d *ModalDrawable) DefineCursor(cursor uint) *ModalDrawable {
 
 func (d *ModalDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameModalDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

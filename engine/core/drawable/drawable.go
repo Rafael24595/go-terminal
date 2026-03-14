@@ -1,15 +1,15 @@
 package drawable
 
 import (
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-type TagSet map[string]struct{}
-
 type Drawable struct {
+	Name string
 	Code string
-	Tags TagSet
+	Tags set.Set[string]
 	Init func(size terminal.Winsize)
 	Draw func() ([]text.Line, bool)
 }
@@ -21,7 +21,7 @@ func (d Drawable) SetCode(code string) Drawable {
 
 func (d Drawable) AddTag(tags ...string) Drawable {
 	if d.Tags == nil {
-		d.Tags = make(TagSet)	
+		d.Tags = make(set.Set[string])
 	}
 
 	for _, t := range tags {

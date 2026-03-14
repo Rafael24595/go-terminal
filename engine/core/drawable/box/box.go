@@ -13,6 +13,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameBoxDrawable = "BoxDrawable"
+
 const default_inner_padding = uint(1)
 
 type BoxDrawable struct {
@@ -60,6 +62,7 @@ func (d *BoxDrawable) Separator(separator marker.BoxSeparatorMeta) *BoxDrawable 
 
 func (d *BoxDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameBoxDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

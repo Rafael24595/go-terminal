@@ -36,6 +36,7 @@ func (m *MockDrawable) ToDrawable() drawable.Drawable {
 func Helper_ToDrawable(t *testing.T, drawable drawable.Drawable) {
 	t.Helper()
 
+	assert.NotEqual(t, "", drawable.Name, "Drawable.Name should be set")
 	assert.NotNil(t, drawable.Code, "Drawable.Code should be set")
 	assert.True(t, len(drawable.Tags) >= 0, "Drawable.Tags should be set")
 	assert.NotNil(t, drawable.Init, "Drawable.Init should be set")
