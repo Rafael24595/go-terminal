@@ -164,16 +164,22 @@ func NotError(t *testing.T, err error, message ...any) {
 	t.Errorf("%sUnexpected error found: '%s'", custom, err.Error())
 }
 
-func Len[T any](t *testing.T, want int, have []T, message ...any) {
+func Len(t *testing.T, want int, have any, message ...any) {
 	t.Helper()
 
-	if want == len(have) {
-		return
+	v := reflect.ValueOf(have)
+	var got int
+
+	switch v.Kind() {
+	case reflect.Slice, reflect.Map, reflect.Array, reflect.Chan, reflect.String:
+		got = v.Len()
+	default:
+		t.Fatalf("Len() assert: type %T is not measurable", have)
 	}
 
-	custom := formatMessage(message...)
-
-	t.Fatalf("%sExpected %v, but got %v", custom, want, len(have))
+	if want != got {
+		t.Fatalf("%sExpected %d, but got %d", formatMessage(message...), want, got)
+	}
 }
 
 func Contains[T comparable](t *testing.T, container any, item T, message ...any) {
