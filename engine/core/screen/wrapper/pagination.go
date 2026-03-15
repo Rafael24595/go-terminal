@@ -64,7 +64,7 @@ func (c *Pagination) update(state *state.UIState, event screen.ScreenEvent) scre
 	}
 
 	result := c.screen.Update(state, event)
-	if !result.IgnoreParents && result.Screen != nil {
+	if result.Screen != nil {
 		newScreen := NewPagination(*result.Screen).
 			ToScreen()
 		result.Screen = &newScreen
