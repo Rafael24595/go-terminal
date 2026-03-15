@@ -34,9 +34,9 @@ func (c *Help) update(state *state.UIState, event screen.ScreenEvent) screen.Scr
 	if requiredKey {
 		result := c.screen.Update(state, event)
 		if result.Screen != nil {
-			newHelp := NewHelp(*result.Screen)
-			newHelp.helpMode = c.helpMode
-			newScreen := newHelp.ToScreen()
+			newWrapper := NewHelp(*result.Screen)
+			newWrapper.helpMode = c.helpMode
+			newScreen := newWrapper.ToScreen()
 			result.Screen = &newScreen
 		}
 

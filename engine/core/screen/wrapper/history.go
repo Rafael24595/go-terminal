@@ -58,9 +58,9 @@ func (c *History) update(state *state.UIState, event screen.ScreenEvent) screen.
 
 	result := c.screen.Update(state, event)
 	if result.Screen != nil {
-		newBack := NewHistory(*result.Screen)
-		newBack.history = &c.screen
-		newScreen := newBack.ToScreen()
+		newWrapper := NewHistory(*result.Screen)
+		newWrapper.history = &c.screen
+		newScreen := newWrapper.ToScreen()
 		result.Screen = &newScreen
 	}
 
@@ -89,7 +89,6 @@ func (c *History) view(state state.UIState) core.ViewModel {
 	page := fmt.Sprintf("back: %s", c.history.Name())
 
 	footer := text.NewLines(
-		text.LineJump(),
 		text.NewLine(page,
 			style.SpecFromKind(style.SpcKindPaddingRight),
 		),
