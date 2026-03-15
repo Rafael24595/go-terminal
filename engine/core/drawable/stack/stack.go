@@ -53,6 +53,10 @@ func (d *StackDrawable) Shift(items ...drawable.Drawable) *StackDrawable {
 	return d
 }
 
+func (d *StackDrawable) Size() uint {
+	return uint(len(d.items))
+}
+
 func (d *StackDrawable) Items() []drawable.Drawable {
 	items := make([]drawable.Drawable, len(d.items))
 	for i := range d.items {
