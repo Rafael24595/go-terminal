@@ -5,8 +5,11 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
+	"github.com/Rafael24595/go-terminal/engine/core/drawable/action"
+	"github.com/Rafael24595/go-terminal/engine/core/inline"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/screen/partial"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/wrapper"
 	"github.com/Rafael24595/go-terminal/engine/render"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
@@ -35,10 +38,22 @@ func main() {
 	pr := size.Rows - paddingRows
 
 	lnd := wrapper_screen.NewLanding()
-	pge := wrapper.NewPagination(lnd).ToScreen()
-	his := wrapper.NewHistory(pge).ToScreen()
-	hlp := wrapper.NewHelp(his).ToScreen()
-	hdr := wrapper_screen.NewBaseHeader(hlp)
+	hdr := wrapper_screen.NewBaseHeader(lnd)
+	
+	his := wrapper.NewHistory(hdr).ToScreen()
+	pge := wrapper.NewPagination(his).ToScreen()
+	hlp := wrapper.NewHelp(pge).ToScreen()
+
+	inl := partial.NewInline(hlp).
+		PushAction(action.FocusFooter,
+			inline.NewFilterMeta(inline.TargetTags, screen.SystemScreenMeta),
+		).
+		ToScreen()
+
+	stc := partial.NewSpacer(inl).
+		Header(partial.NewSpacerMeta(1, true)).
+		Footer(partial.NewSpacerMeta(1, true)).
+		ToScreen()
 
 	l := core.NewLayout(wrapper_layout.TerminalApply)
 	lf := wrapper_layout.NewFixed(l, pr, pc)
@@ -66,7 +81,7 @@ func main() {
 
 		size = newSize
 
-		vmd := hdr.View(*state)
+		vmd := stc.View(*state)
 
 		lns := l.Apply(state, vmd, size)
 		str := r.Render(lns, size)
@@ -82,14 +97,14 @@ func main() {
 			if !ok {
 				return
 			}
-			result := hdr.Update(state, screen.ScreenEvent{
+			result := stc.Update(state, screen.ScreenEvent{
 				Key: key,
 			})
 
 			state.Pager = result.Pager
 
 			if result.Screen != nil {
-				hdr = *result.Screen
+				stc = *result.Screen
 			}
 
 		default:

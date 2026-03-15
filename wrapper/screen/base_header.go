@@ -13,7 +13,6 @@ func NewBaseHeader(screen screen.Screen) screen.Screen {
 		text.LineFromString("Lorem ipsum dolor sit amet", style.AtmUpper),
 		text.LineFromString("consectetur adipiscing", style.AtmUpper),
 		text.LineFromString("-Server 00-", style.AtmUpper),
-		text.LineJump(),
 	)
 
 	return wrapper.NewHeader(screen).

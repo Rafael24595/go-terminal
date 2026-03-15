@@ -80,7 +80,7 @@ func TestPagination_ViewFooter(t *testing.T) {
 	footer, _ := vm.Footer.Draw()
 
 	assert.True(t, len(footer) > 0)
-	assert.Contains(t, text.LineToString(footer[1]), "page: 3")
+	assert.Contains(t, text.LineToString(footer[0]), "page: 3")
 }
 
 func TestPagination_UpdateDelegates(t *testing.T) {
