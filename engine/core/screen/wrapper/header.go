@@ -36,7 +36,7 @@ func (c *Header) ToScreen() screen.Screen {
 
 func (c *Header) Update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := c.screen.Update(state, event)
-	if !result.IgnoreParents && result.Screen != nil {
+	if result.Screen != nil {
 		newScreen := NewHeader(*result.Screen).
 			AddHeader(c.header...).
 			ToScreen()
