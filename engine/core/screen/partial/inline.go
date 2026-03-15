@@ -1,4 +1,4 @@
-package wrapper
+package partial
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
