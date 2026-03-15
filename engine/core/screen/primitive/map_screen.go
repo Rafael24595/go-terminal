@@ -39,8 +39,9 @@ func (c *MapScreen) ToScreen() screen.Screen {
 func (c *MapScreen) update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := c.screen.Update(state, event)
 	if result.Screen != nil {
-		newHelp := NewMapScreen(*result.Screen)
-		newScreen := newHelp.ToScreen()
+		newScreen := NewMapScreen(*result.Screen).
+			PushAction(c.actions...).
+			ToScreen()
 		result.Screen = &newScreen
 	}
 	return result
