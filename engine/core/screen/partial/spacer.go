@@ -6,24 +6,13 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/core/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/spacer"
 	"github.com/Rafael24595/go-terminal/engine/core/text"
 )
 
-type SpacerMeta struct {
-	size    uint8
-	between bool
-}
-
-func NewSpacerMeta(size uint8, between bool) SpacerMeta {
-	return SpacerMeta{
-		size:    size,
-		between: between,
-	}
-}
-
 type Spacer struct {
-	header SpacerMeta
-	footer SpacerMeta
+	header spacer.SpacerMeta
+	footer spacer.SpacerMeta
 	screen screen.Screen
 }
 
@@ -33,12 +22,12 @@ func NewSpacer(screen screen.Screen) *Spacer {
 	}
 }
 
-func (c *Spacer) Header(header SpacerMeta) *Spacer {
+func (c *Spacer) Header(header spacer.SpacerMeta) *Spacer {
 	c.header = header
 	return c
 }
 
-func (c *Spacer) Footer(footer SpacerMeta) *Spacer {
+func (c *Spacer) Footer(footer spacer.SpacerMeta) *Spacer {
 	c.footer = footer
 	return c
 }
@@ -67,11 +56,11 @@ func (c *Spacer) update(state *state.UIState, event screen.ScreenEvent) screen.S
 func (c *Spacer) view(state state.UIState) core.ViewModel {
 	vm := c.screen.View(state)
 
-	if c.header.size > 0 && vm.Header.Size() > 0 {
+	if c.header.Size > 0 && vm.Header.Size() > 0 {
 		vm = c.addHeaderStyles(vm)
 	}
 
-	if c.footer.size > 0 && vm.Footer.Size() > 0 {
+	if c.footer.Size > 0 && vm.Footer.Size() > 0 {
 		vm = c.addFooterStyles(vm)
 	}
 
@@ -79,12 +68,12 @@ func (c *Spacer) view(state state.UIState) core.ViewModel {
 }
 
 func (c *Spacer) addHeaderStyles(vm core.ViewModel) core.ViewModel {
-	if !c.header.between {
-		spacer := line.EagerDrawableFromLines(
-			c.makeSpaces(c.header.size)...,
-		)
+	spcr := line.EagerDrawableFromLines(
+		c.makeSpaces(c.header.Size)...,
+	)
 
-		vm.Header.Shift(spacer)
+	if c.header.Mode == spacer.SpacerAppend {
+		vm.Header.Shift(spcr)
 		return vm
 	}
 
@@ -92,22 +81,19 @@ func (c *Spacer) addHeaderStyles(vm core.ViewModel) core.ViewModel {
 
 	vm.Header = stack.NewStackDrawable()
 	for _, h := range items {
-		spacer := line.EagerDrawableFromLines(
-			c.makeSpaces(c.header.size)...,
-		)
-		vm.Header.Shift(h, spacer)
+		vm.Header.Shift(h, spcr)
 	}
 
 	return vm
 }
 
 func (c *Spacer) addFooterStyles(vm core.ViewModel) core.ViewModel {
-	if !c.footer.between {
-		spacer := line.EagerDrawableFromLines(
-			c.makeSpaces(c.footer.size)...,
-		)
+	spcr := line.EagerDrawableFromLines(
+		c.makeSpaces(c.footer.Size)...,
+	)
 
-		vm.Footer.Unshift(spacer)
+	if c.footer.Mode == spacer.SpacerAppend {
+		vm.Footer.Unshift(spcr)
 		return vm
 	}
 
@@ -115,10 +101,7 @@ func (c *Spacer) addFooterStyles(vm core.ViewModel) core.ViewModel {
 
 	vm.Footer = stack.NewStackDrawable()
 	for _, h := range items {
-		spacer := line.EagerDrawableFromLines(
-			c.makeSpaces(c.footer.size)...,
-		)
-		vm.Footer.Shift(spacer, h)
+		vm.Footer.Shift(spcr, h)
 	}
 
 	return vm

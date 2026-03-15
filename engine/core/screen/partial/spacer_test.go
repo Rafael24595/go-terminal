@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
+	"github.com/Rafael24595/go-terminal/engine/core/spacer"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/core/drawable"
@@ -40,8 +41,6 @@ func TestSpacer_WrapsNextScreen(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen())
-	w.Header(NewSpacerMeta(1, true))
-	w.Footer(NewSpacerMeta(2, false))
 	
 	s := w.ToScreen()
 
@@ -57,7 +56,7 @@ func TestSpacer_AddsHeaderLinesWhenEmpty(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Header(NewSpacerMeta(1, false))
+		Header(spacer.NewSpacerMeta(1, spacer.SpacerAppend))
 
 	s := w.ToScreen()
 
@@ -82,7 +81,7 @@ func TestSpacer_AddsHeaderLines(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Header(NewSpacerMeta(1, false))
+		Header(spacer.NewSpacerMeta(1, spacer.SpacerAppend))
 
 	s := w.ToScreen()
 
@@ -115,7 +114,7 @@ func TestSpacer_HeaderBetween(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Header(NewSpacerMeta(1, true))
+		Header(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach))
 
 	s := w.ToScreen()
 
@@ -139,7 +138,7 @@ func TestSpacer_AddsFooterLinesWhenEmpty(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Footer(NewSpacerMeta(1, false))
+		Footer(spacer.NewSpacerMeta(1, spacer.SpacerAppend))
 
 	s := w.ToScreen()
 
@@ -164,7 +163,7 @@ func TestSpacer_AddsFooterLines(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Footer(NewSpacerMeta(1, false))
+		Footer(spacer.NewSpacerMeta(1, spacer.SpacerAppend))
 
 	s := w.ToScreen()
 
@@ -197,7 +196,7 @@ func TestSpacer_FooterBetween(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Footer(NewSpacerMeta(1, true))
+		Footer(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach))
 
 	s := w.ToScreen()
 

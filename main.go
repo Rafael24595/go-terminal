@@ -11,6 +11,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/partial"
 	"github.com/Rafael24595/go-terminal/engine/core/screen/wrapper"
+	"github.com/Rafael24595/go-terminal/engine/core/spacer"
 	"github.com/Rafael24595/go-terminal/engine/render"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	wrapper_layout "github.com/Rafael24595/go-terminal/wrapper/layout"
@@ -39,7 +40,7 @@ func main() {
 
 	lnd := wrapper_screen.NewLanding()
 	hdr := wrapper_screen.NewBaseHeader(lnd)
-	
+
 	his := wrapper.NewHistory(hdr).ToScreen()
 	pge := wrapper.NewPagination(his).ToScreen()
 	hlp := wrapper.NewHelp(pge).ToScreen()
@@ -51,8 +52,8 @@ func main() {
 		ToScreen()
 
 	stc := partial.NewSpacer(inl).
-		Header(partial.NewSpacerMeta(1, true)).
-		Footer(partial.NewSpacerMeta(1, true)).
+		Header(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach)).
+		Footer(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach)).
 		ToScreen()
 
 	l := core.NewLayout(wrapper_layout.TerminalApply)
