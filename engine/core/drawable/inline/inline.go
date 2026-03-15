@@ -46,7 +46,7 @@ func (d *InlineDrawable) ToDrawable() drawable.Drawable {
 func (d *InlineDrawable) init(size terminal.Winsize) {
 	d.initialized = true
 
-	lines := d.drawChildren()
+	lines := d.drawChildren(size)
 	join := d.joinChildren(lines)
 
 	d.drawable = line.EagerDrawableFromLines(join...)
@@ -60,7 +60,7 @@ func (d *InlineDrawable) draw() ([]text.Line, bool) {
 	return d.drawable.Draw()
 }
 
-func (d *InlineDrawable) drawChildren() []text.Line {
+func (d *InlineDrawable) drawChildren(size terminal.Winsize) []text.Line {
 	lines := make([]text.Line, 0)
 
 	if len(d.drawables) == 0 {
@@ -68,7 +68,9 @@ func (d *InlineDrawable) drawChildren() []text.Line {
 	}
 
 	index := 0
+	
 	focus := d.drawables[index]
+	focus.Init(size)
 
 	for {
 		result, status := focus.Draw()
@@ -86,6 +88,7 @@ func (d *InlineDrawable) drawChildren() []text.Line {
 		}
 
 		focus = d.drawables[index]
+		focus.Init(size)
 	}
 
 	return lines
