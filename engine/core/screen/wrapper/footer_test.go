@@ -21,3 +21,15 @@ func TestFooter_ToScreen(t *testing.T) {
 
 	assert.Equal(t, screen.Name(), "base")
 }
+
+func TestFooter_Stack(t *testing.T) {
+	mock := screen_test.MockScreen{
+		Name: "base",
+	}
+
+	stack := NewFooter(mock.ToScreen()).
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has("base"))
+}

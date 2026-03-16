@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
@@ -14,22 +13,28 @@ import (
 )
 
 func TestHistory_ToScreen(t *testing.T) {
-	base := screen.Screen{
-		Name: func() string { return "base" },
-		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.EmptyScreenResult()
-		},
-		View: func(state.UIState) core.ViewModel {
-			return *core.ViewModelFromUIState(state.UIState{})
-		},
+	base := screen_test.MockScreen{
+		Name: "base",
 	}
 
-	h := NewHistory(base)
+	h := NewHistory(base.ToScreen())
 	scrn := h.ToScreen()
 
 	screen_test.Helper_ToScreen(t, scrn)
 
 	assert.Equal(t, scrn.Name(), "base")
+}
+
+func TestHistory_Stack(t *testing.T) {
+	mock := screen_test.MockScreen{
+		Name: "base",
+	}
+
+	stack := NewHistory(mock.ToScreen()).
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has("base"))
 }
 
 func TestHistory_BackNavigation(t *testing.T) {

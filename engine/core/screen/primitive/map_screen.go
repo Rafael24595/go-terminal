@@ -33,6 +33,7 @@ func (c *MapScreen) ToScreen() screen.Screen {
 		Definition: c.screen.Definition,
 		Update:     c.update,
 		View:       c.view,
+		Stack:      c.screen.Stack,
 	}
 }
 

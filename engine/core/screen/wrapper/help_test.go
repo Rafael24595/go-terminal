@@ -24,6 +24,18 @@ func TestHelp_ToScreen(t *testing.T) {
 	assert.Equal(t, scrn.Name(), "base")
 }
 
+func TestHelp_Stack(t *testing.T) {
+	mock := screen_test.MockScreen{
+		Name: "base",
+	}
+
+	stack := NewHelp(mock.ToScreen()).
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has("base"))
+}
+
 func TestHelp_ToggleHelpKey(t *testing.T) {
 	called := false
 
@@ -46,11 +58,10 @@ func TestHelp_DelegatesUpdateWhenKeyRequired(t *testing.T) {
 	called := false
 
 	ky := *key.NewKeyCode(key.CustomActionHelp)
+	definition := screen.DefinitionFromKeys(ky)
 
 	mock := screen_test.MockScreen{
-		Definition: func() screen.Definition {
-			return screen.DefinitionFromKeys(ky)
-		},
+		Definition: &definition,
 		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			called = true
 			return screen.EmptyScreenResult()
@@ -74,15 +85,14 @@ func TestHelp_WrapsReturnedScreen(t *testing.T) {
 	called := false
 
 	ky := *key.NewKeyCode(key.ActionEnter)
+	definition := screen.DefinitionFromKeys(ky)
 
 	mockNext := screen_test.MockScreen{
 		Name: "next",
 	}
 
 	mockBase := screen_test.MockScreen{
-		Definition: func() screen.Definition {
-			return screen.DefinitionFromKeys(ky)
-		},
+		Definition: &definition,
 		Update: func(s *state.UIState, _ screen.ScreenEvent) screen.ScreenResult {
 			called = true
 			next := mockNext.ToScreen()

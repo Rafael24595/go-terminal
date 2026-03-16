@@ -15,38 +15,37 @@ import (
 )
 
 func TestPagination_ToScreen(t *testing.T) {
-	base := screen.Screen{
-		Name: func() string { return "Base" },
-		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.EmptyScreenResult()
-		},
-		View: func(state state.UIState) core.ViewModel {
-			return *core.ViewModelFromUIState(state)
-		},
+	base := screen_test.MockScreen{
+		Name: "base",
 	}
 
-	p := NewPagination(base)
+	p := NewPagination(base.ToScreen())
 	screen := p.ToScreen()
 
 	screen_test.Helper_ToScreen(t, screen)
 
-	assert.Equal(t, screen.Name(), "Base")
+	assert.Equal(t, screen.Name(), "base")
+}
+
+func TestPagination_Stack(t *testing.T) {
+	mock := screen_test.MockScreen{
+		Name: "base",
+	}
+
+	stack := NewPagination(mock.ToScreen()).
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has("base"))
 }
 
 func TestPagination_LocalUpdate(t *testing.T) {
 	stt := state.NewUIState()
-	base := screen.Screen{
-		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
-		Name:       func() string { return "Base" },
-		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.EmptyScreenResult()
-		},
-		View: func(state state.UIState) core.ViewModel {
-			return *core.ViewModelFromUIState(state)
-		},
+	base := screen_test.MockScreen{
+		Name: "base",
 	}
 
-	p := NewPagination(base)
+	p := NewPagination(base.ToScreen())
 
 	scrn := p.ToScreen()
 
@@ -62,18 +61,14 @@ func TestPagination_ViewFooter(t *testing.T) {
 	stt := state.NewUIState()
 	stt.Pager.Page = 3
 
-	base := screen.Screen{
-		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
-		Name:       func() string { return "Base" },
-		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.EmptyScreenResult()
-		},
+	base := screen_test.MockScreen{
+		Name: "base",
 		View: func(stt state.UIState) core.ViewModel {
 			return *core.ViewModelFromUIState(stt).SetStrategy(state.NewPagePager())
 		},
 	}
 
-	p := NewPagination(base)
+	p := NewPagination(base.ToScreen())
 	vm := p.view(*stt)
 
 	vm.Footer.Init(terminal.Winsize{Cols: 10})
@@ -85,20 +80,16 @@ func TestPagination_ViewFooter(t *testing.T) {
 
 func TestPagination_UpdateDelegates(t *testing.T) {
 	called := false
-
-	base := screen.Screen{
-		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
-		Name:       func() string { return "Base" },
+	
+	base := screen_test.MockScreen{
+		Name: "base",
 		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
 			called = true
 			return screen.EmptyScreenResult()
 		},
-		View: func(state state.UIState) core.ViewModel {
-			return *core.ViewModelFromUIState(state)
-		},
 	}
 
-	p := NewPagination(base)
+	p := NewPagination(base.ToScreen())
 	scrn := p.ToScreen()
 
 	scrn.Update(state.NewUIState(), screen.ScreenEvent{Key: *key.NewKeyRune('x')})
@@ -109,19 +100,12 @@ func TestPagination_UpdateDelegates(t *testing.T) {
 func TestPagination_PageNeverNegative(t *testing.T) {
 	stt := state.NewUIState()
 	stt.Pager.Page = 0
-
-	base := screen.Screen{
-		Definition: func() screen.Definition { return screen.DefinitionFromKeys() },
-		Name:       func() string { return "Base" },
-		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
-			return screen.EmptyScreenResult()
-		},
-		View: func(state state.UIState) core.ViewModel {
-			return *core.ViewModelFromUIState(state)
-		},
+	
+	base := screen_test.MockScreen{
+		Name: "base",
 	}
 
-	p := NewPagination(base)
+	p := NewPagination(base.ToScreen())
 	scrn := p.ToScreen()
 
 	scrn.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})

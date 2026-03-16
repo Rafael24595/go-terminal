@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/screen"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
@@ -11,9 +12,10 @@ import (
 
 type MockScreen struct {
 	Name       string
-	Definition func() screen.Definition
+	Definition *screen.Definition
 	Update     func(*state.UIState, screen.ScreenEvent) screen.ScreenResult
 	View       func(state.UIState) core.ViewModel
+	Stack      set.Set[string]
 }
 
 func (t MockScreen) ToScreen() screen.Screen {
@@ -23,7 +25,7 @@ func (t MockScreen) ToScreen() screen.Screen {
 		},
 		Definition: func() screen.Definition {
 			if t.Definition != nil {
-				return t.Definition()
+				return *t.Definition
 			}
 
 			return screen.DefinitionFromKeys()
@@ -42,6 +44,13 @@ func (t MockScreen) ToScreen() screen.Screen {
 
 			return *core.ViewModelFromUIState(s)
 		},
+		Stack: func() set.Set[string] {
+			if t.Stack != nil {
+				return t.Stack
+			}
+
+			return set.SetFrom(t.Name)
+		},
 	}
 }
 
@@ -51,4 +60,5 @@ func Helper_ToScreen(t *testing.T, screen screen.Screen) {
 	assert.NotNil(t, screen.Name, "Screen.Name")
 	assert.NotNil(t, screen.View, "Screen.View should be set")
 	assert.NotNil(t, screen.Update, "Screen.Update should be set")
+	assert.NotNil(t, screen.Stack, "Screen.Stack should be set")
 }

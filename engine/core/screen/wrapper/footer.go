@@ -31,6 +31,7 @@ func (c *Footer) ToScreen() screen.Screen {
 		Definition: c.screen.Definition,
 		Update:     c.Update,
 		View:       c.View,
+		Stack:      c.screen.Stack,
 	}
 }
 

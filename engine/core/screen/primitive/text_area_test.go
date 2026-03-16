@@ -20,3 +20,11 @@ func TestTextArea_ToScreen(t *testing.T) {
 
 	assert.Equal(t, screen.Name(), "base")
 }
+
+func TestTextArea_Stack(t *testing.T) {
+	stack := NewTextArea().
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has(default_text_area_name))
+}

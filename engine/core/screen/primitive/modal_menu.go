@@ -11,6 +11,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
+const default_modal_menu_name = "IndexMenu"
+
 var modal_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(key.ActionAll)...,
 )
@@ -24,7 +26,7 @@ type ModalMenu struct {
 
 func NewModalMenu() *ModalMenu {
 	return &ModalMenu{
-		reference: default_index_menu_name,
+		reference: default_modal_menu_name,
 		text:      make([]text.Line, 0),
 		options:   make([]input.MenuOption, 0),
 		cursor:    0,
@@ -53,20 +55,18 @@ func (c *ModalMenu) SetCursor(cursor uint) *ModalMenu {
 }
 
 func (c *ModalMenu) ToScreen() screen.Screen {
-	return screen.Screen{
-		Name:       c.name,
+	screen := screen.Screen{
 		Definition: c.definition,
 		Update:     c.update,
 		View:       c.view,
 	}
+	
+	return screen.SetName(c.reference).
+		StackFromName()
 }
 
 func (c *ModalMenu) definition() screen.Definition {
 	return modal_definition
-}
-
-func (c *ModalMenu) name() string {
-	return c.reference
 }
 
 func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {

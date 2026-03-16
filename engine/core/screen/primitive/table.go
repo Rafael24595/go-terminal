@@ -117,16 +117,14 @@ func (c *Table[T]) AddItems(parser func(T) []table.Field, items ...T) *Table[T] 
 }
 
 func (c *Table[T]) ToScreen() screen.Screen {
-	return screen.Screen{
-		Name:       c.name,
+	screen := screen.Screen{
 		Definition: c.definition,
 		Update:     c.update,
 		View:       c.view,
 	}
-}
-
-func (c *Table[T]) name() string {
-	return c.reference
+	
+	return screen.SetName(c.reference).
+		StackFromName()
 }
 
 func (c *Table[T]) definition() screen.Definition {
@@ -137,6 +135,7 @@ func (c *Table[T]) definition() screen.Definition {
 	if c.action.mode {
 		return table_navigation_definition
 	}
+	
 	return table_read_definition
 }
 

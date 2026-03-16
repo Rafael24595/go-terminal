@@ -32,6 +32,14 @@ func TestIndexMenu_ToScreen(t *testing.T) {
 	assert.Equal(t, screen.Name(), "base")
 }
 
+func TestIndexMenu_Stack(t *testing.T) {
+	stack := NewIndexMenu().
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has(default_index_menu_name))
+}
+
 func TestIndexMenu_DefaultValues(t *testing.T) {
 	menu := NewIndexMenu()
 

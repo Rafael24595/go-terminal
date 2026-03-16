@@ -21,3 +21,15 @@ func TestHeader_ToScreen(t *testing.T) {
 
 	assert.Equal(t, screen.Name(), "base")
 }
+
+func TestHeader_Stack(t *testing.T) {
+	mock := screen_test.MockScreen{
+		Name: "base",
+	}
+
+	stack := NewHeader(mock.ToScreen()).
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has("base"))
+}

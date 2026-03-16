@@ -20,3 +20,11 @@ func TestTable_ToScreen(t *testing.T) {
 
 	assert.Equal(t, screen.Name(), "base")
 }
+
+func TestTable_Stack(t *testing.T) {
+	stack := NewTable[int]().
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has(default_table_name))
+}

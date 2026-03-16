@@ -18,3 +18,11 @@ func TestModalMenu_ToScreen(t *testing.T) {
 
 	assert.Equal(t, screen.Name(), "base")
 }
+
+func TestModalMenu_Stack(t *testing.T) {
+	stack := NewModalMenu().
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has(default_modal_menu_name))
+}

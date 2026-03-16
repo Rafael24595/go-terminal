@@ -119,24 +119,21 @@ func (c *CheckMenu) SetLimit(limit uint16) *CheckMenu {
 }
 
 func (c *CheckMenu) ToScreen() screen.Screen {
-	return screen.Screen{
-		Name:       c.name,
+	screen := screen.Screen{
 		Definition: c.definition,
 		Update:     c.update,
 		View:       c.view,
 	}
+	
+	return screen.SetName(c.reference).
+		StackFromName()
 }
 
 func (c *CheckMenu) definition() screen.Definition {
 	if c.action.mode {
 		return check_menu_write_definition
 	}
-
 	return check_menu_read_definition
-}
-
-func (c *CheckMenu) name() string {
-	return c.reference
 }
 
 func (c *CheckMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {

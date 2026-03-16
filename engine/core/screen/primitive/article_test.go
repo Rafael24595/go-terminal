@@ -19,10 +19,18 @@ func TestArticle_ToScreen(t *testing.T) {
 	screen_test.Helper_ToScreen(t, screen)
 }
 
+func TestArticle_Stack(t *testing.T) {
+	stack := NewArticle().
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has(default_article_name))
+}
+
 func TestNewArticle_DefaultValues(t *testing.T) {
 	article := NewArticle()
 
-	assert.Equal(t, article.name(), default_article_name, "default name")
+	assert.Equal(t, article.ToScreen().Name(), default_article_name, "default name")
 	assert.Equal(t, len(article.title), 0, "title lenght")
 	assert.Equal(t, len(article.article), 0, "article lenght")
 }
@@ -31,7 +39,7 @@ func TestArticle_SetName(t *testing.T) {
 	article := NewArticle()
 	result := article.SetName("CustomName")
 
-	assert.Equal(t, article.name(), "CustomName", "set name")
+	assert.Equal(t, article.ToScreen().Name(), "CustomName", "set name")
 	assert.Equal(t, result, article, "SetName should return same instance")
 }
 

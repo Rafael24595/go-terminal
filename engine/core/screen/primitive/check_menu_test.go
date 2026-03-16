@@ -23,6 +23,14 @@ func TestCheckMenu_ToScreen(t *testing.T) {
 	assert.Equal(t, screen.Name(), "base")
 }
 
+func TestCheckMenu_Stack(t *testing.T) {
+	stack := NewCheckMenu().
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has(default_check_menu_name))
+}
+
 func TestCheckMenu_SwitchState_WithLimit(t *testing.T) {
 	clock := &mock.TestClock{Time: 1000}
 
@@ -59,7 +67,7 @@ func TestCheckMenu_SwitchState_WithLimit(t *testing.T) {
 	assert.False(t, menu.options[2].Status)
 
 	clock.Advance(1000)
-	
+
 	menu.cursor = 2
 	menu.switchState()
 

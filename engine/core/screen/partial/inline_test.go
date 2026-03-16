@@ -26,6 +26,18 @@ func TestInline_ToScreen(t *testing.T) {
 	assert.Equal(t, scrn.Name(), "base")
 }
 
+func TestInline_Stack(t *testing.T) {
+	mock := screen_test.MockScreen{
+		Name: "base",
+	}
+
+	stack := NewInline(mock.ToScreen()).
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has("base"))
+}
+
 func TestInline_GroupDrawables_NoMatches(t *testing.T) {
 	mock := screen_test.MockScreen{}
 

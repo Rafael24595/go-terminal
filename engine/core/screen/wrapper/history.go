@@ -37,6 +37,7 @@ func (c *History) ToScreen() screen.Screen {
 		Definition: c.definition,
 		Update:     c.update,
 		View:       c.view,
+		Stack:      c.screen.Stack,
 	}
 }
 

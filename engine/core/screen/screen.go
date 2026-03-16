@@ -2,6 +2,7 @@ package screen
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/core"
 	"github.com/Rafael24595/go-terminal/engine/core/key"
 )
@@ -56,4 +57,29 @@ type Screen struct {
 	Definition func() Definition
 	Update     func(*state.UIState, ScreenEvent) ScreenResult
 	View       func(state.UIState) core.ViewModel
+	Stack      func() set.Set[string]
+}
+
+func (s Screen) SetName(name string) Screen {
+	s.Name = func() string {
+		return name
+	}
+	return s
+}
+
+func (s Screen) SetDefinition(definition ...Definition) Screen {
+	s.Definition = func() Definition {
+		if len(definition) > 0 {
+			return definition[0]
+		}
+		return DefinitionFromKeys()
+	}
+	return s
+}
+
+func (s Screen) StackFromName() Screen {
+	s.Stack = func() set.Set[string] {
+		return set.SetFrom(s.Name())
+	}
+	return s
 }

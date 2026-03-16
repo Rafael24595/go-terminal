@@ -42,6 +42,18 @@ func TestMapScreen_ToScreen(t *testing.T) {
 	assert.Equal(t, scrn.Name(), "base")
 }
 
+func TestMapScreen_Stack(t *testing.T) {
+	mock := screen_test.MockScreen{
+		Name: "base",
+	}
+
+	stack := NewMapScreen(mock.ToScreen()).
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has("base"))
+}
+
 func TestMapScreen_WrapsReturnedScreen(t *testing.T) {
 	called := false
 

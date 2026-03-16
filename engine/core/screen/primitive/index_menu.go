@@ -71,20 +71,18 @@ func (c *IndexMenu) SetCursor(cursor uint) *IndexMenu {
 }
 
 func (c *IndexMenu) ToScreen() screen.Screen {
-	return screen.Screen{
-		Name:       c.name,
+	screen := screen.Screen{
 		Definition: c.definition,
 		Update:     c.update,
 		View:       c.view,
 	}
+	
+	return screen.SetName(c.reference).
+		StackFromName()
 }
 
 func (c *IndexMenu) definition() screen.Definition {
 	return index_menu_definition
-}
-
-func (c *IndexMenu) name() string {
-	return c.reference
 }
 
 func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {

@@ -44,6 +44,7 @@ func (c *Pagination) ToScreen() screen.Screen {
 		Definition: c.definition,
 		Update:     c.update,
 		View:       c.view,
+		Stack:      c.screen.Stack,
 	}
 }
 
@@ -97,7 +98,7 @@ func (c *Pagination) view(stt state.UIState) core.ViewModel {
 		page := fmt.Sprintf("page: %d", stt.Pager.Page)
 
 		footer := text.NewLines(
-			text.NewLine(page, 
+			text.NewLine(page,
 				style.SpecFromKind(style.SpcKindPaddingRight),
 			),
 		)

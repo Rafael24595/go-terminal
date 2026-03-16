@@ -40,20 +40,14 @@ func (c *Article) AddArticle(article ...text.Line) *Article {
 }
 
 func (c *Article) ToScreen() screen.Screen {
-	return screen.Screen{
-		Name:       c.name,
-		Definition: c.definition,
-		Update:     c.update,
-		View:       c.view,
+	screen := screen.Screen{
+		Update: c.update,
+		View:   c.view,
 	}
-}
 
-func (c *Article) name() string {
-	return c.reference
-}
-
-func (c *Article) definition() screen.Definition {
-	return screen.DefinitionFromKeys()
+	return screen.SetName(c.reference).
+		SetDefinition().
+		StackFromName()
 }
 
 func (c *Article) update(state *state.UIState, _ screen.ScreenEvent) screen.ScreenResult {

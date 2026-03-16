@@ -138,16 +138,14 @@ func (c *TextArea) HideIndex() *TextArea {
 }
 
 func (c *TextArea) ToScreen() screen.Screen {
-	return screen.Screen{
-		Name:       c.name,
+	screen := screen.Screen{
 		Definition: c.definition,
 		Update:     c.update,
 		View:       c.view,
 	}
-}
 
-func (c *TextArea) name() string {
-	return c.reference
+	return screen.SetName(c.reference).
+		StackFromName()
 }
 
 func (c *TextArea) definition() screen.Definition {

@@ -26,6 +26,18 @@ func TestSpacer_ToScreen(t *testing.T) {
 	assert.Equal(t, scrn.Name(), "base")
 }
 
+func TestSpacer_Stack(t *testing.T) {
+	mock := screen_test.MockScreen{
+		Name: "base",
+	}
+
+	stack := NewSpacer(mock.ToScreen()).
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has("base"))
+}
+
 func TestSpacer_WrapsNextScreen(t *testing.T) {
 	next := screen_test.MockScreen{
 		Name: "next",
