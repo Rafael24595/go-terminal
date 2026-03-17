@@ -5,13 +5,13 @@ import (
 	"testing"
 
 	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/core"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable/stack"
-	"github.com/Rafael24595/go-terminal/engine/core/style"
-	"github.com/Rafael24595/go-terminal/engine/core/text"
+	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/render/style"
+	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
-	drawable_test "github.com/Rafael24595/go-terminal/test/engine/core/drawable"
+	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
@@ -20,7 +20,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 
 	stt := state.NewUIState()
 
-	vm := core.ViewModelFromUIState(*stt)
+	vm := viewmodel.ViewModelFromUIState(*stt)
 
 	vm.Header.Shift(
 		line.EagerDrawableFromLines(
@@ -45,7 +45,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 		},
 	}
 
-	vm.SetInput(core.NewInputLine(mock.ToDrawable()))
+	vm.SetInput(viewmodel.NewInputLine(mock.ToDrawable()))
 
 	state := &state.UIState{}
 
@@ -79,7 +79,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	stt := state.NewUIState()
 
-	vm := core.ViewModelFromUIState(*stt)
+	vm := viewmodel.ViewModelFromUIState(*stt)
 
 	vm.Header.Shift(
 		line.EagerDrawableFromLines(
@@ -104,7 +104,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		},
 	}
 
-	vm.SetInput(core.NewInputLine(mock.ToDrawable()))
+	vm.SetInput(viewmodel.NewInputLine(mock.ToDrawable()))
 
 	lines0 := TerminalApply(stt, *vm, size)
 
@@ -137,7 +137,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 	stt := state.NewUIState()
 
-	vm := core.ViewModelFromUIState(*stt)
+	vm := viewmodel.ViewModelFromUIState(*stt)
 
 	paged, _, _ := drawDynamicLines(stt, *vm, layer, 2, sizeCols)
 
@@ -194,7 +194,7 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 
 	stt := state.NewUIState()
 
-	vm := core.ViewModelFromUIState(*stt)
+	vm := viewmodel.ViewModelFromUIState(*stt)
 
 	vm.Header.Shift(
 		line.EagerDrawableFromLines(
@@ -220,7 +220,7 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 		},
 	}
 
-	vm.SetInput(core.NewInputLine(mock.ToDrawable()))
+	vm.SetInput(viewmodel.NewInputLine(mock.ToDrawable()))
 
 	assert.True(t, vm.Header.HasNext())
 	assert.True(t, vm.Lines.HasNext())

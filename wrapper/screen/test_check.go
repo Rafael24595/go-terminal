@@ -3,11 +3,11 @@ package wrapper_screen
 import (
 	"unicode/utf8"
 
-	"github.com/Rafael24595/go-terminal/engine/core/input"
-	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/screen/primitive"
-	"github.com/Rafael24595/go-terminal/engine/core/style"
-	"github.com/Rafael24595/go-terminal/engine/core/text"
+	"github.com/Rafael24595/go-terminal/engine/app/screen"
+	"github.com/Rafael24595/go-terminal/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-terminal/engine/model/input"
+	"github.com/Rafael24595/go-terminal/engine/render/style"
+	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
 
 func NewTestCheck() screen.Screen {

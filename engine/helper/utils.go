@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Rafael24595/go-terminal/engine/core/marker"
+	"github.com/Rafael24595/go-terminal/engine/render/marker"
 )
 
 type TextLayoutOpts struct {

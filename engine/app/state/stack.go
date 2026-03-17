@@ -5,7 +5,7 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/commons"
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
-	"github.com/Rafael24595/go-terminal/engine/core/clock"
+	"github.com/Rafael24595/go-terminal/engine/platform/clock"
 )
 
 type StackContext struct {

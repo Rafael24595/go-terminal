@@ -3,9 +3,9 @@ package wrapper_render
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/core/style"
-	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
+	"github.com/Rafael24595/go-terminal/engine/render/style"
+	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 

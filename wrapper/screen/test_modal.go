@@ -1,10 +1,10 @@
 package wrapper_screen
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core/input"
-	"github.com/Rafael24595/go-terminal/engine/core/screen"
-	"github.com/Rafael24595/go-terminal/engine/core/screen/primitive"
-	"github.com/Rafael24595/go-terminal/engine/core/text"
+	"github.com/Rafael24595/go-terminal/engine/app/screen"
+	"github.com/Rafael24595/go-terminal/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-terminal/engine/model/input"
+	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
 
 func NewTestModal() screen.Screen {
@@ -15,19 +15,19 @@ func NewTestModal() screen.Screen {
 		).
 		AddOptions([]input.MenuOption{
 			{
-				Label: text.NewFragment("Option_1"),
+				Label:  text.NewFragment("Option_1"),
 				Action: NewTestModal,
 			},
 			{
-				Label: text.NewFragment("Option_2"),
+				Label:  text.NewFragment("Option_2"),
 				Action: NewTestModal,
 			},
 			{
-				Label: text.NewFragment("Option_3"),
+				Label:  text.NewFragment("Option_3"),
 				Action: NewTestModal,
 			},
 			{
-				Label: text.NewFragment("Option_4"),
+				Label:  text.NewFragment("Option_4"),
 				Action: NewTestModal,
 			},
 		}...).

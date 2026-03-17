@@ -1,0 +1,30 @@
+package primitive
+
+import (
+	"testing"
+
+	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-terminal/test/support/assert"
+
+	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
+)
+
+func TestTextArea_ToScreen(t *testing.T) {
+	menu := NewTextArea().
+		SetName("base").
+		AddTitle(text.LineFromString("Welcome"))
+
+	screen := menu.ToScreen()
+
+	screen_test.Helper_ToScreen(t, screen)
+
+	assert.Equal(t, screen.Name(), "base")
+}
+
+func TestTextArea_Stack(t *testing.T) {
+	stack := NewTextArea().
+		ToScreen().
+		Stack()
+
+	assert.True(t, stack.Has(default_text_area_name))
+}

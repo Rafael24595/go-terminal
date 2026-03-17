@@ -2,16 +2,16 @@ package wrapper_layout
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/core"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable/line"
-	"github.com/Rafael24595/go-terminal/engine/core/drawable/stack"
-	"github.com/Rafael24595/go-terminal/engine/core/text"
+	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 // TODO: Implement tokenize lines method to prevent line feed injection.
-func TerminalApply(state *state.UIState, vm core.ViewModel, size terminal.Winsize) []text.Line {
+func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.Winsize) []text.Line {
 	rows := int(size.Rows)
 	cols := int(size.Cols)
 
@@ -81,7 +81,7 @@ func drawStaticLines(drawable drawable.Drawable, rows, cols int) []text.Line {
 	return buffer
 }
 
-func drawDynamicLines(stt *state.UIState, vm core.ViewModel, layer *stack.StackDrawable, rows, cols int) ([]text.Line, uint, bool) {
+func drawDynamicLines(stt *state.UIState, vm viewmodel.ViewModel, layer *stack.StackDrawable, rows, cols int) ([]text.Line, uint, bool) {
 	buffer := make([]text.Line, rows)
 	page := uint(0)
 

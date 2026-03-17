@@ -3,10 +3,10 @@ package wrapper_render
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/core/marker"
-	"github.com/Rafael24595/go-terminal/engine/core/text"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/render"
+	"github.com/Rafael24595/go-terminal/engine/render/marker"
+	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 

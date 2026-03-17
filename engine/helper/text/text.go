@@ -1,7 +1,7 @@
 package text
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/core/key"
+	"github.com/Rafael24595/go-terminal/engine/model/key"
 )
 
 var wrapperMap = map[rune]rune{

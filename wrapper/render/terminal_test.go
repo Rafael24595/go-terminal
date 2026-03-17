@@ -3,8 +3,8 @@ package wrapper_render
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/core/style"
-	"github.com/Rafael24595/go-terminal/engine/core/text"
+	"github.com/Rafael24595/go-terminal/engine/render/style"
+	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/test/support/assert"
 )

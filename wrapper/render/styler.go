@@ -3,8 +3,8 @@ package wrapper_render
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/core/style"
 	"github.com/Rafael24595/go-terminal/engine/helper"
+	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 

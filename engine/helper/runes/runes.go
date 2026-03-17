@@ -3,9 +3,9 @@ package runes
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/core/assert"
-	"github.com/Rafael24595/go-terminal/engine/core/key"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
+	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/platform/assert"
 )
 
 var NextWordRunes = []RuneDefinition{

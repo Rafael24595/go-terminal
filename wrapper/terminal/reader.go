@@ -7,7 +7,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/Rafael24595/go-terminal/engine/core/key"
+	"github.com/Rafael24595/go-terminal/engine/model/key"
 )
 
 type inputReader struct {
