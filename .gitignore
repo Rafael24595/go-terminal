@@ -1,3 +1,4 @@
 .remote-scripts
 .temp
+.logs
 __debug_*

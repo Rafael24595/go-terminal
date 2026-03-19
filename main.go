@@ -4,10 +4,12 @@ import (
 	"time"
 
 	"github.com/Rafael24595/go-terminal/engine/app/cleaner/context"
+	"github.com/Rafael24595/go-terminal/engine/app/runtime"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/screen/partial"
 	"github.com/Rafael24595/go-terminal/engine/app/screen/wrapper"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/commons/log"
 	"github.com/Rafael24595/go-terminal/engine/layout"
 	"github.com/Rafael24595/go-terminal/engine/model/action"
 	"github.com/Rafael24595/go-terminal/engine/model/inline"
@@ -28,6 +30,16 @@ const paddingRows = 5
 
 // Move main and wrapper packages to a new project
 func main() {
+	provider := log.FileProvider{
+		Session: runtime.Instance.SessionId(),
+	}
+
+	if err := log.InitFromProvider(provider); err != nil {
+		panic(err.Error())
+	}
+
+	defer log.OnClose()
+
 	state := &state.UIState{}
 
 	cmd := wrapper_terminal.NewConsole()
