@@ -133,7 +133,7 @@ func TestArgumentStringConversions(t *testing.T) {
 		want string
 	}{
 		{"nil", nil, ""},
-		
+
 		{"string", "hello", "hello"},
 
 		{"int", 42, "42"},
@@ -147,7 +147,7 @@ func TestArgumentStringConversions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := ArgumentFrom(tt.from).String()
+			got := ArgumentFrom(tt.from).Stringf()
 			assert.Equal(t, tt.want, got)
 		})
 	}

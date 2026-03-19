@@ -42,7 +42,34 @@ func (a Argument) Boold(def bool) bool {
 	return def
 }
 
-func (a Argument) String() string {
+func (a Argument) String() (string, bool) {
+	switch v := a.item.(type) {
+	case nil:
+		return "", false
+	case string:
+		return v, true
+	case bool:
+		return strconv.FormatBool(v), false
+	case int, int8, int16, int32, int64:
+		return fmt.Sprintf("%d", v), false
+	case uint, uint8, uint16, uint32, uint64:
+		return fmt.Sprintf("%d", v), false
+	case float32:
+		return strconv.FormatFloat(float64(v), 'f', -1, 32), false
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64), false
+	}
+	return fmt.Sprintf("%v", a.item), false
+}
+
+func (a Argument) Stringd(def string) string {
+	if v, ok := a.String(); ok {
+		return v
+	}
+	return def
+}
+
+func (a Argument) Stringf() string {
 	switch v := a.item.(type) {
 	case nil:
 		return ""
@@ -297,7 +324,7 @@ func (a Argument) Float64d(def float64) float64 {
 }
 
 func (a Argument) Parse(parse func(string) (any, error)) (any, bool) {
-	v, err := parse(a.String())
+	v, err := parse(a.Stringf())
 	if err != nil {
 		return nil, false
 	}

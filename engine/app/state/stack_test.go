@@ -20,7 +20,7 @@ func TestStackContext_CRUD(t *testing.T) {
 	arg, found := ctx.Find(screen, key)
 
 	assert.True(t, found)
-	assert.Equal(t, val, arg.String())
+	assert.Equal(t, val, arg.Stringf())
 
 	ctx.RemoveArgument(screen, key)
 	_, found = ctx.Find(screen, key)

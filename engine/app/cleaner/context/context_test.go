@@ -41,7 +41,7 @@ func TestContextCleaner_PreservesActiveState(t *testing.T) {
 	value, exists := stt.Stack.Find(screenBase.Name(), "lang-1")
 
 	assert.True(t, exists)
-	assert.Equal(t, "golang", value.String())
+	assert.Equal(t, "golang", value.Stringf())
 }
 
 func TestContextCleaner_RemovesInactiveState(t *testing.T) {
@@ -75,7 +75,7 @@ func TestContextCleaner_RemovesInactiveState(t *testing.T) {
 
 	value, exists := stt.Stack.Find(screenNext.Name(), "lang-2")
 	assert.True(t, exists)
-	assert.Equal(t, "ziglang", value.String())
+	assert.Equal(t, "ziglang", value.Stringf())
 }
 
 func TestContextCleaner_TransitionBetweenScreens(t *testing.T) {

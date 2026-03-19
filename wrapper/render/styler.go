@@ -74,7 +74,7 @@ func paddingCenter(styl style.Spec, cols int, data string, logicalSize int) stri
 	args := styl.Args()
 
 	size := args[style.KeyPaddingCenterSize].Intd(cols)
-	text := args[style.KeyPaddingCenterText].String()
+	text := args[style.KeyPaddingCenterText].Stringf()
 
 	opts := helper.TextLayoutOpts{
 		LogicalSize: logicalSize,
@@ -88,7 +88,7 @@ func paddingLeft(styl style.Spec, cols int, data string, logicalSize int) string
 	args := styl.Args()
 
 	size := args[style.KeyPaddingLeftSize].Intd(cols)
-	text := args[style.KeyPaddingLeftText].String()
+	text := args[style.KeyPaddingLeftText].Stringf()
 
 	opts := helper.TextLayoutOpts{
 		LogicalSize: logicalSize,
@@ -102,7 +102,7 @@ func paddingRight(styl style.Spec, cols int, data string, logicalSize int) strin
 	args := styl.Args()
 
 	size := args[style.KeyPaddingRightSize].Intd(cols)
-	text := args[style.KeyPaddingRightText].String()
+	text := args[style.KeyPaddingRightText].Stringf()
 
 	opts := helper.TextLayoutOpts{
 		LogicalSize: logicalSize,
@@ -116,7 +116,7 @@ func repeatLeft(styl style.Spec, cols int, data string, logicalSize int) string 
 	args := styl.Args()
 
 	size := args[style.KeyRepeatLeftSize].Intd(0)
-	text := args[style.KeyRepeatLeftText].String()
+	text := args[style.KeyRepeatLeftText].Stringf()
 
 	if text == "" {
 		text = data
@@ -134,7 +134,7 @@ func repeatRight(styl style.Spec, cols int, data string, logicalSize int) string
 	args := styl.Args()
 
 	size := args[style.KeyRepeatRightSize].Intd(0)
-	text := args[style.KeyRepeatRightText].String()
+	text := args[style.KeyRepeatRightText].Stringf()
 
 	if text == "" {
 		text = data
@@ -158,7 +158,7 @@ func trimLeft(styl style.Spec, data string, logicalSize int) string {
 	size := args[style.KeyTrimLeftSize].Intd(0)
 	size = max(1, size)
 
-	elip := args[style.KeyTrimEllipsisText].String()
+	elip := args[style.KeyTrimEllipsisText].Stringf()
 
 	opts := helper.TextTrimOpts{
 		LogicalSize:  logicalSize,
@@ -178,7 +178,7 @@ func trimRight(styl style.Spec, data string, logicalSize int) string {
 	size := args[style.KeyTrimRightSize].Intd(0)
 	size = max(1, size)
 
-	elip := args[style.KeyTrimEllipsisText].String()
+	elip := args[style.KeyTrimEllipsisText].Stringf()
 
 	opts := helper.TextTrimOpts{
 		LogicalSize:  logicalSize,
