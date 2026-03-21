@@ -1,15 +1,19 @@
 package main
 
 import (
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/Rafael24595/go-terminal/engine/app/cleaner/context"
+	"github.com/Rafael24595/go-log/log"
+	"github.com/Rafael24595/go-log/log/provider/file"
 	"github.com/Rafael24595/go-terminal/engine/app/runtime"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/screen/partial"
 	"github.com/Rafael24595/go-terminal/engine/app/screen/wrapper"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/commons/log"
 	"github.com/Rafael24595/go-terminal/engine/layout"
 	"github.com/Rafael24595/go-terminal/engine/model/action"
 	"github.com/Rafael24595/go-terminal/engine/model/inline"
@@ -17,6 +21,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/render"
 	"github.com/Rafael24595/go-terminal/engine/render/spacer"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
+
+	context_cleaner "github.com/Rafael24595/go-terminal/engine/app/cleaner/context"
 
 	wrapper_layout "github.com/Rafael24595/go-terminal/wrapper/layout"
 	wrapper_render "github.com/Rafael24595/go-terminal/wrapper/render"
@@ -30,11 +36,14 @@ const paddingRows = 5
 
 // Move main and wrapper packages to a new project
 func main() {
-	provider := log.FileProvider{
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	provider := file.FileProvider{
 		Session: runtime.Instance.SessionId(),
 	}
 
-	if err := log.InitFromProvider(provider); err != nil {
+	if err := log.DefaultFromProvider(ctx, provider); err != nil {
 		panic(err.Error())
 	}
 
@@ -78,7 +87,7 @@ func main() {
 	rndf := wrapper_render.NewFixed(rnd, pr, pc)
 	rnd = rndf.ToRender()
 
-	cls := context.NewContextCleaner()
+	cls := context_cleaner.NewContextCleaner()
 
 	trm.OnStart()
 	defer trm.OnClose()
