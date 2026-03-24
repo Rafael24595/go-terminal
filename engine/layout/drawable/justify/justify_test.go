@@ -4,10 +4,11 @@ import (
 	"strings"
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func fragmentTexts(frags []text.Fragment) string {

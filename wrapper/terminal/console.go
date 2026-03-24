@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	
 	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/engine/platform/assert"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 

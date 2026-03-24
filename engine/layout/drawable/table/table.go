@@ -1,10 +1,11 @@
 package table
 
 import (
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
-	"github.com/Rafael24595/go-terminal/engine/platform/assert"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"

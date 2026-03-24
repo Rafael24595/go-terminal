@@ -3,7 +3,7 @@ package primitive
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/test/support/assert"
+	assert "github.com/Rafael24595/go-assert/assert/test"
 
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
 )

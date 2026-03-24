@@ -1,22 +1,23 @@
 package primitive
 
 import (
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
+
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/helper/line"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	text_helper "github.com/Rafael24595/go-terminal/engine/helper/text"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/textarea"
 	"github.com/Rafael24595/go-terminal/engine/model/event"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/engine/platform/assert"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 
+	text_helper "github.com/Rafael24595/go-terminal/engine/helper/text"
 	drawable_line "github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/textarea"
 )
 
 const default_text_area_name = "TextArea"

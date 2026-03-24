@@ -3,10 +3,11 @@ package context
 import (
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 
 	cleaner_test "github.com/Rafael24595/go-terminal/test/engine/app/cleaner"
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"

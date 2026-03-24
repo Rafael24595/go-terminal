@@ -3,11 +3,13 @@ package table
 import (
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
+	
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestTable_ToDrawable(t *testing.T) {

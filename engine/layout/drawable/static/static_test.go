@@ -3,9 +3,11 @@ package static
 import (
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestStatic_ToDrawable(t *testing.T) {

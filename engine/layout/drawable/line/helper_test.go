@@ -5,9 +5,10 @@ import (
 	"testing"
 	"unicode/utf8"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestSplitLineWords_Simple(t *testing.T) {

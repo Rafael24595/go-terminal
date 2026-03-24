@@ -3,10 +3,11 @@ package drawable_test
 import (
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 type MockDrawable struct {

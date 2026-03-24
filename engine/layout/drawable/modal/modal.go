@@ -1,13 +1,14 @@
 package modal
 
 import (
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/box"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/justify"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/static"
-	"github.com/Rafael24595/go-terminal/engine/platform/assert"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"

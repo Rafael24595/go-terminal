@@ -29,6 +29,6 @@ hooks:
         target: golang/sh
         name: run-tests.sh
         flags:
-          - t=debug
+          - t=g_ast_dbg
 
 

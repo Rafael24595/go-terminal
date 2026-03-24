@@ -5,8 +5,9 @@ import (
 	"sync"
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestStackContext_CRUD(t *testing.T) {

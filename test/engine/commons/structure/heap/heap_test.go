@@ -3,8 +3,9 @@ package heap_test
 import (
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/heap"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestMinHeap(t *testing.T) {
@@ -71,13 +72,13 @@ func TestMaxHeapBy_Struct(t *testing.T) {
 }
 
 func TestHeap_EmptyState(t *testing.T) {
-    h := heap.NewMinHeap[string]()
-    
-    val, ok := h.Peek()
-    assert.False(t, ok)
-    assert.Equal(t, "", val)
+	h := heap.NewMinHeap[string]()
 
-    val, ok = h.Pop()
-    assert.False(t, ok)
-    assert.Equal(t, "", val)
+	val, ok := h.Peek()
+	assert.False(t, ok)
+	assert.Equal(t, "", val)
+
+	val, ok = h.Pop()
+	assert.False(t, ok)
+	assert.Equal(t, "", val)
 }

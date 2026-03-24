@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
@@ -11,8 +13,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
+	
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestTerminalApply_FixedAndPaged(t *testing.T) {

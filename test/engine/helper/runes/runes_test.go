@@ -3,8 +3,9 @@ package runes_test
 import (
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestAppendAt(t *testing.T) {

@@ -3,8 +3,9 @@ package key_test
 import (
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 func TestModMask_HasAny(t *testing.T) {

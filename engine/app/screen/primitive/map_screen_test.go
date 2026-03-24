@@ -3,13 +3,14 @@ package primitive
 import (
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/model/action"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"

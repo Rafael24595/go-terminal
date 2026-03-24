@@ -1,8 +1,9 @@
 package key
 
 import (
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	
 	"github.com/Rafael24595/go-terminal/engine/model/help"
-	"github.com/Rafael24595/go-terminal/engine/platform/assert"
 )
 
 const (

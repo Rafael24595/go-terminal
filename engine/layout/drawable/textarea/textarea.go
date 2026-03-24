@@ -3,13 +3,14 @@ package textarea
 import (
 	"strings"
 
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/engine/platform/assert"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"

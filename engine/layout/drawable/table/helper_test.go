@@ -3,11 +3,12 @@ package table
 import (
 	"testing"
 
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/test/support/assert"
 )
 
 var separator = marker.TableSeparatorMeta{

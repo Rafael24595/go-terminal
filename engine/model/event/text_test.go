@@ -5,7 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Rafael24595/go-terminal/test/support/assert"
+	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-terminal/test/support/mock"
 )
 
