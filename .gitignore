@@ -1,4 +1,5 @@
 .remote-scripts
 .temp
 .logs
+.vscode
 __debug_*
