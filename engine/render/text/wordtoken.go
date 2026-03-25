@@ -1,8 +1,10 @@
 package text
 
 import (
+	"strings"
 	"unicode"
 
+	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 )
 
@@ -25,24 +27,30 @@ func (t WordToken) Size() int {
 }
 
 func TokenizeLineWords(line Line) []WordToken {
-	tokens := make([]WordToken, 0)
-	fragments := make([]Fragment, 0)
+	tokens := make([]WordToken, 0, len(line.Text))
+	fragments := make([]Fragment, 0, 4)
 
-	flush := func(pf, cf Fragment) Fragment {
-		if len(cf.Text) > 0 {
-			fragments = append(fragments, cf)
+	var sb strings.Builder
+
+	flush := func(frag Fragment) {
+		if sb.Len() > 0 {
+			f := EmptyFragmentFrom(frag)
+			f.Text = sb.String()
+			fragments = append(fragments, f)
+			sb.Reset()
 		}
 
 		if len(fragments) > 0 {
+			tokenFrags := make([]Fragment, len(fragments))
+			copy(tokenFrags, fragments)
+
 			token := WordToken{
-				Text: fragments,
+				Text: tokenFrags,
 			}
 
 			tokens = append(tokens, token)
-			fragments = make([]Fragment, 0)
+			fragments = fragments[:0]
 		}
-
-		return EmptyFragmentFrom(pf)
 	}
 
 	inSpace := false
@@ -56,35 +64,27 @@ func TokenizeLineWords(line Line) []WordToken {
 			continue
 		}
 
-		fragment := EmptyFragmentFrom(frag)
-
 		for _, r := range frag.Text {
-			if unicode.IsSpace(r) {
-				if !inSpace {
-					fragment = flush(frag, fragment)
-				}
+			isSpace := unicode.IsSpace(r)
 
-				fragment.Text += string(r)
-
-				inSpace = true
-
-				continue
+			if isSpace != inSpace {
+				flush(frag)
 			}
 
-			if inSpace {
-				fragment = flush(frag, fragment)
-			}
-
-			fragment.Text += string(r)
-
-			inSpace = false
+			inSpace = isSpace
+			sb.WriteRune(r)
 		}
 
-		fragments = append(fragments, fragment)
+		if sb.Len() > 0 {
+			f := EmptyFragmentFrom(frag)
+			f.Text = sb.String()
+			fragments = append(fragments, f)
+			sb.Reset()
+		}
 	}
 
 	if len(fragments) > 0 {
-		flush(Fragment{}, Fragment{})
+		flush(Fragment{})
 	}
 
 	return tokens
@@ -92,12 +92,12 @@ func TokenizeLineWords(line Line) []WordToken {
 
 func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []Line, int) {
 	emmited := make([]Line, 0)
-	if cols == 0 {
+	if cols <= 0 {
 		emmited = append(emmited, LineFromFragments(word.Text...))
 		return current, emmited, 0
 	}
 
-	fragments := append([]Fragment{}, word.Text...)
+	fragments := word.Text
 
 	flush := func() {
 		emmited = append(emmited, current)
@@ -129,7 +129,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 		current.Text = append(current.Text, taken)
 		width += FragmentMeasure(taken)
 
-		fragments[0] = rest
+		fragments = append([]Fragment{rest}, fragments[1:]...)
 
 		flush()
 	}
@@ -138,16 +138,20 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 }
 
 func takeFromFragment(f Fragment, n int) (Fragment, Fragment) {
-	runes := []rune(f.Text)
-	if n >= len(runes) {
+	if n <= 0 {
+		return EmptyFragmentFrom(f), f
+	}
+
+	byteIndex, canBreak := runes.RuneIndexToByteIndex(f.Text, n)
+	if !canBreak {
 		return f, EmptyFragmentFrom(f)
 	}
 
 	taken := EmptyFragmentFrom(f)
-	taken.Text = string(runes[:n])
+	taken.Text = f.Text[:byteIndex]
 
 	rest := EmptyFragmentFrom(f)
-	rest.Text = string(runes[n:])
+	rest.Text = f.Text[byteIndex:]
 
 	return taken, rest
 }
