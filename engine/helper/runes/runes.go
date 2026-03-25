@@ -2,9 +2,10 @@ package runes
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
 )
@@ -170,11 +171,38 @@ func fixForwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) int {
 }
 
 func JoinReverse(ps []string) string {
-	var rs []rune
-
+	var sb strings.Builder
 	for i := len(ps) - 1; i >= 0; i-- {
-		rs = append(rs, []rune(ps[i])...)
+		sb.WriteString(ps[i])
+	}
+	return sb.String()
+}
+
+func RuneIndexToByteIndex(text string, runeIndex int) (int, bool) {
+	if runeIndex == 0 {
+		return 0, true
 	}
 
-	return string(rs)
+	count := 0
+	for i := range text {
+		if count == runeIndex {
+			return i, true
+		}
+		count++
+	}
+
+	if count == runeIndex {
+		return len(text), true
+	}
+
+	return 0, false
+
+}
+
+func Measure(text string) int {
+	return utf8.RuneCountInString(text)
+}
+
+func Measureu(text string) uint {
+	return uint(Measure(text))
 }
