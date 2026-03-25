@@ -1,11 +1,10 @@
 package box
 
 import (
-	"unicode/utf8"
-
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
+	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
@@ -151,7 +150,7 @@ func (d *BoxDrawable) drawChild() ([]text.Line, bool) {
 func (d *BoxDrawable) addStyle(lines ...text.Line) []text.Line {
 	borderSize := borderSize(d.separator)
 
-	spaceSize := utf8.RuneCountInString(d.separator.Space)
+	spaceSize := runes.Measure(d.separator.Space)
 	paddingSize := d.innerPadding * uint(spaceSize)
 
 	styleSize := uint(borderSize) + (paddingSize * 2)
@@ -174,8 +173,8 @@ func (d *BoxDrawable) addStyle(lines ...text.Line) []text.Line {
 		for _, v := range line.WrapLineWords(available, lin) {
 			totalWidth := uint(text.LineFragmentsMeasure(v))
 
-			leftWidth := uint(utf8.RuneCountInString(d.separator.Left))
-			rightWidth := uint(utf8.RuneCountInString(d.separator.Right))
+			leftWidth := runes.Measureu(d.separator.Left)
+			rightWidth := runes.Measureu(d.separator.Right)
 
 			remaining := size - totalWidth - (leftWidth + rightWidth)
 
@@ -242,8 +241,8 @@ func (d *BoxDrawable) clampSize(size terminal.Winsize) terminal.Winsize {
 }
 
 func borderSize(separator marker.BoxSeparatorMeta) uint {
-	return uint(utf8.RuneCountInString(separator.Left) +
-		utf8.RuneCountInString(separator.Right))
+	return runes.Measureu(separator.Left) +
+		runes.Measureu(separator.Right)
 }
 
 func makeSpec(base style.Spec, size terminal.Winsize, padding style.VerticalPosition) style.Spec {

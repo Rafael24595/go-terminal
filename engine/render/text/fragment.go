@@ -1,8 +1,7 @@
 package text
 
 import (
-	"unicode/utf8"
-
+	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 )
 
@@ -53,7 +52,7 @@ func (f Fragment) AddSpec(styles ...style.Spec) Fragment {
 }
 
 func (f Fragment) Len() int {
-	return utf8.RuneCountInString(f.Text)
+	return runes.Measure(f.Text)
 }
 
 func FragmentMeasure(frag Fragment) int {

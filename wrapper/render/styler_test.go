@@ -2,10 +2,10 @@ package wrapper_render
 
 import (
 	"testing"
-	"unicode/utf8"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
+	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 )
 
@@ -14,7 +14,7 @@ func TestPaddingLeft_Strict(t *testing.T) {
 	cols := 20
 
 	text := "hi"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := paddingLeft(spec, cols, text, size)
 
@@ -27,7 +27,7 @@ func TestPaddingLeft_RespectsCols(t *testing.T) {
 	cols := 5
 
 	text := "hi"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := paddingLeft(spec, cols, text, size)
 
@@ -40,7 +40,7 @@ func TestPaddingRight_Strict(t *testing.T) {
 	cols := 20
 
 	text := "hi"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := paddingRight(spec, cols, text, size)
 
@@ -53,7 +53,7 @@ func TestPaddingRight_RespectsCols(t *testing.T) {
 	cols := 5
 
 	text := "hi"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := paddingRight(spec, cols, text, size)
 
@@ -66,7 +66,7 @@ func TestPaddingCenter_Strict(t *testing.T) {
 	cols := 20
 
 	text := "hi"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := paddingCenter(spec, cols, text, size)
 
@@ -79,7 +79,7 @@ func TestPaddingCenter_RespectsCols(t *testing.T) {
 	cols := 4
 
 	text := "hi"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := paddingCenter(spec, cols, text, size)
 
@@ -92,7 +92,7 @@ func TestPaddingCenter_OddSize(t *testing.T) {
 	cols := 20
 
 	text := "hi"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := paddingCenter(spec, cols, text, size)
 
@@ -104,7 +104,7 @@ func TestRepeatLeft_WithText_Strict(t *testing.T) {
 	spec := style.SpecRepeatLeft(3, "-")
 
 	text := "hi"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := repeatLeft(spec, 20, text, size)
 
@@ -115,7 +115,7 @@ func TestRepeatLeft_WithoutText_Strict(t *testing.T) {
 	spec := style.SpecRepeatLeft(3)
 
 	text := "ab"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := repeatLeft(spec, 20, text, size)
 
@@ -126,7 +126,7 @@ func TestRepeatRight_WithText_Strict(t *testing.T) {
 	spec := style.SpecRepeatRight(3, "-")
 
 	text := "hi"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := repeatRight(spec, 20, text, size)
 
@@ -137,7 +137,7 @@ func TestRepeatRight_WithoutText_Strict(t *testing.T) {
 	spec := style.SpecRepeatRight(3)
 
 	text := "ab"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	got := repeatRight(spec, 20, text, size)
 
@@ -181,13 +181,13 @@ func TestTrimLeft_Standard(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			spec := style.SpecTrimLeft(tt.size)
 
-			size := utf8.RuneCountInString(tt.in)
+			size := runes.Measure(tt.in)
 			got := trimLeft(spec, tt.in, size)
 
 			assert.Equal(t, tt.want, got)
 
 			if tt.size > 0 && size > 0 {
-				assert.Equal(t, int(tt.size), utf8.RuneCountInString(got))
+				assert.Equal(t, tt.size, runes.Measureu(got))
 			}
 		})
 	}
@@ -227,14 +227,14 @@ func TestTrimLeft_WithEllipsis(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			spec := style.SpecTrimTextLeft(tt.size, tt.ellipsis)
-			size := utf8.RuneCountInString(tt.in)
+			size := runes.Measure(tt.in)
 
 			got := trimLeft(spec, tt.in, size)
 
 			assert.Equal(t, tt.want, got)
 
 			if tt.size > 0 && size > 0 {
-				assert.Equal(t, int(tt.size), utf8.RuneCountInString(got))
+				assert.Equal(t, tt.size, runes.Measureu(got))
 			}
 		})
 	}
@@ -276,13 +276,13 @@ func TestTrimRight_Standard(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			spec := style.SpecTrimRight(tt.size)
 
-			size := utf8.RuneCountInString(tt.in)
+			size := runes.Measure(tt.in)
 			got := trimRight(spec, tt.in, size)
 
 			assert.Equal(t, tt.want, got)
 
 			if tt.size > 0 && size > 0 {
-				assert.Equal(t, int(tt.size), utf8.RuneCountInString(got))
+				assert.Equal(t, tt.size, runes.Measureu(got))
 			}
 		})
 	}
@@ -322,14 +322,14 @@ func TestTrimRight_WithEllipsis(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			spec := style.SpecTrimTextRight(tt.size, tt.ellipsis)
-			size := utf8.RuneCountInString(tt.in)
+			size := runes.Measure(tt.in)
 
 			got := trimRight(spec, tt.in, size)
 
 			assert.Equal(t, tt.want, got)
 
 			if tt.size > 0 && size > 0 {
-				assert.Equal(t, int(tt.size), utf8.RuneCountInString(got))
+				assert.Equal(t, tt.size, runes.Measureu(got))
 			}
 		})
 	}
@@ -337,7 +337,7 @@ func TestTrimRight_WithEllipsis(t *testing.T) {
 
 func TestFill_Strict(t *testing.T) {
 	text := "-"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	spec := style.SpecFill(10)
 	got := fill(spec, 6, text, size)
@@ -348,7 +348,7 @@ func TestFill_Strict(t *testing.T) {
 
 func TestFill_Strict_LongText_Even(t *testing.T) {
 	text := "go"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	spec := style.SpecFill(20)
 	got := fill(spec, 10, text, size)
@@ -359,7 +359,7 @@ func TestFill_Strict_LongText_Even(t *testing.T) {
 
 func TestFill_Strict_LongText_Odd(t *testing.T) {
 	text := "zig"
-	size := utf8.RuneCountInString(text)
+	size := runes.Measure(text)
 
 	spec := style.SpecFill(20)
 	got := fill(spec, 10, text, size)

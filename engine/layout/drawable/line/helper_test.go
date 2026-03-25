@@ -3,10 +3,10 @@ package line
 import (
 	"strings"
 	"testing"
-	"unicode/utf8"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
+	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
@@ -71,7 +71,7 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 		for _, f := range l.Text {
 			text += f.Text
 		}
-		if utf8.RuneCountInString(text) > maxWidth {
+		if runes.Measure(text) > maxWidth {
 			t.Errorf("line %d too long: %s", i, text)
 		}
 	}
@@ -79,10 +79,10 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 	totalRunes := 0
 	for _, l := range lines {
 		for _, f := range l.Text {
-			totalRunes += utf8.RuneCountInString(f.Text)
+			totalRunes += runes.Measure(f.Text)
 		}
 	}
-	if totalRunes != utf8.RuneCountInString(txt) {
+	if totalRunes != runes.Measure(txt) {
 		t.Errorf("total runes mismatch")
 	}
 }
@@ -101,7 +101,7 @@ func TestSplitLineWords_MultipleFragments(t *testing.T) {
 	for _, l := range lines {
 		width := 0
 		for _, f := range l.Text {
-			width += utf8.RuneCountInString(f.Text)
+			width += runes.Measure(f.Text)
 		}
 		if width > maxWidth {
 			t.Errorf("line exceeds maxWidth: %v", l)

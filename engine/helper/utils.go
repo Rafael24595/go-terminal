@@ -3,8 +3,8 @@ package helper
 import (
 	"fmt"
 	"strings"
-	"unicode/utf8"
 
+	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 )
 
@@ -15,7 +15,7 @@ type TextLayoutOpts struct {
 
 func fixDirectionOps(text string, opts TextLayoutOpts) TextLayoutOpts {
 	if opts.LogicalSize == 0 {
-		opts.LogicalSize = utf8.RuneCountInString(text)
+		opts.LogicalSize = runes.Measure(text)
 	}
 
 	if opts.Runes == "" {
@@ -31,7 +31,7 @@ type LogicalSizeOpts struct {
 
 func fixLogicalSizeOpts(text string, opts LogicalSizeOpts) LogicalSizeOpts {
 	if opts.LogicalSize == 0 {
-		opts.LogicalSize = utf8.RuneCountInString(text)
+		opts.LogicalSize = runes.Measure(text)
 	}
 
 	return opts
@@ -45,7 +45,7 @@ type TextTrimOpts struct {
 
 func fixTextTrimOpts(text string, opts TextTrimOpts) TextTrimOpts {
 	if opts.LogicalSize == 0 {
-		opts.LogicalSize = utf8.RuneCountInString(text)
+		opts.LogicalSize = runes.Measure(text)
 	}
 
 	if opts.EllipsisSize == 0 {
@@ -185,23 +185,24 @@ func TrimLeft(data string, width int, opts TextTrimOpts) string {
 
 	opts = fixTextTrimOpts(data, opts)
 
-	elipSize := utf8.RuneCountInString(opts.EllipsisText) * int(opts.EllipsisSize)
+	elipSize := runes.Measure(opts.EllipsisText) * int(opts.EllipsisSize)
 
-	realSize := utf8.RuneCountInString(data)
+	realSize := runes.Measure(data)
 	if width >= opts.LogicalSize || width > realSize {
 		return data
 	}
 
 	width = realSize - width
 
-	runes := []rune(data)
 	if elipSize+width >= realSize {
-		return string(runes[width:])
+		index, _ := runes.RuneIndexToByteIndex(data, width)
+		return data[index:]
 	}
 
 	elipTotal := strings.Repeat(opts.EllipsisText, int(opts.EllipsisSize))
 
-	return elipTotal + string(runes[width+elipSize:])
+	index, _ := runes.RuneIndexToByteIndex(data, width+elipSize)
+	return elipTotal + data[index:]
 }
 
 func TrimRight(data string, width int, opts TextTrimOpts) string {
@@ -211,21 +212,22 @@ func TrimRight(data string, width int, opts TextTrimOpts) string {
 
 	opts = fixTextTrimOpts(data, opts)
 
-	elipSize := utf8.RuneCountInString(opts.EllipsisText) * int(opts.EllipsisSize)
+	elipSize := runes.Measure(opts.EllipsisText) * int(opts.EllipsisSize)
 
-	realSize := utf8.RuneCountInString(data)
+	realSize := runes.Measure(data)
 	if width >= opts.LogicalSize || width > realSize {
 		return data
 	}
 
-	runes := []rune(data)
 	if elipSize > width {
-		return string(runes[:width])
+		index, _ := runes.RuneIndexToByteIndex(data, width)
+		return data[:index]
 	}
 
 	elipTotal := strings.Repeat(opts.EllipsisText, int(opts.EllipsisSize))
 
-	return string(runes[:width-elipSize]) + elipTotal
+	index, _ := runes.RuneIndexToByteIndex(data, width-elipSize)
+	return data[:index] + elipTotal
 }
 
 func NumberToAlpha(n int) string {

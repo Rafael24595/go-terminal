@@ -8,3 +8,5 @@ const DefaultElipsisText = "."
 const DefaultElipsisSize = uint(3)
 
 const DefaultInputLinePrompt = ">"
+
+var PrintableCaretRunes = []rune(PrintableCaretText)

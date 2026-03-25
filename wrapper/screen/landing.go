@@ -2,10 +2,10 @@ package wrapper_screen
 
 import (
 	"fmt"
-	"unicode/utf8"
 
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
@@ -14,7 +14,7 @@ import (
 
 func NewLanding() screen.Screen {
 	textTitle := "Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor"
-	sizeTitle := utf8.RuneCountInString(textTitle)
+	sizeTitle := runes.Measure(textTitle)
 
 	title := text.NewLines(
 		text.NewLine(

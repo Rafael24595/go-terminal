@@ -71,7 +71,7 @@ func (d *TextAreaDrawable) init(size terminal.Winsize) {
 	end := d.caret.SelectEnd()
 
 	if len(d.buffer) == 0 {
-		d.buffer = append(d.buffer, []rune(marker.PrintableCaretText)...)
+		d.buffer = append(d.buffer, marker.PrintableCaretRunes...)
 		start = 0
 		end = 1
 	}

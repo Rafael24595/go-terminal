@@ -1,9 +1,8 @@
 package table
 
 import (
-	"unicode/utf8"
-
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/heap"
+	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	drawable_line "github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
@@ -204,9 +203,9 @@ func makeCell(
 }
 
 func renderedRowSize(size map[string]int, separator marker.TableSeparatorMeta) int {
-	sepCenterLen := utf8.RuneCountInString(separator.Center)
-	sepLeftLen := utf8.RuneCountInString(separator.Left)
-	sepRightLen := utf8.RuneCountInString(separator.Right)
+	sepCenterLen := runes.Measure(separator.Center)
+	sepLeftLen := runes.Measure(separator.Left)
+	sepRightLen := runes.Measure(separator.Right)
 
 	joinSize := (len(size) - 1) * sepCenterLen
 	borderSize := sepLeftLen + sepRightLen
@@ -258,9 +257,9 @@ func adjustSize(size map[string]int, headers []string, cols int, rowSize int) (m
 func splitTable(size map[string]int, headers []string, splitTable marker.TableSeparatorMeta, cols int) []map[string]int {
 	tables := make([]map[string]int, 0)
 
-	leftLen := utf8.RuneCountInString(splitTable.Left)
-	centerLen := utf8.RuneCountInString(splitTable.Center)
-	rightLen := utf8.RuneCountInString(splitTable.Right)
+	leftLen := runes.Measure(splitTable.Left)
+	centerLen := runes.Measure(splitTable.Center)
+	rightLen := runes.Measure(splitTable.Right)
 	headersLen := len(headers)
 
 	table := make(map[string]int)

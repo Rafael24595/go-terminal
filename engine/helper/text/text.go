@@ -1,9 +1,5 @@
 package text
 
-import (
-	"github.com/Rafael24595/go-terminal/engine/model/key"
-)
-
 var wrapperMap = map[rune]rune{
 	'{': '}',
 	'(': ')',
@@ -18,9 +14,10 @@ var runesRequiringTrailingSpace = []rune{
 }
 
 var FullTextTransformer = NewTextTransformer(AppendSpaceAfterRune, WrappRunes)
+var VoidTextTransformer = NewTextTransformer()
 
 type textTransform func(
-	ky key.Key,
+	text []rune,
 	start,
 	end uint,
 	buff []rune,
@@ -36,39 +33,46 @@ func NewTextTransformer(helpers ...textTransform) TextTransformer {
 	}
 }
 
-func (h TextTransformer) Apply(ky key.Key, start, end uint, buff []rune) []rune {
+func (h TextTransformer) Apply(text []rune, start, end uint, buff []rune) []rune {
 	for _, h := range h.helpers {
-		if text, ok := h(ky, start, end, buff); ok {
+		if text, ok := h(text, start, end, buff); ok {
 			return text
 		}
 	}
 
-	return []rune{ky.Rune}
+	return text
 }
 
-func WrappRunes(ky key.Key, start, end uint, buff []rune) ([]rune, bool) {
-	text := []rune{ky.Rune}
+func WrappRunes(text []rune, start, end uint, buff []rune) ([]rune, bool) {
+	size := len(text)
+	if size < 1 || size > 1 {
+		return text, false
+	}
 
-	open := ky.Rune
+	focus := text[0]
 
-	close, ok := wrapperMap[open]
+	close, ok := wrapperMap[focus]
 	if !ok {
 		return text, false
 	}
 
 	text = make([]rune, 0)
-	text = append(text, open)
+	text = append(text, focus)
 	text = append(text, buff[start:end]...)
 	text = append(text, close)
 
 	return text, true
 }
 
-func AppendSpaceAfterRune(ky key.Key, start, end uint, _ []rune) ([]rune, bool) {
-	text := []rune{ky.Rune}
+func AppendSpaceAfterRune(text []rune, start, end uint, _ []rune) ([]rune, bool) {
+	size := len(text)
+	if size < 1 || size > 1 {
+		return text, false
+	}
 
+	focus := text[0]
 	for _, r := range runesRequiringTrailingSpace {
-		if ky.Rune != r {
+		if focus != r {
 			continue
 		}
 
