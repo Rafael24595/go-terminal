@@ -78,15 +78,16 @@ func fixNumberBuffer(buff []rune) ([]rune, []rune) {
 }
 
 func fixHiddenBuffer(buff []rune) ([]rune, []rune) {
-	cloneBuffer := make([]rune, len(buff))
-	copy(cloneBuffer, buff)
-
 	fixedBuffer := make([]rune, len(buff))
-	for i := range fixedBuffer {
-		fixedBuffer[i] = '*'
+	for i, r := range buff {
+		switch r {
+		case '\n', '\t', ' ':
+			fixedBuffer[i] = r
+		default:
+			fixedBuffer[i] = '*'
+		}
 	}
-
-	return cloneBuffer, fixedBuffer
+	return buff, fixedBuffer
 }
 
 func trimBuffer(limit uint64, facade []rune, buffer []rune) ([]rune, []rune) {
