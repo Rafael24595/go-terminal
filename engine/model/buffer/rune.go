@@ -103,9 +103,9 @@ func (b *RuneBuffer) applyChange(insert []rune, start, end uint) ([]rune, []rune
 	insertSize := len(newBuffer) - (len(b.buffer) - len(deleted))
 
 	fixedInsert := make([]rune, 0)
-	if insertSize > 0 {		
-		endInsert := min(start + uint(insertSize), uint(len(newBuffer)))
-        fixedInsert = newBuffer[start : endInsert]
+	if insertSize > 0 {
+		endInsert := min(start+uint(insertSize), uint(len(newBuffer)))
+		fixedInsert = newBuffer[start:endInsert]
 	}
 
 	b.buffer = newBuffer
