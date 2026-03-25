@@ -4,14 +4,13 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/helper/text"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
 )
 
 func TestAddSpaceAfterRunes_AddsSpace(t *testing.T) {
 	text, ok := text.AppendSpaceAfterRune(
-		key.Key{Rune: ','},
+		[]rune{','},
 		5,
 		5,
 		nil,
@@ -23,7 +22,7 @@ func TestAddSpaceAfterRunes_AddsSpace(t *testing.T) {
 
 func TestAddSpaceAfterRunes_IgnoresOtherRunes(t *testing.T) {
 	text, ok := text.AppendSpaceAfterRune(
-		key.Key{Rune: 'a'},
+		[]rune{'a'},
 		1,
 		1,
 		nil,
@@ -37,7 +36,7 @@ func TestWrapRunes_WrapsSelectionWithBrackets(t *testing.T) {
 	buffer := []rune("hello")
 
 	text, ok := text.WrappRunes(
-		key.Key{Rune: '('},
+		[]rune{'('},
 		0,
 		5,
 		buffer,
@@ -51,7 +50,7 @@ func TestWrapRunes_DoesNothingIfRuneIsNotWrapper(t *testing.T) {
 	buffer := []rune("hello")
 
 	text, ok := text.WrappRunes(
-		key.Key{Rune: 'a'},
+		[]rune{'a'},
 		1,
 		4,
 		buffer,
@@ -68,7 +67,7 @@ func TestTextHelper_Apply_UsesFirstMatchingHelper(t *testing.T) {
 	)
 
 	text := helper.Apply(
-		key.Key{Rune: ','},
+		[]rune{','},
 		2,
 		2,
 		[]rune("abc"),
@@ -84,7 +83,7 @@ func TestTextHelper_Apply_FallsBackToRuneInsertion(t *testing.T) {
 	)
 
 	text := helper.Apply(
-		key.Key{Rune: 'x'},
+		[]rune{'x'},
 		0,
 		0,
 		[]rune("abc"),
