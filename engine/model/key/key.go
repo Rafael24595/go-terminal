@@ -2,7 +2,7 @@ package key
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 )
 
@@ -133,38 +133,46 @@ var actionHelpMap = map[KeyAction]help.HelpField{
 	CustomActionCut:   {Code: []string{"M-x"}, Detail: "Cut"},
 	CustomActionCopy:  {Code: []string{"M-c"}, Detail: "Copy"},
 	CustomActionPaste: {Code: []string{"M-v"}, Detail: "Paste"},
+
+	ActionRune: {Code: []string{"Text"}, Detail: "Text"},
 }
 
 func ActionsToHelp(actions ...KeyAction) []help.HelpField {
 	return ActionsToHelpWithOverride(nil, actions...)
 }
 
-func ActionToHelp(action KeyAction) help.HelpField {
+func ActionToHelp(action KeyAction) *help.HelpField {
 	return ActionToHelpWithOverride(nil, action)
 }
 
 func ActionsToHelpWithOverride(overrides map[KeyAction]help.HelpField, actions ...KeyAction) []help.HelpField {
 	help := make([]help.HelpField, len(actions))
 	for i := range actions {
-		help[i] = ActionToHelpWithOverride(overrides, actions[i])
+		if action := ActionToHelpWithOverride(overrides, actions[i]); action != nil {
+			help[i] = *action
+		}
 	}
 	return help
 }
 
-func ActionToHelpWithOverride(overrides map[KeyAction]help.HelpField, action KeyAction) help.HelpField {
+func ActionToHelpWithOverride(overrides map[KeyAction]help.HelpField, action KeyAction) *help.HelpField {
+	if action == ActionAll {
+		return nil
+	}
+
 	if overrides != nil {
 		if field, exists := overrides[action]; exists {
-			return field
+			return &field
 		}
 	}
 
 	if str, exist := actionHelpMap[action]; exist {
-		return str
+		return &str
 	}
 
 	assert.Unreachable("unhandled action: %d", action)
 
-	return help.HelpField{
+	return &help.HelpField{
 		Code:   []string{"???"},
 		Detail: "Unknown action",
 	}
