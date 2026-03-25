@@ -56,7 +56,7 @@ func main() {
 		log.WriterFromCategory(record.WARNING),
 	)
 
-	state := &state.UIState{}
+	state := state.NewUIState()
 
 	cmd := wrapper_terminal.NewConsole()
 	cmd.Color("\x1b[0;32m")
