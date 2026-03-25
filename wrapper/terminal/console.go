@@ -109,11 +109,6 @@ func (c *Console) WriteLine(line ...string) error {
 			c.winsize.Rows, l, c.cursor,
 		)
 
-		// assert.AssertfFalse(utf8.RuneCountInString(l) > int(c.winsize.Cols),
-		// 	"line overflow[%d]: the line '%s' has lenght %d",
-		// 	c.winsize.Cols, l, utf8.RuneCountInString(l),
-		// )
-
 		c.buffer[c.cursor] = ERASE_LINE + l
 
 		c.cursor += 1
