@@ -6,12 +6,13 @@ import (
 	"time"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
+	"github.com/Rafael24595/go-terminal/engine/model/delta"
 	"github.com/Rafael24595/go-terminal/test/support/mock"
 )
 
-func applyDeltaStr(buffer string, d *Delta) string {
-	return string(ApplyDelta([]rune(buffer), d))
+func applyDeltaStr(buffer string, d *delta.Delta) string {
+	return string(delta.Apply([]rune(buffer), d))
 }
 
 func TestForgeEvent_Insert(t *testing.T) {

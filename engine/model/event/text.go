@@ -4,9 +4,10 @@ import (
 	"strings"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
+	"github.com/Rafael24595/go-terminal/engine/model/delta"
 	"github.com/Rafael24595/go-terminal/engine/platform/clock"
 )
 
@@ -48,8 +49,7 @@ type mergeAction struct {
 func (m *mergeAction) len() uint {
 	var n uint
 	for _, t := range m.insert {
-		r := []rune(t)
-		n += uint(len(r))
+		n += runes.Measureu(t)
 	}
 	return n
 }
@@ -58,12 +58,6 @@ type textEvent struct {
 	start  uint
 	insert string
 	delete string
-}
-
-type Delta struct {
-	Start uint
-	End   uint
-	Text  string
 }
 
 type TextEventService struct {
@@ -188,7 +182,7 @@ func (s *TextEventService) PushEvent(action ActionKind, start uint, end uint, de
 	})
 }
 
-func (s *TextEventService) Undo() *Delta {
+func (s *TextEventService) Undo() *delta.Delta {
 	s.flushAndLimit()
 
 	if len(s.events) == 0 || s.cursor == 0 {
@@ -199,14 +193,14 @@ func (s *TextEventService) Undo() *Delta {
 
 	event := s.events[s.cursor]
 
-	return &Delta{
+	return &delta.Delta{
 		Start: event.start,
-		End:   event.start + uint(len([]rune(event.insert))),
+		End:   event.start + runes.Measureu(event.insert),
 		Text:  event.delete,
 	}
 }
 
-func (s *TextEventService) Redo() *Delta {
+func (s *TextEventService) Redo() *delta.Delta {
 	s.flushAndLimit()
 
 	if len(s.events) == 0 || s.cursor >= len(s.events) {
@@ -217,9 +211,9 @@ func (s *TextEventService) Redo() *Delta {
 
 	s.incrementCursor()
 
-	return &Delta{
+	return &delta.Delta{
 		Start: event.start,
-		End:   event.start + uint(len([]rune(event.delete))),
+		End:   event.start + runes.Measureu(event.delete),
 		Text:  event.insert,
 	}
 }
@@ -288,23 +282,3 @@ func (s *TextEventService) limitEvents() {
 	s.cursor = max(0, s.cursor-excess)
 }
 
-func ApplyDelta(insert []rune, d *Delta) []rune {
-	size := uint(len(insert))
-	if d.Start > size || d.End > size {
-		return insert
-	}
-
-	runes := []rune(d.Text)
-	runesSize := uint(len(runes))
-
-	tail := size - d.End
-	total := d.Start + uint(len(runes)) + tail
-
-	newBuffer := make([]rune, total)
-
-	copy(newBuffer[:d.Start], insert[:d.Start])
-	copy(newBuffer[d.Start:], runes)
-	copy(newBuffer[d.Start+runesSize:], insert[d.End:])
-
-	return newBuffer
-}
