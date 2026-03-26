@@ -1,6 +1,8 @@
 package commons
 
 import (
+	"encoding/json"
+	"strconv"
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
@@ -188,4 +190,80 @@ func TestArgumentDefaults(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func TestMap(t *testing.T) {
+	tests := []struct {
+		name     string
+		from     any
+		wantData any
+		wantOk   bool
+	}{
+		{"String matching", "hola", "hola", true},
+		{"Int matching", 42, 42, true},
+		{"[]Rune matching", []rune{'a'}, []rune{'a'}, true},
+		{"Type mismatch", "100", 0, false},
+		{"Nil case", nil, nil, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			arg := ArgumentFrom(tt.from)
+
+			switch v := tt.wantData.(type) {
+			case string:
+				got, ok := Map[string](arg)
+
+				assert.Equal(t, tt.wantOk, ok)
+				assert.Equal(t, got, v)
+			case int:
+				got, ok := Map[int](arg)
+
+				assert.Equal(t, tt.wantOk, ok)
+				assert.Equal(t, got, v)
+
+			case []rune:
+				got, ok := Map[[]rune](arg)
+
+				assert.Equal(t, tt.wantOk, ok)
+				assert.DeepEqual(t, got, v)
+			}
+		})
+	}
+}
+
+func TestParse_IntSuccess(t *testing.T) {
+	arg := ArgumentFrom("123")
+
+	got, ok := Parse(arg, strconv.Atoi)
+
+	assert.True(t, ok)
+	assert.Equal(t, 123, got)
+}
+
+func TestParse_IntFailure(t *testing.T) {
+	arg := ArgumentFrom("abc")
+
+	_, ok := Parse(arg, strconv.Atoi)
+
+	assert.False(t, ok)
+}
+
+func TestParse_Json(t *testing.T) {
+	type lang struct {
+		Lang string `json:"lang"`
+	}
+
+	arg := ArgumentFrom(`{ "lang": "golang" }`)
+
+	parseJson := func(s string) (lang, error) {
+		var l lang
+		err := json.Unmarshal([]byte(s), &l)
+		return l, err
+	}
+
+	got, ok := Parse(arg, parseJson)
+
+	assert.True(t, ok)
+	assert.Equal(t, "golang", got.Lang)
 }

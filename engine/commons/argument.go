@@ -323,10 +323,32 @@ func (a Argument) Float64d(def float64) float64 {
 	return def
 }
 
-func (a Argument) Parse(parse func(string) (any, error)) (any, bool) {
+func Map[T any](a Argument) (T, bool) {
+	val, ok := a.item.(T)
+	return val, ok
+}
+
+func Mapd[T any](a Argument, def T) T {
+	if v, ok := Map[T](a); ok {
+		return v
+	}
+	return def
+}
+
+func Parse[T any](a Argument, parse func(string) (T, error)) (T, bool) {
+	var zero T
+
 	v, err := parse(a.Stringf())
 	if err != nil {
-		return nil, false
+		return zero, false
 	}
+
 	return v, true
+}
+
+func Parsed[T any](a Argument, parse func(string) (T, error), def T) T {
+	if v, ok := Parse[T](a, parse); ok {
+		return v
+	}
+	return def
 }
