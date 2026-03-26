@@ -557,7 +557,7 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 		strategy = state.NewFocusPager()
 	}
 
-	textarea := textarea.NewTextAreaDrawable(c.buffer.Facade(), *c.caret).
+	textarea := textarea.NewTextAreaDrawable(c.buffer.Facade(), c.caret).
 		WriteMode(c.writeMode).
 		IndexMode(c.indexMode)
 

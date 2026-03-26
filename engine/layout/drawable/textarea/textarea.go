@@ -24,11 +24,11 @@ type TextAreaDrawable struct {
 	writeMode   bool
 	indexMode   bool
 	buffer      []rune
-	caret       input.TextCursor
+	caret       *input.TextCursor
 	drawable    drawable.Drawable
 }
 
-func NewTextAreaDrawable(buffer []rune, caret input.TextCursor) *TextAreaDrawable {
+func NewTextAreaDrawable(buffer []rune, caret *input.TextCursor) *TextAreaDrawable {
 	clone := make([]rune, len(buffer))
 	copy(clone, buffer)
 
@@ -42,7 +42,7 @@ func NewTextAreaDrawable(buffer []rune, caret input.TextCursor) *TextAreaDrawabl
 	}
 }
 
-func TextAreaDrawableFromData(buffer []rune, caret input.TextCursor) drawable.Drawable {
+func TextAreaDrawableFromData(buffer []rune, caret *input.TextCursor) drawable.Drawable {
 	return NewTextAreaDrawable(buffer, caret).ToDrawable()
 }
 
