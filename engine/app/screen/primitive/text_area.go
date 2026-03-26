@@ -24,7 +24,7 @@ import (
 
 const default_text_area_name = "TextArea"
 
-const ArgTextAreaBuffer = "text_area_buffer"
+const ArgTextAreaBuffer screen.ScreenArgument[[]rune] = "text_area_buffer"
 
 var text_area_read_overrides = map[key.KeyAction]help.HelpField{
 	key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Exit/Back"},
@@ -230,7 +230,7 @@ func (c *TextArea) updateWrite(state *state.UIState, evnt screen.ScreenEvent) sc
 
 	result := c.updateBuffer(state, evnt)
 
-	state.Stack.Push(c.reference, ArgTextAreaBuffer, c.buffer.Buffer())
+	state.Stack.Push(c.reference, ArgTextAreaBuffer.Code(), c.buffer.Buffer())
 
 	return result
 }

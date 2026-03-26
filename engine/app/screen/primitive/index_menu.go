@@ -17,7 +17,7 @@ import (
 
 const default_index_menu_name = "IndexMenu"
 
-const ArgIdIndexMenu = "id_index_menu"
+const ArgIdIndexMenu screen.ScreenArgument[string] = "id_index_menu"
 
 var index_menu_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(
@@ -102,7 +102,7 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 	case key.ActionEnter:
 		option := c.options[c.cursor]
 
-		state.Stack.Push(c.reference, ArgIdIndexMenu, option.Id)
+		state.Stack.Push(c.reference, ArgIdIndexMenu.Code(), option.Id)
 
 		if option.Action().Name != nil {
 			scrn := c.options[c.cursor].Action()
