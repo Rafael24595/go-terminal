@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	checkmenu "github.com/Rafael24595/go-terminal/engine/layout/drawable/check"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
@@ -18,6 +19,8 @@ import (
 )
 
 const default_check_menu_name = "CheckMenu"
+
+const ArgCheckMenuActive screen.ScreenArgument[set.Set[string]] = "check_menu_active"
 
 var check_menu_read_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(key.ActionEnter)...,
@@ -34,33 +37,10 @@ var check_menu_write_definition = screen.DefinitionFromKeys(
 	)...,
 )
 
-type checkActionHandler = func()
-
-func defaulCheckHandler() {}
-
-type checkAction struct {
-	mode    bool
-	handler checkActionHandler
-}
-
-func enabledCheckAction(handler checkActionHandler) *checkAction {
-	return &checkAction{
-		mode:    false,
-		handler: handler,
-	}
-}
-
-func disabledCheckAction() *checkAction {
-	return &checkAction{
-		mode:    false,
-		handler: defaulCheckHandler,
-	}
-}
-
 type CheckMenu struct {
 	reference    string
 	clock        clock.Clock
-	action       *checkAction
+	action       *input.CheckAction
 	meta         marker.CheckMeta
 	distribution style.Distribution
 	title        []text.Line
@@ -73,7 +53,7 @@ func NewCheckMenu() *CheckMenu {
 	return &CheckMenu{
 		reference: default_check_menu_name,
 		clock:     clock.UnixMilliClock,
-		action:    disabledCheckAction(),
+		action:    input.NewCheckAction(),
 		meta:      marker.BracketsCheck,
 		title:     make([]text.Line, 0),
 		options:   make([]input.CheckOption, 0),
@@ -89,6 +69,11 @@ func (c *CheckMenu) SetName(name string) *CheckMenu {
 
 func (c *CheckMenu) SetMeta(meta marker.CheckMeta) *CheckMenu {
 	c.meta = meta
+	return c
+}
+
+func (c *CheckMenu) SetActionHandler(handler input.CheckActionHandler) *CheckMenu {
+	c.action.Handler = handler
 	return c
 }
 
@@ -130,14 +115,14 @@ func (c *CheckMenu) ToScreen() screen.Screen {
 }
 
 func (c *CheckMenu) definition() screen.Definition {
-	if c.action.mode {
+	if c.action.ActionMode {
 		return check_menu_write_definition
 	}
 	return check_menu_read_definition
 }
 
 func (c *CheckMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
-	if !c.action.mode {
+	if !c.action.ActionMode {
 		return c.updateRead(state, evnt)
 	}
 
@@ -151,9 +136,10 @@ func (c *CheckMenu) updateNavigation(state *state.UIState, evnt screen.ScreenEve
 
 	switch ky.Code {
 	case key.ActionEsc:
-		c.action.mode = false
+		c.action.ActionMode = false
 	case key.ActionEnter:
 		c.switchState()
+		state.Stack.Push(c.reference, ArgCheckMenuActive.Code(), c.activeIds())
 	case key.ActionArrowLeft:
 		c.cursor = math.SubClampZero(c.cursor, 1)
 	case key.ActionArrowRight:
@@ -172,7 +158,7 @@ func (c *CheckMenu) updateRead(state *state.UIState, evnt screen.ScreenEvent) sc
 
 	switch ky.Code {
 	case key.ActionEnter:
-		c.action.mode = true
+		c.action.ActionMode = true
 	}
 
 	return screen.ScreenResultFromUIState(state)
@@ -214,9 +200,19 @@ func (c *CheckMenu) switchState() {
 	}
 }
 
+func (c *CheckMenu) activeIds() set.Set[string] {
+	result := set.NewSet[string]()
+	for _, v := range c.options {
+		if v.Status {
+			result.Add(v.Id)
+		}
+	}
+	return result
+}
+
 func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
 	indexmenu := checkmenu.NewCheckMenuDrawable(c.options).
-		WriteMode(c.action.mode).
+		WriteMode(c.action.ActionMode).
 		Meta(c.meta).
 		Cursor(c.cursor)
 
