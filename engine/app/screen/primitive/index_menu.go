@@ -2,7 +2,7 @@ package primitive
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
@@ -16,6 +16,8 @@ import (
 )
 
 const default_index_menu_name = "IndexMenu"
+
+const ArgIdIndexMenu = "id_index_menu"
 
 var index_menu_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(
@@ -99,11 +101,16 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 		c.cursor = (c.cursor + 1) % size
 	case key.ActionEnter:
 		option := c.options[c.cursor]
+
+		state.Stack.Push(c.reference, ArgIdIndexMenu, option.Id)
+
 		if option.Action().Name != nil {
 			scrn := c.options[c.cursor].Action()
-			return screen.ScreenResult{
-				Screen: &scrn,
-			}
+
+			result := screen.ScreenResultFromUIState(state)
+			result.Screen = &scrn
+
+			return result
 		}
 
 		assert.Unreachable(

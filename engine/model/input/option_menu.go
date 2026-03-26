@@ -5,13 +5,17 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
 
+type MenuOptionAction = func() screen.Screen
+
 type MenuOption struct {
+	Id     string
 	Label  text.Fragment
 	Action func() screen.Screen
 }
 
-func NewMenuOption(option text.Fragment, action func() screen.Screen) MenuOption {
+func NewMenuOption(id string, option text.Fragment, action MenuOptionAction) MenuOption {
 	return MenuOption{
+		Id:     id,
 		Label:  option,
 		Action: action,
 	}

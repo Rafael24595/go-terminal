@@ -21,6 +21,7 @@ func TestIndexMenu_ToScreen(t *testing.T) {
 		AddTitle(text.LineFromString("Welcome")).
 		AddOptions(
 			input.NewMenuOption(
+				"opt_1",
 				text.NewFragment("Option 1"),
 				func() screen.Screen { return screen.Screen{} },
 			),
@@ -55,10 +56,12 @@ func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 		AddTitle(text.LineFromString("Title 1")).
 		AddOptions(
 			input.NewMenuOption(
+				"opt_1",
 				text.NewFragment("Option 1"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			input.NewMenuOption(
+				"opt_2",
 				text.NewFragment("Option 2"),
 				func() screen.Screen { return screen.Screen{} },
 			),
@@ -72,10 +75,12 @@ func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
 			input.NewMenuOption(
+				"opt_a",
 				text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			input.NewMenuOption(
+				"opt_b",
 				text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
@@ -99,10 +104,12 @@ func TestIndexMenu_CursorNavigation(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
 			input.NewMenuOption(
+				"opt_a",
 				text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			input.NewMenuOption(
+				"opt_b",
 				text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
@@ -133,6 +140,7 @@ func TestIndexMenu_Action(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
 			input.NewMenuOption(
+				"opt_go",
 				text.NewFragment("Go"),
 				func() screen.Screen { return expected },
 			),
@@ -152,10 +160,12 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	menu := NewIndexMenu().
 		AddOptions(
 			input.NewMenuOption(
+				"opt_a",
 				text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			input.NewMenuOption(
+				"opt_b",
 				text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
