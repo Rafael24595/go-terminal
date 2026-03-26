@@ -12,6 +12,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/param"
 	"github.com/Rafael24595/go-terminal/engine/platform/clock"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
@@ -20,7 +21,7 @@ import (
 
 const default_check_menu_name = "CheckMenu"
 
-const ArgCheckMenuActive screen.ScreenArgument[set.Set[string]] = "check_menu_active"
+const ArgCheckMenuActive param.Typed[set.Set[string]] = "check_menu_active"
 
 var check_menu_read_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(key.ActionEnter)...,
@@ -121,16 +122,16 @@ func (c *CheckMenu) definition() screen.Definition {
 	return check_menu_read_definition
 }
 
-func (c *CheckMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+func (c *CheckMenu) update(stt *state.UIState, evt screen.ScreenEvent) screen.ScreenResult {
 	if !c.action.ActionMode {
-		return c.updateRead(state, evnt)
+		return c.updateRead(stt, evt)
 	}
 
-	return c.updateNavigation(state, evnt)
+	return c.updateNavigation(stt, evt)
 }
 
-func (c *CheckMenu) updateNavigation(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
-	ky := evnt.Key
+func (c *CheckMenu) updateNavigation(stt *state.UIState, evt screen.ScreenEvent) screen.ScreenResult {
+	ky := evt.Key
 
 	optsLen := len(c.options)
 
@@ -139,7 +140,12 @@ func (c *CheckMenu) updateNavigation(state *state.UIState, evnt screen.ScreenEve
 		c.action.ActionMode = false
 	case key.ActionEnter:
 		c.switchState()
-		state.Stack.Push(c.reference, ArgCheckMenuActive.Code(), c.activeIds())
+		state.PushParam(
+			stt.Stack,
+			c.reference,
+			ArgCheckMenuActive,
+			c.activeIds(),
+		)
 	case key.ActionArrowLeft:
 		c.cursor = math.SubClampZero(c.cursor, 1)
 	case key.ActionArrowRight:
@@ -150,7 +156,7 @@ func (c *CheckMenu) updateNavigation(state *state.UIState, evnt screen.ScreenEve
 		c.cursor = max(0, uint(optsLen-1))
 	}
 
-	return screen.ScreenResultFromUIState(state)
+	return screen.ScreenResultFromUIState(stt)
 }
 
 func (c *CheckMenu) updateRead(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {

@@ -11,13 +11,14 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/param"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
 
 const default_index_menu_name = "IndexMenu"
 
-const ArgIdIndexMenu screen.ScreenArgument[string] = "id_index_menu"
+const ArgIdIndexMenu param.Typed[string] = "id_index_menu"
 
 var index_menu_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(
@@ -88,13 +89,13 @@ func (c *IndexMenu) definition() screen.Definition {
 	return index_menu_definition
 }
 
-func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
+func (c *IndexMenu) update(stt *state.UIState, evt screen.ScreenEvent) screen.ScreenResult {
 	size := uint(len(c.options))
 	if size == 0 {
 		return screen.EmptyScreenResult()
 	}
 
-	switch event.Key.Code {
+	switch evt.Key.Code {
 	case key.ActionArrowUp:
 		c.cursor = (c.cursor + size - 1) % size
 	case key.ActionTab, key.ActionArrowDown:
@@ -102,12 +103,17 @@ func (c *IndexMenu) update(state *state.UIState, event screen.ScreenEvent) scree
 	case key.ActionEnter:
 		option := c.options[c.cursor]
 
-		state.Stack.Push(c.reference, ArgIdIndexMenu.Code(), option.Id)
+		state.PushParam(
+			stt.Stack,
+			c.reference,
+			ArgIdIndexMenu,
+			option.Id,
+		)
 
 		if option.Action().Name != nil {
 			scrn := c.options[c.cursor].Action()
 
-			result := screen.ScreenResultFromUIState(state)
+			result := screen.ScreenResultFromUIState(stt)
 			result.Screen = &scrn
 
 			return result

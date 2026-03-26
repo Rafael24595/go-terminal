@@ -5,6 +5,7 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/commons"
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
+	"github.com/Rafael24595/go-terminal/engine/model/param"
 	"github.com/Rafael24595/go-terminal/engine/platform/clock"
 )
 
@@ -90,6 +91,15 @@ func (c *StackContext) RetainOnly(screens set.Set[string]) *StackContext {
 	}
 
 	return c
+}
+
+func PushParam[T any](
+	c *StackContext,
+	screen string,
+	param param.Typed[T],
+	arg T,
+) *StackContext {
+	return c.Push(screen, param.Code(), arg)
 }
 
 type ScreenContext struct {

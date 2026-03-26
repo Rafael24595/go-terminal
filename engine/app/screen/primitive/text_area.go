@@ -16,6 +16,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/param"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 
 	text_transformer "github.com/Rafael24595/go-terminal/engine/helper/text"
@@ -24,7 +25,7 @@ import (
 
 const default_text_area_name = "TextArea"
 
-const ArgTextAreaBuffer screen.ScreenArgument[[]rune] = "text_area_buffer"
+const ArgTextAreaBuffer param.Typed[[]rune] = "text_area_buffer"
 
 var text_area_read_overrides = map[key.KeyAction]help.HelpField{
 	key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Exit/Back"},
@@ -187,50 +188,55 @@ func (c *TextArea) update(state *state.UIState, evnt screen.ScreenEvent) screen.
 	return c.updateWrite(state, evnt)
 }
 
-func (c *TextArea) updateRead(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
-	ky := evnt.Key
+func (c *TextArea) updateRead(stt *state.UIState, evt screen.ScreenEvent) screen.ScreenResult {
+	ky := evt.Key
 
 	switch ky.Code {
 	case key.ActionEnter:
 		c.writeMode = true
 	}
 
-	return screen.ScreenResultFromUIState(state)
+	return screen.ScreenResultFromUIState(stt)
 }
 
-func (c *TextArea) updateWrite(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
-	ky := evnt.Key
+func (c *TextArea) updateWrite(stt *state.UIState, evt screen.ScreenEvent) screen.ScreenResult {
+	ky := evt.Key
 
 	switch ky.Code {
 	case key.ActionEsc:
 		c.writeMode = false
-		return screen.ScreenResultFromUIState(state)
+		return screen.ScreenResultFromUIState(stt)
 
 	case key.ActionHome:
-		return c.moveHome(state, evnt)
+		return c.moveHome(stt, evt)
 
 	case key.ActionEnd:
-		return c.moveEnd(state, evnt)
+		return c.moveEnd(stt, evt)
 
 	case key.ActionArrowLeft:
-		return c.moveBackward(state, evnt)
+		return c.moveBackward(stt, evt)
 
 	case key.ActionArrowRight:
-		return c.moveForward(state, evnt)
+		return c.moveForward(stt, evt)
 
 	case key.ActionEnter:
 		ky = *key.NewKeyRune(key.ENTER_LF)
 
 	case key.ActionArrowUp:
-		return c.moveUp(state, evnt)
+		return c.moveUp(stt, evt)
 
 	case key.ActionArrowDown:
-		return c.moveDown(state, evnt)
+		return c.moveDown(stt, evt)
 	}
 
-	result := c.updateBuffer(state, evnt)
+	result := c.updateBuffer(stt, evt)
 
-	state.Stack.Push(c.reference, ArgTextAreaBuffer.Code(), c.buffer.Buffer())
+	state.PushParam(
+		stt.Stack,
+		c.reference,
+		ArgTextAreaBuffer,
+		c.buffer.Buffer(),
+	)
 
 	return result
 }
