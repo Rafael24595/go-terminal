@@ -24,6 +24,8 @@ import (
 
 const default_text_area_name = "TextArea"
 
+const ArgTextAreaBuffer = "text_area_buffer"
+
 var text_area_read_overrides = map[key.KeyAction]help.HelpField{
 	key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Exit/Back"},
 	key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit text"},
@@ -216,14 +218,6 @@ func (c *TextArea) updateWrite(state *state.UIState, evnt screen.ScreenEvent) sc
 	case key.ActionArrowRight:
 		return c.moveForward(state, evnt)
 
-	case key.ActionBackspace, key.ActionDeleteBackward:
-		word := ky.Code == key.ActionDeleteBackward
-		return c.deleteBackward(state, word)
-
-	case key.ActionDelete, key.ActionDeleteForward:
-		word := ky.Code == key.ActionDeleteForward
-		return c.deleteForward(state, word)
-
 	case key.ActionEnter:
 		ky = *key.NewKeyRune(key.ENTER_LF)
 
@@ -232,7 +226,26 @@ func (c *TextArea) updateWrite(state *state.UIState, evnt screen.ScreenEvent) sc
 
 	case key.ActionArrowDown:
 		return c.moveDown(state, evnt)
+	}
 
+	result := c.updateBuffer(state, evnt)
+
+	state.Stack.Push(c.reference, ArgTextAreaBuffer, c.buffer.Buffer())
+
+	return result
+}
+
+func (c *TextArea) updateBuffer(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+	ky := evnt.Key
+
+	switch ky.Code {
+	case key.ActionBackspace, key.ActionDeleteBackward:
+		word := ky.Code == key.ActionDeleteBackward
+		return c.deleteBackward(state, word)
+
+	case key.ActionDelete, key.ActionDeleteForward:
+		word := ky.Code == key.ActionDeleteForward
+		return c.deleteForward(state, word)
 	case key.CustomActionUndo, key.CustomActionRedo:
 		return c.undoRedo(state, ky)
 
