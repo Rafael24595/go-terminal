@@ -28,18 +28,22 @@ func NewLanding() screen.Screen {
 	)
 
 	options := input.NewMenuOptions(
-		input.NewMenuOption(text.NewFragment("Option Article"), NewTestArticle),
-		input.NewMenuOption(text.NewFragment("Option TextArea"), NewTestTextArea),
-		input.NewMenuOption(text.NewFragment("Option Table"), NewTestTable),
-		input.NewMenuOption(text.NewFragment("Option Modal"), NewTestModal),
-		input.NewMenuOption(text.NewFragment("Option Check"), NewTestCheck),
+		input.NewMenuOption("opt_art", text.NewFragment("Option Article"), NewTestArticle),
+		input.NewMenuOption("opt_txt", text.NewFragment("Option TextArea"), NewTestTextArea),
+		input.NewMenuOption("opt_tbl", text.NewFragment("Option Table"), NewTestTable),
+		input.NewMenuOption("opt_mdl", text.NewFragment("Option Modal"), NewTestModal),
+		input.NewMenuOption("opt_chk", text.NewFragment("Option Check"), NewTestCheck),
 	)
 
 	optsSize := len(options)
 
 	for i := range 30 {
 		options = append(options,
-			input.NewMenuOption(text.NewFragment(fmt.Sprintf("Option %d", i+1+optsSize)), NewTestTextArea),
+			input.NewMenuOption(
+				fmt.Sprintf("opt_%d", i),
+				text.NewFragment(fmt.Sprintf("Option %d", i+1+optsSize)),
+				NewTestTextArea,
+			),
 		)
 	}
 
