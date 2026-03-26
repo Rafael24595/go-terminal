@@ -3,7 +3,6 @@ package wrapper_screen
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/screen/primitive"
-	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -71,7 +70,7 @@ func NewTestTable() screen.Screen {
 	return primitive.NewTable[Language]().
 		SetName("article - ipsum").
 		DefinePadding(style.Center).
-		EnableAction(func(input.MatrixCursor) {}).
+		EnableAction().
 		AddTitle(
 			text.LineFromString("Donec massa sem"),
 			text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
