@@ -10,17 +10,17 @@ const (
 type VerticalPosition uint
 
 const (
-	Left VerticalPosition = iota
-	Center
-	Right
+	Top VerticalPosition = iota
+	Middle
+	Bottom
 )
 
 type HorizontalPosition uint
 
 const (
-	Top HorizontalPosition = iota
-	Middle
-	Bottom
+	Left HorizontalPosition = iota
+	Center
+	Right
 )
 
 type Justify uint8
@@ -33,4 +33,3 @@ const (
 	JustifyAround
 	JustifyEvenly
 )
-

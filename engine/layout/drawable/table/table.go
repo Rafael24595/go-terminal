@@ -2,7 +2,7 @@ package table
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
@@ -16,14 +16,14 @@ const NameTableDrawable = "TableDrawable"
 type TableDrawable struct {
 	initialized bool
 	size        terminal.Winsize
-	padding     style.VerticalPosition
+	padding     style.HorizontalPosition
 	spec        style.Spec
 	table       table.Table
 	sections    []section
 	cursor      input.MatrixCursor
 }
 
-func NewTableDrawable(table table.Table, cursor input.MatrixCursor, padding style.VerticalPosition) *TableDrawable {
+func NewTableDrawable(table table.Table, cursor input.MatrixCursor, padding style.HorizontalPosition) *TableDrawable {
 	return &TableDrawable{
 		initialized: false,
 		size:        terminal.Winsize{},
@@ -35,7 +35,7 @@ func NewTableDrawable(table table.Table, cursor input.MatrixCursor, padding styl
 	}
 }
 
-func TableDrawableFromTable(table table.Table, cursor input.MatrixCursor, padding style.VerticalPosition) drawable.Drawable {
+func TableDrawableFromTable(table table.Table, cursor input.MatrixCursor, padding style.HorizontalPosition) drawable.Drawable {
 	return NewTableDrawable(table, cursor, padding).ToDrawable()
 }
 
@@ -143,7 +143,7 @@ func (d *TableDrawable) drawDynamic(remaining int) ([][]text.Line, bool) {
 	return bodies, len(empty) != len(d.sections)
 }
 
-func makeSpec(base style.Spec, size terminal.Winsize, padding style.VerticalPosition) style.Spec {
+func makeSpec(base style.Spec, size terminal.Winsize, padding style.HorizontalPosition) style.Spec {
 	cols := uint(size.Cols)
 
 	var spec style.Spec

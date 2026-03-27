@@ -35,7 +35,7 @@ type Table[T any] struct {
 	title     []text.Line
 	table     *table.Table
 	cursor    *input.MatrixCursor
-	padding   style.VerticalPosition
+	padding   style.HorizontalPosition
 }
 
 func NewTable[T any]() *Table[T] {
@@ -69,7 +69,7 @@ func (c *Table[T]) SetActionHandler(handler input.TableActionHandler) *Table[T] 
 	return c
 }
 
-func (c *Table[T]) DefinePadding(padding style.VerticalPosition) *Table[T] {
+func (c *Table[T]) DefinePadding(padding style.HorizontalPosition) *Table[T] {
 	c.padding = padding
 	return c
 }
