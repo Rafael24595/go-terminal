@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
@@ -25,7 +25,7 @@ func drawSources(vm viewmodel.ViewModel, winsize terminal.Winsize) {
 	footer.Init(winsize)
 	footer.Draw()
 
-	lines := vm.Lines.ToDrawable()
+	lines := vm.Kernel.ToDrawable()
 	lines.Init(winsize)
 	lines.Draw()
 }
@@ -96,7 +96,7 @@ func TestMapScreen_ActionSingleFocus(t *testing.T) {
 		View: func(stt state.UIState) viewmodel.ViewModel {
 			vm := viewmodel.ViewModelFromUIState(stt)
 			vm.Header.Shift(headerBase.ToDrawable())
-			vm.Lines.Shift(linesBase.ToDrawable())
+			vm.Kernel.Shift(linesBase.ToDrawable())
 			vm.Footer.Shift(footerBase.ToDrawable())
 			return *vm
 		},
@@ -139,7 +139,7 @@ func TestMapScreen_ActionMultipleFocus(t *testing.T) {
 		View: func(stt state.UIState) viewmodel.ViewModel {
 			vm := viewmodel.ViewModelFromUIState(stt)
 			vm.Header.Shift(headerBase.ToDrawable())
-			vm.Lines.Shift(linesBase.ToDrawable())
+			vm.Kernel.Shift(linesBase.ToDrawable())
 			vm.Footer.Shift(footerBase.ToDrawable())
 			return *vm
 		},

@@ -169,7 +169,7 @@ func (c *Table[T]) view(stt state.UIState) viewmodel.ViewModel {
 	vm.Header.Shift(
 		line.EagerDrawableFromLines(c.title...),
 	)
-	vm.Lines.Shift(
+	vm.Kernel.Shift(
 		drawable_table.TableDrawableFromTable(*c.table, *c.cursor, c.padding),
 	)
 

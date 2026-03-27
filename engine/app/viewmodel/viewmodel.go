@@ -14,7 +14,7 @@ var default_pager = state.NewPagePager()
 
 type ViewModel struct {
 	Header *stack.StackDrawable
-	Lines  *stack.StackDrawable
+	Kernel *stack.StackDrawable
 	Footer *stack.StackDrawable
 	Input  *InputLine
 	Pager  state.PagerStrategy
@@ -24,7 +24,7 @@ type ViewModel struct {
 func ViewModelFromUIState(stt state.UIState) *ViewModel {
 	return &ViewModel{
 		Header: stack.NewStackDrawable(),
-		Lines:  stack.NewStackDrawable(),
+		Kernel: stack.NewStackDrawable(),
 		Footer: stack.NewStackDrawable(),
 		Input:  nil,
 		Pager:  default_pager,
@@ -55,7 +55,7 @@ func (v *ViewModel) InitStaticLayers(size terminal.Winsize) (*stack.StackDrawabl
 }
 
 func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) *stack.StackDrawable {
-	return v.Lines.Init(size)
+	return v.Kernel.Init(size)
 }
 
 func (v *ViewModel) InitInputLine(size terminal.Winsize) (drawable.Drawable, bool) {

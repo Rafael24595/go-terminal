@@ -566,7 +566,7 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 	vm.Header.Shift(
 		drawable_line.EagerDrawableFromLines(c.title...),
 	)
-	vm.Lines.Shift(
+	vm.Kernel.Shift(
 		textarea.ToDrawable(),
 	)
 

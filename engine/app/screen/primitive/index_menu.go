@@ -141,7 +141,7 @@ func (c *IndexMenu) view(stt state.UIState) viewmodel.ViewModel {
 	vm.Header.Shift(
 		line.EagerDrawableFromLines(c.title...),
 	)
-	vm.Lines.Shift(
+	vm.Kernel.Shift(
 		indexmenu.ToDrawable(),
 	)
 

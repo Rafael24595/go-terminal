@@ -100,7 +100,7 @@ func (c *ModalMenu) view(stt state.UIState) viewmodel.ViewModel {
 		DefineCursor(c.cursor).
 		ToDrawable()
 
-	vm.Lines.Shift(modal)
+	vm.Kernel.Shift(modal)
 
 	return *vm
 }

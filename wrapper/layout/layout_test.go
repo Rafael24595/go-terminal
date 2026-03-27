@@ -13,7 +13,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
-	
+
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
@@ -30,7 +30,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 		),
 	)
 
-	vm.Lines.Shift(
+	vm.Kernel.Shift(
 		line.LazyDrawableFromLines(
 			text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
 			text.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -89,7 +89,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		),
 	)
 
-	vm.Lines.Shift(
+	vm.Kernel.Shift(
 		line.LazyDrawableFromLines(
 			text.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			text.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -203,7 +203,7 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 			text.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
-	vm.Lines.Shift(
+	vm.Kernel.Shift(
 		line.LazyDrawableFromLines(
 			text.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
@@ -225,12 +225,12 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 	vm.SetInput(viewmodel.NewInputLine(mock.ToDrawable()))
 
 	assert.True(t, vm.Header.HasNext())
-	assert.True(t, vm.Lines.HasNext())
+	assert.True(t, vm.Kernel.HasNext())
 	assert.True(t, vm.Footer.HasNext())
 
 	TerminalApply(stt, *vm, size)
 
 	assert.False(t, vm.Header.HasNext())
-	assert.False(t, vm.Lines.HasNext())
+	assert.False(t, vm.Kernel.HasNext())
 	assert.False(t, vm.Footer.HasNext())
 }

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -73,8 +73,8 @@ func TestArticle_View(t *testing.T) {
 	vm.Header.Init(terminal.Winsize{})
 	headers, _ := vm.Header.Draw()
 
-	vm.Lines.Init(terminal.Winsize{})
-	lines, _ := vm.Lines.Draw()
+	vm.Kernel.Init(terminal.Winsize{})
+	lines, _ := vm.Kernel.Draw()
 
 	assert.Equal(t, len(headers), 1, "ViewModel header count")
 	assert.Equal(t, len(lines), 1, "ViewModel lines count")

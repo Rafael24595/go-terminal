@@ -52,7 +52,7 @@ func (c *MapScreen) view(state state.UIState) viewmodel.ViewModel {
 	vm := c.screen.View(state)
 
 	header := vm.Header.Items()
-	lines := vm.Lines.Items()
+	lines := vm.Kernel.Items()
 	footer := vm.Footer.Items()
 
 	for _, a := range c.actions {
@@ -74,7 +74,7 @@ func (c *MapScreen) view(state state.UIState) viewmodel.ViewModel {
 	}
 
 	vm.Header = stack.NewStackDrawable().Shift(header...)
-	vm.Lines = stack.NewStackDrawable().Shift(lines...)
+	vm.Kernel = stack.NewStackDrawable().Shift(lines...)
 	vm.Footer = stack.NewStackDrawable().Shift(footer...)
 
 	return vm

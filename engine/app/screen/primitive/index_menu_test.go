@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
@@ -180,8 +180,8 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	menu.cursor = 1
 	vm := menu.view(*stt)
 
-	vm.Lines.Init(terminal.Winsize{Cols: 10, Rows: 2})
-	lines, _ := vm.Lines.Draw()
+	vm.Kernel.Init(terminal.Winsize{Cols: 10, Rows: 2})
+	lines, _ := vm.Kernel.Draw()
 
 	assert.NotNil(t, vm.Pager)
 	assert.Equal(t, state.PagerModeFocus, vm.Pager.Mode)
