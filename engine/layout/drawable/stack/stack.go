@@ -4,7 +4,7 @@ import (
 	"iter"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
@@ -56,6 +56,17 @@ func (d *StackDrawable) Shift(items ...drawable.Drawable) *StackDrawable {
 
 func (d *StackDrawable) Size() uint {
 	return uint(len(d.items))
+}
+
+func (d *StackDrawable) Take(code string) (drawable.Drawable, bool) {
+	for i, v := range d.items {
+		if v.drawable.Code == code {
+			target := v.drawable
+            d.items = append(d.items[:i], d.items[i+1:]...)
+            return target, true
+		}
+	}
+	return drawable.Drawable{}, false
 }
 
 func (d *StackDrawable) Items() []drawable.Drawable {
