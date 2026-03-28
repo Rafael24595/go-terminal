@@ -566,8 +566,10 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 	vm.Header.Shift(
 		drawable_line.EagerDrawableFromLines(c.title...),
 	)
+
+	code := c.mainDrawableCode()
 	vm.Kernel.Shift(
-		textarea.ToDrawable(),
+		textarea.ToDrawable().SetCode(code),
 	)
 
 	vm.SetStrategy(strategy)
@@ -579,6 +581,10 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 	)
 
 	return *vm
+}
+
+func (c *TextArea) mainDrawableCode() string {
+	return "main_" + c.reference
 }
 
 func (c *TextArea) insertSelection() (uint, uint, uint) {
