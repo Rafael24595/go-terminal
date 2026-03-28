@@ -14,7 +14,7 @@ func NewTestTextArea() screen.Screen {
 	sizeTitle := runes.Measureu(textTitle)
 
 	return primitive.NewTextArea().
-		SetName("article - amet").
+		SetName("textarea - amet").
 		SetBuffer(buffer.NewRuneBuffer().Handler(buffer.NewRuneHandler(buffer.String))).
 		EnableBlinking().
 		AddTitle(
