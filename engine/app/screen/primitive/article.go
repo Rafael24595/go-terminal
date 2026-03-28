@@ -57,10 +57,10 @@ func (c *Article) update(state *state.UIState, _ screen.ScreenEvent) screen.Scre
 func (c *Article) view(state state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.ViewModelFromUIState(state)
 
-	vm.Header.Shift(
+	vm.Header.Push(
 		line.EagerDrawableFromLines(c.title...),
 	)
-	vm.Kernel.Shift(
+	vm.Kernel.Push(
 		line.LazyDrawableFromLines(c.article...),
 	)
 

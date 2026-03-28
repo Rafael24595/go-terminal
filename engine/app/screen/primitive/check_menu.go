@@ -224,10 +224,10 @@ func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
 
 	vm := viewmodel.ViewModelFromUIState(stt)
 
-	vm.Header.Shift(
+	vm.Header.Push(
 		line.EagerDrawableFromLines(c.title...),
 	)
-	vm.Kernel.Shift(
+	vm.Kernel.Push(
 		indexmenu.ToDrawable(),
 	)
 

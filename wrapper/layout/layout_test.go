@@ -24,13 +24,13 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 
 	vm := viewmodel.ViewModelFromUIState(*stt)
 
-	vm.Header.Shift(
+	vm.Header.Push(
 		line.EagerDrawableFromLines(
 			text.NewLine("HEADER", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
-	vm.Kernel.Shift(
+	vm.Kernel.Push(
 		line.LazyDrawableFromLines(
 			text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
 			text.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -83,13 +83,13 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	vm := viewmodel.ViewModelFromUIState(*stt)
 
-	vm.Header.Shift(
+	vm.Header.Push(
 		line.EagerDrawableFromLines(
 			text.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
-	vm.Kernel.Shift(
+	vm.Kernel.Push(
 		line.LazyDrawableFromLines(
 			text.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			text.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -133,7 +133,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 	dw := line.EagerDrawableFromLines(lines...)
 
-	layer := stack.NewStackDrawable().Shift(dw)
+	layer := stack.NewStackDrawable().Push(dw)
 
 	layer.Init(terminal.Winsize{})
 
@@ -163,7 +163,7 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 
 	dw := line.EagerDrawableFromLines(lines...)
 
-	layer := stack.NewStackDrawable().Shift(dw)
+	layer := stack.NewStackDrawable().Push(dw)
 
 	layer.Init(terminal.Winsize{})
 
@@ -179,7 +179,7 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 
 	dw := line.EagerDrawableFromLines(lines...)
 
-	layer := stack.NewStackDrawable().Shift(dw)
+	layer := stack.NewStackDrawable().Push(dw)
 
 	layer.Init(terminal.Winsize{})
 
@@ -198,17 +198,17 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 
 	vm := viewmodel.ViewModelFromUIState(*stt)
 
-	vm.Header.Shift(
+	vm.Header.Push(
 		line.EagerDrawableFromLines(
 			text.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
-	vm.Kernel.Shift(
+	vm.Kernel.Push(
 		line.LazyDrawableFromLines(
 			text.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
-	vm.Footer.Shift(
+	vm.Footer.Push(
 		line.EagerDrawableFromLines(
 			text.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),

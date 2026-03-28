@@ -74,7 +74,7 @@ func (c *Spacer) addHeaderStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
 	)
 
 	if c.header.Mode == spacer.SpacerAppend {
-		vm.Header.Shift(spcr)
+		vm.Header.Push(spcr)
 		return vm
 	}
 
@@ -82,7 +82,7 @@ func (c *Spacer) addHeaderStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
 
 	vm.Header = stack.NewStackDrawable()
 	for _, h := range items {
-		vm.Header.Shift(h, spcr)
+		vm.Header.Push(h, spcr)
 	}
 
 	return vm
@@ -102,7 +102,7 @@ func (c *Spacer) addFooterStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
 
 	vm.Footer = stack.NewStackDrawable()
 	for _, h := range items {
-		vm.Footer.Shift(spcr, h)
+		vm.Footer.Push(spcr, h)
 	}
 
 	return vm

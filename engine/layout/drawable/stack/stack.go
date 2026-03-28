@@ -42,7 +42,7 @@ func (d *StackDrawable) Unshift(items ...drawable.Drawable) *StackDrawable {
 	return d
 }
 
-func (d *StackDrawable) Shift(items ...drawable.Drawable) *StackDrawable {
+func (d *StackDrawable) Push(items ...drawable.Drawable) *StackDrawable {
 	assert.False(d.initialized, "no new elements should be added after initialization")
 
 	for _, item := range items {
@@ -62,8 +62,8 @@ func (d *StackDrawable) Take(code string) (drawable.Drawable, bool) {
 	for i, v := range d.items {
 		if v.drawable.Code == code {
 			target := v.drawable
-            d.items = append(d.items[:i], d.items[i+1:]...)
-            return target, true
+			d.items = append(d.items[:i], d.items[i+1:]...)
+			return target, true
 		}
 	}
 	return drawable.Drawable{}, false

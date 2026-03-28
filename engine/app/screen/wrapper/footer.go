@@ -49,7 +49,7 @@ func (c *Footer) Update(state *state.UIState, event screen.ScreenEvent) screen.S
 func (c *Footer) View(state state.UIState) viewmodel.ViewModel {
 	vm := c.screen.View(state)
 
-	vm.Header.Shift(
+	vm.Header.Push(
 		line.EagerDrawableFromLines(c.footer...),
 	)
 

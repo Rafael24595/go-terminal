@@ -563,12 +563,12 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 
 	vm := viewmodel.ViewModelFromUIState(stt)
 
-	vm.Header.Shift(
+	vm.Header.Push(
 		drawable_line.EagerDrawableFromLines(c.title...),
 	)
 
 	code := c.mainDrawableCode()
-	vm.Kernel.Shift(
+	vm.Kernel.Push(
 		textarea.ToDrawable().SetCode(code),
 	)
 

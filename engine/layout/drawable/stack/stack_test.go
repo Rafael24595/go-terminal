@@ -7,7 +7,7 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
-	
+
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
@@ -28,13 +28,13 @@ func TestStackDrawable_ShouldPanicIfNewElementsAddedAfterInitialization(t *testi
 	bd := NewStackDrawable()
 
 	m1 := &drawable_test.MockDrawable{}
-	bd.Shift(m1.ToDrawable())
+	bd.Push(m1.ToDrawable())
 
 	bd.Init(terminal.Winsize{})
 
 	assert.Panic(t, func() {
 		m2 := &drawable_test.MockDrawable{}
-		bd.Shift(m2.ToDrawable())
+		bd.Push(m2.ToDrawable())
 	})
 }
 
@@ -44,7 +44,7 @@ func TestStackDrawable_Init(t *testing.T) {
 	d1 := &drawable_test.MockDrawable{}
 	d2 := &drawable_test.MockDrawable{}
 
-	stack.Shift(
+	stack.Push(
 		d1.ToDrawable(),
 		d2.ToDrawable(),
 	)
@@ -78,8 +78,8 @@ func TestStackDrawable_Shift_Order(t *testing.T) {
 		return m2.Draw()
 	}
 
-	stack.Shift(d1)
-	stack.Shift(d2)
+	stack.Push(d1)
+	stack.Push(d2)
 
 	stack.Init(terminal.Winsize{})
 
@@ -112,7 +112,7 @@ func TestStackDrawable_Unshift_Order(t *testing.T) {
 		return m2.Draw()
 	}
 
-	stack.Shift(d1)
+	stack.Push(d1)
 	stack.Unshift(d2)
 
 	stack.Init(terminal.Winsize{})
@@ -129,7 +129,7 @@ func TestStackDrawable_Draw_BreaksOnTrue(t *testing.T) {
 	d1 := &drawable_test.MockDrawable{Status: true}
 	d2 := &drawable_test.MockDrawable{Status: false}
 
-	stack.Shift(
+	stack.Push(
 		d1.ToDrawable(),
 		d2.ToDrawable(),
 	)
@@ -147,7 +147,7 @@ func TestStackDrawable_DisablesLayer(t *testing.T) {
 
 	d1 := &drawable_test.MockDrawable{Status: false}
 
-	stack.Shift(d1.ToDrawable())
+	stack.Push(d1.ToDrawable())
 
 	stack.Init(terminal.Winsize{})
 
@@ -173,7 +173,7 @@ func TestStackDrawable_BufferConcat(t *testing.T) {
 		Status: false,
 	}
 
-	stack.Shift(
+	stack.Push(
 		d1.ToDrawable(),
 		d2.ToDrawable(),
 	)
@@ -193,7 +193,7 @@ func TestStackDrawable_ShortCircuitStopsPropagation(t *testing.T) {
 	d2 := &drawable_test.MockDrawable{Status: true}
 	d3 := &drawable_test.MockDrawable{Status: false}
 
-	stack.Shift(
+	stack.Push(
 		d1.ToDrawable(),
 		d2.ToDrawable(),
 		d3.ToDrawable(),

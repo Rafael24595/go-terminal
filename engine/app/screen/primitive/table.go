@@ -166,10 +166,10 @@ func (c *Table[T]) updateRead(state *state.UIState, evnt screen.ScreenEvent) scr
 func (c *Table[T]) view(stt state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.ViewModelFromUIState(stt)
 
-	vm.Header.Shift(
+	vm.Header.Push(
 		line.EagerDrawableFromLines(c.title...),
 	)
-	vm.Kernel.Shift(
+	vm.Kernel.Push(
 		drawable_table.TableDrawableFromTable(*c.table, *c.cursor, c.padding),
 	)
 

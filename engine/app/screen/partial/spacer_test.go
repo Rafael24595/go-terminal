@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
@@ -88,7 +88,7 @@ func TestSpacer_AddsHeaderLines(t *testing.T) {
 			dw := mc.ToDrawable()
 			dw.Name = "mock_header"
 			vm := viewmodel.ViewModelFromUIState(stt)
-			vm.Header.Shift(dw)
+			vm.Header.Push(dw)
 			return *vm
 		},
 	}
@@ -121,7 +121,7 @@ func TestSpacer_HeaderBetween(t *testing.T) {
 			d2 := m2.ToDrawable()
 			d2.Name = "h2"
 
-			vm.Header.Shift(d1, d2)
+			vm.Header.Push(d1, d2)
 			return *vm
 		},
 	}
@@ -169,7 +169,7 @@ func TestSpacer_AddsFooterLines(t *testing.T) {
 			dw := mc.ToDrawable()
 			dw.Name = "mock_footer"
 			vm := viewmodel.ViewModelFromUIState(stt)
-			vm.Footer.Shift(dw)
+			vm.Footer.Push(dw)
 			return *vm
 		},
 	}
@@ -202,7 +202,7 @@ func TestSpacer_FooterBetween(t *testing.T) {
 			d2 := m2.ToDrawable()
 			d2.Name = "f2"
 
-			vm.Footer.Shift(d1, d2)
+			vm.Footer.Push(d1, d2)
 			return *vm
 		},
 	}

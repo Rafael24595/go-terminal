@@ -95,9 +95,9 @@ func TestMapScreen_ActionSingleFocus(t *testing.T) {
 	mockScreen := screen_test.MockScreen{
 		View: func(stt state.UIState) viewmodel.ViewModel {
 			vm := viewmodel.ViewModelFromUIState(stt)
-			vm.Header.Shift(headerBase.ToDrawable())
-			vm.Kernel.Shift(linesBase.ToDrawable())
-			vm.Footer.Shift(footerBase.ToDrawable())
+			vm.Header.Push(headerBase.ToDrawable())
+			vm.Kernel.Push(linesBase.ToDrawable())
+			vm.Footer.Push(footerBase.ToDrawable())
 			return *vm
 		},
 	}
@@ -138,9 +138,9 @@ func TestMapScreen_ActionMultipleFocus(t *testing.T) {
 	mockScreen := screen_test.MockScreen{
 		View: func(stt state.UIState) viewmodel.ViewModel {
 			vm := viewmodel.ViewModelFromUIState(stt)
-			vm.Header.Shift(headerBase.ToDrawable())
-			vm.Kernel.Shift(linesBase.ToDrawable())
-			vm.Footer.Shift(footerBase.ToDrawable())
+			vm.Header.Push(headerBase.ToDrawable())
+			vm.Kernel.Push(linesBase.ToDrawable())
+			vm.Footer.Push(footerBase.ToDrawable())
 			return *vm
 		},
 	}
