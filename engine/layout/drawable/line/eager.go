@@ -2,11 +2,13 @@ package line
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
+
+const NameEagerDrawable = "EagerDrawable"
 
 type EagerDrawable struct {
 	initialized bool
@@ -61,6 +63,7 @@ func (d *EagerDrawable) draw() ([]text.Line, bool) {
 
 func (d *EagerDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameEagerDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

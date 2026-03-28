@@ -2,7 +2,7 @@ package justify
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
@@ -15,6 +15,8 @@ const (
 	SlotsEvenly  = 1
 	SlotsAround  = 2
 )
+
+const NameJustifyDrawable = "JustifyDrawable"
 
 type JustifyDrawable struct {
 	initialized bool
@@ -52,6 +54,7 @@ func (d *JustifyDrawable) Justify(justify style.Justify) *JustifyDrawable {
 
 func (d *JustifyDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
+		Name: NameJustifyDrawable,
 		Init: d.init,
 		Draw: d.draw,
 	}

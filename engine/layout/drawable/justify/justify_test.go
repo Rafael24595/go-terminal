@@ -9,6 +9,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
+
+	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
 func fragmentTexts(frags []text.Fragment) string {
@@ -59,6 +61,19 @@ func renderLine(cols int, mode style.Justify, line text.Line) string {
 	}
 
 	return frags
+}
+
+func TestJustify_ToDrawable(t *testing.T) {
+	dw := JustifyDrawableFromFragments([]text.Fragment{})
+	drawable_test.Helper_ToDrawable(t, dw)
+}
+
+func TestJustifyDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
+	bd := NewJustifyDrawable([]text.Fragment{})
+
+	assert.Panic(t, func() {
+		bd.draw()
+	})
 }
 
 func TestAddGaps_SingleFragment(t *testing.T) {
