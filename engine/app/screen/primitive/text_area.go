@@ -229,7 +229,7 @@ func (c *TextArea) updateWrite(stt *state.UIState, evt screen.ScreenEvent) scree
 		return c.moveDown(stt, evt)
 	}
 
-	result := c.updateBuffer(stt, evt)
+	result := c.updateBuffer(stt, ky)
 
 	state.PushParam(
 		stt.Stack,
@@ -241,9 +241,7 @@ func (c *TextArea) updateWrite(stt *state.UIState, evt screen.ScreenEvent) scree
 	return result
 }
 
-func (c *TextArea) updateBuffer(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
-	ky := evnt.Key
-
+func (c *TextArea) updateBuffer(state *state.UIState, ky key.Key) screen.ScreenResult {
 	switch ky.Code {
 	case key.ActionBackspace, key.ActionDeleteBackward:
 		word := ky.Code == key.ActionDeleteBackward
