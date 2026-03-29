@@ -2,7 +2,7 @@ package inline
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -115,7 +115,7 @@ func (d *InlineDrawable) joinChildren(lines []text.Line) []text.Line {
 		}
 
 		merged = merged.SetOrder(line.Order).
-			AddFragments(frags...).
+			PushFragments(frags...).
 			AddSpec(line.Spec)
 	}
 

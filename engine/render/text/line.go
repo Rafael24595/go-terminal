@@ -79,7 +79,12 @@ func (l *Line) SetOrder(order uint16) *Line {
 	return l
 }
 
-func (l Line) AddFragments(frags ...Fragment) Line {
+func (l Line) UnshiftFragments(frags ...Fragment) Line {
+	l.Text = append(frags, l.Text...)
+	return l
+}
+
+func (l Line) PushFragments(frags ...Fragment) Line {
 	l.Text = append(l.Text, frags...)
 	return l
 }
