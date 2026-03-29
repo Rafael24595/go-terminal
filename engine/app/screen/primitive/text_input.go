@@ -5,9 +5,13 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/box"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
 	"github.com/Rafael24595/go-terminal/engine/model/buffer"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
+	"github.com/Rafael24595/go-terminal/engine/render/text"
 
 	text_transformer "github.com/Rafael24595/go-terminal/engine/helper/text"
 )
@@ -19,6 +23,7 @@ const text_input_max_limit = 30
 
 type TextInput struct {
 	limit    uint64
+	label    []text.Fragment
 	textarea *TextArea
 }
 
@@ -51,6 +56,11 @@ func (c *TextInput) SetType(limit uint64, input buffer.InputType) *TextInput {
 	handler := buffer.NewLimitedRuneHandler(limit, input)
 	c.textarea.buffer.Handler(handler)
 
+	return c
+}
+
+func (c *TextInput) SetLabel(label []text.Fragment) *TextInput {
+	c.label = label
 	return c
 }
 
@@ -93,20 +103,48 @@ func (c *TextInput) ToScreen() screen.Screen {
 func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 	vm := c.textarea.view(stt)
 
-	code := c.textarea.mainDrawableCode()
+	vm.Kernel.Unshift(
+		c.makeDrawables(vm)...,
+	)
 
+	return vm
+}
+
+func (c *TextInput) makeDrawables(vm viewmodel.ViewModel) []drawable.Drawable {
+	dws := make([]drawable.Drawable, 0, 2)
+
+	code := c.textarea.mainDrawableCode()
 	dw, ok := vm.Kernel.Take(code)
 	if !ok {
-		return vm
+		return dws
 	}
 
-	bx := box.NewBoxDrawable(dw).
+	inp := box.NewBoxDrawable(dw).
 		PaddingY(0).
 		PaddingX(1).
 		TextAlign(style.Left).
-		MinSize(uint(c.limit))
+		MinSize(uint(c.limit)).
+		ToDrawable()
 
-	vm.Kernel.Unshift(bx.ToDrawable())
+	pst := position.NewPositionDrawable(inp).
+		PositionY(style.Top).
+		PositionX(style.Left)
 
-	return vm
+	if len(c.label) == 0 {
+		dws = append(dws, pst.ToDrawable())
+		return dws
+	}
+
+	//TODO: Parametrize.
+	pstd := pst.MarginX(0).ToDrawable()
+
+	frags := append(c.label, text.NewFragment(": "))
+	lbl := line.EagerDrawableFromLines(
+		text.LineFromFragments(frags...),
+	)
+
+	dws = append(dws, lbl)
+	dws = append(dws, pstd)
+
+	return dws
 }
