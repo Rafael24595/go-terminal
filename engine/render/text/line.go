@@ -90,7 +90,13 @@ func (l Line) PushFragments(frags ...Fragment) Line {
 }
 
 func (l Line) AddSpec(styles ...style.Spec) Line {
-	l.Spec = style.MergeSpec(styles...)
+	newSpec := style.MergeSpec(styles...)
+	l.Spec = style.MergeSpec(l.Spec, newSpec)
+	return l
+}
+
+func (l Line) CutSpec(styles style.SpecsKind) Line {
+	l.Spec = style.EraseSpec(l.Spec, styles)
 	return l
 }
 

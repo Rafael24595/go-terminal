@@ -33,6 +33,10 @@ func FragmentFrom(text string, frag Fragment) Fragment {
 		AddSpec(frag.Spec)
 }
 
+func FragmentFromRunes(runes []rune) Fragment {
+	return NewFragment(string(runes))
+}
+
 func EmptyFragment() Fragment {
 	return NewFragment("")
 }
@@ -42,12 +46,24 @@ func EmptyFragmentFrom(frag Fragment) Fragment {
 }
 
 func (f Fragment) AddAtom(styles ...style.Atom) Fragment {
-	f.Atom = style.MergeAtom(styles...)
+	newAtom := style.MergeAtom(styles...)
+	f.Atom = style.MergeAtom(f.Atom, newAtom)
+	return f
+}
+
+func (f Fragment) CutAtom(styles style.Atom) Fragment {
+	f.Atom = style.EraseAtom(f.Atom, styles)
 	return f
 }
 
 func (f Fragment) AddSpec(styles ...style.Spec) Fragment {
-	f.Spec = style.MergeSpec(styles...)
+	newSpec := style.MergeSpec(styles...)
+	f.Spec = style.MergeSpec(f.Spec, newSpec)
+	return f
+}
+
+func (f Fragment) CutSpec(styles style.SpecsKind) Fragment {
+	f.Spec = style.EraseSpec(f.Spec, styles)
 	return f
 }
 

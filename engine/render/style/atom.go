@@ -19,6 +19,11 @@ func MergeAtom(styles ...Atom) Atom {
 	}
 	return merged
 }
+     
+func EraseAtom(target, styles Atom) Atom {
+	target &= ^styles
+	return target
+}
 
 func (s Atom) HasAny(styles ...Atom) bool {
 	for _, style := range styles {

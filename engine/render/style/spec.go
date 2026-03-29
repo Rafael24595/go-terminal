@@ -59,6 +59,12 @@ func MergeSpec(styles ...Spec) Spec {
 	}
 }
 
+func EraseSpec(target Spec, styles SpecsKind) Spec {
+	target.kind &= ^styles
+	//TODO: Delete args.
+	return target
+}
+
 type SpcArgKey uint8
 
 const (
