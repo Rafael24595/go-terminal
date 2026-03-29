@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -16,7 +17,7 @@ import (
 const NameBoxDrawable = "BoxDrawable"
 
 const (
-	default_padding  = uint(1)
+	default_padding  = uint(0)
 	default_min_size = uint(0)
 )
 
@@ -26,10 +27,7 @@ type BoxDrawable struct {
 	paddingY    uint
 	paddingX    uint
 	minSize     uint
-	positionY   style.VerticalPosition
-	positionX   style.HorizontalPosition
 	textAlign   style.HorizontalPosition
-	spec        style.Spec
 	separator   marker.BoxSeparatorMeta
 	drawable    drawable.Drawable
 }
@@ -41,10 +39,7 @@ func NewBoxDrawable(drawable drawable.Drawable) *BoxDrawable {
 		minSize:     default_min_size,
 		paddingY:    default_padding,
 		paddingX:    default_padding,
-		positionX:   style.Center,
-		positionY:   style.Middle,
 		textAlign:   style.Center,
-		spec:        style.SpecEmpty(),
 		separator:   marker.DefaultBoxSeparator,
 		drawable:    drawable,
 	}
@@ -56,16 +51,6 @@ func BoxDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
 
 func (d *BoxDrawable) MinSize(size uint) *BoxDrawable {
 	d.minSize = size
-	return d
-}
-
-func (d *BoxDrawable) PositionY(vertical style.VerticalPosition) *BoxDrawable {
-	d.positionY = vertical
-	return d
-}
-
-func (d *BoxDrawable) PositionX(horizontal style.HorizontalPosition) *BoxDrawable {
-	d.positionX = horizontal
 	return d
 }
 
@@ -100,11 +85,25 @@ func (d *BoxDrawable) ToDrawable() drawable.Drawable {
 func (d *BoxDrawable) init(size terminal.Winsize) {
 	d.initialized = true
 
-	d.spec = makeSpec(d.spec, size, d.positionX)
 	d.size = size
 
 	clampSize := d.clampSize(size)
+	d.drawable = d.makeDrawable()
+
 	d.drawable.Init(clampSize)
+}
+
+func (d *BoxDrawable) makeDrawable() drawable.Drawable {
+	if d.paddingY == 0 && d.paddingX == 0 {
+		return d.drawable
+	}
+
+	return position.NewPositionDrawable(d.drawable).
+		MarginY(d.paddingY).
+		MarginX(d.paddingX).
+		PositionY(style.Top).
+		PositionX(style.Left).
+		ToDrawable()
 }
 
 func (d *BoxDrawable) draw() ([]text.Line, bool) {
@@ -114,42 +113,7 @@ func (d *BoxDrawable) draw() ([]text.Line, bool) {
 
 	styled := d.styleLines(lines...)
 
-	base := d.defineBase(styled)
-	for _, line := range styled {
-		base = append(base, line)
-	}
-
-	base = d.fillEmpty(base)
-	return base, hasNext
-}
-
-func (d *BoxDrawable) defineBase(lines []text.Line) []text.Line {
-	size := len(lines)
-
-	if d.positionY == style.Top || size >= int(d.size.Rows) {
-		return make([]text.Line, 0)
-	}
-
-	start := (d.size.Rows - uint16(size))
-	if d.positionY == style.Middle {
-		start /= 2
-	}
-
-	return make([]text.Line, start)
-}
-
-func (d *BoxDrawable) fillEmpty(result []text.Line) []text.Line {
-	for i := range result {
-		if len(result[i].Text) > 0 {
-			continue
-		}
-
-		result[i].Text = append(
-			result[i].Text,
-			text.EmptyFragment(),
-		)
-	}
-	return result
+	return styled, hasNext
 }
 
 func (d *BoxDrawable) drawChild() ([]text.Line, bool) {
@@ -168,7 +132,7 @@ func (d *BoxDrawable) drawChild() ([]text.Line, bool) {
 		}
 
 		remaining -= len(line)
-		if remaining-int(d.paddingY)-2 <= 0 {
+		if remaining-2 <= 0 {
 			assert.Unreachable("box drawables should fit in a single page")
 		}
 	}
@@ -177,41 +141,39 @@ func (d *BoxDrawable) drawChild() ([]text.Line, bool) {
 }
 
 func (d *BoxDrawable) styleLines(lines ...text.Line) []text.Line {
-	vertical := verticalStaticSize(d.separator, d.paddingX)
+	vertical := horizontalStaticSize(d.separator)
 
-	minSize := d.minSize + vertical.static
+	minSize := d.minSize + vertical
 	maxSize := uint(d.size.Cols)
-	maxLine := drawable.MaxLineSize(lines...) + vertical.static
+	maxLine := drawable.MaxLineSize(lines...)
 
 	size := math.Clamp(maxLine, minSize, maxSize)
 
-	specCover := style.SpecRepeatLeft(size)
+	specCover := style.SpecRepeatLeft(size + vertical)
 	cover := text.LineFromFragments(
 		text.NewFragment(d.separator.Top).AddSpec(specCover),
-	).AddSpec(d.spec)
+	)
 
 	result := make([]text.Line, 0)
 
 	result = append(result, cover)
-	result = d.addPadding(size, vertical.border, result...)
 
-	available := int(d.size.Cols) - int(vertical.static)
+	available := int(d.size.Cols) - int(vertical)
 
 	for _, lin := range lines {
 		for _, v := range line.WrapLineWords(available, lin) {
-			line := d.styleLine(size, vertical, v)
+			line := d.styleLine(size, v)
 			result = append(result, line)
 		}
 	}
 
-	result = d.addPadding(size, vertical.border, result...)
 	result = append(result, cover)
 
 	return result
 }
 
-func (d *BoxDrawable) styleLine(size uint, vertical verticalMeta, line text.Line) text.Line {
-	paddingL, paddingR := d.calcPadding(size, vertical, line)
+func (d *BoxDrawable) styleLine(size uint, line text.Line) text.Line {
+	paddingL, paddingR := d.calcPadding(size, line)
 
 	left := []text.Fragment{
 		text.NewFragment(d.separator.Left),
@@ -244,28 +206,26 @@ func (d *BoxDrawable) styleLine(size uint, vertical verticalMeta, line text.Line
 	frags = append(frags, right...)
 
 	line.Text = frags
-	line.Spec = d.spec
 
 	return line
 }
 
-func (d *BoxDrawable) calcPadding(size uint, vertical verticalMeta, line text.Line) (uint, uint) {
+func (d *BoxDrawable) calcPadding(size uint, line text.Line) (uint, uint) {
 	totalWidth := uint(text.LineFragmentsMeasure(line))
 
-	remaining := size - totalWidth - vertical.static
-	padding := vertical.padding
+	remaining := size - totalWidth
 
 	switch d.textAlign {
 	case style.Left:
-		return padding, remaining + padding
+		return 0, remaining
 
 	case style.Center:
 		paddingL := remaining / 2
 		paddingR := remaining - paddingL
-		return paddingL + padding, paddingR + padding
+		return paddingL, paddingR
 
 	case style.Right:
-		return remaining + padding, padding
+		return remaining, 0
 
 	}
 
@@ -274,75 +234,21 @@ func (d *BoxDrawable) calcPadding(size uint, vertical verticalMeta, line text.Li
 	return 0, 0
 }
 
-func (d *BoxDrawable) addPadding(size, borderSize uint, lines ...text.Line) []text.Line {
-	available := math.SubClampZero(size, borderSize)
-
-	specSpace := style.SpecRepeatRight(available)
-	for range d.paddingY {
-		lines = append(lines,
-			text.LineFromFragments(
-				text.NewFragment(d.separator.Left),
-				text.NewFragment(d.separator.Space).AddSpec(specSpace),
-				text.NewFragment(d.separator.Right),
-			).AddSpec(d.spec),
-		)
-	}
-
-	return lines
-}
-
 func (d *BoxDrawable) clampSize(size terminal.Winsize) terminal.Winsize {
-	horizontal := (d.paddingY * 2) + 2
-	rows := math.SubClampZero(size.Rows, uint16(horizontal))
+	vertical := 2
+	rows := math.SubClampZero(size.Rows, uint16(vertical))
 
-	vertical := verticalStaticSize(d.separator, d.paddingX)
-	cols := math.SubClampZero(size.Cols, uint16(vertical.static))
+	horizontal := horizontalStaticSize(d.separator)
+	cols := math.SubClampZero(size.Cols, uint16(horizontal))
 
 	return terminal.NewWinsize(rows, cols)
 }
 
-func verticalSeparatorSize(separator marker.BoxSeparatorMeta) (uint, uint) {
+func horizontalSeparatorSize(separator marker.BoxSeparatorMeta) (uint, uint) {
 	return runes.Measureu(separator.Left), runes.Measureu(separator.Right)
 }
 
-func verticalPaddingSize(separator marker.BoxSeparatorMeta, padding uint) uint {
-	spaceSize := runes.Measure(separator.Space)
-	return padding * uint(spaceSize)
-}
-
-type verticalMeta struct {
-	static  uint
-	border  uint
-	padding uint
-}
-
-func verticalStaticSize(separator marker.BoxSeparatorMeta, padding uint) verticalMeta {
-	left, right := verticalSeparatorSize(separator)
-	spaces := verticalPaddingSize(separator, padding)
-
-	boder := left + right
-
-	return verticalMeta{
-		static:  boder + (spaces * 2),
-		border:  boder,
-		padding: spaces,
-	}
-}
-
-func makeSpec(base style.Spec, size terminal.Winsize, position style.HorizontalPosition) style.Spec {
-	cols := uint(size.Cols)
-
-	var spec style.Spec
-	switch position {
-	case style.Left:
-		spec = style.SpecPaddingLeft(cols)
-	case style.Center:
-		spec = style.SpecPaddingCenter(cols)
-	case style.Right:
-		spec = style.SpecPaddingRight(cols)
-	default:
-		return base
-	}
-
-	return style.MergeSpec(base, spec)
+func horizontalStaticSize(separator marker.BoxSeparatorMeta) uint {
+	left, right := horizontalSeparatorSize(separator)
+	return left + right
 }

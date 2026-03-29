@@ -2,11 +2,13 @@ package modal
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/box"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/justify"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/static"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
@@ -22,7 +24,7 @@ type ModalDrawable struct {
 	options     []text.Fragment
 	limit       uint
 	cursor      uint
-	box         drawable.Drawable
+	drawable    drawable.Drawable
 }
 
 func NewModalDrawable() *ModalDrawable {
@@ -32,7 +34,7 @@ func NewModalDrawable() *ModalDrawable {
 		options:     make([]text.Fragment, 0),
 		limit:       style.DefaultLimit,
 		cursor:      0,
-		box:         drawable.Drawable{},
+		drawable:    drawable.Drawable{},
 	}
 }
 
@@ -87,29 +89,36 @@ func (d *ModalDrawable) init(size terminal.Winsize) {
 	text := formatLines(d.text...)
 
 	eager := line.EagerDrawableFromLines(text...)
+
 	justify := justify.JustifyDrawableFromFragments(opts)
+	block := block.BlockDrawableFromDrawable(justify)
 
 	eager.Init(size)
-	justify.Init(terminal.Winsize{
+	block.Init(terminal.Winsize{
 		Rows: size.Rows,
 		Cols: uint16(cols),
 	})
 
 	stack := stack.StackDrawableFromDrawables(
 		static.StaticDrawableFromDrawable(eager),
-		static.StaticDrawableFromDrawable(justify),
+		static.StaticDrawableFromDrawable(block),
 	)
 
-	box := box.BoxDrawableFromDrawable(stack)
-	box.Init(size)
+	box := box.NewBoxDrawable(stack).
+		PaddingX(1).
+		PaddingY(1).
+		ToDrawable()
+		
+	position := position.PositionDrawableFromDrawable(box)
+	position.Init(size)
 
-	d.box = box
+	d.drawable = position
 }
 
 func (d *ModalDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
-	return d.box.Draw()
+	return d.drawable.Draw()
 }
 
 func formatLines(lines ...text.Line) []text.Line {
