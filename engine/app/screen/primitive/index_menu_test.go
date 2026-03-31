@@ -5,6 +5,7 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
+	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
@@ -173,8 +174,8 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 
 	stt := &state.UIState{}
 
-	ctx := state.PagerContext{
-		Focus: true,
+	ctx := pager.PredicateContext{
+		HasFocus: true,
 	}
 
 	menu.cursor = 1
@@ -184,8 +185,8 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	lines, _ := vm.Kernel.Draw()
 
 	assert.NotNil(t, vm.Pager)
-	assert.Equal(t, state.PagerModeFocus, vm.Pager.Mode)
-	assert.True(t, vm.Pager.Match(*stt, ctx))
+	assert.Equal(t, pager.CodePredicateFocus, vm.Pager.Predicate.Code)
+	assert.True(t, vm.Pager.Predicate.Func(*stt, ctx))
 
 	assert.Equal(t, "- A", text.LineToString(lines[0]))
 	assert.Equal(t, "> B", text.LineToString(lines[1]))

@@ -1,6 +1,7 @@
 package viewmodel
 
 import (
+	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
@@ -10,14 +11,12 @@ import (
 	drawable_help "github.com/Rafael24595/go-terminal/engine/layout/drawable/help"
 )
 
-var default_pager = state.NewPagePager()
-
 type ViewModel struct {
 	Header *stack.StackDrawable
 	Kernel *stack.StackDrawable
 	Footer *stack.StackDrawable
 	Input  *InputLine
-	Pager  state.PagerStrategy
+	Pager  pager.PagerStrategy
 	Helper *help.HelpMeta
 }
 
@@ -27,7 +26,7 @@ func ViewModelFromUIState(stt state.UIState) *ViewModel {
 		Kernel: stack.NewStackDrawable(),
 		Footer: stack.NewStackDrawable(),
 		Input:  nil,
-		Pager:  default_pager,
+		Pager:  pager.NewStrategy(),
 		Helper: help.NewHelpMeta(),
 	}
 }
@@ -35,19 +34,6 @@ func ViewModelFromUIState(stt state.UIState) *ViewModel {
 func (v *ViewModel) SetInput(input *InputLine) *ViewModel {
 	v.Input = input
 	return v
-}
-
-func (v *ViewModel) SetStrategy(strategy state.PagerStrategy) *ViewModel {
-	v.Pager = strategy
-	return v
-}
-
-func (s *ViewModel) IsPagerMode(mode state.PagerMode) bool {
-	return s.Pager.Mode == mode
-}
-
-func (s *ViewModel) PagerMatch(state state.UIState, ctx state.PagerContext) bool {
-	return s.Pager.Match(state, ctx)
 }
 
 func (v *ViewModel) InitStaticLayers(size terminal.Winsize) (*stack.StackDrawable, *stack.StackDrawable) {

@@ -3,6 +3,7 @@ package primitive
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
+	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
@@ -145,8 +146,8 @@ func (c *IndexMenu) view(stt state.UIState) viewmodel.ViewModel {
 		indexmenu.ToDrawable(),
 	)
 
-	vm.SetStrategy(
-		state.NewFocusPager(),
+	vm.Pager.SetPredicate(
+		pager.PredicateFocus(),
 	)
 
 	option := min(len(c.options)-1, int(c.cursor))

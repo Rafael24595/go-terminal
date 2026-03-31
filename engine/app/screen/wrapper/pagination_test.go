@@ -4,7 +4,8 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
+	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
@@ -65,7 +66,9 @@ func TestPagination_ViewFooter(t *testing.T) {
 	base := screen_test.MockScreen{
 		Name: "base",
 		View: func(stt state.UIState) viewmodel.ViewModel {
-			return *viewmodel.ViewModelFromUIState(stt).SetStrategy(state.NewPagePager())
+			vm := viewmodel.ViewModelFromUIState(stt)
+			vm.Pager.SetPredicate(pager.PredicatePage())
+			return *vm
 		},
 	}
 

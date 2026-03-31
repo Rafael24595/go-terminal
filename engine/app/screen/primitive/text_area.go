@@ -3,6 +3,7 @@ package primitive
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
+	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
@@ -180,7 +181,7 @@ func (c *TextArea) helpMeta() ([]key.KeyAction, map[key.KeyAction]help.HelpField
 }
 
 func (c *TextArea) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
-	state.Pager.ShowPage = true
+	state.Pager.ForceShow = true
 
 	if !c.writeMode {
 		return c.updateRead(state, evnt)
@@ -550,9 +551,9 @@ func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.ScreenR
 func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 	keys, overr := c.helpMeta()
 
-	strategy := state.NewPagePager()
+	predicate := pager.PredicatePage()
 	if c.writeMode {
-		strategy = state.NewFocusPager()
+		predicate = pager.PredicateFocus()
 	}
 
 	textarea := textarea.NewTextAreaDrawable(c.buffer.Facade(), c.caret).
@@ -570,7 +571,7 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 		textarea.ToDrawable().SetCode(code),
 	)
 
-	vm.SetStrategy(strategy)
+	vm.Pager.SetPredicate(predicate)
 
 	vm.Helper.Shift(
 		key.ActionsToHelpWithOverride(

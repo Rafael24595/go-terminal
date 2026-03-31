@@ -1,6 +1,7 @@
 package primitive
 
 import (
+	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
@@ -119,7 +120,7 @@ func (c *Table[T]) definition() screen.Definition {
 }
 
 func (c *Table[T]) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
-	state.Pager.ShowPage = true
+	state.Pager.ForceShow = true
 
 	if !c.action.EnableMode {
 		return screen.ScreenResultFromUIState(state)
@@ -174,16 +175,16 @@ func (c *Table[T]) view(stt state.UIState) viewmodel.ViewModel {
 	)
 
 	var input *viewmodel.InputLine
-	strategy := state.NewPagePager()
+	preficate := pager.PredicatePage()
 	if c.action.EnableMode && c.action.ActionMode {
-		strategy = state.NewFocusPager()
+		preficate = pager.PredicateFocus()
 
 		cell, _ := c.table.FindCellByCoords(int(c.cursor.Row), int(c.cursor.Col))
 		input = viewmodel.NewInputLine(line.EagerDrawableFromString(cell))
 	}
 
 	vm.SetInput(input)
-	vm.SetStrategy(strategy)
+	vm.Pager.SetPredicate(preficate)
 
 	return *vm
 }

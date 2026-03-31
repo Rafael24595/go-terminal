@@ -6,6 +6,7 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
+	"github.com/Rafael24595/go-terminal/engine/app/draw"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
@@ -141,11 +142,13 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 	vm := viewmodel.ViewModelFromUIState(*stt)
 
-	paged, _, _ := drawDynamicLines(stt, *vm, layer, 2, sizeCols)
+	dynamicSize := terminal.NewWinsize(2, uint16(sizeCols))
+	drawCtx := draw.NewDrawContext(stt, dynamicSize)
+	drawStt := drawDynamicLines(drawCtx, vm.Pager, layer.ToDrawable())
 
-	assert.LessOrEqual(t, 2, len(paged))
+	assert.LessOrEqual(t, 2, len(drawStt.Buffer))
 
-	for _, l := range paged {
+	for _, l := range drawStt.Buffer {
 		width := 0
 		for _, f := range l.Text {
 			width += text.FragmentMeasure(f)

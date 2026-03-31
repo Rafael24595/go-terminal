@@ -3,6 +3,7 @@ package wrapper
 import (
 	"fmt"
 
+	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
@@ -92,8 +93,9 @@ func (c *Pagination) localUpdate(state *state.UIState, event screen.ScreenEvent)
 func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 	vm := c.screen.View(stt)
 
-	hasContent := stt.Pager.RestData || stt.Pager.Page > 0
-	canShowPage := stt.Pager.ShowPage || vm.IsPagerMode(state.PagerModePage)
+	hasContent := stt.Pager.HasMore || stt.Pager.Page > 0
+	canShowPage := stt.Pager.ForceShow || vm.Pager.Predicate.Code == pager.CodePredicatePage
+	
 	if hasContent && canShowPage {
 		page := fmt.Sprintf("page: %d", stt.Pager.Page)
 
