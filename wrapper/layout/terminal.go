@@ -145,5 +145,5 @@ func shouldStop(ctx *draw.DrawContext, pgr pager.PagerStrategy, stt *draw.DrawSt
 }
 
 func showPagination(stt *draw.DrawState) bool {
-	return stt.Page != 0 || (stt.Work.HasWorks() && stt.Work.Finished())
+	return stt.Page != 0 || (stt.Work.HasWorks() && !stt.Work.Finished())
 }
