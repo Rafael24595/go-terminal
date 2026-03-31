@@ -1,4 +1,4 @@
-github.com/Rafael24595/go-assert v0.1.0 h1:vBJn67zHbNOOa6/g3/X5Idjra/9Wz9ui1HJa/dMzpJU=
-github.com/Rafael24595/go-assert v0.1.0/go.mod h1:jErrEaEg+p2PPjtBEUtTheZOdb9EESVAGPPZy13wj2w=
-github.com/Rafael24595/go-log v0.2.0 h1:b2X8PVdtuyfMuyr6SXPHQIxip2AYTHxnuvOkTTvo9vk=
-github.com/Rafael24595/go-log v0.2.0/go.mod h1:fefmSxPR0sEOROy2JuTcVmoRGR4FTtYYxhXvSKyfki8=
+github.com/Rafael24595/go-assert v0.2.0 h1:chfEhotSVtme+QrRkqThZE+RunhlAgVit8PAD4KqxBo=
+github.com/Rafael24595/go-assert v0.2.0/go.mod h1:jErrEaEg+p2PPjtBEUtTheZOdb9EESVAGPPZy13wj2w=
+github.com/Rafael24595/go-log v0.3.0 h1:/LepEpuuWdFMDNHJWAoxXP8onc5z76jBlvjVMzHI8kA=
+github.com/Rafael24595/go-log v0.3.0/go.mod h1:cxDTgx1Xi2laX4EtEE83rjiX4BHbmIEn762pco8lXQU=
