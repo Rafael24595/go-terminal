@@ -102,7 +102,6 @@ func (d *BoxDrawable) makeDrawable() drawable.Drawable {
 		MarginY(d.paddingY).
 		MarginX(d.paddingX).
 		PositionY(style.Top).
-		PositionX(style.Left).
 		ToDrawable()
 }
 
