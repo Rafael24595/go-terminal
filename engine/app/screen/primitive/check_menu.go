@@ -11,6 +11,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	checkmenu "github.com/Rafael24595/go-terminal/engine/layout/drawable/check"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
 	"github.com/Rafael24595/go-terminal/engine/model/param"
@@ -24,19 +25,28 @@ const default_check_menu_name = "CheckMenu"
 
 const ArgCheckMenuActive param.Typed[set.Set[string]] = "check_menu_active"
 
-var check_menu_read_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(key.ActionEnter)...,
+var check_menu_read_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{
+		key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit mode"},
+	},
+	[]key.KeyAction{
+		key.ActionEnter,
+	},
 )
 
-var check_menu_write_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(
+var check_menu_write_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{
+		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Write Mode"},
+		key.ActionEnter: {Code: []string{"RET"}, Detail: "Active selected"},
+	},
+	[]key.KeyAction{
 		key.ActionEsc,
 		key.ActionEnter,
 		key.ActionArrowLeft,
 		key.ActionArrowRight,
 		key.ActionArrowUp,
 		key.ActionArrowDown,
-	)...,
+	},
 )
 
 type CheckMenu struct {
@@ -116,11 +126,15 @@ func (c *CheckMenu) ToScreen() screen.Screen {
 		StackFromName()
 }
 
-func (c *CheckMenu) definition() screen.Definition {
+func (c *CheckMenu) definitionSource() screen.DefinitionSources {
 	if c.action.ActionMode {
 		return check_menu_write_definition
 	}
 	return check_menu_read_definition
+}
+
+func (c *CheckMenu) definition() screen.Definition {
+	return c.definitionSource().Definition
 }
 
 func (c *CheckMenu) update(stt *state.UIState, evt screen.ScreenEvent) screen.ScreenResult {
@@ -218,6 +232,8 @@ func (c *CheckMenu) activeIds() set.Set[string] {
 }
 
 func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
+	source := c.definitionSource()
+
 	indexmenu := checkmenu.NewCheckMenuDrawable(c.options).
 		WriteMode(c.action.ActionMode).
 		Meta(c.meta).
@@ -241,6 +257,12 @@ func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
 
 	input := viewmodel.NewInputLine(
 		line.EagerDrawableFromString(text),
+	)
+
+	vm.Helper.Shift(
+		key.ActionsToHelpWithOverride(
+			source.Overrides, source.Actions...,
+		)...,
 	)
 
 	vm.SetInput(input)
