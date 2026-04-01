@@ -92,31 +92,31 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 
 	cols := int(ctx.Size.Cols)
 
-	var lines []text.Line
+	var rendered []text.Line
 	hasNext := true
 
 	for hasNext {
-		lines, hasNext = drawable.Draw()
-		renderedSize := len(lines)
-		if len(lines) == 0 {
+		rendered, hasNext = drawable.Draw()
+		renderedSize := len(rendered)
+		if len(rendered) == 0 {
 			continue
 		}
 
 		state.Work.Reset()
 		state.Work.Add(renderedSize)
 
-		for _, lin := range lines {
-			fixed := line.WrapLineWords(cols, lin)
+		for l, ln := range rendered {
+			fixed := line.WrapLineWords(cols, ln)
 
 			state.Work.Advance()
 			state.Work.Add(len(fixed))
 
-			for _, v := range fixed {
-				state.Buffer[state.Cursor] = v
+			for f, fx := range fixed {
+				state.Buffer[state.Cursor] = fx
 
 				state.Work.Advance()
 
-				if f := text.HasFocus(v); f {
+				if f := text.HasFocus(fx); f {
 					state.Focus = f
 				}
 
@@ -129,7 +129,11 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 					return state
 				}
 
-				state = pager.Engine.Func(ctx, state)
+				isLastFixed := f == len(fixed)-1
+				isLastRendered := l == len(rendered)-1
+				if !isLastFixed || !isLastRendered || hasNext {
+					state = pager.Engine.Func(ctx, state)
+				}
 			}
 		}
 	}
