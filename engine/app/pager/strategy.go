@@ -3,6 +3,11 @@ package pager
 var default_engine = EnginePage()
 var default_predicate = PredicatePage()
 
+type PagerStrategy struct {
+	Engine    Engine
+	Predicate Predicate
+}
+
 func NewStrategy() PagerStrategy {
 	return PagerStrategy{
 		Engine:    default_engine,

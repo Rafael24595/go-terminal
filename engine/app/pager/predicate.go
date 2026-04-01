@@ -21,11 +21,6 @@ type Predicate struct {
 	Func PredicateFunc
 }
 
-type PagerStrategy struct {
-	Engine    Engine
-	Predicate Predicate
-}
-
 func PredicatePage() Predicate {
 	return Predicate{
 		Code: CodePredicatePage,
