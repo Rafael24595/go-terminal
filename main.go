@@ -8,10 +8,11 @@ import (
 	"time"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-log/log"
 	"github.com/Rafael24595/go-log/log/model/record"
 	"github.com/Rafael24595/go-log/log/provider/file"
+	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/runtime"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/screen/partial"
@@ -72,7 +73,11 @@ func main() {
 	hdr := wrapper_screen.NewBaseHeader(lnd)
 
 	his := wrapper.NewHistory(hdr).ToScreen()
-	pge := wrapper.NewPagination(his).ToScreen()
+
+	pge := wrapper.NewPagination(his).
+		ForceEngine(pager.EnginePage()).
+		ToScreen()
+
 	hlp := wrapper.NewHelp(pge).ToScreen()
 
 	inl := partial.NewInline(hlp).
