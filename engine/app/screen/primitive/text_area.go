@@ -28,51 +28,41 @@ const default_text_area_name = "TextArea"
 
 const ArgTextAreaBuffer param.Typed[[]rune] = "text_area_buffer"
 
-var text_area_read_overrides = map[key.KeyAction]help.HelpField{
-	key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Exit/Back"},
-	key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit text"},
-}
-
-var text_area_write_overrides = map[key.KeyAction]help.HelpField{
-	key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Save & Quit"},
-	key.ActionEnter: {Code: []string{"RET"}, Detail: "New line"},
-}
-
-var text_area_read_actions = []key.KeyAction{
-	key.ActionEnter,
-}
-
-var text_area_read_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(
-		text_area_read_actions...,
-	)...,
+var text_area_read_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{
+		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Exit/Back"},
+		key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit text"},
+	},
+	[]key.KeyAction{
+		key.ActionEnter,
+	},
 )
 
-var text_area_write_actions = []key.KeyAction{
-	key.ActionEsc,
-	key.ActionHome,
-	key.ActionEnd,
-	key.ActionArrowLeft,
-	key.ActionArrowRight,
-	key.ActionBackspace,
-	key.ActionDeleteBackward,
-	key.ActionDelete,
-	key.ActionDeleteForward,
-	key.ActionEnter,
-	key.ActionArrowUp,
-	key.ActionArrowDown,
-	key.CustomActionUndo,
-	key.CustomActionRedo,
-	key.CustomActionCut,
-	key.CustomActionCopy,
-	key.CustomActionPaste,
-	key.ActionRune,
-}
-
-var text_area_write_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(
-		text_area_write_actions...,
-	)...,
+var text_area_write_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{
+		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Save & Quit"},
+		key.ActionEnter: {Code: []string{"RET"}, Detail: "New line"},
+	},
+	[]key.KeyAction{
+		key.ActionEsc,
+		key.ActionHome,
+		key.ActionEnd,
+		key.ActionArrowLeft,
+		key.ActionArrowRight,
+		key.ActionBackspace,
+		key.ActionDeleteBackward,
+		key.ActionDelete,
+		key.ActionDeleteForward,
+		key.ActionEnter,
+		key.ActionArrowUp,
+		key.ActionArrowDown,
+		key.CustomActionUndo,
+		key.CustomActionRedo,
+		key.CustomActionCut,
+		key.CustomActionCopy,
+		key.CustomActionPaste,
+		key.ActionRune,
+	},
 )
 
 type TextArea struct {
@@ -166,18 +156,15 @@ func (c *TextArea) ToScreen() screen.Screen {
 		StackFromName()
 }
 
-func (c *TextArea) definition() screen.Definition {
+func (c *TextArea) definitionSource() screen.DefinitionSources {
 	if c.writeMode {
 		return text_area_write_definition
 	}
 	return text_area_read_definition
 }
 
-func (c *TextArea) helpMeta() ([]key.KeyAction, map[key.KeyAction]help.HelpField) {
-	if c.writeMode {
-		return text_area_write_actions, text_area_write_overrides
-	}
-	return text_area_read_actions, text_area_read_overrides
+func (c *TextArea) definition() screen.Definition {
+	return c.definitionSource().Definition
 }
 
 func (c *TextArea) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
@@ -549,7 +536,7 @@ func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.ScreenR
 }
 
 func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
-	keys, overr := c.helpMeta()
+	source := c.definitionSource()
 
 	predicate := pager.PredicatePage()
 	if c.writeMode {
@@ -575,7 +562,7 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 
 	vm.Helper.Shift(
 		key.ActionsToHelpWithOverride(
-			overr, keys...,
+			source.Overrides, source.Actions...,
 		)...,
 	)
 
