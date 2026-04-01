@@ -78,13 +78,14 @@ func (d *PositionDrawable) init(size terminal.Winsize) {
 	d.initialized = true
 
 	d.size = size
-	d.spec = makeSpec(d.spec, size, d.positionX)
-	d.frag = makeFrag(d.frag, d.marginX)
 
 	fixedSize := terminal.Winsize{
 		Rows: math.SubClampZero(size.Rows, uint16(d.marginY)*2),
 		Cols: math.SubClampZero(size.Cols, uint16(d.marginX)*2),
 	}
+
+	d.spec = makeSpec(d.spec, fixedSize, d.positionX)
+	d.frag = makeFrag(d.frag, d.marginX)
 
 	d.drawable.Init(fixedSize)
 }
@@ -106,6 +107,7 @@ func (d *PositionDrawable) draw() ([]text.Line, bool) {
 	base = d.addBottomMargin(base)
 
 	base = d.fillEmpty(base)
+
 	return base, hasNext
 }
 
@@ -121,7 +123,7 @@ func (d *PositionDrawable) makeTopMargin(lines []text.Line) []text.Line {
 		start /= 2
 	}
 
-	return make([]text.Line, start + uint16(d.marginY))
+	return make([]text.Line, start+uint16(d.marginY))
 }
 
 func (d *PositionDrawable) addBottomMargin(lines []text.Line) []text.Line {
@@ -144,7 +146,7 @@ func (d *PositionDrawable) fillEmpty(result []text.Line) []text.Line {
 
 func (d *PositionDrawable) styleLines(lines ...text.Line) []text.Line {
 	for i, v := range lines {
-		lines[i] = v.AddSpec(d.spec)
+		lines[i] = v.SetSpec(d.spec)
 	}
 	return lines
 }
