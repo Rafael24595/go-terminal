@@ -5,7 +5,6 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-terminal/engine/commons/log"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
@@ -190,8 +189,6 @@ func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start ui
 
 	frags = append(frags, headerFrag, selectFrag, footerFrag)
 
-	log.Debug(frags)
-
 	return frags, start, end
 }
 
@@ -254,22 +251,22 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 }
 
 func (d *TextAreaDrawable) fixEmptyLines(lines []text.Line) []text.Line {
-    for i, line := range lines {
-        if text.LineFragmentsMeasure(line) != 0 {
-            continue
-        }
+	for i, line := range lines {
+		if text.LineFragmentsMeasure(line) != 0 {
+			continue
+		}
 
-        styles := style.AtmNone
-        if len(line.Text) > 0 {
-            styles = line.Text[len(line.Text)-1].Atom
-        }
+		styles := style.AtmNone
+		if len(line.Text) > 0 {
+			styles = line.Text[len(line.Text)-1].Atom
+		}
 
-        lines[i].Text = append(line.Text,
-            text.NewFragment(marker.DefaultPaddingText).
-                AddAtom(styles),
-        )
-    }
-    return lines
+		lines[i].Text = append(line.Text,
+			text.NewFragment(marker.DefaultPaddingText).
+				AddAtom(styles),
+		)
+	}
+	return lines
 }
 func (d *TextAreaDrawable) draw() ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
