@@ -6,28 +6,44 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
-	drawable_table "github.com/Rafael24595/go-terminal/engine/layout/drawable/table"
+	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
+
+	drawable_table "github.com/Rafael24595/go-terminal/engine/layout/drawable/table"
 )
 
 const default_table_name = "Table"
 
-var table_navigation_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(
+var table_disabled_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{},
+	[]key.KeyAction{},
+)
+
+var table_read_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{
+		key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit mode"},
+	},
+	[]key.KeyAction{
+		key.ActionEnter,
+	},
+)
+
+var table_write_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{
+		key.ActionEsc: {Code: []string{"ESC"}, Detail: "Write Mode"},
+		key.ActionEnter: {Code: []string{"RET"}, Detail: "Active selected"},
+	},
+	[]key.KeyAction{
 		key.ActionEsc,
 		key.ActionArrowLeft,
 		key.ActionArrowRight,
 		key.ActionArrowUp,
 		key.ActionArrowDown,
-	)...,
-)
-
-var table_read_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(key.ActionEnter)...,
+	},
 )
 
 type Table[T any] struct {
@@ -107,16 +123,20 @@ func (c *Table[T]) ToScreen() screen.Screen {
 		StackFromName()
 }
 
-func (c *Table[T]) definition() screen.Definition {
+func (c *Table[T]) definitionSource() screen.DefinitionSources {
 	if !c.action.EnableMode {
-		return screen.DefinitionFromKeys()
+		return table_disabled_definition
 	}
 
 	if c.action.ActionMode {
-		return table_navigation_definition
+		return table_write_definition
 	}
 
 	return table_read_definition
+}
+
+func (c *Table[T]) definition() screen.Definition {
+	return c.definitionSource().Definition
 }
 
 func (c *Table[T]) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
@@ -167,6 +187,8 @@ func (c *Table[T]) updateRead(state *state.UIState, evnt screen.ScreenEvent) scr
 func (c *Table[T]) view(stt state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.ViewModelFromUIState(stt)
 
+	source := c.definitionSource()
+
 	vm.Header.Push(
 		line.EagerDrawableFromLines(c.title...),
 	)
@@ -184,7 +206,14 @@ func (c *Table[T]) view(stt state.UIState) viewmodel.ViewModel {
 	}
 
 	vm.SetInput(input)
+
 	vm.Pager.SetPredicate(preficate)
+
+	vm.Helper.Shift(
+		key.ActionsToHelpWithOverride(
+			source.Overrides, source.Actions...,
+		)...,
+	)
 
 	return *vm
 }
