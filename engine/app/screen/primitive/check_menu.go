@@ -9,7 +9,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	checkmenu "github.com/Rafael24595/go-terminal/engine/layout/drawable/check"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/check"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
@@ -36,8 +36,10 @@ var check_menu_read_definition = screen.NewDefinitionSources(
 
 var check_menu_write_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
-		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Write Mode"},
-		key.ActionEnter: {Code: []string{"RET"}, Detail: "Active selected"},
+		key.ActionEsc:       {Code: []string{"ESC"}, Detail: "Write Mode"},
+		key.ActionEnter:     {Code: []string{"RET"}, Detail: "Active selected"},
+		key.ActionArrowUp:   {Code: []string{"↑"}, Detail: "Move first"},
+		key.ActionArrowDown: {Code: []string{"↓"}, Detail: "Move last"},
 	},
 	[]key.KeyAction{
 		key.ActionEsc,
@@ -234,7 +236,7 @@ func (c *CheckMenu) activeIds() set.Set[string] {
 func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
 	source := c.definitionSource()
 
-	indexmenu := checkmenu.NewCheckMenuDrawable(c.options).
+	indexmenu := check.NewCheckMenuDrawable(c.options).
 		WriteMode(c.action.ActionMode).
 		Meta(c.meta).
 		Cursor(c.cursor)

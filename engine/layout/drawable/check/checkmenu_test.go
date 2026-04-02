@@ -1,4 +1,4 @@
-package checkmenu
+package check
 
 import (
 	"testing"
