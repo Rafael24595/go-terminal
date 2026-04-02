@@ -7,17 +7,17 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
 
-var history_actions = []key.KeyAction{
-	key.CustomActionBack,
-}
-
-var history_keys = key.NewKeysCode(
-	history_actions...,
+var history_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{},
+	[]key.KeyAction{
+		key.CustomActionBack,
+	},
 )
 
 type History struct {
@@ -43,7 +43,7 @@ func (c *History) ToScreen() screen.Screen {
 
 func (c *History) definition() screen.Definition {
 	def := c.screen.Definition()
-	def.RequireKeys = append(def.RequireKeys, history_keys...)
+	def.RequireKeys = append(def.RequireKeys, history_definition.Keys...)
 	return def
 }
 
@@ -102,7 +102,7 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 
 	actions := screen.FilterKeyRequired(
 		c.screen.Definition(),
-		history_actions...,
+		history_definition.Actions...,
 	)
 
 	vm.Helper.Unshift(
