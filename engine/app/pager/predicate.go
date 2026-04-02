@@ -25,7 +25,7 @@ func PredicatePage() Predicate {
 	return Predicate{
 		Code: CodePredicatePage,
 		Func: func(state state.UIState, ctx PredicateContext) bool {
-			return ctx.Page == state.Pager.Page
+			return ctx.Page == state.Pager.TargetPage
 		},
 	}
 }

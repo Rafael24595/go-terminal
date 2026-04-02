@@ -12,7 +12,7 @@ func TestPredicatePage(t *testing.T) {
 
 	state := state.UIState{
 		Pager: state.PagerState{
-			Page: 2,
+			TargetPage: 2,
 		},
 	}
 

@@ -46,7 +46,7 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.W
 	drawCtx := draw.NewDrawContext(state, dynamicSize)
 	drawStt := drawDynamicLines(drawCtx, vm.Pager, lines.ToDrawable())
 
-	state.Pager.Page = drawStt.Page
+	state.Pager.ConfirmPage(drawStt.Page)
 	state.Pager.HasMore = showPagination(drawStt)
 
 	allLines := headerLines

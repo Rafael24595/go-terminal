@@ -18,7 +18,7 @@ func TestPagerStrategy_Integration(t *testing.T) {
 
 	state := state.UIState{
 		Pager: state.PagerState{
-			Page: 1,
+			TargetPage: 1,
 		},
 	}
 

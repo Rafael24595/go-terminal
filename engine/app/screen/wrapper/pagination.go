@@ -8,7 +8,6 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
@@ -121,14 +120,14 @@ func (c *Pagination) localUpdate(state *state.UIState, event screen.ScreenEvent)
 	}
 
 	if event.Key.Code == keyback {
-		state.Pager.Page = math.SubClampZero(state.Pager.Page, 1)
+		state.Pager.DecTarget()
 		result := screen.ScreenResultFromUIState(state)
 
 		return &result
 	}
 
 	if event.Key.Code == keyNext {
-		state.Pager.Page += 1
+		state.Pager.IncTarget()
 		result := screen.ScreenResultFromUIState(state)
 
 		return &result
@@ -154,7 +153,7 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 
 		footer := text.NewLines(
 			text.NewLine(
-				fmt.Sprintf("%s: %d", label, stt.Pager.Page),
+				fmt.Sprintf("%s: %d", label, stt.Pager.ActualPage),
 				style.SpecFromKind(style.SpcKindPaddingRight),
 			),
 		)
@@ -182,9 +181,8 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 
 func (c *Pagination) shouldShowPage(stt state.UIState, vm viewmodel.ViewModel) bool {
 	predicate := vm.Pager.Predicate.Code
-	//engine := vm.Pager.Engine.Code
 
-	if predicate != pager.CodePredicatePage /*|| engine == pager.CodeEngineScroll*/ {
+	if predicate != pager.CodePredicatePage {
 		return false
 	}
 
@@ -192,5 +190,5 @@ func (c *Pagination) shouldShowPage(stt state.UIState, vm viewmodel.ViewModel) b
 		return true
 	}
 
-	return stt.Pager.HasMore || stt.Pager.Page > 0
+	return stt.Pager.HasMore || stt.Pager.ActualPage > 0
 }

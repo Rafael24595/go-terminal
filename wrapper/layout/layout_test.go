@@ -117,7 +117,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	vm.Header.Init(size)
 
-	stt.Pager.Page = 1
+	stt.Pager.TargetPage = 1
 	lines1 := TerminalApply(stt, *vm, size)
 
 	assert.Len(t, int(size.Rows), lines1)

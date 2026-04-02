@@ -51,17 +51,17 @@ func TestPagination_LocalUpdate(t *testing.T) {
 
 	scrn := p.ToScreen()
 
-	stt.Pager.Page = 0
+	stt.Pager.TargetPage = 0
 	result := scrn.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})
-	assert.Equal(t, result.Pager.Page, 0)
+	assert.Equal(t, result.Pager.TargetPage, 0)
 
 	result = scrn.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowRight)})
-	assert.Equal(t, result.Pager.Page, 1)
+	assert.Equal(t, result.Pager.TargetPage, 1)
 }
 
 func TestPagination_ViewFooter(t *testing.T) {
 	stt := state.NewUIState()
-	stt.Pager.Page = 3
+	stt.Pager.ActualPage = 3
 
 	base := screen_test.MockScreen{
 		Name: "base",
@@ -103,7 +103,7 @@ func TestPagination_UpdateDelegates(t *testing.T) {
 
 func TestPagination_PageNeverNegative(t *testing.T) {
 	stt := state.NewUIState()
-	stt.Pager.Page = 0
+	stt.Pager.TargetPage = 0
 
 	base := screen_test.MockScreen{
 		Name: "base",
@@ -113,5 +113,5 @@ func TestPagination_PageNeverNegative(t *testing.T) {
 	scrn := p.ToScreen()
 
 	scrn.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})
-	assert.Equal(t, stt.Pager.Page, 0)
+	assert.Equal(t, stt.Pager.TargetPage, 0)
 }
