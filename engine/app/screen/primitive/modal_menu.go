@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/modal"
+	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -13,8 +14,18 @@ import (
 
 const default_modal_menu_name = "IndexMenu"
 
-var modal_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(key.ActionAll)...,
+var modal_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{
+		key.ActionEnter: {Code: []string{"RET"}, Detail: "Active selected"},
+	},
+	[]key.KeyAction{
+		key.ActionEnter,
+		key.ActionArrowLeft,
+		key.ActionArrowRight,
+		key.ActionArrowUp,
+		key.ActionArrowDown,
+		key.CustomActionBack,
+	},
 )
 
 type ModalMenu struct {
@@ -66,7 +77,7 @@ func (c *ModalMenu) ToScreen() screen.Screen {
 }
 
 func (c *ModalMenu) definition() screen.Definition {
-	return modal_definition
+	return modal_definition.Definition
 }
 
 func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
@@ -101,6 +112,12 @@ func (c *ModalMenu) view(stt state.UIState) viewmodel.ViewModel {
 		ToDrawable()
 
 	vm.Kernel.Push(modal)
+
+	vm.Helper.Shift(
+		key.ActionsToHelpWithOverride(
+			modal_definition.Overrides, modal_definition.Actions...
+		)...,
+	)
 
 	return *vm
 }
