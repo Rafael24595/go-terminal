@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/commons"
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/dict"
 )
 
 type LayoutContext struct {
@@ -12,6 +13,41 @@ type LayoutContext struct {
 }
 
 type argMap = map[SpcArgKey]commons.Argument
+
+var specMeasureTableWithContext = dict.NewInmutableLinkedMap(
+	dict.P(SpcKindFill, func(spep Spec, size int, ctx LayoutContext) int {
+		return spep.args[KeyFillSize].Intd(ctx.Cols)
+	}),
+)
+
+var specMeasureTable = dict.NewInmutableLinkedMap(
+	dict.P(SpcKindTrimLeft, func(spec Spec, size int) int {
+		return spec.args[KeyTrimLeftSize].Intd(size)
+	}),
+	dict.P(SpcKindTrimRight, func(spec Spec, size int) int {
+		return spec.args[KeyTrimRightSize].Intd(size)
+	}),
+	dict.P(SpcKindPaddingCenter, func(spec Spec, size int) int {
+		arg := spec.args[KeyPaddingCenterSize].Intd(size)
+		return max(size, arg)
+	}),
+	dict.P(SpcKindPaddingLeft, func(spec Spec, size int) int {
+		arg := spec.args[KeyPaddingLeftSize].Intd(size)
+		return max(size, arg)
+	}),
+	dict.P(SpcKindPaddingRight, func(spec Spec, size int) int {
+		arg := spec.args[KeyPaddingRightSize].Intd(size)
+		return max(size, arg)
+	}),
+	dict.P(SpcKindRepeatLeft, func(spec Spec, size int) int {
+		arg := spec.args[KeyRepeatLeftSize].Intd(size)
+		return max(size, arg)
+	}),
+	dict.P(SpcKindRepeatRight, func(spec Spec, size int) int {
+		arg := spec.args[KeyRepeatRightSize].Intd(size)
+		return max(size, arg)
+	}),
+)
 
 type SpecsKind uint64
 
@@ -251,47 +287,27 @@ func specDirection(
 	}
 }
 
-func SpecMeasureWithContext(s Spec, size int, ctx LayoutContext) int {
-	if s.kind.HasAny(SpcKindFill) {
-		size = s.args[KeyFillSize].Intd(ctx.Cols)
+func SpecMeasureOf(kind SpecsKind, spec Spec, size int) int {
+	if predicate, ok := specMeasureTable.Get(kind); ok {
+		return predicate(spec, size)
 	}
-
-	return SpecMeasure(s, size)
+	return size
 }
 
-func SpecMeasure(s Spec, size int) int {
-	if s.kind.HasAny(SpcKindTrimLeft) {
-		size = s.args[KeyTrimLeftSize].Intd(size)
+func SpecMeasureWithContext(spec Spec, size int, ctx LayoutContext) int {
+	for k, f := range specMeasureTableWithContext.All() {
+		if spec.kind.HasAny(k) {
+			size = f(spec, size, ctx)
+		}
 	}
+	return SpecMeasure(spec, size)
+}
 
-	if s.kind.HasAny(SpcKindTrimRight) {
-		size = s.args[KeyTrimRightSize].Intd(size)
+func SpecMeasure(spec Spec, size int) int {
+	for k, p := range specMeasureTable.All() {
+		if spec.kind.HasAny(k) {
+			size = p(spec, size)
+		}
 	}
-
-	if s.kind.HasAny(SpcKindPaddingCenter) {
-		arg := s.args[KeyPaddingCenterSize].Intd(size)
-		size = max(size, arg)
-	}
-
-	if s.kind.HasAny(SpcKindPaddingLeft) {
-		arg := s.args[KeyPaddingLeftSize].Intd(size)
-		size = max(size, arg)
-	}
-
-	if s.kind.HasAny(SpcKindPaddingRight) {
-		arg := s.args[KeyPaddingRightSize].Intd(size)
-		size = max(size, arg)
-	}
-
-	if s.kind.HasAny(SpcKindRepeatLeft) {
-		arg := s.args[KeyRepeatLeftSize].Intd(size)
-		size = max(size, arg)
-	}
-
-	if s.kind.HasAny(SpcKindRepeatRight) {
-		arg := s.args[KeyRepeatRightSize].Intd(size)
-		size = max(size, arg)
-	}
-
 	return size
 }
