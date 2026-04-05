@@ -5,6 +5,7 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
@@ -146,7 +147,7 @@ func (d *PositionDrawable) fillEmpty(result []text.Line) []text.Line {
 
 func (d *PositionDrawable) styleLines(lines ...text.Line) []text.Line {
 	for i, v := range lines {
-		lines[i] = v.SetSpec(d.spec)
+		lines[i] = v.AddSpec(d.spec)
 	}
 	return lines
 }
@@ -174,6 +175,6 @@ func makeFrag(frag text.Fragment, margin uint) text.Fragment {
 		return frag
 	}
 
-	return text.FragmentFrom(" ", frag).
+	return text.FragmentFrom(marker.DefaultPaddingText, frag).
 		AddSpec(style.SpecRepeatRight(margin))
 }
