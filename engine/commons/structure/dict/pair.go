@@ -11,3 +11,7 @@ func NewPair[K any, V any](key K, value V) Pair[K, V] {
 		Value: value,
 	}
 }
+
+func P[K any, V any](key K, value V) Pair[K, V] {
+	return NewPair(key, value)
+}
