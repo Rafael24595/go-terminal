@@ -3,46 +3,70 @@ package wrapper_render
 import (
 	"strings"
 
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/dict"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-func applySpecStyles(styl style.Spec, size terminal.Winsize, text string, logicalSize int) string {
-	baseCols := int(size.Cols)
+var specStylesTable = dict.NewInmutableLinkedMap(
+	dict.P(style.SpcKindFill, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+		return fill(spec, cols, text, logicalSize), true
+	}),
+	dict.P(style.SpcKindTrimLeft, func(spec style.Spec, _ int, text string, logicalSize int) (string, bool) {
+		return trimLeft(spec, text, logicalSize), false
+	}),
+	dict.P(style.SpcKindTrimRight, func(spec style.Spec, _ int, text string, logicalSize int) (string, bool) {
+		return trimRight(spec, text, logicalSize), false
+	}),
+	dict.P(style.SpcKindPaddingCenter, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+		return paddingCenter(spec, cols, text, logicalSize), false
+	}),
+	dict.P(style.SpcKindPaddingLeft, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+		return paddingLeft(spec, cols, text, logicalSize), false
+	}),
+	dict.P(style.SpcKindPaddingRight, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+		return paddingRight(spec, cols, text, logicalSize), false
+	}),
+	dict.P(style.SpcKindRepeatLeft, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+		return repeatLeft(spec, cols, text, logicalSize), false
+	}),
+	dict.P(style.SpcKindRepeatRight, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+		return repeatRight(spec, cols, text, logicalSize), false
+	}),
+)
 
-	kind := styl.Kind()
+var specAtomTable = dict.NewInmutableLinkedMap(
+	dict.P(style.AtmLower, func(text string) string {
+		return strings.ToLower(text)
+	}),
+	dict.P(style.AtmUpper, func(text string) string {
+		return strings.ToUpper(text)
+	}),
+	dict.P(style.AtmBold, func(text string) string {
+		return Bold + text + NoBold
+	}),
+	dict.P(style.AtmSelect, func(text string) string {
+		return Reverse + text + NoReverse
+	}),
+)
 
-	if kind.HasAny(style.SpcKindFill) {
-		return fill(styl, baseCols, text, logicalSize)
-	}
+func applySpecStyles(spec style.Spec, size terminal.Winsize, text string, logicalSize int) string {
+	var exit bool
+	var cols int = int(size.Cols)
 
-	if kind.HasAny(style.SpcKindTrimLeft) {
-		text = trimLeft(styl, text, logicalSize)
-	}
+	kind := spec.Kind()
+	for k, p := range specStylesTable.All() {
+		if !kind.HasAny(k) {
+			continue
+		}
 
-	if kind.HasAny(style.SpcKindTrimRight) {
-		text = trimRight(styl, text, logicalSize)
-	}
+		text, exit = p(spec, cols, text, logicalSize)
+		if exit {
+			return text
+		}
 
-	if kind.HasAny(style.SpcKindPaddingCenter) {
-		text = paddingCenter(styl, baseCols, text, logicalSize)
-	}
-
-	if kind.HasAny(style.SpcKindPaddingLeft) {
-		text = paddingLeft(styl, baseCols, text, logicalSize)
-	}
-
-	if kind.HasAny(style.SpcKindPaddingRight) {
-		text = paddingRight(styl, baseCols, text, logicalSize)
-	}
-
-	if kind.HasAny(style.SpcKindRepeatLeft) {
-		text = repeatLeft(styl, baseCols, text, logicalSize)
-	}
-
-	if kind.HasAny(style.SpcKindRepeatRight) {
-		text = repeatRight(styl, baseCols, text, logicalSize)
+		logicalSize = style.SpecMeasureOf(k, spec, logicalSize)
 	}
 
 	return text
@@ -51,20 +75,10 @@ func applySpecStyles(styl style.Spec, size terminal.Winsize, text string, logica
 func applyAtomStyles(text string, styles ...style.Atom) string {
 	merged := style.MergeAtom(styles...)
 
-	if merged.HasAny(style.AtmLower) {
-		text = strings.ToLower(text)
-	}
-
-	if merged.HasAny(style.AtmUpper) {
-		text = strings.ToUpper(text)
-	}
-
-	if merged.HasAny(style.AtmBold) {
-		text = Bold + text + NoBold
-	}
-
-	if merged.HasAny(style.AtmSelect) {
-		text = Reverse + text + NoReverse
+	for k, p := range specAtomTable.All() {
+		if merged.HasAny(k) {
+			text = p(text)
+		}
 	}
 
 	return text
