@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 )
 
@@ -39,6 +39,24 @@ func TestAbsUnsigned(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, math.Abs(tt.in), tt.in)
+		})
+	}
+}
+
+func TestMinNotZero(t *testing.T) {
+	tests := []struct {
+		name string
+		x, y int
+		want int
+	}{
+		{"x zero", 0, 3, 3},
+		{"y zero", 11, 0, 11},
+		{"both zero", 0, 0, 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, math.MinNotZero(tt.x, tt.y), tt.want)
 		})
 	}
 }

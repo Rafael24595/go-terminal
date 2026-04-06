@@ -42,6 +42,18 @@ func Abs[T Number](val T) T {
 	return val
 }
 
+func MinNotZero[T Number](x, y T) T {
+	if x == 0 {
+		return y
+	}
+
+	if y == 0 {
+		return x
+	}
+
+	return min(x, y)
+}
+
 func Clamp[T cmp.Ordered](val, lower, upper T) T {
 	return max(lower, min(val, upper))
 }
@@ -77,7 +89,7 @@ func Sum[T Number](items []T) T {
 	return total
 }
 
-func MaxMap[K comparable, V cmp.Ordered](m map[K]V) (K, V, bool) {	
+func MaxMap[K comparable, V cmp.Ordered](m map[K]V) (K, V, bool) {
 	if len(m) == 0 {
 		var zeroK K
 		var zeroV V
