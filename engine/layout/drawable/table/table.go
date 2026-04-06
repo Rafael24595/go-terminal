@@ -3,6 +3,7 @@ package table
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
@@ -14,24 +15,25 @@ import (
 const NameTableDrawable = "TableDrawable"
 
 type TableDrawable struct {
-	initialized bool
-	size        terminal.Winsize
-	padding     style.HorizontalPosition
-	spec        style.Spec
-	table       table.Table
-	sections    []section
-	cursor      input.MatrixCursor
+	loaded     bool
+	lazyLoaded bool
+	size       terminal.Winsize
+	padding    style.HorizontalPosition
+	spec       style.Spec
+	table      table.Table
+	sections   []section
+	cursor     input.MatrixCursor
 }
 
 func NewTableDrawable(table table.Table, cursor input.MatrixCursor, padding style.HorizontalPosition) *TableDrawable {
 	return &TableDrawable{
-		initialized: false,
-		size:        terminal.Winsize{},
-		padding:     padding,
-		spec:        style.SpecEmpty(),
-		table:       table,
-		sections:    make([]section, 0),
-		cursor:      cursor,
+		loaded:   false,
+		size:     terminal.Winsize{},
+		padding:  padding,
+		spec:     style.SpecEmpty(),
+		table:    table,
+		sections: make([]section, 0),
+		cursor:   cursor,
 	}
 }
 
@@ -42,27 +44,47 @@ func TableDrawableFromTable(table table.Table, cursor input.MatrixCursor, paddin
 func (d *TableDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameTableDrawable,
+		Code: "",
+		Tags: make(set.Set[string]),
 		Init: d.init,
+		Wipe: d.wipe,
 		Draw: d.draw,
 	}
 }
 
-func (d *TableDrawable) init(size terminal.Winsize) {
-	d.initialized = true
+func (d *TableDrawable) init() {
+	d.loaded = true
+}
+
+func (d *TableDrawable) wipe() {
+	d.lazyLoaded = false
+}
+
+func (d *TableDrawable) lazyInit(size terminal.Winsize) {
+	if d.lazyLoaded {
+		return
+	}
+
+	d.size = size
 
 	d.spec = makeSpec(d.spec, size, d.padding)
-	d.size = size
 	d.sections = makeSections(d.table, d.cursor, size)
 
 	for i := range d.sections {
-		d.sections[i].header.Init(size)
-		d.sections[i].rows.Init(size)
-		d.sections[i].footer.Init(size)
+		d.sections[i].header.Init()
+		d.sections[i].rows.Init()
+		d.sections[i].footer.Init()
 	}
 }
 
-func (d *TableDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+func (d *TableDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
+
+	if size.Rows == 0 {
+		return make([]text.Line, 0), false
+	}
+
+	d.lazyInit(size)
 
 	headers, footers, remaining := d.drawStatic()
 	bodies, hasNext := d.drawDynamic(remaining)
@@ -101,10 +123,10 @@ func (d *TableDrawable) drawStatic() ([][]text.Line, [][]text.Line, int) {
 
 	remaining := int(d.size.Rows)
 	for i, s := range d.sections {
-		header, _ := s.header.Draw()
+		header, _ := s.header.Draw(d.size)
 		headers[i] = header
 
-		footer, _ := s.footer.Draw()
+		footer, _ := s.footer.Draw(d.size)
 		footers[i] = footer
 
 		remaining -= (len(header) + len(footer))
@@ -116,10 +138,15 @@ func (d *TableDrawable) drawStatic() ([][]text.Line, [][]text.Line, int) {
 func (d *TableDrawable) drawDynamic(remaining int) ([][]text.Line, bool) {
 	empty := make(map[int]int)
 
-	fixRemaining := remaining - (remaining % len(d.sections))
+	sections := len(d.sections)
+	if sections == 0 {
+		return make([][]text.Line, 0), false
+	}
 
-	bodies := make([][]text.Line, len(d.sections))
-	for fixRemaining > 0 && len(empty) != len(d.sections) {
+	fixRemaining := remaining - (remaining % sections)
+
+	bodies := make([][]text.Line, sections)
+	for fixRemaining > 0 && len(empty) != sections {
 		for i, s := range d.sections {
 			if fixRemaining <= 0 {
 				break
@@ -129,7 +156,7 @@ func (d *TableDrawable) drawDynamic(remaining int) ([][]text.Line, bool) {
 				continue
 			}
 
-			lines, status := s.rows.Draw()
+			lines, status := s.rows.Draw(d.size)
 			if !status {
 				empty[i] = 1
 			}

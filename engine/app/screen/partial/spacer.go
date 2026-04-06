@@ -4,7 +4,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/render/spacer"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -69,7 +69,7 @@ func (c *Spacer) view(state state.UIState) viewmodel.ViewModel {
 }
 
 func (c *Spacer) addHeaderStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
-	spcr := line.EagerDrawableFromLines(
+	spcr := block.BlockDrawableFromLines(
 		c.makeSpaces(c.header.Size)...,
 	)
 
@@ -89,7 +89,7 @@ func (c *Spacer) addHeaderStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
 }
 
 func (c *Spacer) addFooterStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
-	spcr := line.EagerDrawableFromLines(
+	spcr := block.BlockDrawableFromLines(
 		c.makeSpaces(c.footer.Size)...,
 	)
 

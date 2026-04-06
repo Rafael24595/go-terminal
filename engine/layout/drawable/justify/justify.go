@@ -3,6 +3,8 @@ package justify
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
+	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
@@ -19,22 +21,21 @@ const (
 const NameJustifyDrawable = "JustifyDrawable"
 
 type JustifyDrawable struct {
-	initialized bool
-	size        terminal.Winsize
-	limit       uint8
-	justify     style.Justify
-	fragments   []text.Fragment
-	cursor      uint16
+	loaded    bool
+	maxOpts   uint16
+	maxCols   uint16
+	justify   style.Justify
+	fragments []text.Fragment
+	cursor    uint16
 }
 
 func NewJustifyDrawable(fragments []text.Fragment) *JustifyDrawable {
 	return &JustifyDrawable{
-		initialized: false,
-		size:        terminal.Winsize{},
-		limit:       style.DefaultLimit,
-		justify:     style.JustifyAround,
-		fragments:   fragments,
-		cursor:      0,
+		loaded:    false,
+		maxOpts:   style.DefaultMaxOpts,
+		justify:   style.JustifyAround,
+		fragments: fragments,
+		cursor:    0,
 	}
 }
 
@@ -42,8 +43,13 @@ func JustifyDrawableFromFragments(fragments []text.Fragment) drawable.Drawable {
 	return NewJustifyDrawable(fragments).ToDrawable()
 }
 
-func (d *JustifyDrawable) Limit(limit uint8) *JustifyDrawable {
-	d.limit = max(1, limit)
+func (d *JustifyDrawable) MaxOpts(maxOpts uint16) *JustifyDrawable {
+	d.maxOpts = max(1, maxOpts)
+	return d
+}
+
+func (d *JustifyDrawable) MaxCols(maxCols uint16) *JustifyDrawable {
+	d.maxCols = max(1, maxCols)
 	return d
 }
 
@@ -52,31 +58,43 @@ func (d *JustifyDrawable) Justify(justify style.Justify) *JustifyDrawable {
 	return d
 }
 
+func (d *JustifyDrawable) AddFragments(fragments []text.Fragment) *JustifyDrawable {
+	d.fragments = append(d.fragments, fragments...)
+	return d
+}
+
 func (d *JustifyDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameJustifyDrawable,
+		Code: "",
+		Tags: make(set.Set[string]),
 		Init: d.init,
 		Draw: d.draw,
+		Wipe: d.wipe,
 	}
 }
 
-func (d *JustifyDrawable) init(size terminal.Winsize) {
-	d.initialized = true
+func (d *JustifyDrawable) init() {
+	d.loaded = true
 
-	d.size = size
+	d.cursor = 0
 }
 
-func (d *JustifyDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+func (d *JustifyDrawable) wipe() {
+	d.cursor = 0
+}
+
+func (d *JustifyDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
 
 	if d.cursor >= uint16(len(d.fragments)) {
 		return make([]text.Line, 0), false
 	}
 
-	limit := int(d.limit)
-	cols := int(d.size.Cols)
+	maxOpts := int(d.maxOpts)
+	maxCols := int(math.MinNotZero(size.Cols, d.maxCols))
 
-	size := 0
+	width := 0
 	frags := make([]text.Fragment, 0)
 
 	for i := int(d.cursor); i < len(d.fragments); i++ {
@@ -90,19 +108,19 @@ func (d *JustifyDrawable) draw() ([]text.Line, bool) {
 			spacing = 1
 		}
 
-		newSize := size + spacing + fragSize
-		if fragsLen > 0 && fragsLen >= limit || newSize > cols {
-			line := justifyLine(cols, frags, size, d.justify)
+		newWidth := width + spacing + fragSize
+		if fragsLen > 0 && fragsLen >= maxOpts || newWidth > maxCols {
+			line := justifyLine(maxCols, frags, width, d.justify)
 			return []text.Line{line}, true
 		}
 
-		size = newSize
+		width = newWidth
 		frags = append(frags, frag)
 
 		d.cursor += 1
 	}
 
-	line := justifyLine(cols, frags, size, d.justify)
+	line := justifyLine(maxCols, frags, width, d.justify)
 	return []text.Line{line}, d.cursor < uint16(len(d.fragments))
 }
 

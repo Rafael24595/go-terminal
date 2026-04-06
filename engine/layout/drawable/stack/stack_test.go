@@ -11,17 +11,9 @@ import (
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
-func TestStackDrawable_ToDrawable(t *testing.T) {
+func TestStack_DrawableBasicSuite(t *testing.T) {
 	dw := StackDrawableFromDrawables()
-	drawable_test.Helper_ToDrawable(t, dw)
-}
-
-func TestStackDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
-	bd := NewStackDrawable()
-
-	assert.Panic(t, func() {
-		bd.Draw()
-	})
+	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
 func TestStackDrawable_ShouldPanicIfNewElementsAddedAfterInitialization(t *testing.T) {
@@ -30,7 +22,7 @@ func TestStackDrawable_ShouldPanicIfNewElementsAddedAfterInitialization(t *testi
 	m1 := &drawable_test.MockDrawable{}
 	bd.Push(m1.ToDrawable())
 
-	bd.Init(terminal.Winsize{})
+	bd.Init()
 
 	assert.Panic(t, func() {
 		m2 := &drawable_test.MockDrawable{}
@@ -49,7 +41,7 @@ func TestStackDrawable_Init(t *testing.T) {
 		d2.ToDrawable(),
 	)
 
-	stack.Init(terminal.Winsize{})
+	stack.Init()
 
 	assert.True(t, d1.InitCalled)
 	assert.True(t, d2.InitCalled)
@@ -66,24 +58,24 @@ func TestStackDrawable_Shift_Order(t *testing.T) {
 	d1 := m1.ToDrawable()
 	d2 := m2.ToDrawable()
 
-	d1.Draw = func() ([]text.Line, bool) {
+	d1.Draw = func(_ terminal.Winsize) ([]text.Line, bool) {
 		m1.Order = count
 		count++
-		return m1.Draw()
+		return m1.Draw(terminal.Winsize{})
 	}
 
-	d2.Draw = func() ([]text.Line, bool) {
+	d2.Draw = func(_ terminal.Winsize) ([]text.Line, bool) {
 		m2.Order = count
 		count++
-		return m2.Draw()
+		return m2.Draw(terminal.Winsize{})
 	}
 
 	stack.Push(d1)
 	stack.Push(d2)
 
-	stack.Init(terminal.Winsize{})
+	stack.Init()
 
-	stack.Draw()
+	stack.Draw(terminal.Winsize{})
 
 	assert.Equal(t, 0, m1.Order)
 	assert.Equal(t, 1, m2.Order)
@@ -100,24 +92,24 @@ func TestStackDrawable_Unshift_Order(t *testing.T) {
 	d1 := m1.ToDrawable()
 	d2 := m2.ToDrawable()
 
-	d1.Draw = func() ([]text.Line, bool) {
+	d1.Draw = func(_ terminal.Winsize) ([]text.Line, bool) {
 		m1.Order = count
 		count++
-		return m1.Draw()
+		return m1.Draw(terminal.Winsize{})
 	}
 
-	d2.Draw = func() ([]text.Line, bool) {
+	d2.Draw = func(_ terminal.Winsize) ([]text.Line, bool) {
 		m2.Order = count
 		count++
-		return m2.Draw()
+		return m2.Draw(terminal.Winsize{})
 	}
 
 	stack.Push(d1)
 	stack.Unshift(d2)
 
-	stack.Init(terminal.Winsize{})
+	stack.Init()
 
-	stack.Draw()
+	stack.Draw(terminal.Winsize{})
 
 	assert.Equal(t, 1, m1.Order)
 	assert.Equal(t, 0, m2.Order)
@@ -134,9 +126,9 @@ func TestStackDrawable_Draw_BreaksOnTrue(t *testing.T) {
 		d2.ToDrawable(),
 	)
 
-	stack.Init(terminal.Winsize{})
+	stack.Init()
 
-	_, global := stack.Draw()
+	_, global := stack.Draw(terminal.Winsize{})
 
 	assert.True(t, global)
 	assert.Equal(t, 0, d2.DrawCalls)
@@ -149,10 +141,10 @@ func TestStackDrawable_DisablesLayer(t *testing.T) {
 
 	stack.Push(d1.ToDrawable())
 
-	stack.Init(terminal.Winsize{})
+	stack.Init()
 
-	stack.Draw()
-	stack.Draw()
+	stack.Draw(terminal.Winsize{})
+	stack.Draw(terminal.Winsize{})
 
 	assert.Equal(t, 1, d1.DrawCalls)
 }
@@ -178,9 +170,9 @@ func TestStackDrawable_BufferConcat(t *testing.T) {
 		d2.ToDrawable(),
 	)
 
-	stack.Init(terminal.Winsize{})
+	stack.Init()
 
-	buffer, _ := stack.Draw()
+	buffer, _ := stack.Draw(terminal.Winsize{})
 
 	assert.Len(t, 2, buffer)
 	assert.Equal(t, "golang", text.LineToString(buffer[0])+text.LineToString(buffer[1]))
@@ -199,9 +191,9 @@ func TestStackDrawable_ShortCircuitStopsPropagation(t *testing.T) {
 		d3.ToDrawable(),
 	)
 
-	stack.Init(terminal.Winsize{})
+	stack.Init()
 
-	stack.Draw()
+	stack.Draw(terminal.Winsize{})
 
 	assert.Equal(t, 1, d1.DrawCalls)
 	assert.Equal(t, 1, d2.DrawCalls)

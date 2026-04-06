@@ -1,13 +1,13 @@
 package style
 
-const DefaultLimit = 5
+const DefaultMaxOpts = 5
 
-var DefaultDistribution = HorizontalDistribution(JustifyAround, DefaultLimit)
+var DefaultDistribution = HorizontalDistribution(JustifyAround, DefaultMaxOpts)
 
 type Distribution struct {
 	Direction Direction
 	Justify   Justify
-	Limit     uint8
+	Limit     uint16
 }
 
 func VerticalDistribution() Distribution {
@@ -16,7 +16,7 @@ func VerticalDistribution() Distribution {
 	}
 }
 
-func HorizontalDistribution(justify Justify, limit uint8) Distribution {
+func HorizontalDistribution(justify Justify, limit uint16) Distribution {
 	return Distribution{
 		Direction: Horizontal,
 		Justify:   justify,

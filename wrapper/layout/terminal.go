@@ -13,22 +13,19 @@ import (
 
 // TODO: Implement tokenize lines method to prevent line feed injection.
 func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.Winsize) []text.Line {
-	rows := int(size.Rows)
-	cols := int(size.Cols)
+	header, footer := vm.InitStaticLayers()
 
-	header, footer := vm.InitStaticLayers(size)
-
-	headerLines := drawStaticLines(header.ToDrawable(), rows, cols)
-	footerLines := drawStaticLines(footer.ToDrawable(), rows, cols)
+	headerLines := drawStaticLines(header.ToDrawable(), size)
+	footerLines := drawStaticLines(footer.ToDrawable(), size)
 
 	inputLines := make([]text.Line, 0)
 	if input, ok := vm.InitInputLine(size); ok {
-		inputLines = drawStaticLines(input, rows, cols)
+		inputLines = drawStaticLines(input, size)
 	}
 
 	helperLines := make([]text.Line, 0)
 	if helper, ok := vm.InitHelper(size); ok {
-		helperLines = drawStaticLines(helper, rows, cols)
+		helperLines = drawStaticLines(helper, size)
 	}
 
 	static := len(headerLines) + len(footerLines) + len(inputLines) + len(helperLines)
@@ -58,12 +55,15 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.W
 	return allLines
 }
 
-func drawStaticLines(drawable drawable.Drawable, rows, cols int) []text.Line {
+func drawStaticLines(drawable drawable.Drawable, size terminal.Winsize) []text.Line {
+	rows := int(size.Rows)
+	cols := int(size.Cols)
+
 	buffer := make([]text.Line, 0)
 
 	content := true
 	for content {
-		lines, status := drawable.Draw()
+		lines, status := drawable.Draw(size)
 		content = status
 
 		if len(lines) == 0 {
@@ -76,7 +76,7 @@ func drawStaticLines(drawable drawable.Drawable, rows, cols int) []text.Line {
 			)
 
 			if len(buffer) >= rows {
-				break
+				return buffer
 			}
 		}
 	}
@@ -96,7 +96,7 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 	hasNext := true
 
 	for hasNext {
-		rendered, hasNext = drawable.Draw()
+		rendered, hasNext = drawable.Draw(ctx.Size)
 		renderedSize := len(rendered)
 		if len(rendered) == 0 {
 			continue

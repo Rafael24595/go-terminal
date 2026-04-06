@@ -22,7 +22,7 @@ func TestSplitLineWords_Simple(t *testing.T) {
 
 	expected := []string{"HELLO", " ", "WORLD"}
 
-	assert.Equal(t, len(expected), len(lines))
+	assert.Len(t, len(expected), lines)
 
 	for i, l := range lines {
 		var text strings.Builder

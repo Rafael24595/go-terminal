@@ -6,8 +6,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/box"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
 	"github.com/Rafael24595/go-terminal/engine/model/buffer"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
@@ -139,7 +139,7 @@ func (c *TextInput) makeDrawables(vm viewmodel.ViewModel) []drawable.Drawable {
 	pstd := pst.MarginX(0).ToDrawable()
 
 	frags := append(c.label, text.NewFragment(": "))
-	lbl := line.EagerDrawableFromLines(
+	lbl := block.BlockDrawableFromLines(
 		text.LineFromFragments(frags...),
 	)
 

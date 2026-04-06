@@ -5,7 +5,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
@@ -34,7 +34,7 @@ var table_read_definition = screen.NewDefinitionSources(
 
 var table_write_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
-		key.ActionEsc: {Code: []string{"ESC"}, Detail: "Write Mode"},
+		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Write Mode"},
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Active selected"},
 	},
 	[]key.KeyAction{
@@ -190,7 +190,7 @@ func (c *Table[T]) view(stt state.UIState) viewmodel.ViewModel {
 	source := c.definitionSource()
 
 	vm.Header.Push(
-		line.EagerDrawableFromLines(c.title...),
+		block.BlockDrawableFromLines(c.title...),
 	)
 	vm.Kernel.Push(
 		drawable_table.TableDrawableFromTable(*c.table, *c.cursor, c.padding),
@@ -202,7 +202,7 @@ func (c *Table[T]) view(stt state.UIState) viewmodel.ViewModel {
 		preficate = pager.PredicateFocus()
 
 		cell, _ := c.table.FindCellByCoords(int(c.cursor.Row), int(c.cursor.Col))
-		input = viewmodel.NewInputLine(line.EagerDrawableFromString(cell))
+		input = viewmodel.NewInputLine(block.BlockDrawableFromString(cell))
 	}
 
 	vm.SetInput(input)

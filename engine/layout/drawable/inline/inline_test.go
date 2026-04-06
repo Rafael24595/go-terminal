@@ -11,22 +11,29 @@ import (
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
-func TestInline_ToDrawable(t *testing.T) {
+func TestInline_DrawableBasicSuite(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
 	dw := InlineDrawableFromDrawables(mock.ToDrawable())
-	drawable_test.Helper_ToDrawable(t, dw)
+	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
-func TestInlineDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
+func TestInline_LazyInit(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
 	bd := NewInlineDrawable(mock.ToDrawable())
 
-	assert.Panic(t, func() {
-		bd.draw()
-	})
+	assert.False(t, bd.lazyLoaded)
+	assert.True(t, 
+		drawable_test.Helper_IsDrawableNil(t, bd.drawable),
+	)
+
+	bd.init()
+	bd.draw(terminal.Winsize{})
+
+	assert.True(t, bd.lazyLoaded)
+	drawable_test.Helper_ToDrawable(t, bd.drawable)
 }
 
-func TestInlineDrawable_JoinsChildren(t *testing.T) {
+func TestInline_JoinsChildren(t *testing.T) {
 	mock1 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
 			text.LineFromString("go"),
@@ -46,15 +53,17 @@ func TestInlineDrawable_JoinsChildren(t *testing.T) {
 
 	dr := d.ToDrawable()
 
-	dr.Init(terminal.Winsize{})
+	dr.Init()
 
-	lines, _ := dr.Draw()
+	lines, _ := dr.Draw(terminal.Winsize{
+		Rows: 3,
+	})
 
 	assert.Len(t, 1, lines)
 	assert.Equal(t, "golang", text.LineToString(lines[0]))
 }
 
-func TestInlineDrawable_JoinsChildrenWithSeparator(t *testing.T) {
+func TestInline_JoinsChildrenWithSeparator(t *testing.T) {
 	mock1 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
 			text.LineFromString("golang"),
@@ -76,17 +85,18 @@ func TestInlineDrawable_JoinsChildrenWithSeparator(t *testing.T) {
 
 	dr := d.ToDrawable()
 
-	dr.Init(terminal.Winsize{
+	dr.Init()
+
+	lines, _ := dr.Draw(terminal.Winsize{
+		Rows: 3,
 		Cols: 16,
 	})
-
-	lines, _ := dr.Draw()
 
 	assert.Len(t, 1, lines)
 	assert.Equal(t, "golang | ziglang", text.LineToString(lines[0]))
 }
 
-func TestInlineDrawable_MultipleLines(t *testing.T) {
+func TestInline_MultipleLines(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
 		Lines: []text.Line{
 			text.LineFromString("go"),
@@ -102,24 +112,25 @@ func TestInlineDrawable_MultipleLines(t *testing.T) {
 
 	d.Separator(" | ")
 
-	dr.Init(terminal.Winsize{
+	dr.Init()
+
+	lines, _ := dr.Draw(terminal.Winsize{
+		Rows: 3,
 		Cols: 9,
 	})
-
-	lines, _ := dr.Draw()
 
 	assert.Len(t, 1, lines)
 	assert.Equal(t, "go | lang", text.LineToString(lines[0]))
 }
 
-func TestInlineDrawable_Empty(t *testing.T) {
+func TestInline_Empty(t *testing.T) {
 	d := NewInlineDrawable()
 
 	dr := d.ToDrawable()
 
-	dr.Init(terminal.Winsize{})
+	dr.Init()
 
-	lines, _ := dr.Draw()
+	lines, _ := dr.Draw(terminal.Winsize{})
 
 	assert.Len(t, 0, lines)
 }

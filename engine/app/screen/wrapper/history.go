@@ -6,7 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
@@ -96,7 +96,7 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 	)
 
 	vm.Footer.Unshift(
-		line.EagerDrawableFromLines(footer...).
+		block.BlockDrawableFromLines(footer...).
 			AddTag(screen.SystemScreenMeta),
 	)
 

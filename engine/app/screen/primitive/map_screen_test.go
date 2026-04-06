@@ -18,16 +18,16 @@ import (
 
 func drawSources(vm viewmodel.ViewModel, winsize terminal.Winsize) {
 	header := vm.Header.ToDrawable()
-	header.Init(winsize)
-	header.Draw()
+	header.Init()
+	header.Draw(winsize)
 
 	footer := vm.Footer.ToDrawable()
-	footer.Init(winsize)
-	footer.Draw()
+	footer.Init()
+	footer.Draw(winsize)
 
 	lines := vm.Kernel.ToDrawable()
-	lines.Init(winsize)
-	lines.Draw()
+	lines.Init()
+	lines.Draw(winsize)
 }
 
 func TestMapScreen_ToScreen(t *testing.T) {

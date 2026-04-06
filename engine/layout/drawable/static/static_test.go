@@ -3,27 +3,12 @@ package static
 import (
 	"testing"
 
-	assert "github.com/Rafael24595/go-assert/assert/test"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
-	
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
-func TestStatic_ToDrawable(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	dw := StaticDrawableFromDrawable(mock.ToDrawable())
-	drawable_test.Helper_ToDrawable(t, dw)
-}
-
-func TestStaticDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-
-	bd := NewStaticDrawable(mock.ToDrawable())
-	bd.draw()
-
-	bd = NewStaticDrawable(line.EagerLoopDrawableFromLines())
-	assert.Panic(t, func() {
-		bd.draw()
-	})
+func TestStatic_DrawableBasicSuite(t *testing.T) {
+	dw := StaticDrawableFromDrawable(block.BlockDrawableFromLines())
+	drawable_test.Test_DrawableBasicSuite(t, dw)
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
@@ -58,10 +59,10 @@ func (c *Article) view(state state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.ViewModelFromUIState(state)
 
 	vm.Header.Push(
-		line.EagerDrawableFromLines(c.title...),
+		block.BlockDrawableFromLines(c.title...),
 	)
 	vm.Kernel.Push(
-		line.LazyDrawableFromLines(c.article...),
+		line.LineDrawableFromLines(c.article...),
 	)
 
 	return *vm

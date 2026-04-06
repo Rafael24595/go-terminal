@@ -9,25 +9,15 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
+	
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
-func TestTable_ToDrawable(t *testing.T) {
+func TestInputLine_DrawableBasicSuite(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
 	input := viewmodel.NewInputLine(mock.ToDrawable())
 	dw := input.ToDrawable()
-
-	drawable_test.Helper_ToDrawable(t, dw)
-}
-
-func TestTableDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	input := viewmodel.NewInputLine(mock.ToDrawable())
-	dw := input.ToDrawable()
-
-	assert.Panic(t, func() {
-		dw.Draw()
-	})
+	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
 func TestNewInputLine_DefaultPrompt(t *testing.T) {
@@ -37,7 +27,7 @@ func TestNewInputLine_DefaultPrompt(t *testing.T) {
 	assert.Equal(t, input.Prompt, marker.DefaultInputLinePrompt)
 }
 
-func TestDraw_NoContent_ReturnsPromptOnly(t *testing.T) {
+func TestNewInputLine_NoContent_ReturnsPromptOnly(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
 		Status: false,
 		Lines:  text.NewLines(),
@@ -46,15 +36,15 @@ func TestDraw_NoContent_ReturnsPromptOnly(t *testing.T) {
 	input := viewmodel.NewInputLine(mock.ToDrawable())
 	drawable := input.ToDrawable()
 
-	drawable.Init(terminal.Winsize{})
-	lines, status := drawable.Draw()
+	drawable.Init()
+	lines, status := drawable.Draw(terminal.Winsize{})
 
 	assert.False(t, status)
 	assert.Len(t, 1, lines)
 	assert.Equal(t, marker.DefaultInputLinePrompt, text.LineToString(lines[0]))
 }
 
-func TestDraw_WithSingleLine_AddsPrompt(t *testing.T) {
+func TestNewInputLine_WithSingleLine_AddsPrompt(t *testing.T) {
 	frag := text.FragmentsFromString("golang")
 
 	mock := &drawable_test.MockDrawable{
@@ -67,14 +57,14 @@ func TestDraw_WithSingleLine_AddsPrompt(t *testing.T) {
 	input := viewmodel.NewInputLine(mock.ToDrawable())
 	drawable := input.ToDrawable()
 
-	drawable.Init(terminal.Winsize{})
-	lines, _ := drawable.Draw()
+	drawable.Init()
+	lines, _ := drawable.Draw(terminal.Winsize{})
 
 	assert.Len(t, 2, lines)
 	assert.Equal(t, marker.DefaultInputLinePrompt+" golang", text.LineToString(lines[1]))
 }
 
-func TestDraw_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
+func TestNewInputLine_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
 	frag1 := text.FragmentsFromString("ziglang")
 	frag2 := text.FragmentsFromString("golang")
 
@@ -89,8 +79,8 @@ func TestDraw_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
 	input := viewmodel.NewInputLine(mock.ToDrawable())
 	drawable := input.ToDrawable()
 
-	drawable.Init(terminal.Winsize{})
-	lines, _ := drawable.Draw()
+	drawable.Init()
+	lines, _ := drawable.Draw(terminal.Winsize{})
 
 	assert.Len(t, 3, lines)
 

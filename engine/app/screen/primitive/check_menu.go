@@ -9,8 +9,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/check"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
@@ -244,7 +244,7 @@ func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.ViewModelFromUIState(stt)
 
 	vm.Header.Push(
-		line.EagerDrawableFromLines(c.title...),
+		block.BlockDrawableFromLines(c.title...),
 	)
 	vm.Kernel.Push(
 		indexmenu.ToDrawable(),
@@ -258,7 +258,7 @@ func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
 	text := c.options[option].Label.Text
 
 	input := viewmodel.NewInputLine(
-		line.EagerDrawableFromString(text),
+		block.BlockDrawableFromString(text),
 	)
 
 	vm.Helper.Shift(

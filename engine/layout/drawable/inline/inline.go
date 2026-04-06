@@ -4,7 +4,7 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
@@ -12,18 +12,21 @@ import (
 const NameInlineDrawable = "InlineDrawable"
 
 type InlineDrawable struct {
-	initialized bool
-	separator   string
-	drawables   []drawable.Drawable
-	drawable    drawable.Drawable
+	loaded     bool
+	lazyLoaded bool
+	size       terminal.Winsize
+	separator  string
+	drawables  []drawable.Drawable
+	drawable   drawable.Drawable
 }
 
 func NewInlineDrawable(drawables ...drawable.Drawable) *InlineDrawable {
 	return &InlineDrawable{
-		initialized: false,
-		separator:   "",
-		drawables:   drawables,
-		drawable:    drawable.Drawable{},
+		loaded:    false,
+		size:      terminal.Winsize{},
+		separator: "",
+		drawables: drawables,
+		drawable:  drawable.Drawable{},
 	}
 }
 
@@ -39,29 +42,47 @@ func (d *InlineDrawable) Separator(separator string) *InlineDrawable {
 func (d *InlineDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameInlineDrawable,
+		Code: d.drawable.Code,
+		Tags: d.drawable.Tags,
 		Init: d.init,
 		Draw: d.draw,
+		Wipe: d.wipe,
 	}
 }
 
-func (d *InlineDrawable) init(size terminal.Winsize) {
-	d.initialized = true
+func (d *InlineDrawable) init() {
+	d.loaded = true
+}
 
-	lines := d.drawChildren(size)
+func (d *InlineDrawable) wipe() {
+	d.lazyLoaded = false
+}
+
+func (d *InlineDrawable) lazyInit(size terminal.Winsize) {
+	if d.lazyLoaded {
+		return
+	}
+
+	d.lazyLoaded = true
+	d.size = size
+
+	lines := d.drawChildren()
 	join := d.joinChildren(lines)
 
-	d.drawable = line.EagerDrawableFromLines(join...)
+	d.drawable = block.BlockDrawableFromLines(join...)
 
-	d.drawable.Init(size)
+	d.drawable.Init()
 }
 
-func (d *InlineDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+func (d *InlineDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
 
-	return d.drawable.Draw()
+	d.lazyInit(size)
+
+	return d.drawable.Draw(size)
 }
 
-func (d *InlineDrawable) drawChildren(size terminal.Winsize) []text.Line {
+func (d *InlineDrawable) drawChildren() []text.Line {
 	lines := make([]text.Line, 0)
 
 	if len(d.drawables) == 0 {
@@ -71,10 +92,10 @@ func (d *InlineDrawable) drawChildren(size terminal.Winsize) []text.Line {
 	index := 0
 
 	focus := d.drawables[index]
-	focus.Init(size)
+	focus.Init()
 
 	for {
-		result, status := focus.Draw()
+		result, status := focus.Draw(d.size)
 		if len(result) > 0 {
 			lines = append(lines, result...)
 		}
@@ -89,7 +110,7 @@ func (d *InlineDrawable) drawChildren(size terminal.Winsize) []text.Line {
 		}
 
 		focus = d.drawables[index]
-		focus.Init(size)
+		focus.Init()
 	}
 
 	return lines

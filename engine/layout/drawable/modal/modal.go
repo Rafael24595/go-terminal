@@ -7,7 +7,6 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/box"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/justify"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/static"
@@ -19,22 +18,22 @@ import (
 const NameModalDrawable = "ModalDrawable"
 
 type ModalDrawable struct {
-	initialized bool
-	text        []text.Line
-	options     []text.Fragment
-	limit       uint
-	cursor      uint
-	drawable    drawable.Drawable
+	loaded   bool
+	text     []text.Line
+	options  []text.Fragment
+	limit    uint
+	cursor   uint
+	drawable drawable.Drawable
 }
 
 func NewModalDrawable() *ModalDrawable {
 	return &ModalDrawable{
-		initialized: false,
-		text:        make([]text.Line, 0),
-		options:     make([]text.Fragment, 0),
-		limit:       style.DefaultLimit,
-		cursor:      0,
-		drawable:    drawable.Drawable{},
+		loaded:   false,
+		text:     make([]text.Line, 0),
+		options:  make([]text.Fragment, 0),
+		limit:    style.DefaultMaxOpts,
+		cursor:   0,
+		drawable: drawable.Drawable{},
 	}
 }
 
@@ -65,13 +64,16 @@ func (d *ModalDrawable) DefineCursor(cursor uint) *ModalDrawable {
 func (d *ModalDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameModalDrawable,
+		Code: d.drawable.Code,
+		Tags: d.drawable.Tags,
 		Init: d.init,
+		Wipe: d.init,
 		Draw: d.draw,
 	}
 }
 
-func (d *ModalDrawable) init(size terminal.Winsize) {
-	d.initialized = true
+func (d *ModalDrawable) init() {
+	d.loaded = true
 
 	opts := make([]text.Fragment, len(d.options))
 	for i := range d.options {
@@ -88,37 +90,44 @@ func (d *ModalDrawable) init(size terminal.Winsize) {
 	cols := drawable.MaxLineSize(d.text...) + 1
 	text := formatLines(d.text...)
 
-	eager := line.EagerDrawableFromLines(text...)
+	title := block.BlockDrawableFromLines(text...)
 
-	justify := justify.JustifyDrawableFromFragments(opts)
-	block := block.BlockDrawableFromDrawable(justify)
+	options := justify.NewJustifyDrawable(opts).
+		MaxCols(uint16(cols)).
+		ToDrawable()
 
-	eager.Init(size)
-	block.Init(terminal.Winsize{
-		Rows: size.Rows,
-		Cols: uint16(cols),
-	})
+	optionsBlock := block.BlockDrawableFromDrawable(options)
+
+	title.Init()
+	optionsBlock.Init()
 
 	stack := stack.StackDrawableFromDrawables(
-		static.StaticDrawableFromDrawable(eager),
-		static.StaticDrawableFromDrawable(block),
+		static.StaticDrawableFromDrawable(title),
+		static.StaticDrawableFromDrawable(optionsBlock),
 	)
 
 	box := box.NewBoxDrawable(stack).
 		PaddingX(1).
 		PaddingY(1).
 		ToDrawable()
-		
+
 	position := position.PositionDrawableFromDrawable(box)
-	position.Init(size)
+	position.Init()
 
 	d.drawable = position
 }
 
-func (d *ModalDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+func (d *ModalDrawable) wipe() {
+	if d.drawable.Wipe == nil {
+		return
+	}
+	d.drawable.Wipe()
+}
 
-	return d.drawable.Draw()
+func (d *ModalDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
+
+	return d.drawable.Draw(size)
 }
 
 func formatLines(lines ...text.Line) []text.Line {

@@ -4,13 +4,16 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/heap"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	drawable_line "github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/loop"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
+
+	drawable_line "github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 )
 
 // TODO: Use as a argument.
@@ -69,11 +72,13 @@ func makeSections(t table.Table, cursor input.MatrixCursor, size terminal.Winsiz
 		headerRow := makeHeaders(table, headers, separator)
 
 		sections = append(sections, section{
-			header: drawable_line.EagerLoopDrawableFromLines(
-				top, headerRow, top,
+			header: loop.LoopDrawableFromDrawable(
+				block.BlockDrawableFromLines(top, headerRow, top),
 			),
-			rows:   drawable_line.LazyDrawableFromLines(rows...),
-			footer: drawable_line.EagerLoopDrawableFromLines(bottom),
+			rows: drawable_line.LineDrawableFromLines(rows...),
+			footer: loop.LoopDrawableFromDrawable(
+				block.BlockDrawableFromLines(bottom),
+			),
 		})
 	}
 

@@ -22,16 +22,19 @@ func StaticDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
 	return NewStaticDrawable(drawable).ToDrawable()
 }
 
-func (s *StaticDrawable) init(size terminal.Winsize) {}
+func (s *StaticDrawable) init() {}
 
-func (s *StaticDrawable) draw() ([]text.Line, bool) {
-	return s.drawable.Draw()
+func (s *StaticDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	return s.drawable.Draw(size)
 }
 
 func (d *StaticDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameStaticDrawable,
+		Code: d.drawable.Code,
+		Tags: d.drawable.Tags,
 		Init: d.init,
+		Wipe: d.drawable.Init,
 		Draw: d.draw,
 	}
 }

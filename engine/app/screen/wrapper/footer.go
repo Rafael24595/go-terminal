@@ -4,7 +4,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
 
@@ -50,7 +50,7 @@ func (c *Footer) View(state state.UIState) viewmodel.ViewModel {
 	vm := c.screen.View(state)
 
 	vm.Header.Push(
-		line.EagerDrawableFromLines(c.footer...),
+		block.BlockDrawableFromLines(c.footer...),
 	)
 
 	return vm

@@ -10,6 +10,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/line"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/textarea"
 	"github.com/Rafael24595/go-terminal/engine/model/buffer"
 	"github.com/Rafael24595/go-terminal/engine/model/delta"
@@ -21,7 +22,6 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 
 	text_transformer "github.com/Rafael24595/go-terminal/engine/helper/text"
-	drawable_line "github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 )
 
 const default_text_area_name = "TextArea"
@@ -550,7 +550,7 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.ViewModelFromUIState(stt)
 
 	vm.Header.Push(
-		drawable_line.EagerDrawableFromLines(c.title...),
+		block.BlockDrawableFromLines(c.title...),
 	)
 
 	code := c.mainDrawableCode()

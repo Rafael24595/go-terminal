@@ -8,8 +8,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/indexmenu"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
 	"github.com/Rafael24595/go-terminal/engine/model/param"
@@ -140,7 +140,7 @@ func (c *IndexMenu) view(stt state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.ViewModelFromUIState(stt)
 
 	vm.Header.Push(
-		line.EagerDrawableFromLines(c.title...),
+		block.BlockDrawableFromLines(c.title...),
 	)
 	vm.Kernel.Push(
 		indexmenu.ToDrawable(),
@@ -152,7 +152,7 @@ func (c *IndexMenu) view(stt state.UIState) viewmodel.ViewModel {
 
 	option := min(len(c.options)-1, int(c.cursor))
 	text := c.options[option].Label.Text
-	input := viewmodel.NewInputLine(line.EagerDrawableFromString(text))
+	input := viewmodel.NewInputLine(block.BlockDrawableFromString(text))
 	vm.SetInput(input)
 
 	return *vm

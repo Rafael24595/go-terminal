@@ -4,11 +4,11 @@ import (
 	"strconv"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -18,11 +18,11 @@ import (
 const NameIndexMenuDrawable = "IndexMenuDrawable"
 
 type IndexMenuDrawable struct {
-	initialized bool
-	meta        marker.IndexMeta
-	options     []text.Fragment
-	cursor      uint
-	drawable    drawable.Drawable
+	loaded   bool
+	meta     marker.IndexMeta
+	options  []text.Fragment
+	cursor   uint
+	drawable drawable.Drawable
 }
 
 func NewIndexMenuDrawable(options []text.Fragment) *IndexMenuDrawable {
@@ -30,11 +30,11 @@ func NewIndexMenuDrawable(options []text.Fragment) *IndexMenuDrawable {
 	copy(clone, options)
 
 	return &IndexMenuDrawable{
-		initialized: false,
-		meta:        marker.HyphenIndex,
-		options:     clone,
-		cursor:      0,
-		drawable:    drawable.Drawable{},
+		loaded:   false,
+		meta:     marker.HyphenIndex,
+		options:  clone,
+		cursor:   0,
+		drawable: drawable.Drawable{},
 	}
 }
 
@@ -55,13 +55,16 @@ func (d *IndexMenuDrawable) Cursor(cursor uint) *IndexMenuDrawable {
 func (d *IndexMenuDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameIndexMenuDrawable,
+		Code: d.drawable.Code,
+		Tags: d.drawable.Tags,
 		Init: d.init,
+		Wipe: d.wipe,
 		Draw: d.draw,
 	}
 }
 
-func (d *IndexMenuDrawable) init(size terminal.Winsize) {
-	d.initialized = true
+func (d *IndexMenuDrawable) init() {
+	d.loaded = true
 
 	lines := make([]text.Line, 0)
 
@@ -85,8 +88,8 @@ func (d *IndexMenuDrawable) init(size terminal.Winsize) {
 		)
 	}
 
-	drawable := line.EagerDrawableFromLines(lines...)
-	drawable.Init(size)
+	drawable := block.BlockDrawableFromLines(lines...)
+	drawable.Init()
 
 	d.drawable = drawable
 }
@@ -118,8 +121,15 @@ func (d *IndexMenuDrawable) makeIndex(cursor, digits int) text.Fragment {
 	return text.NewFragment(index)
 }
 
-func (d *IndexMenuDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+func (d *IndexMenuDrawable) wipe() {
+	if d.drawable.Wipe == nil {
+		return
+	}
+	d.drawable.Wipe()
+}
 
-	return d.drawable.Draw()
+func (d *IndexMenuDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
+
+	return d.drawable.Draw(size)
 }

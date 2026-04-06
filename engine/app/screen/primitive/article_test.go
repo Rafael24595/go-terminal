@@ -31,17 +31,17 @@ func TestArticle_Stack(t *testing.T) {
 func TestNewArticle_DefaultValues(t *testing.T) {
 	article := NewArticle()
 
-	assert.Equal(t, article.ToScreen().Name(), default_article_name, "default name")
-	assert.Equal(t, len(article.title), 0, "title lenght")
-	assert.Equal(t, len(article.article), 0, "article lenght")
+	assert.Equal(t, default_article_name, article.ToScreen().Name())
+	assert.Len(t, 0, article.title)
+	assert.Len(t, 0, article.article)
 }
 
 func TestArticle_SetName(t *testing.T) {
 	article := NewArticle()
 	result := article.SetName("CustomName")
 
-	assert.Equal(t, article.ToScreen().Name(), "CustomName", "set name")
-	assert.Equal(t, result, article, "SetName should return same instance")
+	assert.Equal(t, "CustomName", article.ToScreen().Name())
+	assert.Equal(t, result, article)
 }
 
 func TestArticle_AddTitleAndArticle(t *testing.T) {
@@ -52,10 +52,11 @@ func TestArticle_AddTitleAndArticle(t *testing.T) {
 		AddTitle(title).
 		AddArticle(body)
 
-	assert.Equal(t, len(article.title), 1, "title lines count")
-	assert.Equal(t, text.LineToString(article.title[0]), text.LineToString(title), "title content")
-	assert.Equal(t, len(article.article), 1, "article lines count")
-	assert.Equal(t, text.LineToString(article.article[0]), text.LineToString(body), "article content")
+	assert.Len(t, 1, article.title)
+	assert.Equal(t, text.LineToString(title), text.LineToString(article.title[0]))
+
+	assert.Len(t, 1, article.article)
+	assert.Equal(t, text.LineToString(body), text.LineToString(article.article[0]))
 }
 
 func TestArticle_View(t *testing.T) {
@@ -70,16 +71,21 @@ func TestArticle_View(t *testing.T) {
 
 	vm := article.view(*state)
 
-	vm.Header.Init(terminal.Winsize{})
-	headers, _ := vm.Header.Draw()
+	size := terminal.Winsize{
+		Rows: 3,
+	}
 
-	vm.Kernel.Init(terminal.Winsize{})
-	lines, _ := vm.Kernel.Draw()
+	vm.Header.Init()
+	headers, _ := vm.Header.Draw(size)
 
-	assert.Equal(t, len(headers), 1, "ViewModel header count")
-	assert.Equal(t, len(lines), 1, "ViewModel lines count")
-	assert.Equal(t, text.LineToString(headers[0]), text.LineToString(title), "first line should be title")
-	assert.Equal(t, text.LineToString(lines[0]), text.LineToString(body), "second line should be article")
+	vm.Kernel.Init()
+	lines, _ := vm.Kernel.Draw(size)
+
+	assert.Len(t, 1, headers)
+	assert.Equal(t, text.LineToString(title), text.LineToString(headers[0]))
+
+	assert.Len(t, 1, lines)
+	assert.Equal(t, text.LineToString(body), text.LineToString(lines[0]))
 }
 
 func TestArticle_Update(t *testing.T) {
@@ -88,5 +94,5 @@ func TestArticle_Update(t *testing.T) {
 
 	article.update(initialState, screen.ScreenEvent{})
 
-	assert.Equal(t, initialState, initialState, "Update should not change state")
+	assert.Equal(t, initialState, initialState)
 }

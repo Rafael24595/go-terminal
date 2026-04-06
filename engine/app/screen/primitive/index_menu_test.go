@@ -47,8 +47,8 @@ func TestIndexMenu_DefaultValues(t *testing.T) {
 	menu := NewIndexMenu()
 
 	assert.Equal(t, menu.reference, default_index_menu_name)
-	assert.Equal(t, len(menu.title), 0)
-	assert.Equal(t, len(menu.options), 0)
+	assert.Len(t, 0, menu.title)
+	assert.Len(t, 0, menu.options)
 	assert.Equal(t, menu.cursor, uint(0))
 }
 
@@ -68,8 +68,8 @@ func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 			),
 		)
 
-	assert.Equal(t, len(menu.title), 1)
-	assert.Equal(t, len(menu.options), 2)
+	assert.Len(t, 1, menu.title)
+	assert.Len(t, 2, menu.options)
 }
 
 func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
@@ -181,8 +181,8 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	menu.cursor = 1
 	vm := menu.view(*stt)
 
-	vm.Kernel.Init(terminal.Winsize{Cols: 10, Rows: 2})
-	lines, _ := vm.Kernel.Draw()
+	vm.Kernel.Init()
+	lines, _ := vm.Kernel.Draw(terminal.Winsize{Cols: 10, Rows: 2})
 
 	assert.NotNil(t, vm.Pager)
 	assert.Equal(t, pager.CodePredicateFocus, vm.Pager.Predicate.Code)

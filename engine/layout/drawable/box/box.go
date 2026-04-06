@@ -22,26 +22,24 @@ const (
 )
 
 type BoxDrawable struct {
-	initialized bool
-	size        terminal.Winsize
-	paddingY    uint
-	paddingX    uint
-	minSize     uint
-	textAlign   style.HorizontalPosition
-	separator   marker.BoxSeparatorMeta
-	drawable    drawable.Drawable
+	loaded    bool
+	paddingY  uint
+	paddingX  uint
+	minSize   uint
+	textAlign style.HorizontalPosition
+	separator marker.BoxSeparatorMeta
+	drawable  drawable.Drawable
 }
 
 func NewBoxDrawable(drawable drawable.Drawable) *BoxDrawable {
 	return &BoxDrawable{
-		initialized: false,
-		size:        terminal.Winsize{},
-		minSize:     default_min_size,
-		paddingY:    default_padding,
-		paddingX:    default_padding,
-		textAlign:   style.Center,
-		separator:   marker.DefaultBoxSeparator,
-		drawable:    drawable,
+		loaded:    false,
+		minSize:   default_min_size,
+		paddingY:  default_padding,
+		paddingX:  default_padding,
+		textAlign: style.Center,
+		separator: marker.DefaultBoxSeparator,
+		drawable:  drawable,
 	}
 }
 
@@ -77,20 +75,20 @@ func (d *BoxDrawable) TextAlign(textAlign style.HorizontalPosition) *BoxDrawable
 func (d *BoxDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameBoxDrawable,
+		Code: d.drawable.Code,
+		Tags: d.drawable.Tags,
 		Init: d.init,
+		Wipe: d.drawable.Wipe,
 		Draw: d.draw,
 	}
 }
 
-func (d *BoxDrawable) init(size terminal.Winsize) {
-	d.initialized = true
+func (d *BoxDrawable) init() {
+	d.loaded = true
 
-	d.size = size
-
-	clampSize := d.clampSize(size)
 	d.drawable = d.makeDrawable()
 
-	d.drawable.Init(clampSize)
+	d.drawable.Init()
 }
 
 func (d *BoxDrawable) makeDrawable() drawable.Drawable {
@@ -102,25 +100,28 @@ func (d *BoxDrawable) makeDrawable() drawable.Drawable {
 		MarginY(d.paddingY).
 		MarginX(d.paddingX).
 		PositionY(style.Top).
+		PositionX(style.Left).
 		ToDrawable()
 }
 
-func (d *BoxDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+func (d *BoxDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
 
-	lines, hasNext := d.drawChild()
+	lines, hasNext := d.drawChild(size)
 
-	styled := d.styleLines(lines...)
+	styled := d.styleLines(size, lines...)
 
 	return styled, hasNext
 }
 
-func (d *BoxDrawable) drawChild() ([]text.Line, bool) {
+func (d *BoxDrawable) drawChild(size terminal.Winsize) ([]text.Line, bool) {
 	lines := make([]text.Line, 0)
 
-	remaining := int(d.size.Rows)
+	clampSize := d.clampSize(size)
+
+	remaining := int(size.Rows)
 	for remaining > 0 {
-		line, status := d.drawable.Draw()
+		line, status := d.drawable.Draw(clampSize)
 
 		if len(line) > 0 {
 			lines = append(lines, line...)
@@ -139,16 +140,16 @@ func (d *BoxDrawable) drawChild() ([]text.Line, bool) {
 	return lines, remaining <= 0
 }
 
-func (d *BoxDrawable) styleLines(lines ...text.Line) []text.Line {
+func (d *BoxDrawable) styleLines(size terminal.Winsize, lines ...text.Line) []text.Line {
 	vertical := horizontalStaticSize(d.separator)
 
 	minSize := d.minSize + vertical
-	maxSize := uint(d.size.Cols)
+	maxSize := uint(size.Cols)
 	maxLine := drawable.MaxLineSize(lines...)
 
-	size := math.Clamp(maxLine, minSize, maxSize)
+	padding := math.Clamp(maxLine, minSize, maxSize)
 
-	specCover := style.SpecRepeatLeft(size + vertical)
+	specCover := style.SpecRepeatLeft(padding + vertical)
 	cover := text.LineFromFragments(
 		text.NewFragment(d.separator.Top).AddSpec(specCover),
 	)
@@ -157,11 +158,11 @@ func (d *BoxDrawable) styleLines(lines ...text.Line) []text.Line {
 
 	result = append(result, cover)
 
-	available := int(d.size.Cols) - int(vertical)
+	available := int(size.Cols) - int(vertical)
 
 	for _, lin := range lines {
 		for _, v := range line.WrapLineWords(available, lin) {
-			line := d.styleLine(size, v)
+			line := d.styleLine(padding, v)
 			result = append(result, line)
 		}
 	}

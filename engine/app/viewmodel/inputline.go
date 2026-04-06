@@ -2,7 +2,8 @@ package viewmodel
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
+	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -28,34 +29,39 @@ func (i *InputLine) ToDrawable() drawable.Drawable {
 }
 
 type inputLineDrawable struct {
-	initialized bool
-	status      bool
-	prompt      string
-	input       drawable.Drawable
+	loaded bool
+	status bool
+	prompt string
+	input  drawable.Drawable
 }
 
 func toDrawable(input *InputLine) drawable.Drawable {
 	drw := inputLineDrawable{
-		initialized: false,
-		status:      true,
-		prompt:      input.Prompt,
-		input:       input.Value,
+		loaded: false,
+		status: true,
+		prompt: input.Prompt,
+		input:  input.Value,
 	}
 	return drawable.Drawable{
 		Name: NameInputLineDrawable,
+		Code: "",
+		Tags: make(set.Set[string]),
 		Init: drw.init,
+		Wipe: drw.wipe,
 		Draw: drw.draw,
 	}
 }
 
-func (d *inputLineDrawable) init(size terminal.Winsize) {
-	d.initialized = true
+func (d *inputLineDrawable) init() {
+	d.loaded = true
 
-	d.input.Init(size)
+	d.input.Init()
 }
 
-func (d *inputLineDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+func (d *inputLineDrawable) wipe() {}
+
+func (d *inputLineDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
 
 	lines := make([]text.Line, 0)
 
@@ -65,7 +71,7 @@ func (d *inputLineDrawable) draw() ([]text.Line, bool) {
 
 	content := true
 	for content {
-		result, status := d.input.Draw()
+		result, status := d.input.Draw(size)
 		content = status
 		lines = append(lines, result...)
 	}

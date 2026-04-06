@@ -2,7 +2,7 @@ package check
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/justify"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
@@ -66,12 +66,15 @@ func (d *CheckMenuDrawable) Cursor(cursor uint) *CheckMenuDrawable {
 func (d *CheckMenuDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameCheckMenuDrawable,
+		Code: d.drawable.Code,
+		Tags: d.drawable.Tags,
 		Init: d.init,
+		Wipe: d.wipe,
 		Draw: d.draw,
 	}
 }
 
-func (d *CheckMenuDrawable) init(size terminal.Winsize) {
+func (d *CheckMenuDrawable) init() {
 	d.initialized = true
 
 	opts := d.addStyles()
@@ -83,10 +86,18 @@ func (d *CheckMenuDrawable) init(size terminal.Winsize) {
 		d.drawable = d.makeHorizontal(opts)
 	default:
 		assert.Unreachable("undefined direction %d", d.distribution.Direction)
+
 		d.drawable = d.makeVertical(opts)
 	}
 
-	d.drawable.Init(size)
+	d.drawable.Init()
+}
+
+func (d *CheckMenuDrawable) wipe() {
+	if d.drawable.Wipe == nil {
+		return
+	}
+	d.drawable.Wipe()
 }
 
 func (d *CheckMenuDrawable) makeVertical(opts []text.Fragment) drawable.Drawable {
@@ -94,13 +105,13 @@ func (d *CheckMenuDrawable) makeVertical(opts []text.Fragment) drawable.Drawable
 	for i := range opts {
 		lines[i] = text.LineFromFragments(opts[i])
 	}
-	return line.LazyDrawableFromLines(lines...)
+	return line.LineDrawableFromLines(lines...)
 }
 
 func (d *CheckMenuDrawable) makeHorizontal(opts []text.Fragment) drawable.Drawable {
 	return justify.NewJustifyDrawable(opts).
 		Justify(d.distribution.Justify).
-		Limit(d.distribution.Limit).
+		MaxOpts(d.distribution.Limit).
 		ToDrawable()
 }
 
@@ -130,8 +141,8 @@ func (d *CheckMenuDrawable) addStyles() []text.Fragment {
 	return frags
 }
 
-func (d *CheckMenuDrawable) draw() ([]text.Line, bool) {
+func (d *CheckMenuDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	assert.True(d.initialized, "the drawable should be initialized before draw")
 
-	return d.drawable.Draw()
+	return d.drawable.Draw(size)
 }

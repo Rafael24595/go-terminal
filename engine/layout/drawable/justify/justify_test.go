@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -63,17 +63,9 @@ func renderLine(cols int, mode style.Justify, line text.Line) string {
 	return frags
 }
 
-func TestJustify_ToDrawable(t *testing.T) {
+func TestJustify_DrawableBasicSuite(t *testing.T) {
 	dw := JustifyDrawableFromFragments([]text.Fragment{})
-	drawable_test.Helper_ToDrawable(t, dw)
-}
-
-func TestJustifyDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
-	bd := NewJustifyDrawable([]text.Fragment{})
-
-	assert.Panic(t, func() {
-		bd.draw()
-	})
+	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
 func TestAddGaps_SingleFragment(t *testing.T) {

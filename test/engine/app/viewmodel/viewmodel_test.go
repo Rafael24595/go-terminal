@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
@@ -88,7 +88,7 @@ func TestTokenizeLine(t *testing.T) {
 			tokens := text.TokenizeLineWords(tt.line)
 			got := tokenStrings(tokens)
 
-			assert.Equal(t, len(tt.expected), len(got))
+			assert.Len(t, len(tt.expected), got)
 			for i := range got {
 				assert.Equal(t, tt.expected[i], got[i])
 			}

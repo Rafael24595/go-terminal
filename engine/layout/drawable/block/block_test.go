@@ -10,30 +10,19 @@ import (
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
-func TestBlock_ToDrawable(t *testing.T) {
+func TestBlock_DrawableBasicSuite(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
 	dw := BlockDrawableFromDrawable(mock.ToDrawable())
-	drawable_test.Helper_ToDrawable(t, dw)
-}
-
-func TestBlockDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	bd := NewBlockDrawable(mock.ToDrawable())
-
-	assert.Panic(t, func() {
-		bd.draw()
-	})
+	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
 func TestBlockDrawable_Init_ShouldPropagateToChild(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
 	bd := NewBlockDrawable(mock.ToDrawable())
 
-	size := terminal.Winsize{Rows: 10, Cols: 20}
-	bd.init(size)
+	bd.init()
 
-	assert.True(t, bd.initialized)
-	assert.Equal(t, bd.size, size)
+	assert.True(t, bd.loaded)
 	assert.True(t, mock.InitCalled)
 }
 
@@ -41,11 +30,11 @@ func TestBlockDrawable_Draw_ShouldReturnEmptyIfRowsIsZero(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
 	bd := NewBlockDrawable(mock.ToDrawable())
 
-	bd.init(terminal.Winsize{Rows: 0, Cols: 10})
+	bd.init()
 
-	lines, hasNext := bd.draw()
+	lines, hasNext := bd.draw(terminal.Winsize{Rows: 0, Cols: 10})
 
-	assert.Equal(t, len(lines), 0)
+	assert.Len(t, 0, lines)
 	assert.True(t, hasNext)
 }
 
@@ -55,11 +44,11 @@ func TestBlockDrawable_Draw_ShouldStopWhenChildHasNoNext(t *testing.T) {
 	}
 
 	bd := NewBlockDrawable(mock.ToDrawable())
-	bd.init(terminal.Winsize{Rows: 5, Cols: 10})
+	bd.init()
 
-	lines, hasNext := bd.draw()
+	lines, hasNext := bd.draw(terminal.Winsize{Rows: 5, Cols: 10})
 
-	assert.Equal(t, len(lines), 1)
+	assert.Len(t, 1, lines)
 	assert.False(t, hasNext)
 }
 
@@ -69,18 +58,18 @@ func TestBlockDrawable_Draw_ShouldAccumulateLines(t *testing.T) {
 	mc := &drawable_test.MockDrawable{}
 	dw := mc.ToDrawable()
 
-	dw.Draw = func() ([]text.Line, bool) {
+	dw.Draw = func(size terminal.Winsize) ([]text.Line, bool) {
 		count++
 		return []text.Line{text.LineFromString("golang")}, true
 	}
 
 	rows := uint16(3)
 	bd := NewBlockDrawable(dw)
-	bd.init(terminal.Winsize{Rows: rows, Cols: 10})
+	bd.init()
 
-	lines, hasNext := bd.draw()
+	lines, hasNext := bd.draw(terminal.Winsize{Rows: rows, Cols: 10})
 
-	assert.Equal(t, len(lines), int(rows))
+	assert.Len(t, int(rows), lines)
 	assert.Equal(t, count, int(rows))
 	assert.True(t, hasNext)
 }

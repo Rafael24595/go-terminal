@@ -18,28 +18,22 @@ const (
 )
 
 type PositionDrawable struct {
-	initialized bool
-	size        terminal.Winsize
-	marginY     uint
-	marginX     uint
-	positionY   style.VerticalPosition
-	positionX   style.HorizontalPosition
-	spec        style.Spec
-	frag        text.Fragment
-	drawable    drawable.Drawable
+	loaded    bool
+	marginY   uint
+	marginX   uint
+	positionY style.VerticalPosition
+	positionX style.HorizontalPosition
+	drawable  drawable.Drawable
 }
 
 func NewPositionDrawable(drawable drawable.Drawable) *PositionDrawable {
 	return &PositionDrawable{
-		initialized: false,
-		size:        terminal.Winsize{},
-		positionX:   style.Center,
-		positionY:   style.Middle,
-		marginY:     default_margin,
-		marginX:     default_margin,
-		spec:        style.SpecEmpty(),
-		frag:        text.EmptyFragment(),
-		drawable:    drawable,
+		loaded:    false,
+		positionX: style.Center,
+		positionY: style.Middle,
+		marginY:   default_margin,
+		marginX:   default_margin,
+		drawable:  drawable,
 	}
 }
 
@@ -70,38 +64,39 @@ func (d *PositionDrawable) PositionX(horizontal style.HorizontalPosition) *Posit
 func (d *PositionDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NamePositionDrawable,
+		Code: d.drawable.Code,
+		Tags: d.drawable.Tags,
 		Init: d.init,
+		Wipe: d.drawable.Init,
 		Draw: d.draw,
 	}
 }
 
-func (d *PositionDrawable) init(size terminal.Winsize) {
-	d.initialized = true
+func (d *PositionDrawable) init() {
+	d.loaded = true
 
-	d.size = size
+	d.drawable.Init()
+}
+
+func (d *PositionDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
 
 	fixedSize := terminal.Winsize{
 		Rows: math.SubClampZero(size.Rows, uint16(d.marginY)*2),
 		Cols: math.SubClampZero(size.Cols, uint16(d.marginX)*2),
 	}
 
-	d.spec = makeSpec(d.spec, fixedSize, d.positionX)
-	d.frag = makeFrag(d.frag, d.marginX)
+	spec := makeSpec(fixedSize, d.positionX)
+	frag := makeFrag(d.marginX)
 
-	d.drawable.Init(fixedSize)
-}
+	lines, hasNext := d.drawable.Draw(fixedSize)
 
-func (d *PositionDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+	styled := d.styleLines(spec, lines...)
 
-	lines, hasNext := d.drawable.Draw()
-
-	styled := d.styleLines(lines...)
-
-	base := d.makeTopMargin(styled)
+	base := d.makeTopMargin(size, styled)
 	for _, line := range styled {
-		line = line.UnshiftFragments(d.frag).
-			PushFragments(d.frag)
+		line = line.UnshiftFragments(frag).
+			PushFragments(frag)
 
 		base = append(base, line)
 	}
@@ -112,14 +107,14 @@ func (d *PositionDrawable) draw() ([]text.Line, bool) {
 	return base, hasNext
 }
 
-func (d *PositionDrawable) makeTopMargin(lines []text.Line) []text.Line {
-	size := len(lines)
+func (d *PositionDrawable) makeTopMargin(size terminal.Winsize, lines []text.Line) []text.Line {
+	width := len(lines)
 
-	if d.positionY == style.Top || size >= int(d.size.Rows) {
+	if d.positionY == style.Top || width >= int(size.Rows) {
 		return make([]text.Line, d.marginY)
 	}
 
-	start := (d.size.Rows - uint16(size))
+	start := (size.Rows - uint16(width))
 	if d.positionY == style.Middle {
 		start /= 2
 	}
@@ -145,36 +140,33 @@ func (d *PositionDrawable) fillEmpty(result []text.Line) []text.Line {
 	return result
 }
 
-func (d *PositionDrawable) styleLines(lines ...text.Line) []text.Line {
+func (d *PositionDrawable) styleLines(spec style.Spec, lines ...text.Line) []text.Line {
 	for i, v := range lines {
-		lines[i] = v.AddSpec(d.spec)
+		lines[i] = v.AddSpec(spec)
 	}
 	return lines
 }
 
-func makeSpec(base style.Spec, size terminal.Winsize, position style.HorizontalPosition) style.Spec {
+func makeSpec(size terminal.Winsize, position style.HorizontalPosition) style.Spec {
 	cols := uint(size.Cols)
 
-	var spec style.Spec
 	switch position {
 	case style.Left:
-		spec = style.SpecPaddingRight(cols)
+		return style.SpecPaddingRight(cols)
 	case style.Center:
-		spec = style.SpecPaddingCenter(cols)
+		return style.SpecPaddingCenter(cols)
 	case style.Right:
-		spec = style.SpecPaddingLeft(cols)
-	default:
-		return base
+		return style.SpecPaddingLeft(cols)
 	}
 
-	return style.MergeSpec(base, spec)
+	return style.SpecEmpty()
 }
 
-func makeFrag(frag text.Fragment, margin uint) text.Fragment {
+func makeFrag(margin uint) text.Fragment {
 	if margin == 0 {
-		return frag
+		return text.EmptyFragment()
 	}
 
-	return text.FragmentFrom(marker.DefaultPaddingText, frag).
+	return text.NewFragment(marker.DefaultPaddingText).
 		AddSpec(style.SpecRepeatRight(margin))
 }

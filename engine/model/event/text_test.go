@@ -127,7 +127,7 @@ func TestMergeActions_MultipleInserts(t *testing.T) {
 
 	events := s.mergeActions(s.actions)
 
-	assert.Equal(t, len(events), 1)
+	assert.Len(t, 1, events)
 
 	ev := events[0]
 

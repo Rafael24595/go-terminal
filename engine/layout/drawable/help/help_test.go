@@ -3,22 +3,12 @@ package help
 import (
 	"testing"
 
-	assert "github.com/Rafael24595/go-assert/assert/test"
-
 	"github.com/Rafael24595/go-terminal/engine/model/help"
-	
+
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
-func TestHelp_ToDrawable(t *testing.T) {
+func TestHelp_DrawableBasicSuite(t *testing.T) {
 	dw := HelpDrawableFromMeta(help.NewHelpMeta())
-	drawable_test.Helper_ToDrawable(t, dw)
-}
-
-func TestHelpDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
-	bd := NewHelpDrawable(help.NewHelpMeta())
-
-	assert.Panic(t, func() {
-		bd.draw()
-	})
+	drawable_test.Test_DrawableBasicSuite(t, dw)
 }

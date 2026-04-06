@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -17,17 +17,15 @@ import (
 const NameHelpDrawable = "HelpDrawable"
 
 type HelpDrawable struct {
-	initialized bool
-	size        terminal.Winsize
-	meta        *help.HelpMeta
-	drawable    drawable.Drawable
+	loaded   bool
+	meta     *help.HelpMeta
+	drawable drawable.Drawable
 }
 
 func NewHelpDrawable(meta *help.HelpMeta) *HelpDrawable {
 	return &HelpDrawable{
-		initialized: false,
-		size:        terminal.Winsize{},
-		meta:        meta,
+		loaded: false,
+		meta:   meta,
 	}
 }
 
@@ -38,30 +36,38 @@ func HelpDrawableFromMeta(meta *help.HelpMeta) drawable.Drawable {
 func (d *HelpDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameHelpDrawable,
+		Code: d.drawable.Code,
+		Tags: d.drawable.Tags,
 		Init: d.init,
+		Wipe: d.wipe,
 		Draw: d.draw,
 	}
 }
 
-func (d *HelpDrawable) init(size terminal.Winsize) {
-	d.initialized = true
-
-	d.size = size
+func (d *HelpDrawable) init() {
+	d.loaded = true
 
 	d.drawable = makeDrawable(d.meta)
 
-	d.drawable.Init(size)
+	d.drawable.Init()
 }
 
-func (d *HelpDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+func (d *HelpDrawable) wipe() {
+	if d.drawable.Wipe == nil {
+		return
+	}
+	d.drawable.Wipe()
+}
 
-	return d.drawable.Draw()
+func (d *HelpDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
+
+	return d.drawable.Draw(size)
 }
 
 func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
 	if len(meta.Fields) == 0 {
-		return line.EagerDrawableFromLines()
+		return block.BlockDrawableFromLines()
 	}
 
 	frags := make([]text.Fragment, len(meta.Fields))
@@ -81,7 +87,7 @@ func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
 		)
 	}
 
-	return line.EagerDrawableFromLines(
+	return block.BlockDrawableFromLines(
 		text.EmptyLine(),
 		text.LineFromFragments(
 			text.NewFragment("--Help--"),

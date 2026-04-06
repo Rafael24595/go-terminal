@@ -36,12 +36,12 @@ func (v *ViewModel) SetInput(input *InputLine) *ViewModel {
 	return v
 }
 
-func (v *ViewModel) InitStaticLayers(size terminal.Winsize) (*stack.StackDrawable, *stack.StackDrawable) {
-	return v.Header.Init(size), v.Footer.Init(size)
+func (v *ViewModel) InitStaticLayers() (*stack.StackDrawable, *stack.StackDrawable) {
+	return v.Header.Init(), v.Footer.Init()
 }
 
 func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) *stack.StackDrawable {
-	return v.Kernel.Init(size)
+	return v.Kernel.Init()
 }
 
 func (v *ViewModel) InitInputLine(size terminal.Winsize) (drawable.Drawable, bool) {
@@ -50,7 +50,7 @@ func (v *ViewModel) InitInputLine(size terminal.Winsize) (drawable.Drawable, boo
 	}
 
 	drawable := v.Input.ToDrawable()
-	drawable.Init(size)
+	drawable.Init()
 
 	return drawable, true
 }
@@ -61,7 +61,7 @@ func (v *ViewModel) InitHelper(size terminal.Winsize) (drawable.Drawable, bool) 
 	}
 
 	drawable := drawable_help.HelpDrawableFromMeta(v.Helper)
-	drawable.Init(size)
+	drawable.Init()
 
 	return drawable, true
 }

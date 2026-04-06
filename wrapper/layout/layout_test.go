@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/draw"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
@@ -26,13 +27,13 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	vm := viewmodel.ViewModelFromUIState(*stt)
 
 	vm.Header.Push(
-		line.EagerDrawableFromLines(
+		block.BlockDrawableFromLines(
 			text.NewLine("HEADER", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Kernel.Push(
-		line.LazyDrawableFromLines(
+		line.LineDrawableFromLines(
 			text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
 			text.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			text.NewLine("LINE THREE IS LONG", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -85,13 +86,13 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	vm := viewmodel.ViewModelFromUIState(*stt)
 
 	vm.Header.Push(
-		line.EagerDrawableFromLines(
+		block.BlockDrawableFromLines(
 			text.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Kernel.Push(
-		line.LazyDrawableFromLines(
+		line.LineDrawableFromLines(
 			text.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			text.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			text.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -115,7 +116,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	assert.Equal(t, "H", lines0[0].Text[0].Text)
 	assert.Equal(t, "> X", text.LineToString(lines0[len(lines0)-1]))
 
-	vm.Header.Init(size)
+	vm.Header.Init()
 
 	stt.Pager.TargetPage = 1
 	lines1 := TerminalApply(stt, *vm, size)
@@ -132,11 +133,11 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 		text.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindPaddingLeft)),
 	}
 
-	dw := line.EagerDrawableFromLines(lines...)
+	dw := block.BlockDrawableFromLines(lines...)
 
 	layer := stack.NewStackDrawable().Push(dw)
 
-	layer.Init(terminal.Winsize{})
+	layer.Init()
 
 	stt := state.NewUIState()
 
@@ -164,13 +165,16 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 		text.LineFromString("ziglang"),
 	)
 
-	dw := line.EagerDrawableFromLines(lines...)
+	dw := block.BlockDrawableFromLines(lines...)
 
 	layer := stack.NewStackDrawable().Push(dw)
 
-	layer.Init(terminal.Winsize{})
+	layer.Init()
 
-	result := drawStaticLines(layer.ToDrawable(), 2, 80)
+	result := drawStaticLines(layer.ToDrawable(), terminal.Winsize{
+		Rows: 2,
+		Cols: 80,
+	})
 
 	assert.LessOrEqual(t, 2, len(result))
 }
@@ -180,18 +184,23 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 		text.LineFromString("golang ziglang"),
 	)
 
-	dw := line.EagerDrawableFromLines(lines...)
+	dw := block.BlockDrawableFromLines(lines...)
 
 	layer := stack.NewStackDrawable().Push(dw)
 
-	layer.Init(terminal.Winsize{})
+	layer.Init()
 
-	result := drawStaticLines(layer.ToDrawable(), 3, 7)
+	result := drawStaticLines(layer.ToDrawable(), terminal.Winsize{
+		Rows: 3,
+		Cols: 7,
+	})
 
-	assert.Equal(t, 3, len(result))
-	assert.Equal(t, "golang", text.LineToString(result[0]))
-	assert.Equal(t, " ", text.LineToString(result[1]))
-	assert.Equal(t, "ziglang", text.LineToString(result[2]))
+	assert.Len(t, 2, result)
+
+	assert.Equal(t, "golang", result[0].Text[0].Text)
+	assert.Equal(t, " ", result[0].Text[1].Text)
+
+	assert.Equal(t, "ziglang", result[1].Text[0].Text)
 }
 
 func TestTerminalApply_InitializeLayers(t *testing.T) {
@@ -202,17 +211,17 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 	vm := viewmodel.ViewModelFromUIState(*stt)
 
 	vm.Header.Push(
-		line.EagerDrawableFromLines(
+		block.BlockDrawableFromLines(
 			text.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Kernel.Push(
-		line.LazyDrawableFromLines(
+		line.LineDrawableFromLines(
 			text.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Footer.Push(
-		line.EagerDrawableFromLines(
+		block.BlockDrawableFromLines(
 			text.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)

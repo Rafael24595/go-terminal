@@ -20,12 +20,12 @@ import (
 const NameTextAreaDrawable = "TextAreaDrawable"
 
 type TextAreaDrawable struct {
-	initialized bool
-	writeMode   bool
-	indexMode   bool
-	buffer      []rune
-	caret       *input.TextCursor
-	drawable    drawable.Drawable
+	loaded    bool
+	writeMode bool
+	indexMode bool
+	buffer    []rune
+	caret     *input.TextCursor
+	drawable  drawable.Drawable
 }
 
 func NewTextAreaDrawable(buffer []rune, caret *input.TextCursor) *TextAreaDrawable {
@@ -33,12 +33,12 @@ func NewTextAreaDrawable(buffer []rune, caret *input.TextCursor) *TextAreaDrawab
 	copy(clone, buffer)
 
 	return &TextAreaDrawable{
-		initialized: false,
-		writeMode:   false,
-		indexMode:   false,
-		buffer:      clone,
-		caret:       caret,
-		drawable:    drawable.Drawable{},
+		loaded:    false,
+		writeMode: false,
+		indexMode: false,
+		buffer:    clone,
+		caret:     caret,
+		drawable:  drawable.Drawable{},
 	}
 }
 
@@ -59,13 +59,16 @@ func (d *TextAreaDrawable) IndexMode(indexMode bool) *TextAreaDrawable {
 func (d *TextAreaDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: NameTextAreaDrawable,
+		Code: d.drawable.Code,
+		Tags: d.drawable.Tags,
 		Init: d.init,
+		Wipe: d.wipe,
 		Draw: d.draw,
 	}
 }
 
-func (d *TextAreaDrawable) init(size terminal.Winsize) {
-	d.initialized = true
+func (d *TextAreaDrawable) init() {
+	d.loaded = true
 
 	start := math.SubClampZero(d.caret.SelectStart(), 1)
 	end := d.caret.SelectEnd()
@@ -84,10 +87,17 @@ func (d *TextAreaDrawable) init(size terminal.Winsize) {
 	lines := d.normalizeLinesEnd(txt)
 	lines = d.fixEmptyLines(lines)
 
-	drawable := line.LazyDrawableFromLines(lines...)
-	drawable.Init(size)
+	drawable := line.LineDrawableFromLines(lines...)
+	drawable.Init()
 
 	d.drawable = drawable
+}
+
+func (d *TextAreaDrawable) wipe() {
+	if d.drawable.Wipe == nil {
+		return
+	}
+	d.drawable.Wipe()
 }
 
 func (d *TextAreaDrawable) resolveFragments(renderBuffer []rune, start uint, end uint) []text.Fragment {
@@ -268,8 +278,8 @@ func (d *TextAreaDrawable) fixEmptyLines(lines []text.Line) []text.Line {
 	}
 	return lines
 }
-func (d *TextAreaDrawable) draw() ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+func (d *TextAreaDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+	assert.True(d.loaded, "the drawable should be initialized before draw")
 
-	return d.drawable.Draw()
+	return d.drawable.Draw(size)
 }

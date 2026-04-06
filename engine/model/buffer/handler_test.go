@@ -47,7 +47,7 @@ func TestHandler_Hidden(t *testing.T) {
 
 	assert.Equal(t, "password123", string(buff))
 	assert.Equal(t, "***********", string(facade))
-	assert.Equal(t, len(buff), len(facade))
+	assert.Len(t, len(buff), facade)
 }
 
 func TestHandler_Limit(t *testing.T) {

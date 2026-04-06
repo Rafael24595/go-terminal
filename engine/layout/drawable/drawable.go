@@ -10,8 +10,9 @@ type Drawable struct {
 	Name string
 	Code string
 	Tags set.Set[string]
-	Init func(size terminal.Winsize)
-	Draw func() ([]text.Line, bool)
+	Init func()
+	Wipe func()
+	Draw func(size terminal.Winsize) ([]text.Line, bool)
 }
 
 func (d Drawable) SetCode(code string) Drawable {
