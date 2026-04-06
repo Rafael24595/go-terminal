@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 )
 
@@ -94,8 +94,20 @@ func TestSet_Add(t *testing.T) {
 	s := set.NewSet[int](1)
 	s.Add(42)
 
-	assert.True(t, s.Has(42))
 	assert.Len(t, 1, s)
+	assert.True(t, s.Has(42))
+}
+
+func TestSet_Merge(t *testing.T) {
+	s1 := set.SetFrom(1, 2, 3)
+	s2 := set.SetFrom(3, 4, 5)
+
+	s1.Merge(s2)
+
+	assert.Len(t, 5, s1)
+
+	assert.True(t, s1.Has(4))
+	assert.True(t, s1.Has(5))
 }
 
 func BenchmarkSet_Any(b *testing.B) {

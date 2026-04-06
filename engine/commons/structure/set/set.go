@@ -26,6 +26,12 @@ func (s Set[T]) Add(v T) {
 	s[v] = struct{}{}
 }
 
+func (s Set[T]) Merge(v Set[T]) {
+	for k := range v {
+		s.Add(k)
+	}
+}
+
 func (s Set[T]) Has(v T) bool {
 	_, ok := s[v]
 	return ok
