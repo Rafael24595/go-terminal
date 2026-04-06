@@ -22,10 +22,12 @@ var specMeasureTableWithContext = dict.NewInmutableLinkedMap(
 
 var specMeasureTable = dict.NewInmutableLinkedMap(
 	dict.P(SpcKindTrimLeft, func(spec Spec, size int) int {
-		return spec.args[KeyTrimLeftSize].Intd(size)
+		arg := spec.args[KeyTrimLeftSize].Intd(size)
+		return min(size, arg)
 	}),
 	dict.P(SpcKindTrimRight, func(spec Spec, size int) int {
-		return spec.args[KeyTrimRightSize].Intd(size)
+		arg := spec.args[KeyTrimRightSize].Intd(size)
+		return min(size, arg)
 	}),
 	dict.P(SpcKindPaddingCenter, func(spec Spec, size int) int {
 		arg := spec.args[KeyPaddingCenterSize].Intd(size)
