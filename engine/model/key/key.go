@@ -73,8 +73,6 @@ var ControlKeyMap = map[rune]*Key{
 	CTRL_C:     NewKeyCode(ActionExit),
 	CTRL_W:     NewKeyCode(ActionDeleteBackward),
 	CTRL_D:     NewKeyCode(ActionDeleteForward),
-	CTRL_G:     NewKeyCode(CustomActionUndo),
-	CTRL_T:     NewKeyCode(CustomActionRedo),
 	TAB:        NewKeyCode(ActionTab),
 	ENTER_LF:   NewKeyCode(ActionEnter),
 	ENTER_CR:   NewKeyCode(ActionEnter),
@@ -89,6 +87,8 @@ var AltKeyMap = map[rune]*Key{
 	'x': NewKeyCode(CustomActionCut, ModAlt),
 	'c': NewKeyCode(CustomActionCopy, ModAlt),
 	'v': NewKeyCode(CustomActionPaste, ModAlt),
+	'z': NewKeyCode(CustomActionUndo, ModAlt),
+	'y': NewKeyCode(CustomActionRedo, ModAlt),
 }
 
 var CsiFinalMap = map[rune]KeyAction{
