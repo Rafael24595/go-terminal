@@ -78,18 +78,22 @@ func TestHistory_ViewFooter(t *testing.T) {
 
 	vm := h.view(*state.NewUIState())
 
-	vm.Footer.Init()
-	footer, _ := vm.Footer.Draw(terminal.Winsize{})
+	footer := vm.Footer.ToDrawable()
+	footer.Init()
 
-	assert.Len(t, 0, footer)
+	lines, _ := footer.Draw(terminal.Winsize{})
+
+	assert.Len(t, 0, lines)
 
 	h.history = &scrn
 	vm = h.view(*state.NewUIState())
 
-	vm.Footer.Init()
-	footer, _ = vm.Footer.Draw(terminal.Winsize{
+	footer = vm.Footer.ToDrawable()
+	footer.Init()
+
+	lines, _ = footer.Draw(terminal.Winsize{
 		Rows: 3,
 	})
 
-	assert.True(t, len(footer) > 0)
+	assert.True(t, len(lines) > 0)
 }

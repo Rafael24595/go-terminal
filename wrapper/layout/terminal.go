@@ -15,8 +15,8 @@ import (
 func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.Winsize) []text.Line {
 	header, footer := vm.InitStaticLayers()
 
-	headerLines := drawStaticLines(header.ToDrawable(), size)
-	footerLines := drawStaticLines(footer.ToDrawable(), size)
+	headerLines := drawStaticLines(header, size)
+	footerLines := drawStaticLines(footer, size)
 
 	inputLines := make([]text.Line, 0)
 	if input, ok := vm.InitInputLine(size); ok {
@@ -41,7 +41,7 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.W
 
 	dynamicSize := terminal.NewWinsize(uint16(rest), size.Cols)
 	drawCtx := draw.NewDrawContext(state, dynamicSize)
-	drawStt := drawDynamicLines(drawCtx, vm.Pager, lines.ToDrawable())
+	drawStt := drawDynamicLines(drawCtx, vm.Pager, lines)
 
 	state.Pager.ConfirmPage(drawStt.Page)
 	state.Pager.HasMore = showPagination(drawStt)

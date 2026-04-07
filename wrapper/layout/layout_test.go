@@ -116,7 +116,8 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	assert.Equal(t, "H", lines0[0].Text[0].Text)
 	assert.Equal(t, "> X", text.LineToString(lines0[len(lines0)-1]))
 
-	vm.Header.Init()
+	header := vm.Header.ToDrawable()
+	header.Init()
 
 	stt.Pager.TargetPage = 1
 	lines1 := TerminalApply(stt, *vm, size)
@@ -135,7 +136,9 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 	dw := block.BlockDrawableFromLines(lines...)
 
-	layer := stack.NewStackDrawable().Push(dw)
+	layer := stack.NewVStackDrawable().
+		Push(dw).
+		ToDrawable()
 
 	layer.Init()
 
@@ -145,7 +148,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 	dynamicSize := terminal.NewWinsize(2, uint16(sizeCols))
 	drawCtx := draw.NewDrawContext(stt, dynamicSize)
-	drawStt := drawDynamicLines(drawCtx, vm.Pager, layer.ToDrawable())
+	drawStt := drawDynamicLines(drawCtx, vm.Pager, layer)
 
 	assert.LessOrEqual(t, 2, len(drawStt.Buffer))
 
@@ -167,11 +170,13 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 
 	dw := block.BlockDrawableFromLines(lines...)
 
-	layer := stack.NewStackDrawable().Push(dw)
+	layer := stack.NewVStackDrawable().
+		Push(dw).
+		ToDrawable()
 
 	layer.Init()
 
-	result := drawStaticLines(layer.ToDrawable(), terminal.Winsize{
+	result := drawStaticLines(layer, terminal.Winsize{
 		Rows: 2,
 		Cols: 80,
 	})
@@ -186,11 +191,13 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 
 	dw := block.BlockDrawableFromLines(lines...)
 
-	layer := stack.NewStackDrawable().Push(dw)
+	layer := stack.NewVStackDrawable().
+		Push(dw).
+		ToDrawable()
 
 	layer.Init()
 
-	result := drawStaticLines(layer.ToDrawable(), terminal.Winsize{
+	result := drawStaticLines(layer, terminal.Winsize{
 		Rows: 3,
 		Cols: 7,
 	})

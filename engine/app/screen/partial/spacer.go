@@ -80,7 +80,7 @@ func (c *Spacer) addHeaderStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
 
 	items := vm.Header.Items()
 
-	vm.Header = stack.NewStackDrawable()
+	vm.Header = stack.NewVStackDrawable()
 	for _, h := range items {
 		vm.Header.Push(h, spcr)
 	}
@@ -100,7 +100,7 @@ func (c *Spacer) addFooterStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
 
 	items := vm.Footer.Items()
 
-	vm.Footer = stack.NewStackDrawable()
+	vm.Footer = stack.NewVStackDrawable()
 	for _, h := range items {
 		vm.Footer.Push(spcr, h)
 	}

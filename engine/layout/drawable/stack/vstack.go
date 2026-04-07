@@ -11,31 +11,26 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-const NameStackDrawable = "StackDrawable"
+const NameVStackDrawable = "VStackDrawable"
 
-type layer struct {
-	drawable drawable.Drawable
-	status   bool
-}
-
-type StackDrawable struct {
+type VStackDrawable struct {
 	loaded bool
 	items  []layer
 }
 
-func NewStackDrawable(items ...drawable.Drawable) *StackDrawable {
+func NewVStackDrawable(items ...drawable.Drawable) *VStackDrawable {
 	layers := drawableToLayer(items...)
-	return &StackDrawable{
+	return &VStackDrawable{
 		loaded: false,
 		items:  layers,
 	}
 }
 
-func StackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
-	return NewStackDrawable(items...).ToDrawable()
+func VStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
+	return NewVStackDrawable(items...).ToDrawable()
 }
 
-func (d *StackDrawable) Unshift(items ...drawable.Drawable) *StackDrawable {
+func (d *VStackDrawable) Unshift(items ...drawable.Drawable) *VStackDrawable {
 	assert.False(d.loaded, "no new elements should be added after initialization")
 
 	layers := drawableToLayer(items...)
@@ -43,7 +38,7 @@ func (d *StackDrawable) Unshift(items ...drawable.Drawable) *StackDrawable {
 	return d
 }
 
-func (d *StackDrawable) Push(items ...drawable.Drawable) *StackDrawable {
+func (d *VStackDrawable) Push(items ...drawable.Drawable) *VStackDrawable {
 	assert.False(d.loaded, "no new elements should be added after initialization")
 
 	for _, item := range items {
@@ -55,11 +50,11 @@ func (d *StackDrawable) Push(items ...drawable.Drawable) *StackDrawable {
 	return d
 }
 
-func (d *StackDrawable) Size() uint {
+func (d *VStackDrawable) Size() uint {
 	return uint(len(d.items))
 }
 
-func (d *StackDrawable) Take(code string) (drawable.Drawable, bool) {
+func (d *VStackDrawable) Take(code string) (drawable.Drawable, bool) {
 	for i, v := range d.items {
 		if v.drawable.Code == code {
 			target := v.drawable
@@ -70,7 +65,7 @@ func (d *StackDrawable) Take(code string) (drawable.Drawable, bool) {
 	return drawable.Drawable{}, false
 }
 
-func (d *StackDrawable) Items() []drawable.Drawable {
+func (d *VStackDrawable) Items() []drawable.Drawable {
 	items := make([]drawable.Drawable, len(d.items))
 	for i := range d.items {
 		items[i] = d.items[i].drawable
@@ -78,22 +73,18 @@ func (d *StackDrawable) Items() []drawable.Drawable {
 	return items
 }
 
-func (d *StackDrawable) ToDrawable() drawable.Drawable {
+func (d *VStackDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameStackDrawable,
-		Code: d.Code(),
-		Tags: d.Tags(),
-		Init: func() {
-			d.Init()
-		},
-		Wipe: func() {
-			d.Wipe()
-		},
-		Draw: d.Draw,
+		Name: NameVStackDrawable,
+		Code: d.code(),
+		Tags: d.tags(),
+		Init: d.init,
+		Wipe: d.wipe,
+		Draw: d.draw,
 	}
 }
 
-func (d *StackDrawable) Code() string {
+func (d *VStackDrawable) code() string {
 	var sb strings.Builder
 	for i := range d.items {
 		_, _ = sb.Write([]byte(d.items[i].drawable.Code))
@@ -101,7 +92,7 @@ func (d *StackDrawable) Code() string {
 	return sb.String()
 }
 
-func (d *StackDrawable) Tags() set.Set[string] {
+func (d *VStackDrawable) tags() set.Set[string] {
 	tags := set.NewSet[string]()
 	for i := range d.items {
 		tags.Merge(d.items[i].drawable.Tags)
@@ -109,24 +100,22 @@ func (d *StackDrawable) Tags() set.Set[string] {
 	return tags
 }
 
-func (d *StackDrawable) Init() *StackDrawable {
+func (d *VStackDrawable) init() {
 	d.loaded = true
 
 	for i := range d.items {
 		d.items[i].drawable.Init()
 		d.items[i].status = true
 	}
-	return d
 }
 
-func (d *StackDrawable) Wipe() *StackDrawable {
+func (d *VStackDrawable) wipe() {
 	for i := range d.items {
 		d.items[i].drawable.Wipe()
 	}
-	return d
 }
 
-func (d *StackDrawable) Draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *VStackDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, "the drawable should be initialized before draw")
 
 	buffer := make([]text.Line, 0)
@@ -153,22 +142,11 @@ func (d *StackDrawable) Draw(size terminal.Winsize) ([]text.Line, bool) {
 	return buffer, gStatus
 }
 
-func (d *StackDrawable) HasNext() bool {
+func (d *VStackDrawable) HasNext() bool {
 	for _, item := range d.items {
 		if item.status {
 			return true
 		}
 	}
 	return false
-}
-
-func drawableToLayer(items ...drawable.Drawable) []layer {
-	layers := make([]layer, len(items))
-	for i, item := range items {
-		layers[i] = layer{
-			drawable: item,
-			status:   true,
-		}
-	}
-	return layers
 }

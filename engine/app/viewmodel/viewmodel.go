@@ -12,9 +12,9 @@ import (
 )
 
 type ViewModel struct {
-	Header *stack.StackDrawable
-	Kernel *stack.StackDrawable
-	Footer *stack.StackDrawable
+	Header *stack.VStackDrawable
+	Kernel *stack.VStackDrawable
+	Footer *stack.VStackDrawable
 	Input  *InputLine
 	Pager  pager.PagerStrategy
 	Helper *help.HelpMeta
@@ -22,9 +22,9 @@ type ViewModel struct {
 
 func ViewModelFromUIState(stt state.UIState) *ViewModel {
 	return &ViewModel{
-		Header: stack.NewStackDrawable(),
-		Kernel: stack.NewStackDrawable(),
-		Footer: stack.NewStackDrawable(),
+		Header: stack.NewVStackDrawable(),
+		Kernel: stack.NewVStackDrawable(),
+		Footer: stack.NewVStackDrawable(),
 		Input:  nil,
 		Pager:  pager.NewStrategy(),
 		Helper: help.NewHelpMeta(),
@@ -36,12 +36,21 @@ func (v *ViewModel) SetInput(input *InputLine) *ViewModel {
 	return v
 }
 
-func (v *ViewModel) InitStaticLayers() (*stack.StackDrawable, *stack.StackDrawable) {
-	return v.Header.Init(), v.Footer.Init()
+func (v *ViewModel) InitStaticLayers() (drawable.Drawable, drawable.Drawable) {
+	header := v.Header.ToDrawable()
+	header.Init()
+
+	footer := v.Footer.ToDrawable()
+	footer.Init()
+
+	return header, footer
 }
 
-func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) *stack.StackDrawable {
-	return v.Kernel.Init()
+func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) drawable.Drawable {
+	kernel := v.Kernel.ToDrawable()
+	kernel.Init()
+
+	return kernel
 }
 
 func (v *ViewModel) InitInputLine(size terminal.Winsize) (drawable.Drawable, bool) {

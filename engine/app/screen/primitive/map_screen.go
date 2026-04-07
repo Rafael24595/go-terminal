@@ -73,9 +73,9 @@ func (c *MapScreen) view(state state.UIState) viewmodel.ViewModel {
 		}
 	}
 
-	vm.Header = stack.NewStackDrawable().Push(header...)
-	vm.Kernel = stack.NewStackDrawable().Push(lines...)
-	vm.Footer = stack.NewStackDrawable().Push(footer...)
+	vm.Header = stack.NewVStackDrawable().Push(header...)
+	vm.Kernel = stack.NewVStackDrawable().Push(lines...)
+	vm.Footer = stack.NewVStackDrawable().Push(footer...)
 
 	return vm
 }

@@ -101,7 +101,7 @@ func (d *ModalDrawable) init() {
 	title.Init()
 	optionsBlock.Init()
 
-	stack := stack.StackDrawableFromDrawables(
+	stack := stack.VStackDrawableFromDrawables(
 		static.StaticDrawableFromDrawable(title),
 		static.StaticDrawableFromDrawable(optionsBlock),
 	)
