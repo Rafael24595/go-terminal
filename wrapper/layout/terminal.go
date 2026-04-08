@@ -31,9 +31,9 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.W
 	static := len(headerLines) + len(footerLines) + len(inputLines) + len(helperLines)
 	rest := int(size.Rows) - static
 	if rest < 0 {
-		return text.NewLines(
-			text.LineFromString("Too low resolution"),
-		)
+		return []text.Line{
+			text.NewLine("Too low resolution"),
+		}
 	}
 
 	remSize := terminal.NewWinsize(uint16(rest), size.Cols)

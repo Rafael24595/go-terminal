@@ -16,7 +16,7 @@ func NewLanding() screen.Screen {
 	textTitle := "Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor"
 	sizeTitle := runes.Measure(textTitle)
 
-	title := text.NewLines(
+	title := []text.Line{
 		text.NewLine(
 			textTitle,
 			style.SpecFromKind(style.SpcKindPaddingRight),
@@ -25,7 +25,7 @@ func NewLanding() screen.Screen {
 			"-",
 			style.SpecFill(uint(sizeTitle)),
 		),
-	)
+	}
 
 	options := input.NewMenuOptions(
 		input.NewMenuOption("opt_art", text.NewFragment("Option Article"), NewTestArticle),

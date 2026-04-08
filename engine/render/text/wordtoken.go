@@ -101,7 +101,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 
 	flush := func() {
 		emmited = append(emmited, current)
-		current = LineFromSpec(current.Spec)
+		current = EmptyLine().SetSpec(current.Spec)
 		width = 0
 	}
 

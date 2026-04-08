@@ -10,9 +10,15 @@ import (
 func NewBaseHeader(screen screen.Screen) screen.Screen {
 	header := text.FixedLinesFromLines(
 		style.SpecFromKind(style.SpcKindPaddingCenter),
-		text.LineFromString("Lorem ipsum dolor sit amet", style.AtmUpper),
-		text.LineFromString("consectetur adipiscing", style.AtmUpper),
-		text.LineFromString("-Server 00-", style.AtmUpper),
+		text.LineFromFragments(
+			text.NewFragment("Lorem ipsum dolor sit amet").AddAtom(style.AtmUpper),
+		),
+		text.LineFromFragments(
+			text.NewFragment("consectetur adipiscing").AddAtom(style.AtmUpper),
+		),
+		text.LineFromFragments(
+			text.NewFragment("-Server 00-").AddAtom(style.AtmUpper),
+		),
 	)
 
 	return wrapper.NewHeader(screen).

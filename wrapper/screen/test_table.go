@@ -72,7 +72,7 @@ func NewTestTable() screen.Screen {
 		DefinePadding(style.Center).
 		EnableAction().
 		AddTitle(
-			text.LineFromString("Donec massa sem"),
+			text.NewLine("Donec massa sem"),
 			text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
 		).
 		DefineHeaders(headers...).

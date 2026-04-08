@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
-	
+
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
@@ -30,7 +30,7 @@ func TestNewInputLine_DefaultPrompt(t *testing.T) {
 func TestNewInputLine_NoContent_ReturnsPromptOnly(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
 		Status: false,
-		Lines:  text.NewLines(),
+		Lines:  make([]text.Line, 0),
 	}
 
 	input := viewmodel.NewInputLine(mock.ToDrawable())

@@ -15,7 +15,7 @@ import (
 func TestCheckMenu_ToScreen(t *testing.T) {
 	menu := NewCheckMenu().
 		SetName("base").
-		AddTitle(text.LineFromString("Welcome"))
+		AddTitle(text.NewLine("Welcome"))
 
 	screen := menu.ToScreen()
 

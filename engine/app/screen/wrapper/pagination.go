@@ -151,12 +151,12 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 			label = "scroll"
 		}
 
-		footer := text.NewLines(
+		footer := []text.Line{
 			text.NewLine(
 				fmt.Sprintf("%s: %d", label, stt.Pager.ActualPage),
 				style.SpecFromKind(style.SpcKindPaddingRight),
 			),
-		)
+		}
 
 		vm.Footer.Unshift(
 			block.BlockDrawableFromLines(footer...).

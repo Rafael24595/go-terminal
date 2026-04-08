@@ -162,11 +162,11 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 }
 
 func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
-	lines := text.NewLines(
-		text.LineFromString("golang"),
-		text.LineFromString("rust"),
-		text.LineFromString("ziglang"),
-	)
+	lines := []text.Line{
+		text.NewLine("golang"),
+		text.NewLine("rust"),
+		text.NewLine("ziglang"),
+	}
 
 	dw := block.BlockDrawableFromLines(lines...)
 
@@ -185,9 +185,9 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 }
 
 func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
-	lines := text.NewLines(
-		text.LineFromString("golang ziglang"),
-	)
+	lines := []text.Line{
+		text.NewLine("golang ziglang"),
+	}
 
 	dw := block.BlockDrawableFromLines(lines...)
 

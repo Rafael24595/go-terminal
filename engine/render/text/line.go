@@ -12,8 +12,13 @@ type Line struct {
 	Spec  style.Spec
 }
 
-func NewLines(lines ...Line) []Line {
-	return lines
+func NewLine(text string, styles ...style.Spec) Line {
+	return Line{
+		Text: []Fragment{{
+			Text: text,
+		}},
+		Spec: style.MergeSpec(styles...),
+	}
 }
 
 func FixedLinesFromLines(style style.Spec, lines ...Line) []Line {
@@ -26,25 +31,6 @@ func FixedLinesFromLines(style style.Spec, lines ...Line) []Line {
 func LineFromFragments(fragments ...Fragment) Line {
 	return Line{
 		Text: fragments,
-		Spec: style.SpecEmpty(),
-	}
-}
-
-func NewLine(text string, style style.Spec) Line {
-	return Line{
-		Text: []Fragment{{
-			Text: text,
-		}},
-		Spec: style,
-	}
-}
-
-func LineFromString(text string, styles ...style.Atom) Line {
-	return Line{
-		Text: []Fragment{{
-			Text: text,
-			Atom: style.MergeAtom(styles...),
-		}},
 		Spec: style.SpecEmpty(),
 	}
 }
@@ -79,17 +65,17 @@ func (l *Line) SetOrder(order uint16) *Line {
 	return l
 }
 
-func (l Line) UnshiftFragments(frags ...Fragment) Line {
+func (l *Line) UnshiftFragments(frags ...Fragment) *Line {
 	l.Text = append(frags, l.Text...)
 	return l
 }
 
-func (l Line) PushFragments(frags ...Fragment) Line {
+func (l *Line) PushFragments(frags ...Fragment) *Line {
 	l.Text = append(l.Text, frags...)
 	return l
 }
 
-func (l Line) AddSpec(styles ...style.Spec) Line {
+func (l *Line) AddSpec(styles ...style.Spec) *Line {
 	newSpec := style.MergeSpec(styles...)
 	l.Spec = style.MergeSpec(l.Spec, newSpec)
 	return l
@@ -100,8 +86,8 @@ func (l Line) SetSpec(styles ...style.Spec) Line {
 	return l
 }
 
-func (l Line) CutSpec(styles style.SpecsKind) Line {
-	l.Spec = style.EraseSpec(l.Spec, styles)
+func (l Line) CutSpec(styles style.SpecKind) Line {
+	l.Spec, _ = style.EraseSpec(l.Spec, styles)
 	return l
 }
 

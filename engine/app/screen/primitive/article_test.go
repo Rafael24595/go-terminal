@@ -45,8 +45,8 @@ func TestArticle_SetName(t *testing.T) {
 }
 
 func TestArticle_AddTitleAndArticle(t *testing.T) {
-	title := text.LineFromString("Title")
-	body := text.LineFromString("Body")
+	title := text.NewLine("Title")
+	body := text.NewLine("Body")
 
 	article := NewArticle().
 		AddTitle(title).
@@ -60,8 +60,8 @@ func TestArticle_AddTitleAndArticle(t *testing.T) {
 }
 
 func TestArticle_View(t *testing.T) {
-	title := text.LineFromString("Title")
-	body := text.LineFromString("Body")
+	title := text.NewLine("Title")
+	body := text.NewLine("Body")
 
 	article := NewArticle().
 		AddTitle(title).

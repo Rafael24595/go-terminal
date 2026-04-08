@@ -62,8 +62,8 @@ func (f Fragment) AddSpec(styles ...style.Spec) Fragment {
 	return f
 }
 
-func (f Fragment) CutSpec(styles style.SpecsKind) Fragment {
-	f.Spec = style.EraseSpec(f.Spec, styles)
+func (f Fragment) CutSpec(styles style.SpecKind) Fragment {
+	f.Spec, _ = style.EraseSpec(f.Spec, styles)
 	return f
 }
 

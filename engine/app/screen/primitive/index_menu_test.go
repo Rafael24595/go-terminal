@@ -19,7 +19,9 @@ import (
 func TestIndexMenu_ToScreen(t *testing.T) {
 	menu := NewIndexMenu().
 		SetName("base").
-		AddTitle(text.LineFromString("Welcome")).
+		AddTitle(
+			text.NewLine("Welcome"),
+		).
 		AddOptions(
 			input.NewMenuOption(
 				"opt_1",
@@ -54,7 +56,9 @@ func TestIndexMenu_DefaultValues(t *testing.T) {
 
 func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 	menu := NewIndexMenu().
-		AddTitle(text.LineFromString("Title 1")).
+		AddTitle(
+			text.NewLine("Title 1"),
+		).
 		AddOptions(
 			input.NewMenuOption(
 				"opt_1",

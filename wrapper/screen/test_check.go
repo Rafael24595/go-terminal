@@ -13,7 +13,7 @@ func NewTestCheck() screen.Screen {
 	textTitle := "Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor"
 	sizeTitle := runes.Measure(textTitle)
 
-	title := text.NewLines(
+	title := []text.Line{
 		text.NewLine(
 			textTitle,
 			style.SpecFromKind(style.SpcKindPaddingRight),
@@ -22,7 +22,7 @@ func NewTestCheck() screen.Screen {
 			"-",
 			style.SpecFill(uint(sizeTitle)),
 		),
-	)
+	}
 
 	options := []input.CheckOption{
 		input.NewCheckOption("1", text.NewFragment("Check 1")),

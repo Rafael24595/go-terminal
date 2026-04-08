@@ -89,11 +89,11 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 
 	page := fmt.Sprintf("back: %s", c.history.Name())
 
-	footer := text.NewLines(
+	footer := []text.Line{
 		text.NewLine(page,
 			style.SpecFromKind(style.SpcKindPaddingRight),
 		),
-	)
+	}
 
 	vm.Footer.Unshift(
 		block.BlockDrawableFromLines(footer...).

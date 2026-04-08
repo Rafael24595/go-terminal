@@ -36,13 +36,13 @@ func TestInline_LazyInit(t *testing.T) {
 func TestInline_JoinsChildren(t *testing.T) {
 	mock1 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.LineFromString("go"),
+			text.NewLine("go"),
 		},
 	}
 
 	mock2 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.LineFromString("lang"),
+			text.NewLine("lang"),
 		},
 	}
 
@@ -66,13 +66,13 @@ func TestInline_JoinsChildren(t *testing.T) {
 func TestInline_JoinsChildrenWithSeparator(t *testing.T) {
 	mock1 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.LineFromString("golang"),
+			text.NewLine("golang"),
 		},
 	}
 
 	mock2 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.LineFromString("ziglang"),
+			text.NewLine("ziglang"),
 		},
 	}
 
@@ -99,8 +99,8 @@ func TestInline_JoinsChildrenWithSeparator(t *testing.T) {
 func TestInline_MultipleLines(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.LineFromString("go"),
-			text.LineFromString("lang"),
+			text.NewLine("go"),
+			text.NewLine("lang"),
 		},
 	}
 

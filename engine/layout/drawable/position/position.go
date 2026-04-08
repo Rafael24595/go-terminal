@@ -95,7 +95,7 @@ func (d *PositionDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 
 	base := d.makeTopMargin(size, styled)
 	for _, line := range styled {
-		line = line.UnshiftFragments(frag).
+		line.UnshiftFragments(frag).
 			PushFragments(frag)
 
 		base = append(base, line)
@@ -141,8 +141,8 @@ func (d *PositionDrawable) fillEmpty(result []text.Line) []text.Line {
 }
 
 func (d *PositionDrawable) styleLines(spec style.Spec, lines ...text.Line) []text.Line {
-	for i, v := range lines {
-		lines[i] = v.AddSpec(spec)
+	for i := range lines {
+		lines[i].AddSpec(spec)
 	}
 	return lines
 }

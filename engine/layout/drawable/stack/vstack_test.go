@@ -152,8 +152,8 @@ func TestVStack_DisablesLayer(t *testing.T) {
 func TestVStack_BufferConcat(t *testing.T) {
 	stack := &VStackDrawable{}
 
-	line1 := text.LineFromString("go")
-	line2 := text.LineFromString("lang")
+	line1 := text.NewLine("go")
+	line2 := text.NewLine("lang")
 
 	d1 := &drawable_test.MockDrawable{
 		Lines:  []text.Line{line1},

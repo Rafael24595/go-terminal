@@ -57,9 +57,9 @@ func TestEngineScroll(t *testing.T) {
 
 	state := &draw.DrawState{
 		Buffer: []text.Line{
-			text.LineFromString("A"),
-			text.LineFromString("B"),
-			text.LineFromString("C"),
+			text.NewLine("A"),
+			text.NewLine("B"),
+			text.NewLine("C"),
 		},
 		Cursor: 2,
 		Page:   1,

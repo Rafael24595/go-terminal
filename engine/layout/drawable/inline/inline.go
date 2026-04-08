@@ -135,7 +135,7 @@ func (d *InlineDrawable) joinChildren(lines []text.Line) []text.Line {
 			frags = append(frags, *separator)
 		}
 
-		merged = merged.SetOrder(line.Order).
+		merged.SetOrder(line.Order).
 			PushFragments(frags...).
 			AddSpec(line.Spec)
 	}

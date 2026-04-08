@@ -132,13 +132,13 @@ func justifyLine(cols int, frags []text.Fragment, size int, mode style.Justify) 
 	switch mode {
 
 	case style.JustifyStart:
-		return line.AddSpec(style.SpecFromKind(style.SpcKindPaddingRight))
+		return *line.AddSpec(style.SpecFromKind(style.SpcKindPaddingRight))
 
 	case style.JustifyEnd:
-		return line.AddSpec(style.SpecFromKind(style.SpcKindPaddingLeft))
+		return *line.AddSpec(style.SpecFromKind(style.SpcKindPaddingLeft))
 
 	case style.JustifyCenter, style.JustifyAround, style.JustifyEvenly:
-		return line.AddSpec(style.SpecFromKind(style.SpcKindPaddingCenter))
+		return *line.AddSpec(style.SpecFromKind(style.SpcKindPaddingCenter))
 	}
 
 	return line
