@@ -51,12 +51,12 @@ var specMeasureTable = dict.NewInmutableLinkedMap(
 	}),
 )
 
-type SpecsKind uint64
+type SpecKind uint64
 
 const (
-	SpcKindNone SpecsKind = 0
+	SpcKindNone SpecKind = 0
 
-	SpcKindPaddingLeft SpecsKind = 1 << iota
+	SpcKindPaddingLeft SpecKind = 1 << iota
 	SpcKindPaddingRight
 	SpcKindPaddingCenter
 
@@ -69,7 +69,34 @@ const (
 	SpcKindFill
 )
 
-func (s SpecsKind) HasAny(styles ...SpecsKind) bool {
+var specArgsTable = map[SpecKind][]SpcArgKey{
+	SpcKindPaddingLeft: {
+		KeyPaddingLeftSize, KeyPaddingLeftText,
+	},
+	SpcKindPaddingRight: {
+		KeyPaddingRightSize, KeyPaddingRightText,
+	},
+	SpcKindPaddingCenter: {
+		KeyPaddingCenterSize, KeyPaddingCenterText,
+	},
+	SpcKindRepeatLeft: {
+		KeyRepeatLeftSize, KeyRepeatLeftText,
+	},
+	SpcKindRepeatRight: {
+		KeyRepeatRightSize, KeyRepeatLeftText,
+	},
+	SpcKindTrimLeft: {
+		KeyTrimLeftSize,
+	},
+	SpcKindTrimRight: {
+		KeyTrimRightSize,
+	},
+	SpcKindFill: {
+		KeyFillSize,
+	},
+}
+
+func (s SpecKind) HasAny(styles ...SpecKind) bool {
 	for _, style := range styles {
 		if s&style != 0 {
 			return true
@@ -78,29 +105,8 @@ func (s SpecsKind) HasAny(styles ...SpecsKind) bool {
 	return false
 }
 
-func (s SpecsKind) HasNone(styles ...SpecsKind) bool {
+func (s SpecKind) HasNone(styles ...SpecKind) bool {
 	return !s.HasAny(styles...)
-}
-
-func MergeSpec(styles ...Spec) Spec {
-	kind := SpcKindNone
-	args := make(argMap)
-
-	for _, style := range styles {
-		kind |= style.kind
-		maps.Copy(args, style.args)
-	}
-
-	return Spec{
-		kind: kind,
-		args: args,
-	}
-}
-
-func EraseSpec(target Spec, styles SpecsKind) Spec {
-	target.kind &= ^styles
-	//TODO: Delete args.
-	return target
 }
 
 type SpcArgKey uint8
@@ -129,11 +135,55 @@ const (
 )
 
 type Spec struct {
-	kind SpecsKind
+	kind SpecKind
 	args argMap
 }
 
-func (s Spec) Kind() SpecsKind {
+func MergeSpec(styles ...Spec) Spec {
+	kind := SpcKindNone
+	args := make(argMap)
+
+	for _, style := range styles {
+		kind |= style.kind
+		maps.Copy(args, style.args)
+	}
+
+	return Spec{
+		kind: kind,
+		args: args,
+	}
+}
+
+func EraseSpec(target Spec, styles SpecKind) (Spec, Spec) {
+    removedKind := target.kind & styles
+    
+    removedSpec := SpecFromKind(removedKind)
+    if removedKind == SpcKindNone {
+        return target, removedSpec
+    }
+
+    for kind, keys := range specArgsTable {
+        if removedKind&kind == 0 {
+			continue
+		}
+
+		for _, key := range keys {
+			val, ok := target.args[key];
+			if  !ok {
+				continue
+			}
+
+			removedSpec.args[key] = val
+			delete(target.args, key)
+		}
+    }
+
+    target.kind &= ^styles
+
+    return target, removedSpec
+}
+
+func (s Spec) Kind() SpecKind {
 	return s.kind
 }
 
@@ -148,7 +198,7 @@ func SpecEmpty() Spec {
 	}
 }
 
-func SpecFromKind(kind SpecsKind) Spec {
+func SpecFromKind(kind SpecKind) Spec {
 	return Spec{
 		kind: kind,
 		args: make(argMap),
@@ -253,7 +303,7 @@ func SpecFill(size uint) Spec {
 	)
 }
 
-func specSize(kind SpecsKind, sizeKey SpcArgKey, size uint) Spec {
+func specSize(kind SpecKind, sizeKey SpcArgKey, size uint) Spec {
 	args := make(argMap)
 
 	if size > 0 {
@@ -267,7 +317,7 @@ func specSize(kind SpecsKind, sizeKey SpcArgKey, size uint) Spec {
 }
 
 func specDirection(
-	kind SpecsKind,
+	kind SpecKind,
 	sizeKey,
 	textKey SpcArgKey,
 	size uint,
@@ -289,7 +339,7 @@ func specDirection(
 	}
 }
 
-func SpecMeasureOf(kind SpecsKind, spec Spec, size int) int {
+func SpecMeasureOf(kind SpecKind, spec Spec, size int) int {
 	if predicate, ok := specMeasureTable.Get(kind); ok {
 		return predicate(spec, size)
 	}
