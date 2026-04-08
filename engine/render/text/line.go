@@ -81,12 +81,12 @@ func (l *Line) AddSpec(styles ...style.Spec) *Line {
 	return l
 }
 
-func (l Line) SetSpec(styles ...style.Spec) Line {
+func (l *Line) SetSpec(styles ...style.Spec) *Line {
 	l.Spec = style.MergeSpec(styles...)
 	return l
 }
 
-func (l Line) CutSpec(styles style.SpecKind) Line {
+func (l *Line) CutSpec(styles style.SpecKind) *Line {
 	l.Spec, _ = style.EraseSpec(l.Spec, styles)
 	return l
 }
