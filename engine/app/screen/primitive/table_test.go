@@ -13,7 +13,7 @@ import (
 func TestTable_ToScreen(t *testing.T) {
 	menu := NewTable[int]().
 		SetName("base").
-		AddTitle(text.NewLine("Welcome"))
+		AddTitle(*text.NewLine("Welcome"))
 
 	screen := menu.ToScreen()
 

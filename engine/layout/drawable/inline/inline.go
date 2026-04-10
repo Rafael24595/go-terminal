@@ -126,7 +126,7 @@ func (d *InlineDrawable) joinChildren(lines []text.Line) []text.Line {
 	var separator *text.Fragment
 	if d.separator != "" {
 		frag := text.NewFragment(d.separator)
-		separator = &frag
+		separator = frag
 	}
 
 	for i, line := range lines {
@@ -135,10 +135,9 @@ func (d *InlineDrawable) joinChildren(lines []text.Line) []text.Line {
 			frags = append(frags, *separator)
 		}
 
-		merged.SetOrder(line.Order).
-			PushFragments(frags...).
-			AddSpec(line.Spec)
+		merged.PushFragments(frags...).
+			CopyMeta(&line)
 	}
 
-	return []text.Line{merged}
+	return []text.Line{*merged}
 }

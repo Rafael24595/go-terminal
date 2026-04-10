@@ -103,7 +103,7 @@ func (d *CheckMenuDrawable) wipe() {
 func (d *CheckMenuDrawable) makeVertical(opts []text.Fragment) drawable.Drawable {
 	lines := make([]text.Line, len(opts))
 	for i := range opts {
-		lines[i] = text.LineFromFragments(opts[i])
+		lines[i] = *text.LineFromFragments(opts[i])
 	}
 	return line.LineDrawableFromLines(lines...)
 }
@@ -129,12 +129,11 @@ func (d *CheckMenuDrawable) addStyles() []text.Fragment {
 			label = marker.DefaultPaddingText + label
 		}
 
-		frags[i] = text.EmptyFragmentFrom(d.options[i].Label)
-		frags[i].Text = d.meta.Open + status + d.meta.Close + label
+		frags[i] = *text.NewFragment(d.meta.Open + status + d.meta.Close + label).
+			CopyMeta(&d.options[i].Label)
 
 		if d.writeMode && i == int(d.cursor) {
-			frags[i] = frags[i].
-				AddAtom(style.AtmSelect, style.AtmFocus)
+			frags[i].AddAtom(style.AtmSelect, style.AtmFocus)
 		}
 	}
 

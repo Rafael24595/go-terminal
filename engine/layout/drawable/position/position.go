@@ -95,8 +95,8 @@ func (d *PositionDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 
 	base := d.makeTopMargin(size, styled)
 	for _, line := range styled {
-		line.UnshiftFragments(frag).
-			PushFragments(frag)
+		line.UnshiftFragments(*frag).
+			PushFragments(*frag)
 
 		base = append(base, line)
 	}
@@ -134,7 +134,7 @@ func (d *PositionDrawable) fillEmpty(result []text.Line) []text.Line {
 
 		result[i].Text = append(
 			result[i].Text,
-			text.EmptyFragment(),
+			*text.EmptyFragment(),
 		)
 	}
 	return result
@@ -162,7 +162,7 @@ func makeSpec(size terminal.Winsize, position style.HorizontalPosition) style.Sp
 	return style.SpecEmpty()
 }
 
-func makeFrag(margin uint) text.Fragment {
+func makeFrag(margin uint) *text.Fragment {
 	if margin == 0 {
 		return text.EmptyFragment()
 	}

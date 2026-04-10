@@ -111,7 +111,7 @@ func (c *Spacer) addFooterStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
 func (c *Spacer) makeSpaces(size uint8) []text.Line {
 	spaces := make([]text.Line, size)
 	for i := range spaces {
-		spaces[i] = text.LineJump()
+		spaces[i] = *text.LineJump()
 	}
 	return spaces
 }

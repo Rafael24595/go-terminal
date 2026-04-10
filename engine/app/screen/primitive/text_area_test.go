@@ -13,7 +13,7 @@ import (
 func TestTextArea_ToScreen(t *testing.T) {
 	menu := NewTextArea().
 		SetName("base").
-		AddTitle(text.NewLine("Welcome"))
+		AddTitle(*text.NewLine("Welcome"))
 
 	screen := menu.ToScreen()
 

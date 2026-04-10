@@ -17,23 +17,23 @@ func NewLanding() screen.Screen {
 	sizeTitle := runes.Measure(textTitle)
 
 	title := []text.Line{
-		text.NewLine(
+		*text.NewLine(
 			textTitle,
 			style.SpecFromKind(style.SpcKindPaddingRight),
 		),
-		text.NewLine(
+		*text.NewLine(
 			"-",
 			style.SpecFill(uint(sizeTitle)),
 		),
 	}
 
 	options := input.NewMenuOptions(
-		input.NewMenuOption("opt_art", text.NewFragment("Option Article"), NewTestArticle),
-		input.NewMenuOption("opt_txt", text.NewFragment("Option TextArea"), NewTestTextArea),
-		input.NewMenuOption("opt_tbl", text.NewFragment("Option Table"), NewTestTable),
-		input.NewMenuOption("opt_mdl", text.NewFragment("Option Modal"), NewTestModal),
-		input.NewMenuOption("opt_chk", text.NewFragment("Option Check"), NewTestCheck),
-		input.NewMenuOption("opt_chk", text.NewFragment("Option TextInput"), NewTestTextInput),
+		input.NewMenuOption("opt_art", *text.NewFragment("Option Article"), NewTestArticle),
+		input.NewMenuOption("opt_txt", *text.NewFragment("Option TextArea"), NewTestTextArea),
+		input.NewMenuOption("opt_tbl", *text.NewFragment("Option Table"), NewTestTable),
+		input.NewMenuOption("opt_mdl", *text.NewFragment("Option Modal"), NewTestModal),
+		input.NewMenuOption("opt_chk", *text.NewFragment("Option Check"), NewTestCheck),
+		input.NewMenuOption("opt_chk", *text.NewFragment("Option TextInput"), NewTestTextInput),
 	)
 
 	optsSize := len(options)
@@ -42,7 +42,7 @@ func NewLanding() screen.Screen {
 		options = append(options,
 			input.NewMenuOption(
 				fmt.Sprintf("opt_%d", i),
-				text.NewFragment(fmt.Sprintf("Option %d", i+1+optsSize)),
+				*text.NewFragment(fmt.Sprintf("Option %d", i+1+optsSize)),
 				NewTestTextArea,
 			),
 		)

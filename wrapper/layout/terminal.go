@@ -32,7 +32,7 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.W
 	rest := int(size.Rows) - static
 	if rest < 0 {
 		return []text.Line{
-			text.NewLine("Too low resolution"),
+			*text.NewLine("Too low resolution"),
 		}
 	}
 
@@ -72,7 +72,7 @@ func drawStaticLines(drawable drawable.Drawable, size terminal.Winsize) []text.L
 
 		for _, lin := range lines {
 			buffer = append(buffer,
-				line.WrapLineWords(cols, lin)...,
+				line.WrapLineWords(cols, &lin)...,
 			)
 
 			if len(buffer) >= rows {
@@ -106,7 +106,7 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 		state.Work.Add(renderedSize)
 
 		for l, ln := range rendered {
-			fixed := line.WrapLineWords(cols, ln)
+			fixed := line.WrapLineWords(cols, &ln)
 
 			state.Work.Advance()
 			state.Work.Add(len(fixed))
@@ -116,7 +116,7 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 
 				state.Work.Advance()
 
-				if f := text.HasFocus(fx); f {
+				if f := text.HasFocus(&fx); f {
 					state.Focus = f
 				}
 

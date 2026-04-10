@@ -35,12 +35,11 @@ func TestSplitLineWords_Simple(t *testing.T) {
 }
 
 func TestSplitLineWords_Styles(t *testing.T) {
-	line := text.FragmentLine(
-		style.SpecFromKind(style.SpcKindPaddingLeft),
-		text.NewFragment("HELLO").AddAtom(style.AtmBold),
-		text.NewFragment(" "),
-		text.NewFragment("WORLD"),
-	)
+	line := text.LineFromFragments(
+		*text.NewFragment("HELLO").AddAtom(style.AtmBold),
+		*text.NewFragment(" "),
+		*text.NewFragment("WORLD"),
+	).SetSpec(style.SpecFromKind(style.SpcKindPaddingLeft))
 
 	maxWidth := 7
 	lines := WrapLineWords(maxWidth, line)
@@ -88,12 +87,11 @@ func TestSplitLineWords_LongWord(t *testing.T) {
 }
 
 func TestSplitLineWords_MultipleFragments(t *testing.T) {
-	line := text.FragmentLine(
-		style.SpecFromKind(style.SpcKindPaddingLeft),
-		text.NewFragment("HELLO").AddAtom(style.AtmBold),
-		text.NewFragment("WORLD").AddAtom(style.AtmBold),
-		text.NewFragment("GO"),
-	)
+	line := text.LineFromFragments(
+		*text.NewFragment("HELLO").AddAtom(style.AtmBold),
+		*text.NewFragment("WORLD").AddAtom(style.AtmBold),
+		*text.NewFragment("GO"),
+	).SetSpec(style.SpecFromKind(style.SpcKindPaddingLeft))
 
 	maxWidth := 8
 	lines := WrapLineWords(maxWidth, line)

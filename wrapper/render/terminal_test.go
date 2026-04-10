@@ -12,27 +12,27 @@ import (
 
 func TestRenderLineFragments_MergeSameStyles(t *testing.T) {
 	line := text.LineFromFragments(
-		text.NewFragment("G").AddAtom(style.AtmBold),
-		text.NewFragment("o").AddAtom(style.AtmBold),
-		text.NewFragment("l").AddAtom(style.AtmBold),
-		text.NewFragment("a").AddAtom(style.AtmBold),
-		text.NewFragment("n").AddAtom(style.AtmBold),
-		text.NewFragment("g").AddAtom(style.AtmBold),
+		*text.NewFragment("G").AddAtom(style.AtmBold),
+		*text.NewFragment("o").AddAtom(style.AtmBold),
+		*text.NewFragment("l").AddAtom(style.AtmBold),
+		*text.NewFragment("a").AddAtom(style.AtmBold),
+		*text.NewFragment("n").AddAtom(style.AtmBold),
+		*text.NewFragment("g").AddAtom(style.AtmBold),
 	)
 
-	out := renderLineFragments(line, terminal.Winsize{})
+	out := renderLineFragments(*line, terminal.Winsize{})
 
 	assert.Equal(t, applyAtomStyles("Golang", style.AtmBold), out)
 }
 
 func TestRenderLineFragments_StyleChange(t *testing.T) {
 	line := text.LineFromFragments(
-		text.NewFragment("Hi").AddAtom(style.AtmBold),
-		text.NewFragment(" "),
-		text.NewFragment("Ziglang").AddAtom(style.AtmSelect),
+		*text.NewFragment("Hi").AddAtom(style.AtmBold),
+		*text.NewFragment(" "),
+		*text.NewFragment("Ziglang").AddAtom(style.AtmSelect),
 	)
 
-	out := renderLineFragments(line, terminal.Winsize{})
+	out := renderLineFragments(*line, terminal.Winsize{})
 
 	expected :=
 		applyAtomStyles("Hi", style.AtmBold) +
@@ -44,12 +44,12 @@ func TestRenderLineFragments_StyleChange(t *testing.T) {
 
 func TestRenderLineFragments_DoNotMergeNonContiguous(t *testing.T) {
 	line := text.LineFromFragments(
-		text.NewFragment("R").AddAtom(style.AtmBold),
-		text.NewFragment("us"),
-		text.NewFragment("t").AddAtom(style.AtmBold),
+		*text.NewFragment("R").AddAtom(style.AtmBold),
+		*text.NewFragment("us"),
+		*text.NewFragment("t").AddAtom(style.AtmBold),
 	)
 
-	out := renderLineFragments(line, terminal.Winsize{})
+	out := renderLineFragments(*line, terminal.Winsize{})
 
 	expected :=
 		applyAtomStyles("R", style.AtmBold) +

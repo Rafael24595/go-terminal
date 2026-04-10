@@ -20,7 +20,7 @@ func sinkLinePaddingLeft(spec style.SpecKind, line *text.Line, _ int) *text.Line
 
 	line.Spec = resSpec
 	line.UnshiftFragments(
-		text.EmptyFragment().AddSpec(delSpec),
+		*text.EmptyFragment().AddSpec(delSpec),
 	)
 
 	return line
@@ -34,7 +34,7 @@ func sinkLinePaddingRight(spec style.SpecKind, line *text.Line, _ int) *text.Lin
 
 	line.Spec = resSpec
 	line.PushFragments(
-		text.EmptyFragment().AddSpec(delSpec),
+		*text.EmptyFragment().AddSpec(delSpec),
 	)
 
 	return line
@@ -54,13 +54,13 @@ func sinkLinePaddingCenter(spec style.SpecKind, line *text.Line, cols int) *text
 	left := sze / 2
 	paddLeft := style.SpecPaddingLeft(uint(left), txt)
 	line.UnshiftFragments(
-		text.EmptyFragment().AddSpec(paddLeft),
+		*text.EmptyFragment().AddSpec(paddLeft),
 	)
 
 	right := sze - left
 	paddRight := style.SpecPaddingRight(uint(right), txt)
 	line.PushFragments(
-		text.EmptyFragment().AddSpec(paddRight),
+		*text.EmptyFragment().AddSpec(paddRight),
 	)
 
 	return line

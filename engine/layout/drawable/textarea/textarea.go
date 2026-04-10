@@ -79,12 +79,13 @@ func (d *TextAreaDrawable) init() {
 		end = 1
 	}
 
-	txt := text.FragmentLine(style.SpecFromKind(style.SpcKindPaddingRight))
+	txt := text.EmptyLine().
+		SetSpec(style.SpecFromKind(style.SpcKindPaddingRight))
 
 	fragments := d.resolveFragments(d.buffer, start, end)
 	txt.Text = append(txt.Text, fragments...)
 
-	lines := d.normalizeLinesEnd(txt)
+	lines := d.normalizeLinesEnd(*txt)
 	lines = d.fixEmptyLines(lines)
 
 	drawable := line.LineDrawableFromLines(lines...)
@@ -104,7 +105,7 @@ func (d *TextAreaDrawable) resolveFragments(renderBuffer []rune, start uint, end
 	frags := make([]text.Fragment, 0, 6)
 
 	if int(start) > 0 {
-		frags = append(frags, text.NewFragment(string(renderBuffer[:start])))
+		frags = append(frags, *text.NewFragment(string(renderBuffer[:start])))
 	}
 
 	var selection []text.Fragment
@@ -117,7 +118,7 @@ func (d *TextAreaDrawable) resolveFragments(renderBuffer []rune, start uint, end
 	frags = append(frags, selection...)
 
 	if int(end) < len(renderBuffer) {
-		frags = append(frags, text.NewFragment(string(renderBuffer[end:])))
+		frags = append(frags, *text.NewFragment(string(renderBuffer[end:])))
 	}
 
 	return frags
@@ -137,7 +138,7 @@ func (d *TextAreaDrawable) resolveBackwardSelection(renderBuffer []rune, start u
 		selectFrag := text.EmptyFragment().
 			AddAtom(style.AtmFocus)
 
-		frags = append(frags, selectFrag)
+		frags = append(frags, *selectFrag)
 		return frags, start, end
 	}
 
@@ -147,13 +148,13 @@ func (d *TextAreaDrawable) resolveBackwardSelection(renderBuffer []rune, start u
 		headerFrag := text.FragmentFromRunes(marker.PrintableCaretRunes).
 			AddAtom(caretAtom, style.AtmFocus)
 
-		frags = append(frags, headerFrag)
+		frags = append(frags, *headerFrag)
 	}
 
 	selectFrag := text.FragmentFromRunes(selection).
 		AddAtom(caretAtom, focusAtom)
 
-	frags = append(frags, selectFrag)
+	frags = append(frags, *selectFrag)
 	return frags, start, end
 }
 
@@ -170,7 +171,7 @@ func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start ui
 		selectFrag := text.EmptyFragment().
 			AddAtom(style.AtmFocus)
 
-		frags = append(frags, selectFrag)
+		frags = append(frags, *selectFrag)
 		return frags, start, end
 	}
 
@@ -180,7 +181,7 @@ func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start ui
 		footerFrag := text.FragmentFromRunes(selection[selectionSize-1:]).
 			AddAtom(caretAtom, style.AtmFocus)
 
-		frags = append(frags, headerFrag, footerFrag)
+		frags = append(frags, *headerFrag, *footerFrag)
 		return frags, start, end
 	}
 
@@ -197,7 +198,7 @@ func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start ui
 	footerFrag := text.FragmentFromRunes(footer).
 		AddAtom(caretAtom, style.AtmFocus)
 
-	frags = append(frags, headerFrag, selectFrag, footerFrag)
+	frags = append(frags, *headerFrag, *selectFrag, *footerFrag)
 
 	return frags, start, end
 }
@@ -215,7 +216,7 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 
 	index := uint16(1)
 
-	currentLine := text.FragmentLine(txt.Spec)
+	currentLine := text.EmptyLine().SetSpec(txt.Spec)
 	if d.indexMode {
 		currentLine.SetOrder(index)
 	}
@@ -227,7 +228,7 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 		if len(parts) == 1 {
 			currentLine.Text = append(
 				currentLine.Text,
-				text.FragmentFrom(parts[0], f),
+				*text.NewFragment(parts[0]).CopyMeta(&f),
 			)
 
 			continue
@@ -236,17 +237,17 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 		for partIndex, part := range parts {
 			currentLine.Text = append(
 				currentLine.Text,
-				text.FragmentFrom(part, f),
+				*text.NewFragment(part).CopyMeta(&f),
 			)
 
 			if partIndex >= len(parts)-1 {
 				continue
 			}
 
-			lines = append(lines, currentLine)
+			lines = append(lines, *currentLine)
 			index++
 
-			currentLine = text.FragmentLine(txt.Spec)
+			currentLine = text.EmptyLine().SetSpec(txt.Spec)
 			if d.indexMode {
 				currentLine.SetOrder(index)
 			}
@@ -254,7 +255,7 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 	}
 
 	if len(currentLine.Text) > 0 {
-		lines = append(lines, currentLine)
+		lines = append(lines, *currentLine)
 	}
 
 	return lines
@@ -262,7 +263,7 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 
 func (d *TextAreaDrawable) fixEmptyLines(lines []text.Line) []text.Line {
 	for i, line := range lines {
-		if text.LineFragmentsMeasure(line) != 0 {
+		if text.LineFragmentsMeasure(&line) != 0 {
 			continue
 		}
 
@@ -272,7 +273,7 @@ func (d *TextAreaDrawable) fixEmptyLines(lines []text.Line) []text.Line {
 		}
 
 		lines[i].Text = append(line.Text,
-			text.NewFragment(marker.DefaultPaddingText).
+			*text.NewFragment(marker.DefaultPaddingText).
 				AddAtom(styles),
 		)
 	}

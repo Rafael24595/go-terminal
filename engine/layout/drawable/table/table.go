@@ -111,7 +111,7 @@ func (d *TableDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 func (d *TableDrawable) fillRest(result []text.Line) []text.Line {
 	resultSize := min(int(d.size.Rows), len(result))
 	for range int(d.size.Rows) - resultSize {
-		result = append(result, text.NewLine(""))
+		result = append(result, *text.NewLine(""))
 	}
 
 	return result

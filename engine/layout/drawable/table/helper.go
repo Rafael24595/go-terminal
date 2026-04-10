@@ -56,11 +56,11 @@ func makeSections(t table.Table, cursor input.MatrixCursor, size terminal.Winsiz
 		specCover := style.SpecRepeatRight(uint(capacity))
 
 		top := text.LineFromFragments(
-			text.NewFragment(separator.Top).AddSpec(specCover),
+			*text.NewFragment(separator.Top).AddSpec(specCover),
 		)
 
 		bottom := text.LineFromFragments(
-			text.NewFragment(separator.Bottom).AddSpec(specCover),
+			*text.NewFragment(separator.Bottom).AddSpec(specCover),
 		)
 
 		rows := makeTable(table, headers, columns, separator, fixCursor)
@@ -73,11 +73,11 @@ func makeSections(t table.Table, cursor input.MatrixCursor, size terminal.Winsiz
 
 		sections = append(sections, section{
 			header: loop.LoopDrawableFromDrawable(
-				block.BlockDrawableFromLines(top, headerRow, top),
+				block.BlockDrawableFromLines(*top, *headerRow, *top),
 			),
 			rows: drawable_line.LineDrawableFromLines(rows...),
 			footer: loop.LoopDrawableFromDrawable(
-				block.BlockDrawableFromLines(bottom),
+				block.BlockDrawableFromLines(*bottom),
 			),
 		})
 	}
@@ -110,13 +110,13 @@ func headersFromSize(size map[string]int, headers []string, cursor input.MatrixC
 	return filtered, fixCursor
 }
 
-func makeHeaders(size map[string]int, headers []string, separator marker.TableSeparatorMeta) text.Line {
+func makeHeaders(size map[string]int, headers []string, separator marker.TableSeparatorMeta) *text.Line {
 	headersLen := len(headers)
 
 	capacity := 2*headersLen + 1
 	fragments := make([]text.Fragment, 0, capacity)
 
-	fragments = append(fragments, text.NewFragment(separator.Left))
+	fragments = append(fragments, *text.NewFragment(separator.Left))
 
 	for i, h := range headers {
 		width := uint(size[h])
@@ -124,14 +124,14 @@ func makeHeaders(size map[string]int, headers []string, separator marker.TableSe
 			style.SpecPaddingCenter(width),
 			style.SpecTrimTextRight(width, marker.DefaultElipsisText),
 		)
-		fragments = append(fragments, text.NewFragment(h).AddSpec(spec))
+		fragments = append(fragments, *text.NewFragment(h).AddSpec(spec))
 
 		if i < headersLen-1 {
-			fragments = append(fragments, text.NewFragment(separator.Center))
+			fragments = append(fragments, *text.NewFragment(separator.Center))
 		}
 	}
 
-	fragments = append(fragments, text.NewFragment(separator.Right))
+	fragments = append(fragments, *text.NewFragment(separator.Right))
 
 	return text.LineFromFragments(fragments...)
 }
@@ -152,20 +152,20 @@ func makeTable(
 
 	for y := range maxRow {
 		fragments := make([]text.Fragment, 0, capacity)
-		fragments = append(fragments, text.NewFragment(separator.Left))
+		fragments = append(fragments, *text.NewFragment(separator.Left))
 
 		for x, h := range headers {
 			frag := makeCell(size, cols, cursor, h, y, x)
-			fragments = append(fragments, frag)
+			fragments = append(fragments, *frag)
 
 			if x < headersLen-1 {
-				fragments = append(fragments, text.NewFragment(separator.Center))
+				fragments = append(fragments, *text.NewFragment(separator.Center))
 			}
 		}
 
-		fragments = append(fragments, text.NewFragment(separator.Right))
+		fragments = append(fragments, *text.NewFragment(separator.Right))
 
-		lines[y] = text.LineFromFragments(fragments...)
+		lines[y] = *text.LineFromFragments(fragments...)
 	}
 
 	return lines
@@ -178,7 +178,7 @@ func makeCell(
 	header string,
 	y int,
 	x int,
-) text.Fragment {
+) *text.Fragment {
 	width := uint(size[header])
 	col := cols[header]
 

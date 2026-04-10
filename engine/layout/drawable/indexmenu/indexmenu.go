@@ -84,7 +84,7 @@ func (d *IndexMenuDrawable) init() {
 			AddAtom(focs)
 
 		lines = append(lines,
-			text.LineFromFragments(padd, indx, spac, mark),
+			*text.LineFromFragments(*padd, *indx, *spac, *mark),
 		)
 	}
 
@@ -94,7 +94,7 @@ func (d *IndexMenuDrawable) init() {
 	d.drawable = drawable
 }
 
-func (d *IndexMenuDrawable) makeIndex(cursor, digits int) text.Fragment {
+func (d *IndexMenuDrawable) makeIndex(cursor, digits int) *text.Fragment {
 	if d.meta.Kind == marker.Numeric {
 		txt := helper.Right(strconv.Itoa(cursor+1), digits)
 		index := text.NewFragment(txt + ".- ")

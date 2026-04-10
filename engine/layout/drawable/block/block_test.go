@@ -40,7 +40,7 @@ func TestBlockDrawable_Draw_ShouldReturnEmptyIfRowsIsZero(t *testing.T) {
 
 func TestBlockDrawable_Draw_ShouldStopWhenChildHasNoNext(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
-		Lines: []text.Line{text.NewLine("golang")},
+		Lines: []text.Line{*text.NewLine("golang")},
 	}
 
 	bd := NewBlockDrawable(mock.ToDrawable())
@@ -60,7 +60,7 @@ func TestBlockDrawable_Draw_ShouldAccumulateLines(t *testing.T) {
 
 	dw.Draw = func(size terminal.Winsize) ([]text.Line, bool) {
 		count++
-		return []text.Line{text.NewLine("golang")}, true
+		return []text.Line{*text.NewLine("golang")}, true
 	}
 
 	rows := uint16(3)

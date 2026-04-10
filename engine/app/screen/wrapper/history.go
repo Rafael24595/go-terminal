@@ -90,7 +90,7 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 	page := fmt.Sprintf("back: %s", c.history.Name())
 
 	footer := []text.Line{
-		text.NewLine(page,
+		*text.NewLine(page,
 			style.SpecFromKind(style.SpcKindPaddingRight),
 		),
 	}

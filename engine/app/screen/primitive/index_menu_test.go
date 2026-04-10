@@ -20,12 +20,12 @@ func TestIndexMenu_ToScreen(t *testing.T) {
 	menu := NewIndexMenu().
 		SetName("base").
 		AddTitle(
-			text.NewLine("Welcome"),
+			*text.NewLine("Welcome"),
 		).
 		AddOptions(
 			input.NewMenuOption(
 				"opt_1",
-				text.NewFragment("Option 1"),
+				*text.NewFragment("Option 1"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
@@ -57,17 +57,17 @@ func TestIndexMenu_DefaultValues(t *testing.T) {
 func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 	menu := NewIndexMenu().
 		AddTitle(
-			text.NewLine("Title 1"),
+			*text.NewLine("Title 1"),
 		).
 		AddOptions(
 			input.NewMenuOption(
 				"opt_1",
-				text.NewFragment("Option 1"),
+				*text.NewFragment("Option 1"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			input.NewMenuOption(
 				"opt_2",
-				text.NewFragment("Option 2"),
+				*text.NewFragment("Option 2"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
@@ -81,12 +81,12 @@ func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
 		AddOptions(
 			input.NewMenuOption(
 				"opt_a",
-				text.NewFragment("A"),
+				*text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			input.NewMenuOption(
 				"opt_b",
-				text.NewFragment("B"),
+				*text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
@@ -110,12 +110,12 @@ func TestIndexMenu_CursorNavigation(t *testing.T) {
 		AddOptions(
 			input.NewMenuOption(
 				"opt_a",
-				text.NewFragment("A"),
+				*text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			input.NewMenuOption(
 				"opt_b",
-				text.NewFragment("B"),
+				*text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
@@ -146,7 +146,7 @@ func TestIndexMenu_Action(t *testing.T) {
 		AddOptions(
 			input.NewMenuOption(
 				"opt_go",
-				text.NewFragment("Go"),
+				*text.NewFragment("Go"),
 				func() screen.Screen { return expected },
 			),
 		)
@@ -166,12 +166,12 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 		AddOptions(
 			input.NewMenuOption(
 				"opt_a",
-				text.NewFragment("A"),
+				*text.NewFragment("A"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 			input.NewMenuOption(
 				"opt_b",
-				text.NewFragment("B"),
+				*text.NewFragment("B"),
 				func() screen.Screen { return screen.Screen{} },
 			),
 		)
@@ -194,6 +194,6 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	assert.Equal(t, pager.CodePredicateFocus, vm.Pager.Predicate.Code)
 	assert.True(t, vm.Pager.Predicate.Func(*stt, ctx))
 
-	assert.Equal(t, "- A", text.LineToString(lines[0]))
-	assert.Equal(t, "> B", text.LineToString(lines[1]))
+	assert.Equal(t, "- A", text.LineToString(&lines[0]))
+	assert.Equal(t, "> B", text.LineToString(&lines[1]))
 }

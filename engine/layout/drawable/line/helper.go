@@ -25,37 +25,39 @@ func (i IndexMeta) body() string {
 }
 
 func indexLines(cols int, line text.Line, meta *IndexMeta) []text.Line {
-	measure := text.LineFragmentsMeasure(line)
+	measure := text.LineFragmentsMeasure(&line)
 
 	isGreaterWithoutIndex := measure > int(cols)
 	isGreaterWithIndex := meta != nil && measure+int(meta.totalWidth) > cols
 
 	if isGreaterWithoutIndex || isGreaterWithIndex {
-		return WrapLineWordsWithIndex(int(cols), line, meta)
+		return WrapLineWordsWithIndex(int(cols), &line, meta)
 	}
 
 	fragments := text.FragmentsFromString()
 	if meta != nil {
-		fragments = append(fragments, text.NewFragment(meta.header(int(line.Order))))
+		fragments = append(fragments, *text.NewFragment(meta.header(int(line.Order))))
 	}
 
 	newLine := text.LineFromFragments(
 		append(fragments, line.Text...)...,
 	)
 
-	return text.FixedLinesFromLines(line.Spec, newLine)
+	return []text.Line{
+		*newLine.AddSpec(line.Spec),
+	}
 }
 
-func WrapLineWords(cols int, line text.Line) []text.Line {
+func WrapLineWords(cols int, line *text.Line) []text.Line {
 	if cols >= text.LineFragmentsMeasure(line) {
-		return []text.Line{line}
+		return []text.Line{*line}
 	}
 	return WrapLineWordsWithIndex(cols, line, nil)
 }
 
-func WrapLineWordsWithIndex(cols int, line text.Line, meta *IndexMeta) []text.Line {
+func WrapLineWordsWithIndex(cols int, line *text.Line, meta *IndexMeta) []text.Line {
 	result := make([]text.Line, 0)
-	current := text.LineFromSpec(line.Spec)
+	current := text.EmptyLine().AddSpec(line.Spec)
 	width := 0
 
 	words := text.TokenizeLineWords(line)
@@ -77,8 +79,9 @@ func WrapLineWordsWithIndex(cols int, line text.Line, meta *IndexMeta) []text.Li
 		}
 
 		if wordlen <= cols {
-			result = append(result, current)
-			current = text.LineFromSpec(line.Spec)
+			result = append(result, *current)
+			current = text.EmptyLine().
+				AddSpec(line.Spec)
 
 			if meta != nil {
 				fragments := text.FragmentsFromString(meta.body())
@@ -91,15 +94,15 @@ func WrapLineWordsWithIndex(cols int, line text.Line, meta *IndexMeta) []text.Li
 			continue
 		}
 
-		newCurrent, lines, newWidth := wrapLongTokenWithIndex(word, cols, current, width, meta)
+		newCurrent, lines, newWidth := wrapLongTokenWithIndex(word, cols, *current, width, meta)
 
 		result = append(result, lines...)
-		current = newCurrent
+		current = &newCurrent
 		width = newWidth
 	}
 
 	if len(current.Text) > 0 {
-		result = append(result, current)
+		result = append(result, *current)
 	}
 
 	return result

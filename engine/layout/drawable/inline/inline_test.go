@@ -36,13 +36,13 @@ func TestInline_LazyInit(t *testing.T) {
 func TestInline_JoinsChildren(t *testing.T) {
 	mock1 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.NewLine("go"),
+			*text.NewLine("go"),
 		},
 	}
 
 	mock2 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.NewLine("lang"),
+			*text.NewLine("lang"),
 		},
 	}
 
@@ -60,19 +60,19 @@ func TestInline_JoinsChildren(t *testing.T) {
 	})
 
 	assert.Len(t, 1, lines)
-	assert.Equal(t, "golang", text.LineToString(lines[0]))
+	assert.Equal(t, "golang", text.LineToString(&lines[0]))
 }
 
 func TestInline_JoinsChildrenWithSeparator(t *testing.T) {
 	mock1 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.NewLine("golang"),
+			*text.NewLine("golang"),
 		},
 	}
 
 	mock2 := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.NewLine("ziglang"),
+			*text.NewLine("ziglang"),
 		},
 	}
 
@@ -93,14 +93,14 @@ func TestInline_JoinsChildrenWithSeparator(t *testing.T) {
 	})
 
 	assert.Len(t, 1, lines)
-	assert.Equal(t, "golang | ziglang", text.LineToString(lines[0]))
+	assert.Equal(t, "golang | ziglang", text.LineToString(&lines[0]))
 }
 
 func TestInline_MultipleLines(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.NewLine("go"),
-			text.NewLine("lang"),
+			*text.NewLine("go"),
+			*text.NewLine("lang"),
 		},
 	}
 
@@ -120,7 +120,7 @@ func TestInline_MultipleLines(t *testing.T) {
 	})
 
 	assert.Len(t, 1, lines)
-	assert.Equal(t, "go | lang", text.LineToString(lines[0]))
+	assert.Equal(t, "go | lang", text.LineToString(&lines[0]))
 }
 
 func TestInline_Empty(t *testing.T) {

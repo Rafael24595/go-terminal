@@ -152,7 +152,7 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 		}
 
 		footer := []text.Line{
-			text.NewLine(
+			*text.NewLine(
 				fmt.Sprintf("%s: %d", label, stt.Pager.ActualPage),
 				style.SpecFromKind(style.SpcKindPaddingRight),
 			),

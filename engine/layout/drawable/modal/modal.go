@@ -67,7 +67,7 @@ func (d *ModalDrawable) ToDrawable() drawable.Drawable {
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,
-		Wipe: d.init,
+		Wipe: d.wipe,
 		Draw: d.draw,
 	}
 }
@@ -78,12 +78,12 @@ func (d *ModalDrawable) init() {
 	opts := make([]text.Fragment, len(d.options))
 	for i := range d.options {
 		old := d.options[i]
-		opts[i] = text.NewFragment(old.Text).
+		opts[i] = *text.NewFragment(old.Text).
 			AddAtom(old.Atom).
 			AddSpec(old.Spec)
 
 		if i == int(d.cursor) {
-			opts[i] = opts[i].AddAtom(style.AtmSelect)
+			opts[i].AddAtom(style.AtmSelect)
 		}
 	}
 
@@ -134,7 +134,7 @@ func formatLines(lines ...text.Line) []text.Line {
 	out := make([]text.Line, len(lines))
 	copy(out, lines)
 
-	out = append(out, text.EmptyLine())
+	out = append(out, *text.EmptyLine())
 
 	return out
 }

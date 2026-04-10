@@ -156,12 +156,12 @@ func TestVStack_BufferConcat(t *testing.T) {
 	line2 := text.NewLine("lang")
 
 	d1 := &drawable_test.MockDrawable{
-		Lines:  []text.Line{line1},
+		Lines:  []text.Line{*line1},
 		Status: false,
 	}
 
 	d2 := &drawable_test.MockDrawable{
-		Lines:  []text.Line{line2},
+		Lines:  []text.Line{*line2},
 		Status: false,
 	}
 
@@ -175,7 +175,7 @@ func TestVStack_BufferConcat(t *testing.T) {
 	buffer, _ := stack.draw(terminal.Winsize{})
 
 	assert.Len(t, 2, buffer)
-	assert.Equal(t, "golang", text.LineToString(buffer[0])+text.LineToString(buffer[1]))
+	assert.Equal(t, "golang", text.LineToString(&buffer[0])+text.LineToString(&buffer[1]))
 }
 
 func TestVStack_ShortCircuitStopsPropagation(t *testing.T) {

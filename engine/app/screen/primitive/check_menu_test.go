@@ -15,7 +15,7 @@ import (
 func TestCheckMenu_ToScreen(t *testing.T) {
 	menu := NewCheckMenu().
 		SetName("base").
-		AddTitle(text.NewLine("Welcome"))
+		AddTitle(*text.NewLine("Welcome"))
 
 	screen := menu.ToScreen()
 
@@ -38,9 +38,9 @@ func TestCheckMenu_SwitchState_WithLimit(t *testing.T) {
 	menu := NewCheckMenu().
 		SetLimit(2).
 		AddOptions(
-			input.NewCheckOption("1", text.NewFragment("option 1")),
-			input.NewCheckOption("2", text.NewFragment("option 2")),
-			input.NewCheckOption("3", text.NewFragment("option 3")),
+			input.NewCheckOption("1", *text.NewFragment("option 1")),
+			input.NewCheckOption("2", *text.NewFragment("option 2")),
+			input.NewCheckOption("3", *text.NewFragment("option 3")),
 		)
 
 	menu.clock = clock.Now

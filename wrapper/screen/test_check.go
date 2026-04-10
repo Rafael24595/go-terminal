@@ -14,21 +14,21 @@ func NewTestCheck() screen.Screen {
 	sizeTitle := runes.Measure(textTitle)
 
 	title := []text.Line{
-		text.NewLine(
+		*text.NewLine(
 			textTitle,
 			style.SpecFromKind(style.SpcKindPaddingRight),
 		),
-		text.NewLine(
+		*text.NewLine(
 			"-",
 			style.SpecFill(uint(sizeTitle)),
 		),
 	}
 
 	options := []input.CheckOption{
-		input.NewCheckOption("1", text.NewFragment("Check 1")),
-		input.NewCheckOption("2", text.NewFragment("Check 2")),
-		input.NewCheckOption("3", text.NewFragment("Check 3")),
-		input.NewCheckOption("4", text.NewFragment("Check 4")),
+		input.NewCheckOption("1", *text.NewFragment("Check 1")),
+		input.NewCheckOption("2", *text.NewFragment("Check 2")),
+		input.NewCheckOption("3", *text.NewFragment("Check 3")),
+		input.NewCheckOption("4", *text.NewFragment("Check 4")),
 	}
 
 	return primitive.NewCheckMenu().

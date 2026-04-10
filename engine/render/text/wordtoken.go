@@ -21,12 +21,12 @@ func WordTokenFromFragments(fragments ...Fragment) WordToken {
 func (t WordToken) Size() int {
 	size := 0
 	for _, v := range t.Text {
-		size += FragmentMeasure(v)
+		size += FragmentMeasure(&v)
 	}
 	return size
 }
 
-func TokenizeLineWords(line Line) []WordToken {
+func TokenizeLineWords(line *Line) []WordToken {
 	tokens := make([]WordToken, 0, len(line.Text))
 	fragments := make([]Fragment, 0, 4)
 
@@ -34,9 +34,9 @@ func TokenizeLineWords(line Line) []WordToken {
 
 	flush := func(frag Fragment) {
 		if sb.Len() > 0 {
-			f := EmptyFragmentFrom(frag)
-			f.Text = sb.String()
-			fragments = append(fragments, f)
+			f := NewFragment(sb.String()).
+				CopyMeta(&frag)
+			fragments = append(fragments, *f)
 			sb.Reset()
 		}
 
@@ -76,9 +76,9 @@ func TokenizeLineWords(line Line) []WordToken {
 		}
 
 		if sb.Len() > 0 {
-			f := EmptyFragmentFrom(frag)
-			f.Text = sb.String()
-			fragments = append(fragments, f)
+			f := NewFragment(sb.String()).
+				CopyMeta(&frag)
+			fragments = append(fragments, *f)
 			sb.Reset()
 		}
 	}
@@ -93,7 +93,7 @@ func TokenizeLineWords(line Line) []WordToken {
 func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []Line, int) {
 	emmited := make([]Line, 0)
 	if cols <= 0 {
-		emmited = append(emmited, LineFromFragments(word.Text...))
+		emmited = append(emmited, *LineFromFragments(word.Text...))
 		return current, emmited, 0
 	}
 
@@ -101,7 +101,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 
 	flush := func() {
 		emmited = append(emmited, current)
-		current = LineFromSpec(current.Spec)
+		current = *EmptyLine().AddSpec(current.Spec)
 		width = 0
 	}
 
@@ -113,7 +113,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 		}
 
 		fragment := fragments[0]
-		size := FragmentMeasure(fragment)
+		size := FragmentMeasure(&fragment)
 
 		if size <= remaining {
 			current.Text = append(current.Text, fragment)
@@ -124,12 +124,12 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 			continue
 		}
 
-		taken, rest := takeFromFragment(fragment, remaining)
+		taken, rest := takeFromFragment(&fragment, remaining)
 
-		current.Text = append(current.Text, taken)
+		current.Text = append(current.Text, *taken)
 		width += FragmentMeasure(taken)
 
-		fragments = append([]Fragment{rest}, fragments[1:]...)
+		fragments = append([]Fragment{*rest}, fragments[1:]...)
 
 		flush()
 	}
@@ -137,21 +137,23 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 	return current, emmited, width
 }
 
-func takeFromFragment(f Fragment, n int) (Fragment, Fragment) {
+func takeFromFragment(f *Fragment, n int) (*Fragment, *Fragment) {
 	if n <= 0 {
-		return EmptyFragmentFrom(f), f
+		return EmptyFragment().
+			CopyMeta(f), f
 	}
 
 	byteIndex, canBreak := runes.RuneIndexToByteIndex(f.Text, n)
 	if !canBreak {
-		return f, EmptyFragmentFrom(f)
+		return f, EmptyFragment().
+			CopyMeta(f)
 	}
 
-	taken := EmptyFragmentFrom(f)
-	taken.Text = f.Text[:byteIndex]
+	taken := NewFragment(f.Text[:byteIndex]).
+		CopyMeta(f)
 
-	rest := EmptyFragmentFrom(f)
-	rest.Text = f.Text[byteIndex:]
+	rest := NewFragment(f.Text[byteIndex:]).
+		CopyMeta(f)
 
 	return taken, rest
 }

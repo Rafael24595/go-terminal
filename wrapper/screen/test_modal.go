@@ -11,25 +11,13 @@ func NewTestModal() screen.Screen {
 	return primitive.NewModalMenu().
 		SetName("modal - dolor").
 		AddText(
-			text.NewLine("AD Lorem ipsum dolor sit amet"),
+			*text.NewLine("AD Lorem ipsum dolor sit amet"),
 		).
 		AddOptions([]input.MenuOption{
-			{
-				Label:  text.NewFragment("Option_1"),
-				Action: NewTestModal,
-			},
-			{
-				Label:  text.NewFragment("Option_2"),
-				Action: NewTestModal,
-			},
-			{
-				Label:  text.NewFragment("Option_3"),
-				Action: NewTestModal,
-			},
-			{
-				Label:  text.NewFragment("Option_4"),
-				Action: NewTestModal,
-			},
+			input.NewMenuOption("1", *text.NewFragment("Option_1"), NewTestModal),
+			input.NewMenuOption("2", *text.NewFragment("Option_2"), NewTestModal),
+			input.NewMenuOption("3", *text.NewFragment("Option_3"), NewTestModal),
+			input.NewMenuOption("4", *text.NewFragment("Option_4"), NewTestModal),
 		}...).
 		ToScreen()
 }

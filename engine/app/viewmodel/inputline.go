@@ -78,11 +78,11 @@ func (d *inputLineDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 
 	if len(lines) == 0 {
 		line := text.NewLine(d.prompt)
-		return []text.Line{line}, false
+		return []text.Line{*line}, false
 	}
 
 	prompt := text.FragmentsFromString(d.prompt + marker.DefaultPaddingText)
 	lines[0].Text = append(prompt, lines[0].Text...)
 
-	return append([]text.Line{text.EmptyLine()}, lines...), false
+	return append([]text.Line{*text.EmptyLine()}, lines...), false
 }

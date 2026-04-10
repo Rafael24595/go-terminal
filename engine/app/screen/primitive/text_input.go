@@ -138,9 +138,9 @@ func (c *TextInput) makeDrawables(vm viewmodel.ViewModel) []drawable.Drawable {
 	//TODO: Parametrize.
 	pstd := pst.MarginX(0).ToDrawable()
 
-	frags := append(c.label, text.NewFragment(": "))
+	frags := append(c.label, *text.NewFragment(": "))
 	lbl := block.BlockDrawableFromLines(
-		text.LineFromFragments(frags...),
+		*text.LineFromFragments(frags...),
 	)
 
 	dws = append(dws, lbl)

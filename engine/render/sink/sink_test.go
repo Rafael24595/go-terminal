@@ -11,15 +11,15 @@ import (
 func TestApplySinks_PaddingLeft(t *testing.T) {
 	spec := style.SpecPaddingLeft(5, "-")
 
-	line := text.EmptyLine()
-	line.AddSpec(spec)
+	line := text.EmptyLine().
+		AddSpec(spec)
 
-	assert.Len(t, 1, line.Text)
+	assert.Len(t, 0, line.Text)
 
-	ApplySinks(&line, 80)
+	ApplySinks(line, 80)
 
 	assert.False(t, line.Spec.Kind().HasAny(style.SpcKindPaddingLeft))
-	assert.Len(t, 2, line.Text)
+	assert.Len(t, 1, line.Text)
 
 	firstFrag := line.Text[0]
 	assert.True(t, firstFrag.Spec.Kind().HasAny(style.SpcKindPaddingLeft))

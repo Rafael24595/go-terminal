@@ -82,19 +82,19 @@ func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
 
 		frag := fmt.Sprintf("[%s] %s%s", code, field.Detail, separator)
 		frags = append(frags,
-			text.NewFragment(frag).
+			*text.NewFragment(frag).
 				AddAtom(style.AtmWrap),
 		)
 	}
 
 	return block.BlockDrawableFromLines(
-		text.EmptyLine(),
-		text.LineFromFragments(
-			text.NewFragment("--Help--"),
-			text.NewFragment("-").
+		*text.EmptyLine(),
+		*text.LineFromFragments(
+			*text.NewFragment("--Help--"),
+			*text.NewFragment("-").
 				AddSpec(style.SpecFromKind(style.SpcKindFill)),
 		),
-		text.LineFromFragments(frags...),
-		text.NewLine("-", style.SpecFromKind(style.SpcKindFill)),
+		*text.LineFromFragments(frags...),
+		*text.NewLine("-", style.SpecFromKind(style.SpcKindFill)),
 	)
 }

@@ -28,16 +28,16 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(
-			text.NewLine("HEADER", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("HEADER", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Kernel.Push(
 		line.LineDrawableFromLines(
-			text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
-			text.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindPaddingLeft)),
-			text.NewLine("LINE THREE IS LONG", style.SpecFromKind(style.SpcKindPaddingLeft)),
-			text.NewLine("LINE FOUR", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
+			*text.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("LINE THREE IS LONG", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("LINE FOUR", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
@@ -45,7 +45,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
 		Status: false,
 		Lines: []text.Line{
-			text.LineFromFragments(frag...),
+			*text.LineFromFragments(frag...),
 		},
 	}
 
@@ -71,7 +71,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	for i := 1; i < len(lines)-1; i++ {
 		width := 0
 		for _, f := range lines[i].Text {
-			width += text.FragmentMeasure(f)
+			width += text.FragmentMeasure(&f)
 		}
 
 		assert.LessOrEqual(t, int(size.Cols), width)
@@ -87,16 +87,16 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(
-			text.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Kernel.Push(
 		line.LineDrawableFromLines(
-			text.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
-			text.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
-			text.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindPaddingLeft)),
-			text.NewLine("DDDDDDD", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("DDDDDDD", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
@@ -104,7 +104,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
 		Status: false,
 		Lines: []text.Line{
-			text.LineFromFragments(frag...),
+			*text.LineFromFragments(frag...),
 		},
 	}
 
@@ -114,7 +114,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	assert.Len(t, int(size.Rows), lines0)
 	assert.Equal(t, "H", lines0[0].Text[0].Text)
-	assert.Equal(t, "> X", text.LineToString(lines0[len(lines0)-1]))
+	assert.Equal(t, "> X", text.LineToString(&lines0[len(lines0)-1]))
 
 	header := vm.Header.ToDrawable()
 	header.Init()
@@ -124,14 +124,14 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	assert.Len(t, int(size.Rows), lines1)
 	assert.Equal(t, "H", lines1[0].Text[0].Text)
-	assert.Equal(t, "> X", text.LineToString(lines0[len(lines0)-1]))
+	assert.Equal(t, "> X", text.LineToString(&lines0[len(lines0)-1]))
 }
 
 func TestDrawDynamicLines_WordWrap(t *testing.T) {
 	sizeCols := 5
 
 	lines := []text.Line{
-		text.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindPaddingLeft)),
+		*text.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindPaddingLeft)),
 	}
 
 	dw := block.BlockDrawableFromLines(lines...)
@@ -155,7 +155,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 	for _, l := range drawStt.Buffer {
 		width := 0
 		for _, f := range l.Text {
-			width += text.FragmentMeasure(f)
+			width += text.FragmentMeasure(&f)
 		}
 		assert.LessOrEqual(t, sizeCols, width)
 	}
@@ -163,9 +163,9 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 	lines := []text.Line{
-		text.NewLine("golang"),
-		text.NewLine("rust"),
-		text.NewLine("ziglang"),
+		*text.NewLine("golang"),
+		*text.NewLine("rust"),
+		*text.NewLine("ziglang"),
 	}
 
 	dw := block.BlockDrawableFromLines(lines...)
@@ -186,7 +186,7 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 
 func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 	lines := []text.Line{
-		text.NewLine("golang ziglang"),
+		*text.NewLine("golang ziglang"),
 	}
 
 	dw := block.BlockDrawableFromLines(lines...)
@@ -219,17 +219,17 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(
-			text.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Kernel.Push(
 		line.LineDrawableFromLines(
-			text.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Footer.Push(
 		block.BlockDrawableFromLines(
-			text.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
+			*text.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
@@ -237,7 +237,7 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
 		Status: false,
 		Lines: []text.Line{
-			text.LineFromFragments(frag...),
+			*text.LineFromFragments(frag...),
 		},
 	}
 

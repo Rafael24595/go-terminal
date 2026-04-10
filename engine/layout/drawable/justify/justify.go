@@ -101,7 +101,7 @@ func (d *JustifyDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 		frag := d.fragments[i]
 
 		fragsLen := len(frags)
-		fragSize := text.FragmentMeasure(frag)
+		fragSize := text.FragmentMeasure(&frag)
 
 		spacing := 0
 		if fragsLen > 0 {
@@ -111,7 +111,7 @@ func (d *JustifyDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 		newWidth := width + spacing + fragSize
 		if fragsLen > 0 && fragsLen >= maxOpts || newWidth > maxCols {
 			line := justifyLine(maxCols, frags, width, d.justify)
-			return []text.Line{line}, true
+			return []text.Line{*line}, true
 		}
 
 		width = newWidth
@@ -121,10 +121,10 @@ func (d *JustifyDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	}
 
 	line := justifyLine(maxCols, frags, width, d.justify)
-	return []text.Line{line}, d.cursor < uint16(len(d.fragments))
+	return []text.Line{*line}, d.cursor < uint16(len(d.fragments))
 }
 
-func justifyLine(cols int, frags []text.Fragment, size int, mode style.Justify) text.Line {
+func justifyLine(cols int, frags []text.Fragment, size int, mode style.Justify) *text.Line {
 	line := text.LineFromFragments(
 		addGaps(cols, frags, size, mode)...,
 	)
@@ -132,13 +132,13 @@ func justifyLine(cols int, frags []text.Fragment, size int, mode style.Justify) 
 	switch mode {
 
 	case style.JustifyStart:
-		return *line.AddSpec(style.SpecFromKind(style.SpcKindPaddingRight))
+		return line.AddSpec(style.SpecFromKind(style.SpcKindPaddingRight))
 
 	case style.JustifyEnd:
-		return *line.AddSpec(style.SpecFromKind(style.SpcKindPaddingLeft))
+		return line.AddSpec(style.SpecFromKind(style.SpcKindPaddingLeft))
 
 	case style.JustifyCenter, style.JustifyAround, style.JustifyEvenly:
-		return *line.AddSpec(style.SpecFromKind(style.SpcKindPaddingCenter))
+		return line.AddSpec(style.SpecFromKind(style.SpcKindPaddingCenter))
 	}
 
 	return line
@@ -205,7 +205,7 @@ func distributeSpace(free int, frags []text.Fragment, extraSlots int) []text.Fra
 		next := make([]text.Fragment, 0, len(out)+1)
 
 		next = append(next, out[:at]...)
-		next = append(next, space)
+		next = append(next, *space)
 		next = append(next, out[at:]...)
 
 		out = next
@@ -222,7 +222,7 @@ func addSpaceBetween(frags []text.Fragment) []text.Fragment {
 		spaced = append(spaced, f)
 		if i < len(frags)-1 {
 			spaced = append(spaced,
-				text.NewFragment(marker.DefaultPaddingText),
+				*text.NewFragment(marker.DefaultPaddingText),
 			)
 		}
 	}

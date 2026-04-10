@@ -57,9 +57,9 @@ func TestEngineScroll(t *testing.T) {
 
 	state := &draw.DrawState{
 		Buffer: []text.Line{
-			text.NewLine("A"),
-			text.NewLine("B"),
-			text.NewLine("C"),
+			*text.NewLine("A"),
+			*text.NewLine("B"),
+			*text.NewLine("C"),
 		},
 		Cursor: 2,
 		Page:   1,
@@ -68,9 +68,9 @@ func TestEngineScroll(t *testing.T) {
 
 	result := engine.Func(ctx, state)
 
-	assert.Equal(t, "B", text.LineToString(result.Buffer[0]))
-	assert.Equal(t, "C", text.LineToString(result.Buffer[1]))
-	assert.Equal(t, "", text.LineToString(result.Buffer[2]))
+	assert.Equal(t, "B", text.LineToString(&result.Buffer[0]))
+	assert.Equal(t, "C", text.LineToString(&result.Buffer[1]))
+	assert.Equal(t, "", text.LineToString(&result.Buffer[2]))
 	assert.Equal(t, 1, result.Cursor)
 	assert.False(t, result.Focus)
 }

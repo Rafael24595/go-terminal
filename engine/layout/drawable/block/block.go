@@ -37,7 +37,7 @@ func BlockDrawableFromString(txt ...string) drawable.Drawable {
 	lines := text.LineFromFragments(
 		text.FragmentsFromString(txt...)...,
 	)
-	return BlockDrawableFromLines(lines)
+	return BlockDrawableFromLines(*lines)
 }
 
 func (d *BlockDrawable) ToDrawable() drawable.Drawable {

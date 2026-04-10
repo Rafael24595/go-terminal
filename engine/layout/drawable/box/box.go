@@ -151,23 +151,23 @@ func (d *BoxDrawable) styleLines(size terminal.Winsize, lines ...text.Line) []te
 
 	specCover := style.SpecRepeatLeft(padding + vertical)
 	cover := text.LineFromFragments(
-		text.NewFragment(d.separator.Top).AddSpec(specCover),
+		*text.NewFragment(d.separator.Top).AddSpec(specCover),
 	)
 
 	result := make([]text.Line, 0)
 
-	result = append(result, cover)
+	result = append(result, *cover)
 
 	available := int(size.Cols) - int(vertical)
 
 	for _, lin := range lines {
-		for _, v := range line.WrapLineWords(available, lin) {
+		for _, v := range line.WrapLineWords(available, &lin) {
 			line := d.styleLine(padding, v)
 			result = append(result, line)
 		}
 	}
 
-	result = append(result, cover)
+	result = append(result, *cover)
 
 	return result
 }
@@ -176,13 +176,13 @@ func (d *BoxDrawable) styleLine(size uint, line text.Line) text.Line {
 	paddingL, paddingR := d.calcPadding(size, line)
 
 	left := []text.Fragment{
-		text.NewFragment(d.separator.Left),
+		*text.NewFragment(d.separator.Left),
 	}
 
 	if paddingL > 0 {
 		specLeft := style.SpecRepeatRight(paddingL)
 		left = append(left,
-			text.NewFragment(d.separator.Space).AddSpec(specLeft),
+			*text.NewFragment(d.separator.Space).AddSpec(specLeft),
 		)
 	}
 
@@ -191,12 +191,12 @@ func (d *BoxDrawable) styleLine(size uint, line text.Line) text.Line {
 	if paddingR > 0 {
 		specRight := style.SpecRepeatRight(paddingR)
 		right = append(right,
-			text.NewFragment(d.separator.Space).AddSpec(specRight),
+			*text.NewFragment(d.separator.Space).AddSpec(specRight),
 		)
 	}
 
 	right = append(right,
-		text.NewFragment(d.separator.Right),
+		*text.NewFragment(d.separator.Right),
 	)
 
 	frags := make([]text.Fragment, 0)
@@ -211,7 +211,7 @@ func (d *BoxDrawable) styleLine(size uint, line text.Line) text.Line {
 }
 
 func (d *BoxDrawable) calcPadding(size uint, line text.Line) (uint, uint) {
-	totalWidth := uint(text.LineFragmentsMeasure(line))
+	totalWidth := uint(text.LineFragmentsMeasure(&line))
 
 	remaining := size - totalWidth
 

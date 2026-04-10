@@ -20,7 +20,7 @@ func TestLoop_DrawableBasicSuite(t *testing.T) {
 func TestLoop_Child_WipeCalled(t *testing.T) {
 	mock := &drawable_test.MockDrawable{
 		Lines: []text.Line{
-			text.NewLine("golang"),
+			*text.NewLine("golang"),
 		},
 	}
 

@@ -104,8 +104,8 @@ func TestMakeTable_Basic(t *testing.T) {
 
 	assert.Len(t, 2, lines)
 
-	assert.Equal(t, "|1|golang|", text.LineToString(lines[0]))
-	assert.Equal(t, "|2|ziglang|", text.LineToString(lines[1]))
+	assert.Equal(t, "|1|golang|", text.LineToString(&lines[0]))
+	assert.Equal(t, "|2|ziglang|", text.LineToString(&lines[1]))
 }
 
 func TestAdjustSize_NoReductionNeeded(t *testing.T) {

@@ -12,8 +12,8 @@ type Line struct {
 	Spec  style.Spec
 }
 
-func NewLine(text string, styles ...style.Spec) Line {
-	return Line{
+func NewLine(text string, styles ...style.Spec) *Line {
+	return &Line{
 		Text: []Fragment{{
 			Text: text,
 		}},
@@ -21,43 +21,21 @@ func NewLine(text string, styles ...style.Spec) Line {
 	}
 }
 
-func FixedLinesFromLines(style style.Spec, lines ...Line) []Line {
-	for i := range lines {
-		lines[i].Spec = style
-	}
-	return lines
+func EmptyLine() *Line {
+	return LineFromFragments()
 }
 
-func LineFromFragments(fragments ...Fragment) Line {
-	return Line{
-		Text: fragments,
+func LineFromFragments(frags ...Fragment) *Line {
+	return &Line{
+		Text: frags,
 		Spec: style.SpecEmpty(),
 	}
 }
 
-func LineFromSpec(style style.Spec) Line {
-	return Line{
-		Text: []Fragment{},
-		Spec: style,
-	}
-}
-
-func LineJump() Line {
-	return Line{
-		Text: FragmentsFromString(""),
-		Spec: style.SpecFromKind(style.SpcKindFill),
-	}
-}
-
-func EmptyLine() Line {
-	return LineFromFragments(EmptyFragment())
-}
-
-func FragmentLine(style style.Spec, fragments ...Fragment) Line {
-	return Line{
-		Text: fragments,
-		Spec: style,
-	}
+func (l *Line) CopyMeta(other *Line) *Line {
+	l.Order = other.Order
+	l.Spec = other.Spec
+	return l
 }
 
 func (l *Line) SetOrder(order uint16) *Line {
@@ -91,42 +69,33 @@ func (l *Line) CutSpec(styles style.SpecKind) *Line {
 	return l
 }
 
-func LineFragmentsMeasure(line Line) int {
+func LineFragmentsMeasure(line *Line) int {
 	fragsLen := 0
 	for _, f := range line.Text {
-		fragsLen += FragmentMeasure(f)
+		fragsLen += FragmentMeasure(&f)
 	}
 	return fragsLen
 }
 
-func LineFragmentsMeasurWithContext(line Line, ctx style.LayoutContext) int {
+func LineFragmentsMeasurWithContext(line *Line, ctx style.LayoutContext) int {
 	fragsLen := 0
 	for _, f := range line.Text {
-		fragsLen += FragmentMeasureWithContext(f, ctx)
+		fragsLen += FragmentMeasureWithContext(&f, ctx)
 	}
 	return fragsLen
 }
 
-func LineMeasure(line Line) int {
+func LineMeasure(line *Line) int {
 	fragsLen := LineFragmentsMeasure(line)
 	return style.SpecMeasure(line.Spec, fragsLen)
 }
 
-func LineMeasureWithContext(line Line, ctx style.LayoutContext) int {
+func LineMeasureWithContext(line *Line, ctx style.LayoutContext) int {
 	fragsLen := LineFragmentsMeasure(line)
 	return style.SpecMeasureWithContext(line.Spec, fragsLen, ctx)
 }
 
-func HasFocus(line Line) bool {
-	for _, v := range line.Text {
-		if v.Atom.HasAny(style.AtmFocus) {
-			return true
-		}
-	}
-	return false
-}
-
-func LineToString(line Line) string {
+func LineToString(line *Line) string {
 	buffer := make([]string, 0)
 	for _, v := range line.Text {
 		buffer = append(buffer, v.Text)
