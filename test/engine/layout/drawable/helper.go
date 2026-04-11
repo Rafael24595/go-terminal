@@ -13,6 +13,7 @@ import (
 
 type MockDrawable struct {
 	Order      int
+	Code       string
 	InitCalled bool
 	WipeCalled bool
 	DrawCalls  int
@@ -36,7 +37,7 @@ func (m *MockDrawable) Draw(size terminal.Winsize) ([]text.Line, bool) {
 func (m *MockDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: "",
-		Code: "",
+		Code: m.Code,
 		Tags: make(set.Set[string]),
 		Init: m.Init,
 		Wipe: m.Wipe,
