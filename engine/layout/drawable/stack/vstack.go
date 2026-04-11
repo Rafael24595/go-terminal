@@ -31,7 +31,7 @@ func VStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 }
 
 func (d *VStackDrawable) Unshift(items ...drawable.Drawable) *VStackDrawable {
-	assert.False(d.loaded, "no new elements should be added after initialization")
+	assert.False(d.loaded, err_new_elements)
 
 	layers := drawablesToLayer(items...)
 	d.items = append(layers, d.items...)
@@ -39,7 +39,7 @@ func (d *VStackDrawable) Unshift(items ...drawable.Drawable) *VStackDrawable {
 }
 
 func (d *VStackDrawable) Push(items ...drawable.Drawable) *VStackDrawable {
-	assert.False(d.loaded, "no new elements should be added after initialization")
+	assert.False(d.loaded, err_new_elements)
 
 	for _, item := range items {
 		d.items = append(d.items, layer{

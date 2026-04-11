@@ -16,6 +16,8 @@ import (
 
 const NameHStackDrawable = "HStackDrawable"
 
+const max_chunk = 100
+
 type block struct {
 	size  terminal.Winsize
 	lines []text.Line
@@ -41,7 +43,7 @@ func HStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 }
 
 func (d *HStackDrawable) Unshift(items ...drawable.Drawable) *HStackDrawable {
-	assert.False(d.loaded, "no new elements should be added after initialization")
+	assert.False(d.loaded, err_new_elements)
 
 	layers := drawablesToLayer(items...)
 	d.items = append(layers, d.items...)
@@ -50,7 +52,7 @@ func (d *HStackDrawable) Unshift(items ...drawable.Drawable) *HStackDrawable {
 }
 
 func (d *HStackDrawable) Push(items ...drawable.Drawable) *HStackDrawable {
-	assert.False(d.loaded, "no new elements should be added after initialization")
+	assert.False(d.loaded, err_new_elements)
 
 	for _, item := range items {
 		d.items = append(d.items,
@@ -62,10 +64,10 @@ func (d *HStackDrawable) Push(items ...drawable.Drawable) *HStackDrawable {
 }
 
 func (d *HStackDrawable) UnshiftChunk(item drawable.Drawable, chunk uint16) *HStackDrawable {
-	assert.False(d.loaded, "no new elements should be added after initialization")
-	assert.True(100 <= chunk, "chunk value should be less or equals than 100")
+	assert.False(d.loaded, err_new_elements)
+	assert.True(chunk <= max_chunk, err_chunk_size, max_chunk)
 
-	chunk = min(100, chunk)
+	chunk = min(max_chunk, chunk)
 
 	newLayer := layer{
 		drawable: item,
@@ -75,16 +77,16 @@ func (d *HStackDrawable) UnshiftChunk(item drawable.Drawable, chunk uint16) *HSt
 
 	d.items = append([]layer{newLayer}, d.items...)
 
-	assert.LazyTrue(d.valideChunks, "total chunk value should be less or equals than 100")
+	assert.LazyTrue(d.valideChunks, err_new_elements, max_chunk)
 
 	return d
 }
 
 func (d *HStackDrawable) PushChunk(item drawable.Drawable, chunk uint16) *HStackDrawable {
-	assert.False(d.loaded, "no new elements should be added after initialization")
-	assert.True(chunk <= 100, "chunk value should be less or equals than 100")
+	assert.False(d.loaded, err_new_elements)
+	assert.True(chunk <= max_chunk, err_chunk_size, max_chunk)
 
-	chunk = min(100, chunk)
+	chunk = min(max_chunk, chunk)
 
 	newLayer := layer{
 		drawable: item,
@@ -94,7 +96,7 @@ func (d *HStackDrawable) PushChunk(item drawable.Drawable, chunk uint16) *HStack
 
 	d.items = append(d.items, newLayer)
 
-	assert.LazyTrue(d.valideChunks, "total chunk value should be less or equals than 100")
+	assert.LazyTrue(d.valideChunks, err_new_elements, max_chunk)
 
 	return d
 }
@@ -241,14 +243,14 @@ func (d *HStackDrawable) makeLines(blocks []block) []text.Line {
 func (d *HStackDrawable) fixLayout() []layer {
 	chunks, zeroes := d.countChunks()
 
-	assert.True(chunks <= 100, "total chunk value should be less or equals than 100")
+	assert.True(chunks <= max_chunk, err_new_elements, max_chunk)
 
-	chunks = min(100, chunks)
+	chunks = min(max_chunk, chunks)
 
 	available := uint16(0)
 	rest := uint16(0)
 	if zeroes > 0 {
-		remaining := math.SubClampZero(uint16(100), chunks)
+		remaining := math.SubClampZero(max_chunk, chunks)
 		available = remaining / zeroes
 		rest = remaining % zeroes
 	}
@@ -260,7 +262,7 @@ func (d *HStackDrawable) fixLayout() []layer {
 			continue
 		}
 
-		chunk := min(100, v.chunk)
+		chunk := min(max_chunk, v.chunk)
 		if chunk == 0 {
 			chunk = available
 			if rest > 0 {
@@ -308,7 +310,7 @@ func (d *HStackDrawable) countChunks() (uint16, uint16) {
 
 func (d *HStackDrawable) valideChunks() bool {
 	chunks, _ := d.countChunks()
-	return chunks <= 100
+	return chunks <= max_chunk
 }
 
 func maxLines(buffer []block) int {
