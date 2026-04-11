@@ -34,7 +34,7 @@ func LineFromFragments(frags ...Fragment) *Line {
 
 func (l *Line) CopyMeta(other *Line) *Line {
 	l.Order = other.Order
-	l.Spec = other.Spec
+	l.AddSpec(other.Spec)
 	return l
 }
 
