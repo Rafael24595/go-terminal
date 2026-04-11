@@ -19,7 +19,7 @@ type VStackDrawable struct {
 }
 
 func NewVStackDrawable(items ...drawable.Drawable) *VStackDrawable {
-	layers := drawableToLayer(items...)
+	layers := drawablesToLayer(items...)
 	return &VStackDrawable{
 		loaded: false,
 		items:  layers,
@@ -33,7 +33,7 @@ func VStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 func (d *VStackDrawable) Unshift(items ...drawable.Drawable) *VStackDrawable {
 	assert.False(d.loaded, "no new elements should be added after initialization")
 
-	layers := drawableToLayer(items...)
+	layers := drawablesToLayer(items...)
 	d.items = append(layers, d.items...)
 	return d
 }
