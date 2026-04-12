@@ -560,7 +560,7 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 
 	vm.Pager.SetPredicate(predicate)
 
-	vm.Helper.Shift(
+	vm.Helper.Push(
 		key.ActionsToHelpWithOverride(
 			source.Overrides, source.Actions...,
 		)...,

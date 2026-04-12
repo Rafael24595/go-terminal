@@ -261,7 +261,7 @@ func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
 		block.BlockDrawableFromString(text),
 	)
 
-	vm.Helper.Shift(
+	vm.Helper.Push(
 		key.ActionsToHelpWithOverride(
 			source.Overrides, source.Actions...,
 		)...,

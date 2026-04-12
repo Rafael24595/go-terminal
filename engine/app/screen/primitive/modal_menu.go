@@ -113,9 +113,9 @@ func (c *ModalMenu) view(stt state.UIState) viewmodel.ViewModel {
 
 	vm.Kernel.Push(modal)
 
-	vm.Helper.Shift(
+	vm.Helper.Push(
 		key.ActionsToHelpWithOverride(
-			modal_definition.Overrides, modal_definition.Actions...
+			modal_definition.Overrides, modal_definition.Actions...,
 		)...,
 	)
 

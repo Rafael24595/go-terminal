@@ -22,7 +22,7 @@ func (d *HelpMeta) Unshift(fields ...HelpField) *HelpMeta {
 	return d
 }
 
-func (d *HelpMeta) Shift(fields ...HelpField) *HelpMeta {
+func (d *HelpMeta) Push(fields ...HelpField) *HelpMeta {
 	d.Fields = append(d.Fields, fields...)
 	return d
 }

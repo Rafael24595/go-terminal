@@ -139,17 +139,17 @@ func (c *Table[T]) definition() screen.Definition {
 	return c.definitionSource().Definition
 }
 
-func (c *Table[T]) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
-	state.Pager.ForceShow = true
+func (c *Table[T]) update(stt *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+	stt.Pager.ForceShow = true
 
 	if !c.action.EnableMode {
-		return screen.ScreenResultFromUIState(state)
+		return screen.ScreenResultFromUIState(stt)
 	}
 
 	if !c.action.ActionMode {
-		return c.updateRead(state, evnt)
+		return c.updateRead(stt, evnt)
 	}
-	return c.updateNavigation(state, evnt)
+	return c.updateNavigation(stt, evnt)
 }
 
 func (c *Table[T]) updateNavigation(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
@@ -209,7 +209,7 @@ func (c *Table[T]) view(stt state.UIState) viewmodel.ViewModel {
 
 	vm.Pager.SetPredicate(preficate)
 
-	vm.Helper.Shift(
+	vm.Helper.Push(
 		key.ActionsToHelpWithOverride(
 			source.Overrides, source.Actions...,
 		)...,
