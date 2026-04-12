@@ -106,3 +106,135 @@ func TestSplitLineWords_MultipleFragments(t *testing.T) {
 		}
 	}
 }
+
+func TestTokenizeLines_Integrity(t *testing.T) {
+    line := text.NewLine("golang ziglang 10.50 rust")
+    
+    assert.Len(t, 1, line.Text)
+
+    tokenized := TokenizeLines(*line)
+
+	assert.Len(t, 1, tokenized)
+	assert.Len(t, 7, tokenized[0].Text)
+}
+
+func TestWrapNextLine_Fit(t *testing.T) {
+	line := text.NewLine("golang")
+
+	got, remain, hasMore := WrapNextLine(10, []text.Line{*line}, nil)
+
+	assert.Equal(t, "golang", text.LineToString(got))
+	assert.False(t, hasMore)
+
+	assert.Len(t, 0, remain)
+}
+
+func TestWrapNextLine_FitWithMeta(t *testing.T) {
+	meta := &IndexMeta{
+		totalWidth: 4,
+		sufix:      " | ",
+		digits:     1,
+		prefixBody: "    ",
+	}
+
+	line := text.NewLine("golang").SetOrder(1)
+
+	got, remain, hasMore := WrapNextLine(10, []text.Line{*line}, meta)
+
+	assert.Equal(t, "1 | golang", text.LineToString(got))
+	assert.False(t, hasMore)
+
+	assert.Len(t, 0, remain)
+}
+
+func TestWrapNextLine_Split(t *testing.T) {
+	line := text.NewLine("golang")
+
+	got, remain, hasMore := WrapNextLine(2, []text.Line{*line}, nil)
+
+	assert.Equal(t, "go", text.LineToString(got))
+	assert.True(t, hasMore)
+
+	assert.Len(t, 1, remain)
+	assert.Equal(t, "lang", text.LineToString(&remain[0]))
+}
+
+func TestWrapNextLine_SplitWithMeta(t *testing.T) {
+	meta := &IndexMeta{
+		totalWidth: 4,
+		sufix:      " | ",
+		digits:     1,
+		prefixBody: " ",
+	}
+
+	line := text.NewLine("golang rust").SetOrder(1)
+
+	got, remain, hasMore := WrapNextLine(10, []text.Line{*line}, meta)
+
+	assert.Equal(t, "1 | golang", text.LineToString(got))
+	assert.True(t, hasMore)
+	assert.Len(t, 1, remain)
+
+	got, remain, hasMore = WrapNextLine(10, remain, meta)
+
+	assert.Equal(t, "  |  rust", text.LineToString(got))
+	assert.False(t, hasMore)
+	assert.Len(t, 0, remain)
+}
+
+func TestWrapNextLine_MultiFragment(t *testing.T) {
+	line := text.LineFromFragments(
+		*text.NewFragment("go"),
+		*text.NewFragment(" "),
+		*text.NewFragment("zig"),
+		*text.NewFragment(" "),
+		*text.NewFragment("c++"),
+	)
+
+	got, remain, hasMore := WrapNextLine(6, []text.Line{*line}, nil)
+
+	assert.Equal(t, "go zig", text.LineToString(got))
+	assert.True(t, hasMore)
+	assert.Len(t, 1, remain)
+
+	assert.Equal(t, " c++", text.LineToString(&remain[0]))
+}
+
+func TestWrapNextLine_BreakLongWordSingleFragment(t *testing.T) {
+	line := text.NewLine("golangziglangrustlang")
+
+	got, remain, hasMore := WrapNextLine(6, []text.Line{*line}, nil)
+	assert.Equal(t, "golang", text.LineToString(got))
+	assert.True(t, hasMore)
+
+	assert.Equal(t, "ziglangrustlang", text.LineToString(&remain[0]))
+}
+
+func TestWrapNextLine_BreakLongWordMultipleFragments(t *testing.T) {
+	line := text.LineFromFragments(
+		*text.NewFragment("golang"),
+		*text.NewFragment(" "),
+		*text.NewFragment("zigrust"),
+	)
+
+	got, remain, hasMore := WrapNextLine(10, []text.Line{*line}, nil)
+	assert.Equal(t, "golang zig", text.LineToString(got))
+	assert.True(t, hasMore)
+
+	assert.Equal(t, "rust", text.LineToString(&remain[0]))
+}
+
+func TestWrapNextLine_IndexShouldBeLesser(t *testing.T) {
+	meta := &IndexMeta{
+		totalWidth: 4,
+		sufix:      " | ",
+		digits:     1,
+		prefixBody: " ",
+	}
+
+	line := text.NewLine("golang").SetOrder(1)
+
+	assert.Panic(t, func() {
+		WrapNextLine(4, []text.Line{*line}, meta)
+	})
+}

@@ -124,7 +124,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 			continue
 		}
 
-		taken, rest := takeFromFragment(&fragment, remaining)
+		taken, rest := TakeFromFragment(&fragment, remaining)
 
 		current.Text = append(current.Text, *taken)
 		width += FragmentMeasure(taken)
@@ -137,7 +137,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 	return current, emmited, width
 }
 
-func takeFromFragment(f *Fragment, n int) (*Fragment, *Fragment) {
+func TakeFromFragment(f *Fragment, n int) (*Fragment, *Fragment) {
 	if n <= 0 {
 		return EmptyFragment().
 			CopyMeta(f), f

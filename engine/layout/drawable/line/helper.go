@@ -1,6 +1,7 @@
 package line
 
 import (
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
@@ -151,4 +152,77 @@ func computeIndexMeta(lines []text.Line) *IndexMeta {
 		digits:     uint16(size),
 		totalWidth: size + uint32(len(separator)),
 	}
+}
+
+func TokenizeLines(lines ...text.Line) []text.Line {
+	buffer := make([]text.Line, len(lines))
+
+	for i, l := range lines {
+		newLine := text.EmptyLine().CopyMeta(&l)
+		for _, w := range text.TokenizeLineWords(&l) {
+			newLine.PushFragments(w.Text...)
+		}
+		buffer[i] = *newLine
+	}
+
+	return buffer
+}
+
+func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, []text.Line, bool) {
+	if cols == 0 || len(lines) == 0 {
+		return nil, lines, false
+	}
+
+	target := lines[0]
+	remain := lines[1:]
+
+	cursor := text.EmptyLine().CopyMeta(&target)
+
+	width := int(cols)
+
+	if meta != nil {
+		var prefix string
+		if target.Order != 0 {
+			prefix = meta.header(int(target.Order))
+			target.Order = 0
+		} else {
+			prefix = meta.body()
+		}
+
+		cursor.PushFragments(*text.NewFragment(prefix))
+		width = math.SubClampZero(width, int(meta.totalWidth))
+	}
+
+	for len(target.Text) > 0 {
+		frag := &target.Text[0]
+		fragMeasure := text.FragmentMeasure(frag)
+
+		if fragMeasure <= width {
+			cursor.PushFragments(*frag)
+			width -= fragMeasure
+			target.Text = target.Text[1:]
+			continue
+		}
+
+		if width > 0 {
+			taken, restFrag := text.TakeFromFragment(frag, width)
+			cursor.PushFragments(*taken)
+			target.Text[0] = *restFrag
+
+			newRest := append([]text.Line{target}, remain...)
+			return cursor, newRest, true
+		}
+
+		if len(cursor.Text) == 1 && meta != nil {
+			assert.Unreachable("index prefix should be lesser than line size")
+
+			cursor.PushFragments(*frag)
+			target.Text = target.Text[1:]
+		}
+		
+		newRest := append([]text.Line{target}, remain...)
+		return cursor, newRest, true
+	}
+
+	return cursor, remain, len(remain) > 0
 }
