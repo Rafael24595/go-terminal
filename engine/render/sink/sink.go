@@ -51,13 +51,17 @@ func sinkLinePaddingCenter(spec style.SpecKind, line *text.Line, cols int) *text
 	sze := delSpec.Args()[style.KeyPaddingCenterSize].Intd(cols)
 	txt := delSpec.Args()[style.KeyPaddingCenterText].Stringf()
 
-	left := sze / 2
+	fragSize := text.LineFragmentsMeasure(line)
+
+	avl := max(0, sze-fragSize)
+
+	left := avl / 2
 	paddLeft := style.SpecPaddingLeft(uint(left), txt)
 	line.UnshiftFragments(
 		*text.EmptyFragment().AddSpec(paddLeft),
 	)
 
-	right := sze - left
+	right := avl - left
 	paddRight := style.SpecPaddingRight(uint(right), txt)
 	line.PushFragments(
 		*text.EmptyFragment().AddSpec(paddRight),
