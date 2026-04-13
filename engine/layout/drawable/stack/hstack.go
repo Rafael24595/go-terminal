@@ -30,7 +30,7 @@ type HStackDrawable struct {
 }
 
 func NewHStackDrawable(items ...drawable.Drawable) *HStackDrawable {
-	layers := drawablesToLayer(items...)
+	layers := layersFromDrawables(items...)
 	return &HStackDrawable{
 		loaded: false,
 		items:  layers,
@@ -45,7 +45,7 @@ func HStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 func (d *HStackDrawable) Unshift(items ...drawable.Drawable) *HStackDrawable {
 	assert.False(d.loaded, err_new_elements)
 
-	layers := drawablesToLayer(items...)
+	layers := layersFromDrawables(items...)
 	d.items = append(layers, d.items...)
 
 	return d
@@ -56,7 +56,7 @@ func (d *HStackDrawable) Push(items ...drawable.Drawable) *HStackDrawable {
 
 	for _, item := range items {
 		d.items = append(d.items,
-			drawableToLayer(item),
+			layerFromDrawable(item),
 		)
 	}
 
@@ -68,12 +68,7 @@ func (d *HStackDrawable) UnshiftChunk(item drawable.Drawable, chunk uint16) *HSt
 	assert.True(chunk <= max_chunk, err_chunk_size, max_chunk)
 
 	chunk = min(max_chunk, chunk)
-
-	newLayer := layer{
-		drawable: item,
-		chunk:    chunk,
-		status:   true,
-	}
+	newLayer := chunkLayerFromDrawable(item, chunk)
 
 	d.items = append([]layer{newLayer}, d.items...)
 
@@ -87,12 +82,7 @@ func (d *HStackDrawable) PushChunk(item drawable.Drawable, chunk uint16) *HStack
 	assert.True(chunk <= max_chunk, err_chunk_size, max_chunk)
 
 	chunk = min(max_chunk, chunk)
-
-	newLayer := layer{
-		drawable: item,
-		chunk:    chunk,
-		status:   true,
-	}
+	newLayer := chunkLayerFromDrawable(item, chunk)
 
 	d.items = append(d.items, newLayer)
 
@@ -184,36 +174,79 @@ func (d *HStackDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 }
 
 func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
-	buffer := make([]block, 0)
+	buffer := make([]block, len(d.fixed))
 	recalcule := false
 
+	maxHeight := 0
+
+	canGrow := make([]bool, len(d.fixed))
 	for i := range d.fixed {
-		if !d.fixed[i].status {
+		canGrow[i] = d.fixed[i].status
+	}
+
+	for {
+		didGrow := false
+		
+		for i := range d.fixed {
+			if !d.fixed[i].status || (maxHeight > 0 && len(buffer[i].lines) >= maxHeight) {
+				continue
+			}
+
+			lastLen := uint16(0)
+			if i > 0 {
+				buff := buffer[i-1]
+				index := len(buffer[i].lines)
+				if text.LineFragmentsMeasure(&buff.lines[index]) == 0 {
+					lastLen += (size.Cols * d.fixed[i-1].chunk) / 100
+				}
+			}
+
+			fixedSize := terminal.Winsize{
+				Rows: size.Rows,
+				Cols: ((size.Cols * d.fixed[i].chunk) / 100) + lastLen,
+			}
+
+			lines, status := d.fixed[i].drawable.Draw(fixedSize)
+			if !status {
+				d.fixed[i].status = false
+				canGrow[i] = false
+				recalcule = true
+			}
+
+			if len(lines) == 0 {
+				continue
+			}
+
+			wrapped := make([]text.Line, 0)
+			for _, v := range lines {
+				wrapped = append(wrapped, line.WrapLineWords(int(fixedSize.Cols), &v)...)
+			}
+
+			buffer[i].size = fixedSize
+			buffer[i].lines = append(buffer[i].lines, wrapped...)
+
+			if len(buffer[i].lines) > maxHeight {
+				maxHeight = len(buffer[i].lines)
+			}
+
+			didGrow = true
+		}
+
+		if !didGrow {
 			continue
 		}
 
-		fixedSize := terminal.Winsize{
-			Rows: size.Rows,
-			Cols: (size.Cols * d.fixed[i].chunk) / 100,
+		shouldContinue := false
+		for i := range d.fixed {
+			if d.fixed[i].status && len(buffer[i].lines) < maxHeight {
+				shouldContinue = true
+				break
+			}
 		}
 
-		lines, status := d.fixed[i].drawable.Draw(fixedSize)
-		if !status {
-			d.fixed[i].status = false
-			recalcule = true
+		if !shouldContinue {
+			break
 		}
-
-		fixedLines := make([]text.Line, 0)
-		for _, v := range lines {
-			fixedLines = append(fixedLines,
-				line.WrapLineWords(int(fixedSize.Cols), &v)...,
-			)
-		}
-
-		buffer = append(buffer, block{
-			size:  fixedSize,
-			lines: fixedLines,
-		})
 	}
 
 	return buffer, recalcule
@@ -263,7 +296,7 @@ func (d *HStackDrawable) fixLayout() []layer {
 		}
 
 		chunk := min(max_chunk, v.chunk)
-		if chunk == 0 {
+		if !v.sized {
 			chunk = available
 			if rest > 0 {
 				chunk += 1
@@ -271,11 +304,9 @@ func (d *HStackDrawable) fixLayout() []layer {
 			}
 		}
 
-		layers = append(layers, layer{
-			drawable: v.drawable,
-			chunk:    chunk,
-			status:   true,
-		})
+		layers = append(layers,
+			chunkLayerFromLayer(v, chunk),
+		)
 	}
 
 	return layers
@@ -299,9 +330,10 @@ func (d *HStackDrawable) countChunks() (uint16, uint16) {
 			continue
 		}
 
-		chunks += i.chunk
-		if i.chunk == 0 {
+		if !i.sized {
 			zeroes += 1
+		} else {
+			chunks += i.chunk
 		}
 	}
 
