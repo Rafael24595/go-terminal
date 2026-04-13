@@ -43,7 +43,7 @@ func (t MockScreen) ToScreen() screen.Screen {
 				return t.View(s)
 			}
 
-			return *viewmodel.ViewModelFromUIState(s)
+			return *viewmodel.NewViewModel()
 		},
 		Stack: func() set.Set[string] {
 			if t.Stack != nil {

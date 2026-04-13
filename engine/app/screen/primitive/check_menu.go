@@ -233,7 +233,7 @@ func (c *CheckMenu) activeIds() set.Set[string] {
 	return result
 }
 
-func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
+func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 	source := c.definitionSource()
 
 	indexmenu := check.NewCheckMenuDrawable(c.options).
@@ -241,7 +241,7 @@ func (c *CheckMenu) view(stt state.UIState) viewmodel.ViewModel {
 		Meta(c.meta).
 		Cursor(c.cursor)
 
-	vm := viewmodel.ViewModelFromUIState(stt)
+	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(c.title...),

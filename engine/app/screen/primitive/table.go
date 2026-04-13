@@ -184,8 +184,8 @@ func (c *Table[T]) updateRead(state *state.UIState, evnt screen.ScreenEvent) scr
 	return screen.ScreenResultFromUIState(state)
 }
 
-func (c *Table[T]) view(stt state.UIState) viewmodel.ViewModel {
-	vm := viewmodel.ViewModelFromUIState(stt)
+func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
+	vm := viewmodel.NewViewModel()
 
 	source := c.definitionSource()
 

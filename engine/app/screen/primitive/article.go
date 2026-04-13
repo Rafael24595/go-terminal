@@ -51,12 +51,12 @@ func (c *Article) ToScreen() screen.Screen {
 		StackFromName()
 }
 
-func (c *Article) update(state *state.UIState, _ screen.ScreenEvent) screen.ScreenResult {
-	return screen.ScreenResultFromUIState(state)
+func (c *Article) update(stt *state.UIState, _ screen.ScreenEvent) screen.ScreenResult {
+	return screen.ScreenResultFromUIState(stt)
 }
 
-func (c *Article) view(state state.UIState) viewmodel.ViewModel {
-	vm := viewmodel.ViewModelFromUIState(state)
+func (c *Article) view(_ state.UIState) viewmodel.ViewModel {
+	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(c.title...),

@@ -535,7 +535,7 @@ func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.ScreenR
 	return result
 }
 
-func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
+func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 	source := c.definitionSource()
 
 	predicate := pager.PredicatePage()
@@ -547,7 +547,7 @@ func (c *TextArea) view(stt state.UIState) viewmodel.ViewModel {
 		WriteMode(c.writeMode).
 		IndexMode(c.indexMode)
 
-	vm := viewmodel.ViewModelFromUIState(stt)
+	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(c.title...),

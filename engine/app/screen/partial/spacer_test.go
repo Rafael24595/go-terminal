@@ -83,11 +83,11 @@ func TestSpacer_AddsHeaderLinesWhenEmpty(t *testing.T) {
 func TestSpacer_AddsHeaderLines(t *testing.T) {
 	base := screen_test.MockScreen{
 		Name: "base",
-		View: func(stt state.UIState) viewmodel.ViewModel {
+		View: func(_ state.UIState) viewmodel.ViewModel {
 			mc := drawable_test.MockDrawable{}
 			dw := mc.ToDrawable()
 			dw.Name = "mock_header"
-			vm := viewmodel.ViewModelFromUIState(stt)
+			vm := viewmodel.NewViewModel()
 			vm.Header.Push(dw)
 			return *vm
 		},
@@ -110,8 +110,8 @@ func TestSpacer_AddsHeaderLines(t *testing.T) {
 
 func TestSpacer_HeaderBetween(t *testing.T) {
 	base := screen_test.MockScreen{
-		View: func(stt state.UIState) viewmodel.ViewModel {
-			vm := viewmodel.ViewModelFromUIState(stt)
+		View: func(_ state.UIState) viewmodel.ViewModel {
+			vm := viewmodel.NewViewModel()
 
 			m1 := drawable_test.MockDrawable{}
 			d1 := m1.ToDrawable()
@@ -164,11 +164,11 @@ func TestSpacer_AddsFooterLinesWhenEmpty(t *testing.T) {
 func TestSpacer_AddsFooterLines(t *testing.T) {
 	base := screen_test.MockScreen{
 		Name: "base",
-		View: func(stt state.UIState) viewmodel.ViewModel {
+		View: func(_ state.UIState) viewmodel.ViewModel {
 			mc := drawable_test.MockDrawable{}
 			dw := mc.ToDrawable()
 			dw.Name = "mock_footer"
-			vm := viewmodel.ViewModelFromUIState(stt)
+			vm := viewmodel.NewViewModel()
 			vm.Footer.Push(dw)
 			return *vm
 		},
@@ -191,8 +191,8 @@ func TestSpacer_AddsFooterLines(t *testing.T) {
 
 func TestSpacer_FooterBetween(t *testing.T) {
 	base := screen_test.MockScreen{
-		View: func(stt state.UIState) viewmodel.ViewModel {
-			vm := viewmodel.ViewModelFromUIState(stt)
+		View: func(_ state.UIState) viewmodel.ViewModel {
+			vm := viewmodel.NewViewModel()
 
 			m1 := drawable_test.MockDrawable{}
 			d1 := m1.ToDrawable()

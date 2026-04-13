@@ -2,7 +2,6 @@ package viewmodel
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/pager"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
@@ -20,7 +19,7 @@ type ViewModel struct {
 	Helper *help.HelpMeta
 }
 
-func ViewModelFromUIState(stt state.UIState) *ViewModel {
+func NewViewModel() *ViewModel {
 	return &ViewModel{
 		Header: stack.NewVStackDrawable(),
 		Kernel: stack.NewVStackDrawable(),
@@ -73,4 +72,17 @@ func (v *ViewModel) InitHelper(size terminal.Winsize) (drawable.Drawable, bool) 
 	drawable.Init()
 
 	return drawable, true
+}
+
+func (v *ViewModel) Clone() *ViewModel {
+	vm := NewViewModel()
+
+	vm.Header.Push(v.Header.Items()...)
+	vm.Kernel.Push(v.Kernel.Items()...)
+	vm.Footer.Push(v.Footer.Items()...)
+	vm.Input = v.Input
+	vm.Pager = v.Pager
+	vm.Helper.Push(v.Helper.Fields...)
+
+	return vm
 }

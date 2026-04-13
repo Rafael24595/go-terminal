@@ -22,9 +22,7 @@ import (
 func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	size := terminal.Winsize{Rows: 6, Cols: 10}
 
-	stt := state.NewUIState()
-
-	vm := viewmodel.ViewModelFromUIState(*stt)
+	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(
@@ -83,7 +81,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 
 	stt := state.NewUIState()
 
-	vm := viewmodel.ViewModelFromUIState(*stt)
+	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(
@@ -144,7 +142,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 	stt := state.NewUIState()
 
-	vm := viewmodel.ViewModelFromUIState(*stt)
+	vm := viewmodel.NewViewModel()
 
 	dynamicSize := terminal.NewWinsize(2, uint16(sizeCols))
 	drawCtx := draw.NewDrawContext(stt, dynamicSize)
@@ -215,7 +213,7 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 
 	stt := state.NewUIState()
 
-	vm := viewmodel.ViewModelFromUIState(*stt)
+	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(

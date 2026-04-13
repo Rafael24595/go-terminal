@@ -100,8 +100,8 @@ func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen
 	return screen.ScreenResultFromUIState(state)
 }
 
-func (c *ModalMenu) view(stt state.UIState) viewmodel.ViewModel {
-	vm := viewmodel.ViewModelFromUIState(stt)
+func (c *ModalMenu) view(_ state.UIState) viewmodel.ViewModel {
+	vm := viewmodel.NewViewModel()
 
 	frags := input.FragmentFromMenuOption(c.options...)
 

@@ -130,14 +130,14 @@ func (c *IndexMenu) update(stt *state.UIState, evt screen.ScreenEvent) screen.Sc
 	return screen.EmptyScreenResult()
 }
 
-func (c *IndexMenu) view(stt state.UIState) viewmodel.ViewModel {
+func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
 	frags := input.FragmentFromMenuOption(c.options...)
 
 	indexmenu := indexmenu.NewIndexMenuDrawable(frags).
 		Meta(c.meta).
 		Cursor(c.cursor)
 
-	vm := viewmodel.ViewModelFromUIState(stt)
+	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
 		block.BlockDrawableFromLines(c.title...),
