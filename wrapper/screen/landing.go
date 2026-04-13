@@ -34,6 +34,7 @@ func NewLanding() screen.Screen {
 		input.NewMenuOption("opt_mdl", *text.NewFragment("Option Modal"), NewTestModal),
 		input.NewMenuOption("opt_chk", *text.NewFragment("Option Check"), NewTestCheck),
 		input.NewMenuOption("opt_chk", *text.NewFragment("Option TextInput"), NewTestTextInput),
+		input.NewMenuOption("opt_hsk", *text.NewFragment("Option HStack"), NewTestHStack),
 	)
 
 	optsSize := len(options)
