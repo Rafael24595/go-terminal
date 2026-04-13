@@ -59,10 +59,12 @@ func (f *Fragment) Size() int {
 	return runes.Measure(f.Text)
 }
 
+//TODO: Use cols instead frag.size.
 func FragmentMeasure(frag *Fragment) int {
 	return style.SpecMeasure(frag.Spec, frag.Size())
 }
 
+//TODO: Use cols instead frag.size.
 func FragmentMeasureWithContext(frag *Fragment, ctx style.LayoutContext) int {
 	return style.SpecMeasureWithContext(frag.Spec, frag.Size(), ctx)
 }
