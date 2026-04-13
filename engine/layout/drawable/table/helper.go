@@ -152,18 +152,28 @@ func makeTable(
 
 	for y := range maxRow {
 		fragments := make([]text.Fragment, 0, capacity)
-		fragments = append(fragments, *text.NewFragment(separator.Left))
+
+		lSep := *text.NewFragment(separator.Left).
+			AddAtom(style.AtmWrap)
+
+		fragments = append(fragments, lSep)
 
 		for x, h := range headers {
 			frag := makeCell(size, cols, cursor, h, y, x)
 			fragments = append(fragments, *frag)
 
 			if x < headersLen-1 {
-				fragments = append(fragments, *text.NewFragment(separator.Center))
+				cSep := *text.NewFragment(separator.Center).
+					AddAtom(style.AtmWrap)
+
+				fragments = append(fragments, cSep)
 			}
 		}
 
-		fragments = append(fragments, *text.NewFragment(separator.Right))
+		rSep := *text.NewFragment(separator.Right).
+			AddAtom(style.AtmWrap)
+
+		fragments = append(fragments, rSep)
 
 		lines[y] = *text.LineFromFragments(fragments...)
 	}
@@ -182,11 +192,11 @@ func makeCell(
 	width := uint(size[header])
 	col := cols[header]
 
-	atom := style.AtmNone
+	atom := style.AtmWrap
 
 	cursorShow := cursor != nil && cursor.Show
 	if cursorShow && y == int(cursor.Row) && x == int(cursor.Col) {
-		atom = style.AtmSelect | style.AtmFocus
+		atom = style.MergeAtom(atom, style.AtmSelect, style.AtmFocus)
 	}
 
 	if y >= 0 && y < len(col) {
