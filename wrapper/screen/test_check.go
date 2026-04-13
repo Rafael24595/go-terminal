@@ -22,6 +22,7 @@ func NewTestCheck() screen.Screen {
 			"-",
 			style.SpecFill(uint(sizeTitle)),
 		),
+		*text.EmptyLine(),
 	}
 
 	options := []input.CheckOption{

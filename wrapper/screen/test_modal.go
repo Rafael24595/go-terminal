@@ -12,6 +12,7 @@ func NewTestModal() screen.Screen {
 		SetName("modal - dolor").
 		AddText(
 			*text.NewLine("AD Lorem ipsum dolor sit amet"),
+			*text.EmptyLine(),
 		).
 		AddOptions([]input.MenuOption{
 			input.NewMenuOption("1", *text.NewFragment("Option_1"), NewTestModal),

@@ -74,6 +74,7 @@ func NewTestTable() screen.Screen {
 		AddTitle(
 			*text.NewLine("Donec massa sem"),
 			*text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
+			*text.EmptyLine(),
 		).
 		DefineHeaders(headers...).
 		AddItems(parser, rows...).
