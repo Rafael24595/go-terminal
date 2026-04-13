@@ -57,6 +57,7 @@ func TestInline_JoinsChildren(t *testing.T) {
 
 	lines, _ := dr.Draw(terminal.Winsize{
 		Rows: 3,
+		Cols: 10,
 	})
 
 	assert.Len(t, 1, lines)

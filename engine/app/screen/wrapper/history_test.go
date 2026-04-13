@@ -93,7 +93,8 @@ func TestHistory_ViewFooter(t *testing.T) {
 
 	lines, _ = footer.Draw(terminal.Winsize{
 		Rows: 3,
+		Cols: 10,
 	})
 
-	assert.True(t, len(lines) > 0)
+	assert.Len(t, 1, lines)
 }

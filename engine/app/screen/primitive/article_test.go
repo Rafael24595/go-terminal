@@ -73,6 +73,7 @@ func TestArticle_View(t *testing.T) {
 
 	size := terminal.Winsize{
 		Rows: 3,
+		Cols: 10,
 	}
 
 	header := vm.Header.ToDrawable()
