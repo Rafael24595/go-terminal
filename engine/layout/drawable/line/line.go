@@ -15,7 +15,7 @@ type LineDrawable struct {
 	loaded bool
 	index  *IndexMeta
 	lines  []text.Line
-	cursor uint16
+	source []text.Line
 }
 
 func NewLineDrawable(lines ...text.Line) *LineDrawable {
@@ -23,7 +23,6 @@ func NewLineDrawable(lines ...text.Line) *LineDrawable {
 		loaded: false,
 		index:  &IndexMeta{},
 		lines:  lines,
-		cursor: 0,
 	}
 }
 
@@ -45,23 +44,30 @@ func (d *LineDrawable) ToDrawable() drawable.Drawable {
 func (d *LineDrawable) init() {
 	d.loaded = true
 
+	d.lines = TokenizeLines(d.lines...)
+	d.source = text.CloneLines(d.lines...)
+
 	d.index = computeIndexMeta(d.lines)
-	d.cursor = 0
 }
 
 func (d *LineDrawable) wipe() {
-	d.cursor = 0
+	d.source = d.lines
 }
 
 func (d *LineDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, "the drawable should be initialized before draw")
 
-	if d.cursor >= uint16(len(d.lines)) {
+	if len(d.source) == 0 {
 		return make([]text.Line, 0), false
 	}
 
-	lines := indexLines(int(size.Cols), d.lines[d.cursor], d.index)
-	d.cursor += 1
+	cursor, remain := WrapNextLine(size.Cols, d.source, d.index)
+	d.source = remain
 
-	return lines, d.cursor < uint16(len(d.lines))
+	result := make([]text.Line, 0)
+	if cursor != nil {
+		result = append(result, *cursor)
+	}
+
+	return result, len(d.source) > 0
 }
