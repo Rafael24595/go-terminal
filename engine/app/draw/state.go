@@ -6,19 +6,21 @@ import (
 )
 
 type DrawState struct {
-	Buffer []text.Line
-	Work   *work.Tracker
-	Cursor uint16
-	Page   uint
-	Focus  bool
+	Buffer  []text.Line
+	HasNext bool
+	Work    *work.Tracker
+	Cursor  uint16
+	Page    uint
+	Focus   bool
 }
 
 func NewDrawStatus(ctx *DrawContext) *DrawState {
 	return &DrawState{
-		Buffer: make([]text.Line, ctx.Size.Rows),
-		Work:   work.NewTracker(),
-		Cursor: 0,
-		Page:   0,
-		Focus:  false,
+		Buffer:  make([]text.Line, ctx.Size.Rows),
+		HasNext: false,
+		Work:    work.NewTracker(),
+		Cursor:  0,
+		Page:    0,
+		Focus:   false,
 	}
 }

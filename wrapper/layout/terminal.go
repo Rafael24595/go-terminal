@@ -97,6 +97,8 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 
 	for hasNext {
 		rendered, hasNext = drawable.Draw(ctx.Size)
+		state.HasNext = hasNext
+
 		renderedSize := len(rendered)
 		if len(rendered) == 0 {
 			continue
@@ -149,5 +151,5 @@ func shouldStop(ctx *draw.DrawContext, pgr pager.PagerStrategy, stt *draw.DrawSt
 }
 
 func showPagination(stt *draw.DrawState) bool {
-	return stt.Page != 0 || (stt.Work.HasWorks() && !stt.Work.Finished())
+	return stt.Page != 0 || stt.HasNext || (stt.Work.HasWorks() && !stt.Work.Finished())
 }
