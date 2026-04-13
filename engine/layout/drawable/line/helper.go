@@ -168,9 +168,9 @@ func TokenizeLines(lines ...text.Line) []text.Line {
 	return buffer
 }
 
-func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, []text.Line, bool) {
+func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, []text.Line) {
 	if cols == 0 || len(lines) == 0 {
-		return nil, lines, false
+		return nil, make([]text.Line, 0)
 	}
 
 	target := lines[0]
@@ -180,6 +180,7 @@ func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, 
 
 	width := int(cols)
 
+	emptyLen := 0
 	if meta != nil {
 		var prefix string
 		if target.Order != 0 {
@@ -191,6 +192,8 @@ func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, 
 
 		cursor.PushFragments(*text.NewFragment(prefix))
 		width = math.SubClampZero(width, int(meta.totalWidth))
+
+		emptyLen = len(cursor.Text)
 	}
 
 	for len(target.Text) > 0 {
@@ -199,18 +202,18 @@ func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, 
 
 		if fragMeasure <= width {
 			cursor.PushFragments(*frag)
-			width -= fragMeasure
+			width = math.SubClampZero(width, fragMeasure)
 			target.Text = target.Text[1:]
 			continue
 		}
 
-		if width > 0 {
+		if len(cursor.Text) == emptyLen && width > 0 {
 			taken, restFrag := text.TakeFromFragment(frag, width)
 			cursor.PushFragments(*taken)
 			target.Text[0] = *restFrag
 
 			newRest := append([]text.Line{target}, remain...)
-			return cursor, newRest, true
+			return cursor, newRest
 		}
 
 		if len(cursor.Text) == 1 && meta != nil {
@@ -219,10 +222,10 @@ func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, 
 			cursor.PushFragments(*frag)
 			target.Text = target.Text[1:]
 		}
-		
+
 		newRest := append([]text.Line{target}, remain...)
-		return cursor, newRest, true
+		return cursor, newRest
 	}
 
-	return cursor, remain, len(remain) > 0
+	return cursor, remain
 }
