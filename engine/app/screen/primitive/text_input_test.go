@@ -19,7 +19,7 @@ func TestTextInput_ToScreen(t *testing.T) {
 	assert.Equal(t, screen.Name(), "base")
 }
 
-func TestTextInpu_Stack(t *testing.T) {
+func TestTextInput_Stack(t *testing.T) {
 	stack := NewTextInput().
 		ToScreen().
 		Stack()
