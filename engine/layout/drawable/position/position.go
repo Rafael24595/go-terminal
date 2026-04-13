@@ -21,6 +21,7 @@ type PositionDrawable struct {
 	loaded    bool
 	marginY   uint
 	marginX   uint
+	absolute  bool
 	positionY style.VerticalPosition
 	positionX style.HorizontalPosition
 	drawable  drawable.Drawable
@@ -29,10 +30,11 @@ type PositionDrawable struct {
 func NewPositionDrawable(drawable drawable.Drawable) *PositionDrawable {
 	return &PositionDrawable{
 		loaded:    false,
-		positionX: style.Center,
-		positionY: style.Middle,
 		marginY:   default_margin,
 		marginX:   default_margin,
+		absolute:  true,
+		positionX: style.Center,
+		positionY: style.Middle,
 		drawable:  drawable,
 	}
 }
@@ -48,6 +50,11 @@ func (d *PositionDrawable) MarginY(margin uint) *PositionDrawable {
 
 func (d *PositionDrawable) MarginX(margin uint) *PositionDrawable {
 	d.marginX = margin
+	return d
+}
+
+func (d *PositionDrawable) Absolute(absolute bool) *PositionDrawable {
+	d.absolute = absolute
 	return d
 }
 
@@ -127,6 +134,13 @@ func (d *PositionDrawable) addBottomMargin(lines []text.Line) []text.Line {
 }
 
 func (d *PositionDrawable) fillEmpty(result []text.Line) []text.Line {
+	var frag text.Fragment
+	if d.absolute {
+		frag = *text.EmptyFragment()
+	} else {
+		frag = *text.NewFragment(marker.DefaultPaddingText)
+	}
+
 	for i := range result {
 		if len(result[i].Text) > 0 {
 			continue
@@ -134,7 +148,7 @@ func (d *PositionDrawable) fillEmpty(result []text.Line) []text.Line {
 
 		result[i].Text = append(
 			result[i].Text,
-			*text.EmptyFragment(),
+			frag,
 		)
 	}
 	return result
