@@ -77,6 +77,13 @@ func (s Screen) SetDefinition(definition ...Definition) Screen {
 	return s
 }
 
+func (s Screen) SetStack(stack set.Set[string]) Screen {
+	s.Stack = func() set.Set[string] {
+		return stack
+	}
+	return s
+}
+
 func (s Screen) StackFromName() Screen {
 	s.Stack = func() set.Set[string] {
 		return set.SetFrom(s.Name())
