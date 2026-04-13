@@ -69,6 +69,13 @@ func (l *Line) CutSpec(styles style.SpecKind) *Line {
 	return l
 }
 
+func (l *Line) Clone() *Line {
+    newLine := EmptyLine().CopyMeta(l)
+    newLine.Text = make([]Fragment, len(l.Text))
+    copy(newLine.Text, l.Text)
+    return newLine
+}
+
 func LineFragmentsMeasure(line *Line) int {
 	fragsLen := 0
 	for _, f := range line.Text {

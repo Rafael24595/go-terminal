@@ -32,3 +32,11 @@ func HasFocus(line *Line) bool {
 	}
 	return false
 }
+
+func CloneLines(lines ...Line) []Line {
+    clones := make([]Line, len(lines))
+	for i, v := range lines {
+		clones[i] = *v.Clone()
+	}
+	return clones
+}
