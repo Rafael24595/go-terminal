@@ -196,7 +196,7 @@ func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
 			if i > 0 {
 				buff := buffer[i-1]
 				index := len(buffer[i].lines)
-				if text.LineFragmentsMeasure(&buff.lines[index]) == 0 {
+				if text.FragmentMeasure(buff.lines[index].Text...) == 0 {
 					lastLen += (size.Cols * d.fixed[i-1].chunk) / 100
 				}
 			}

@@ -70,35 +70,19 @@ func (l *Line) CutSpec(styles style.SpecKind) *Line {
 }
 
 func (l *Line) Clone() *Line {
-    newLine := EmptyLine().CopyMeta(l)
-    newLine.Text = make([]Fragment, len(l.Text))
-    copy(newLine.Text, l.Text)
-    return newLine
-}
-
-func LineFragmentsMeasure(line *Line) int {
-	fragsLen := 0
-	for _, f := range line.Text {
-		fragsLen += FragmentMeasure(&f)
-	}
-	return fragsLen
-}
-
-func LineFragmentsMeasurWithContext(line *Line, ctx style.LayoutContext) int {
-	fragsLen := 0
-	for _, f := range line.Text {
-		fragsLen += FragmentMeasureWithContext(&f, ctx)
-	}
-	return fragsLen
+	newLine := EmptyLine().CopyMeta(l)
+	newLine.Text = make([]Fragment, len(l.Text))
+	copy(newLine.Text, l.Text)
+	return newLine
 }
 
 func LineMeasure(line *Line) int {
-	fragsLen := LineFragmentsMeasure(line)
+	fragsLen := FragmentMeasure(line.Text...)
 	return style.SpecMeasure(line.Spec, fragsLen)
 }
 
 func LineMeasureWithContext(line *Line, ctx style.LayoutContext) int {
-	fragsLen := LineFragmentsMeasure(line)
+	fragsLen := FragmentMeasureWithContext(ctx, line.Text...)
 	return style.SpecMeasureWithContext(line.Spec, fragsLen, ctx)
 }
 

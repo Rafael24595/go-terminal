@@ -204,7 +204,7 @@ func TestSplitLongToken_PreservesStyles(t *testing.T) {
 
 	assert.Equal(t, 3, width)
 
-	assert.Equal(t, 3, text.LineFragmentsMeasure(&line))
+	assert.Equal(t, 3, text.FragmentMeasure(line.Text...))
 	assert.Equal(t, "def", text.LineToString(&line))
 
 	assert.Equal(t, 1, len(emitted))

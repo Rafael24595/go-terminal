@@ -211,7 +211,7 @@ func (d *BoxDrawable) styleLine(size uint, line text.Line) text.Line {
 }
 
 func (d *BoxDrawable) calcPadding(size uint, line text.Line) (uint, uint) {
-	totalWidth := uint(text.LineFragmentsMeasure(&line))
+	totalWidth := uint(text.FragmentMeasure(line.Text...))
 
 	remaining := size - totalWidth
 

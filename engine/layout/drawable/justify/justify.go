@@ -101,7 +101,7 @@ func (d *JustifyDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 		frag := d.fragments[i]
 
 		fragsLen := len(frags)
-		fragSize := text.FragmentMeasure(&frag)
+		fragSize := text.FragmentMeasure(frag)
 
 		spacing := 0
 		if fragsLen > 0 {

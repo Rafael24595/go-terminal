@@ -263,7 +263,7 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 
 func (d *TextAreaDrawable) fixEmptyLines(lines []text.Line) []text.Line {
 	for i, line := range lines {
-		if text.LineFragmentsMeasure(&line) != 0 {
+		if text.FragmentMeasure(line.Text...) != 0 {
 			continue
 		}
 

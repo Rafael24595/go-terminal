@@ -51,7 +51,7 @@ func sinkLinePaddingCenter(spec style.SpecKind, line *text.Line, cols int) *text
 	sze := delSpec.Args()[style.KeyPaddingCenterSize].Intd(cols)
 	txt := delSpec.Args()[style.KeyPaddingCenterText].Stringf()
 
-	fragSize := text.LineFragmentsMeasure(line)
+	fragSize := text.FragmentMeasure(line.Text...)
 
 	avl := max(0, sze-fragSize)
 

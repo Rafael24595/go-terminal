@@ -40,7 +40,7 @@ func TokenizeLines(lines ...text.Line) []text.Line {
 }
 
 func WrapLineWords(cols int, line *text.Line) []text.Line {
-	if cols >= text.LineFragmentsMeasure(line) {
+	if cols >= text.FragmentMeasure(line.Text...) {
 		return []text.Line{*line}
 	}
 
@@ -114,18 +114,18 @@ func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, 
 	}
 
 	for len(target.Text) > 0 {
-		frag := &target.Text[0]
+		frag := target.Text[0]
 		fragMeasure := text.FragmentMeasure(frag)
 
 		if fragMeasure <= width {
-			cursor.PushFragments(*frag)
+			cursor.PushFragments(frag)
 			width = math.SubClampZero(width, fragMeasure)
 			target.Text = target.Text[1:]
 			continue
 		}
 
 		if len(cursor.Text) == emptyLen && width > 0 {
-			taken, restFrag := text.TakeFromFragment(frag, width)
+			taken, restFrag := text.TakeFromFragment(&frag, width)
 			cursor.PushFragments(*taken)
 			target.Text[0] = *restFrag
 
@@ -136,7 +136,7 @@ func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, 
 		if len(cursor.Text) == 1 && meta != nil {
 			assert.Unreachable("index prefix should be lesser than line size")
 
-			cursor.PushFragments(*frag)
+			cursor.PushFragments(frag)
 			target.Text = target.Text[1:]
 		}
 
