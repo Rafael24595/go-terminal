@@ -84,10 +84,63 @@ func applyAtomStyles(text string, styles ...style.Atom) string {
 	return text
 }
 
+func fill(styl style.Spec, cols int, data string, logicalSize int) string {
+	opts := helper.LogicalSizeOpts{
+		LogicalSize: logicalSize,
+	}
+
+	args := styl.Args()
+
+	size := args[style.KeyFillSize].Intd(cols)
+	size = min(cols, size)
+
+	return helper.FillRightWithOpts(data, min(cols, size), opts)
+}
+
+func trimLeft(styl style.Spec, data string, logicalSize int) string {
+	if data == "" {
+		return data
+	}
+
+	args := styl.Args()
+
+	size := args[style.KeyTrimLeftSize].Intd(0)
+	size = max(1, size)
+
+	elip := args[style.KeyTrimEllipsisText].Stringf()
+
+	opts := helper.TextTrimOpts{
+		LogicalSize:  logicalSize,
+		EllipsisText: elip,
+	}
+
+	return helper.TrimLeft(data, size, opts)
+}
+
+func trimRight(styl style.Spec, data string, logicalSize int) string {
+	if data == "" {
+		return data
+	}
+
+	args := styl.Args()
+
+	size := args[style.KeyTrimRightSize].Intd(0)
+	size = max(1, size)
+
+	elip := args[style.KeyTrimEllipsisText].Stringf()
+
+	opts := helper.TextTrimOpts{
+		LogicalSize:  logicalSize,
+		EllipsisText: elip,
+	}
+
+	return helper.TrimRight(data, size, opts)
+}
+
 func paddingCenter(styl style.Spec, cols int, data string, logicalSize int) string {
 	args := styl.Args()
 
-	size := args[style.KeyPaddingCenterSize].Intd(cols)
+	size := args[style.KeyPaddingCenterSize].Intd(0)
 	text := args[style.KeyPaddingCenterText].Stringf()
 
 	opts := helper.TextLayoutOpts{
@@ -101,7 +154,7 @@ func paddingCenter(styl style.Spec, cols int, data string, logicalSize int) stri
 func paddingLeft(styl style.Spec, cols int, data string, logicalSize int) string {
 	args := styl.Args()
 
-	size := args[style.KeyPaddingLeftSize].Intd(cols)
+	size := args[style.KeyPaddingLeftSize].Intd(0)
 	text := args[style.KeyPaddingLeftText].Stringf()
 
 	opts := helper.TextLayoutOpts{
@@ -115,7 +168,7 @@ func paddingLeft(styl style.Spec, cols int, data string, logicalSize int) string
 func paddingRight(styl style.Spec, cols int, data string, logicalSize int) string {
 	args := styl.Args()
 
-	size := args[style.KeyPaddingRightSize].Intd(cols)
+	size := args[style.KeyPaddingRightSize].Intd(0)
 	text := args[style.KeyPaddingRightText].Stringf()
 
 	opts := helper.TextLayoutOpts{
@@ -160,57 +213,4 @@ func repeatRight(styl style.Spec, cols int, data string, logicalSize int) string
 	}
 
 	return helper.RepeatRightWithOpts(data, text, min(cols, size), opts)
-}
-
-func trimLeft(styl style.Spec, data string, logicalSize int) string {
-	if data == "" {
-		return data
-	}
-
-	args := styl.Args()
-
-	size := args[style.KeyTrimLeftSize].Intd(0)
-	size = max(1, size)
-
-	elip := args[style.KeyTrimEllipsisText].Stringf()
-
-	opts := helper.TextTrimOpts{
-		LogicalSize:  logicalSize,
-		EllipsisText: elip,
-	}
-
-	return helper.TrimLeft(data, size, opts)
-}
-
-func trimRight(styl style.Spec, data string, logicalSize int) string {
-	if data == "" {
-		return data
-	}
-
-	args := styl.Args()
-
-	size := args[style.KeyTrimRightSize].Intd(0)
-	size = max(1, size)
-
-	elip := args[style.KeyTrimEllipsisText].Stringf()
-
-	opts := helper.TextTrimOpts{
-		LogicalSize:  logicalSize,
-		EllipsisText: elip,
-	}
-
-	return helper.TrimRight(data, size, opts)
-}
-
-func fill(styl style.Spec, cols int, data string, logicalSize int) string {
-	opts := helper.LogicalSizeOpts{
-		LogicalSize: logicalSize,
-	}
-
-	args := styl.Args()
-
-	size := args[style.KeyFillSize].Intd(cols)
-	size = min(cols, size)
-
-	return helper.FillRightWithOpts(data, min(cols, size), opts)
 }
