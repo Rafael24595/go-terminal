@@ -123,18 +123,16 @@ func (d *BoxDrawable) drawChild(size terminal.Winsize) ([]text.Line, bool) {
 	for remaining > 0 {
 		line, status := d.drawable.Draw(clampSize)
 
-		if len(line) > 0 {
+		lineLen := len(line)
+		if lineLen > 0 {
 			lines = append(lines, line...)
 		}
 
-		if !status || len(line) == 0 {
+		if !status || lineLen == 0 {
 			break
 		}
 
-		remaining -= len(line)
-		if remaining-2 <= 0 {
-			assert.Unreachable("box drawables should fit in a single page")
-		}
+		remaining -= lineLen
 	}
 
 	return lines, remaining <= 0
