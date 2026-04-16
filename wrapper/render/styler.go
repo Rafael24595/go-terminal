@@ -137,10 +137,11 @@ func trimRight(styl style.Spec, data string, logicalSize int) string {
 	return helper.TrimRight(data, size, opts)
 }
 
+//TODO: Explore the risks of using cols as default
 func paddingCenter(styl style.Spec, cols int, data string, logicalSize int) string {
 	args := styl.Args()
 
-	size := args[style.KeyPaddingCenterSize].Intd(0)
+	size := args[style.KeyPaddingCenterSize].Intd(cols)
 	text := args[style.KeyPaddingCenterText].Stringf()
 
 	opts := helper.TextLayoutOpts{
