@@ -55,7 +55,7 @@ func (d *LineDrawable) wipe() {
 }
 
 func (d *LineDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, "the drawable should be initialized before draw")
+	assert.True(d.loaded, drawable.MessageInitialized)
 
 	if len(d.source) == 0 {
 		return make([]text.Line, 0), false

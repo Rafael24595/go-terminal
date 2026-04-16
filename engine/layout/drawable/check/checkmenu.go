@@ -141,7 +141,7 @@ func (d *CheckMenuDrawable) addStyles() []text.Fragment {
 }
 
 func (d *CheckMenuDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.initialized, "the drawable should be initialized before draw")
+	assert.True(d.initialized, drawable.MessageInitialized)
 
 	return d.drawable.Draw(size)
 }

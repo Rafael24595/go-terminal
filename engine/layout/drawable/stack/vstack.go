@@ -31,7 +31,7 @@ func VStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 }
 
 func (d *VStackDrawable) Unshift(items ...drawable.Drawable) *VStackDrawable {
-	assert.False(d.loaded, err_new_elements)
+	assert.False(d.loaded, drawable.MessageNewElement)
 
 	layers := layersFromDrawables(items...)
 	d.items = append(layers, d.items...)
@@ -39,7 +39,7 @@ func (d *VStackDrawable) Unshift(items ...drawable.Drawable) *VStackDrawable {
 }
 
 func (d *VStackDrawable) Push(items ...drawable.Drawable) *VStackDrawable {
-	assert.False(d.loaded, err_new_elements)
+	assert.False(d.loaded, drawable.MessageNewElement)
 
 	for _, item := range items {
 		d.items = append(d.items, layer{
@@ -116,7 +116,7 @@ func (d *VStackDrawable) wipe() {
 }
 
 func (d *VStackDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, "the drawable should be initialized before draw")
+	assert.True(d.loaded, drawable.MessageInitialized)
 
 	buffer := make([]text.Line, 0)
 	gStatus := false

@@ -86,7 +86,7 @@ func (d *PositionDrawable) init() {
 }
 
 func (d *PositionDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, "the drawable should be initialized before draw")
+	assert.True(d.loaded, drawable.MessageInitialized)
 
 	fixedSize := terminal.Winsize{
 		Rows: math.SubClampZero(size.Rows, uint16(d.marginY)*2),

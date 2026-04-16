@@ -44,7 +44,7 @@ func (d *LoopDrawable) init() {
 }
 
 func (d *LoopDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, "the drawable should be initialized before draw")
+	assert.True(d.loaded, drawable.MessageInitialized)
 
 	lines, status := d.drawable.Draw(size)
 	if !status {

@@ -60,7 +60,7 @@ func (d *HelpDrawable) wipe() {
 }
 
 func (d *HelpDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, "the drawable should be initialized before draw")
+	assert.True(d.loaded, drawable.MessageInitialized)
 
 	return d.drawable.Draw(size)
 }

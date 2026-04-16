@@ -85,7 +85,7 @@ func (d *JustifyDrawable) wipe() {
 }
 
 func (d *JustifyDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, "the drawable should be initialized before draw")
+	assert.True(d.loaded, drawable.MessageInitialized)
 
 	if d.cursor >= uint16(len(d.fragments)) {
 		return make([]text.Line, 0), false
