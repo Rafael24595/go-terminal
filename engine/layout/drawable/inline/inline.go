@@ -22,11 +22,12 @@ type InlineDrawable struct {
 
 func NewInlineDrawable(drawables ...drawable.Drawable) *InlineDrawable {
 	return &InlineDrawable{
-		loaded:    false,
-		size:      terminal.Winsize{},
-		separator: "",
-		drawables: drawables,
-		drawable:  drawable.Drawable{},
+		loaded:     false,
+		lazyLoaded: false,
+		size:       terminal.Winsize{},
+		separator:  "",
+		drawables:  drawables,
+		drawable:   drawable.Drawable{},
 	}
 }
 
@@ -52,6 +53,7 @@ func (d *InlineDrawable) ToDrawable() drawable.Drawable {
 
 func (d *InlineDrawable) init() {
 	d.loaded = true
+	d.lazyLoaded = false
 }
 
 func (d *InlineDrawable) wipe() {
@@ -64,6 +66,7 @@ func (d *InlineDrawable) lazyInit(size terminal.Winsize) {
 	}
 
 	d.lazyLoaded = true
+
 	d.size = size
 
 	lines := d.drawChildren()
@@ -75,7 +78,7 @@ func (d *InlineDrawable) lazyInit(size terminal.Winsize) {
 }
 
 func (d *InlineDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, "the drawable should be initialized before draw")
+	assert.True(d.loaded, drawable.MessageInitialized)
 
 	d.lazyInit(size)
 

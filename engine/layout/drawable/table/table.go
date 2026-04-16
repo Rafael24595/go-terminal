@@ -27,13 +27,14 @@ type TableDrawable struct {
 
 func NewTableDrawable(table table.Table, cursor input.MatrixCursor, padding style.HorizontalPosition) *TableDrawable {
 	return &TableDrawable{
-		loaded:   false,
-		size:     terminal.Winsize{},
-		padding:  padding,
-		spec:     style.SpecEmpty(),
-		table:    table,
-		sections: make([]section, 0),
-		cursor:   cursor,
+		loaded:     false,
+		lazyLoaded: false,
+		size:       terminal.Winsize{},
+		padding:    padding,
+		spec:       style.SpecEmpty(),
+		table:      table,
+		sections:   make([]section, 0),
+		cursor:     cursor,
 	}
 }
 
@@ -54,6 +55,7 @@ func (d *TableDrawable) ToDrawable() drawable.Drawable {
 
 func (d *TableDrawable) init() {
 	d.loaded = true
+	d.lazyLoaded = false
 }
 
 func (d *TableDrawable) wipe() {
@@ -64,6 +66,8 @@ func (d *TableDrawable) lazyInit(size terminal.Winsize) {
 	if d.lazyLoaded {
 		return
 	}
+
+	d.lazyLoaded = true
 
 	d.size = size
 
@@ -78,7 +82,7 @@ func (d *TableDrawable) lazyInit(size terminal.Winsize) {
 }
 
 func (d *TableDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, "the drawable should be initialized before draw")
+	assert.True(d.loaded, drawable.MessageInitialized)
 
 	if size.Rows == 0 {
 		return make([]text.Line, 0), false
