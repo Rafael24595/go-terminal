@@ -11,6 +11,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/model/chunk"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 )
@@ -60,7 +61,7 @@ func makeKernel() drawable.Drawable {
 
 	hstack.PushChunk(
 		pst2.ToDrawable(),
-		25,
+		chunk.Colums(28),
 	)
 
 	article := line.LineDrawableFromLines(

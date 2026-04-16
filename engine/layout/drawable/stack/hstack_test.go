@@ -5,6 +5,7 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
+	"github.com/Rafael24595/go-terminal/engine/model/chunk"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
@@ -27,17 +28,15 @@ func TestHStack_Distribution(t *testing.T) {
 	)
 
 	stack.init()
+	stack.lazyInit(terminal.Winsize{
+		Cols: 100,
+	})
 
-	layers := stack.fixed
+	assert.Len(t, 3, stack.fixed)
 
-	total := uint16(0)
-	for _, l := range layers {
-		total += l.chunk
-	}
-
-	assert.Equal(t, 100, total)
-	assert.Equal(t, 34, layers[0].chunk)
-	assert.Equal(t, 33, layers[1].chunk)
+	assert.Equal(t, 34, stack.fixed[0].cols)
+	assert.Equal(t, 33, stack.fixed[1].cols)
+	assert.Equal(t, 33, stack.fixed[2].cols)
 }
 
 func TestHStack_MixedFixedAndDynamic(t *testing.T) {
@@ -46,14 +45,17 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 	d3 := &drawable_test.MockDrawable{}
 
 	stack := NewHStackDrawable()
-	stack.PushChunk(d1.ToDrawable(), 20)
+	stack.PushChunk(d1.ToDrawable(), chunk.Colums(20))
 	stack.Push(d2.ToDrawable(), d3.ToDrawable())
 
 	stack.init()
+	stack.lazyInit(terminal.Winsize{
+		Cols: 100,
+	})
 
-	assert.Equal(t, 20, stack.fixed[0].chunk)
-	assert.Equal(t, 40, stack.fixed[1].chunk)
-	assert.Equal(t, 40, stack.fixed[2].chunk)
+	assert.Equal(t, 20, stack.fixed[0].cols)
+	assert.Equal(t, 40, stack.fixed[1].cols)
+	assert.Equal(t, 40, stack.fixed[2].cols)
 }
 
 func TestHStack_RenderOutput(t *testing.T) {
@@ -71,8 +73,9 @@ func TestHStack_RenderOutput(t *testing.T) {
 	}
 
 	stack := NewHStackDrawable()
-	stack.PushChunk(dA.ToDrawable(), 50)
-	stack.PushChunk(dB.ToDrawable(), 50)
+	stack.PushChunk(dA.ToDrawable(), chunk.Percent(50))
+	stack.PushChunk(dB.ToDrawable(), chunk.Percent(50))
+
 	stack.init()
 
 	lines, _ := stack.draw(size)

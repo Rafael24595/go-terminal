@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/model/chunk"
 	"github.com/Rafael24595/go-terminal/engine/render/sink"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
@@ -16,25 +17,27 @@ import (
 
 const NameHStackDrawable = "HStackDrawable"
 
-const max_chunk = 100
-
 type block struct {
 	size  terminal.Winsize
 	lines []text.Line
 }
 
 type HStackDrawable struct {
-	loaded bool
-	items  []layer
-	fixed  []layer
+	loaded     bool
+	lazyLoaded bool
+	size       terminal.Winsize
+	items      []chunkLayer
+	fixed      []chunkLayer
 }
 
 func NewHStackDrawable(items ...drawable.Drawable) *HStackDrawable {
-	layers := layersFromDrawables(items...)
+	layers := chunkLayersFromDrawables(chunk.Dynamic(), 0, items...)
 	return &HStackDrawable{
-		loaded: false,
-		items:  layers,
-		fixed:  make([]layer, 0),
+		loaded:     false,
+		lazyLoaded: false,
+		size:       terminal.Winsize{},
+		items:      layers,
+		fixed:      make([]chunkLayer, 0),
 	}
 }
 
@@ -43,50 +46,42 @@ func HStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 }
 
 func (d *HStackDrawable) Unshift(items ...drawable.Drawable) *HStackDrawable {
-	assert.False(d.loaded, err_new_elements)
+	assert.False(d.loaded, drawable.MessageNewElement)
 
-	layers := layersFromDrawables(items...)
+	layers := chunkLayersFromDrawables(chunk.Dynamic(), 0, items...)
 	d.items = append(layers, d.items...)
 
 	return d
 }
 
 func (d *HStackDrawable) Push(items ...drawable.Drawable) *HStackDrawable {
-	assert.False(d.loaded, err_new_elements)
+	assert.False(d.loaded, drawable.MessageNewElement)
 
 	for _, item := range items {
 		d.items = append(d.items,
-			layerFromDrawable(item),
+			chunkLayerFromDrawable(item, chunk.Dynamic(), 0),
 		)
 	}
 
 	return d
 }
 
-func (d *HStackDrawable) UnshiftChunk(item drawable.Drawable, chunk uint16) *HStackDrawable {
-	assert.False(d.loaded, err_new_elements)
-	assert.True(chunk <= max_chunk, err_chunk_size, max_chunk)
+func (d *HStackDrawable) UnshiftChunk(item drawable.Drawable, chunk chunk.Chunk) *HStackDrawable {
+	assert.False(d.loaded, drawable.MessageNewElement)
 
-	chunk = min(max_chunk, chunk)
-	newLayer := chunkLayerFromDrawable(item, chunk)
+	newLayer := chunkLayerFromDrawable(item, chunk, 0)
 
-	d.items = append([]layer{newLayer}, d.items...)
-
-	assert.LazyTrue(d.valideChunks, err_new_elements, max_chunk)
+	d.items = append([]chunkLayer{newLayer}, d.items...)
 
 	return d
 }
 
-func (d *HStackDrawable) PushChunk(item drawable.Drawable, chunk uint16) *HStackDrawable {
-	assert.False(d.loaded, err_new_elements)
-	assert.True(chunk <= max_chunk, err_chunk_size, max_chunk)
+func (d *HStackDrawable) PushChunk(item drawable.Drawable, chunk chunk.Chunk) *HStackDrawable {
+	assert.False(d.loaded, drawable.MessageNewElement)
 
-	chunk = min(max_chunk, chunk)
-	newLayer := chunkLayerFromDrawable(item, chunk)
+	newLayer := chunkLayerFromDrawable(item, chunk, 0)
 
 	d.items = append(d.items, newLayer)
-
-	assert.LazyTrue(d.valideChunks, err_new_elements, max_chunk)
 
 	return d
 }
@@ -143,9 +138,18 @@ func (d *HStackDrawable) tags() set.Set[string] {
 
 func (d *HStackDrawable) init() {
 	d.loaded = true
+	d.lazyLoaded = false
+}
+
+func (d *HStackDrawable) lazyInit(size terminal.Winsize) {
+	if d.lazyLoaded {
+		return
+	}
+
+	d.lazyLoaded = true
 
 	d.fixed = d.items
-	d.fixed = d.fixLayout()
+	d.fixed = d.fixLayout(size)
 
 	for i := range d.fixed {
 		d.fixed[i].drawable.Init()
@@ -154,6 +158,8 @@ func (d *HStackDrawable) init() {
 }
 
 func (d *HStackDrawable) wipe() {
+	d.lazyLoaded = false
+
 	d.fixed = d.items
 	for i := range d.fixed {
 		d.fixed[i].drawable.Wipe()
@@ -161,13 +167,20 @@ func (d *HStackDrawable) wipe() {
 }
 
 func (d *HStackDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, "the drawable should be initialized before draw")
+	assert.True(d.loaded, drawable.MessageInitialized)
+
+	d.lazyInit(size)
+
+	if !d.size.Eq(size) {
+		d.fixed = d.fixLayout(size)
+		d.size = size
+	}
 
 	blocks, recalc := d.makeBlocks(size)
 	lines := d.makeLines(blocks)
 
-	if recalc {
-		d.fixed = d.fixLayout()
+	if !d.size.Eq(size) || recalc {
+		d.fixed = d.fixLayout(size)
 	}
 
 	return lines, len(d.fixed) > 0
@@ -186,24 +199,16 @@ func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
 
 	for {
 		didGrow := false
-		
+
 		for i := range d.fixed {
 			if !d.fixed[i].status || (maxHeight > 0 && len(buffer[i].lines) >= maxHeight) {
 				continue
 			}
 
-			lastLen := uint16(0)
-			if i > 0 {
-				buff := buffer[i-1]
-				index := len(buffer[i].lines)
-				if text.FragmentMeasure(buff.lines[index].Text...) == 0 {
-					lastLen += (size.Cols * d.fixed[i-1].chunk) / 100
-				}
-			}
-
+			inheritCols := d.inheritCols(buffer, i)
 			fixedSize := terminal.Winsize{
 				Rows: size.Rows,
-				Cols: ((size.Cols * d.fixed[i].chunk) / 100) + lastLen,
+				Cols: d.fixed[i].cols + inheritCols,
 			}
 
 			lines, status := d.fixed[i].drawable.Draw(fixedSize)
@@ -233,7 +238,7 @@ func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
 		}
 
 		if !didGrow {
-			continue
+			break
 		}
 
 		shouldContinue := false
@@ -250,6 +255,26 @@ func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
 	}
 
 	return buffer, recalcule
+}
+
+func (d *HStackDrawable) inheritCols(buffer []block, bufferIndex int) uint16 {
+	if bufferIndex == 0 {
+		return 0
+	}
+
+	block := buffer[bufferIndex-1]
+	lineIndex := len(buffer[bufferIndex].lines)
+
+	if len(block.lines) <= lineIndex {
+		return 0
+	}
+
+	line := block.lines[lineIndex]
+	if text.FragmentMeasure(line.Text...) != 0 {
+		return 0
+	}
+
+	return d.fixed[bufferIndex-1].cols
 }
 
 func (d *HStackDrawable) makeLines(blocks []block) []text.Line {
@@ -273,30 +298,33 @@ func (d *HStackDrawable) makeLines(blocks []block) []text.Line {
 	return buffer
 }
 
-func (d *HStackDrawable) fixLayout() []layer {
-	chunks, zeroes := d.countChunks()
+func (d *HStackDrawable) fixLayout(size terminal.Winsize) []chunkLayer {
+	cols, zeroes := d.countCols(size)
 
-	assert.True(chunks <= max_chunk, err_new_elements, max_chunk)
-
-	chunks = min(max_chunk, chunks)
+	assert.True(cols <= size.Cols, drawable.MessageNewElement, size.Cols)
+	cols = min(size.Cols, cols)
 
 	available := uint16(0)
 	rest := uint16(0)
 	if zeroes > 0 {
-		remaining := math.SubClampZero(max_chunk, chunks)
+		remaining := math.SubClampZero(size.Cols, cols)
 		available = remaining / zeroes
 		rest = remaining % zeroes
 	}
 
-	layers := make([]layer, 0, len(d.fixed))
+	layers := make([]chunkLayer, 0, len(d.fixed))
 
 	for _, v := range d.fixed {
 		if !v.status {
 			continue
 		}
 
-		chunk := min(max_chunk, v.chunk)
-		if !v.sized {
+		chk := v.chunk
+
+		chunk := uint16(0)
+		if chk.Sized {
+			chunk = min(size.Cols, chk.Adapter(size))
+		} else {
 			chunk = available
 			if rest > 0 {
 				chunk += 1
@@ -308,6 +336,10 @@ func (d *HStackDrawable) fixLayout() []layer {
 			chunkLayerFromLayer(v, chunk),
 		)
 	}
+
+	assert.LazyTrue(func() bool {
+		return d.valideChunks(size)
+	}, drawable.MessageNewElement, size.Cols)
 
 	return layers
 }
@@ -321,8 +353,8 @@ func (d *HStackDrawable) HasNext() bool {
 	return false
 }
 
-func (d *HStackDrawable) countChunks() (uint16, uint16) {
-	chunks := uint16(0)
+func (d *HStackDrawable) countCols(size terminal.Winsize) (uint16, uint16) {
+	cols := uint16(0)
 	zeroes := uint16(0)
 
 	for _, i := range d.fixed {
@@ -330,19 +362,20 @@ func (d *HStackDrawable) countChunks() (uint16, uint16) {
 			continue
 		}
 
-		if !i.sized {
+		chk := i.chunk
+		if !chk.Sized {
 			zeroes += 1
 		} else {
-			chunks += i.chunk
+			cols += chk.Adapter(size)
 		}
 	}
 
-	return chunks, zeroes
+	return cols, zeroes
 }
 
-func (d *HStackDrawable) valideChunks() bool {
-	chunks, _ := d.countChunks()
-	return chunks <= max_chunk
+func (d *HStackDrawable) valideChunks(size terminal.Winsize) bool {
+	cols, _ := d.countCols(size)
+	return cols <= size.Cols
 }
 
 func maxLines(buffer []block) int {
