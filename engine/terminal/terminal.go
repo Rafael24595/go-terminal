@@ -16,6 +16,10 @@ func NewWinsize(rows, cols uint16) Winsize {
 	}
 }
 
+func (w Winsize) Eq(other Winsize) bool {
+	return w.Rows == other.Rows && w.Cols == other.Cols
+}
+
 type Terminal struct {
 	OnStart   func() error
 	OnClose   func() error
