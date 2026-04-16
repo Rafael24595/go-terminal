@@ -74,3 +74,14 @@ func FragmentMeasureWithContext(ctx style.LayoutContext, frags ...Fragment) int 
 	}
 	return measure
 }
+
+func IsZeroFragment(frag Fragment) bool {
+	return frag.Text == "" &&
+		frag.Atom == style.AtmNone &&
+		frag.Spec.Kind() == style.SpcKindNone
+}
+
+func IsStructuralFragment(frag Fragment) bool {
+	hasStyles := frag.Atom != style.AtmNone || frag.Spec.Kind() != style.SpcKindNone
+	return frag.Text == "" && hasStyles
+}
