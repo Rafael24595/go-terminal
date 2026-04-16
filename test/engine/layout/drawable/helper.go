@@ -11,14 +11,18 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
+const NameMockDrawable = "MockDrawable"
+
 type MockDrawable struct {
 	Order      int
 	Code       string
+	Name       string
 	InitCalled bool
 	WipeCalled bool
 	DrawCalls  int
 	Lines      []text.Line
 	Status     bool
+	Size       terminal.Winsize
 }
 
 func (m *MockDrawable) Init() {
@@ -31,12 +35,18 @@ func (m *MockDrawable) Wipe() {
 
 func (m *MockDrawable) Draw(size terminal.Winsize) ([]text.Line, bool) {
 	m.DrawCalls++
+	m.Size = size
 	return m.Lines, m.Status
 }
 
 func (m *MockDrawable) ToDrawable() drawable.Drawable {
+	name := NameMockDrawable
+	if m.Name != "" {
+		name = m.Name
+	}
+
 	return drawable.Drawable{
-		Name: "",
+		Name: name,
 		Code: m.Code,
 		Tags: make(set.Set[string]),
 		Init: m.Init,
