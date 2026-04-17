@@ -18,22 +18,24 @@ import (
 const NameModalDrawable = "ModalDrawable"
 
 type ModalDrawable struct {
-	loaded   bool
-	text     []text.Line
-	options  []text.Fragment
-	limit    uint
-	cursor   uint
-	drawable drawable.Drawable
+	loaded     bool
+	lazyLoaded bool
+	text       []text.Line
+	options    []text.Fragment
+	limit      uint
+	cursor     uint
+	drawable   drawable.Drawable
 }
 
 func NewModalDrawable() *ModalDrawable {
 	return &ModalDrawable{
-		loaded:   false,
-		text:     make([]text.Line, 0),
-		options:  make([]text.Fragment, 0),
-		limit:    style.DefaultMaxOpts,
-		cursor:   0,
-		drawable: drawable.Drawable{},
+		loaded:     false,
+		lazyLoaded: false,
+		text:       make([]text.Line, 0),
+		options:    make([]text.Fragment, 0),
+		limit:      style.DefaultMaxOpts,
+		cursor:     0,
+		drawable:   drawable.Drawable{},
 	}
 }
 
@@ -74,6 +76,15 @@ func (d *ModalDrawable) ToDrawable() drawable.Drawable {
 
 func (d *ModalDrawable) init() {
 	d.loaded = true
+	d.lazyLoaded = false
+}
+
+func (d *ModalDrawable) lazyInit(size terminal.Winsize) {
+	if d.lazyLoaded {
+		return
+	}
+
+	d.lazyLoaded = true
 
 	opts := make([]text.Fragment, len(d.options))
 	for i := range d.options {
@@ -87,7 +98,7 @@ func (d *ModalDrawable) init() {
 		}
 	}
 
-	cols := drawable.MaxLineSize(d.text...) + 1
+	cols := drawable.MaxLineSize(int(size.Cols), d.text...) + 1
 	text := formatLines(d.text...)
 
 	title := block.BlockDrawableFromLines(text...)
@@ -118,14 +129,19 @@ func (d *ModalDrawable) init() {
 }
 
 func (d *ModalDrawable) wipe() {
+	d.lazyLoaded = false
+
 	if d.drawable.Wipe == nil {
 		return
 	}
+
 	d.drawable.Wipe()
 }
 
 func (d *ModalDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
+
+	d.lazyInit(size)
 
 	return d.drawable.Draw(size)
 }

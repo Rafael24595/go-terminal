@@ -20,12 +20,13 @@ import (
 const NameTextAreaDrawable = "TextAreaDrawable"
 
 type TextAreaDrawable struct {
-	loaded    bool
-	writeMode bool
-	indexMode bool
-	buffer    []rune
-	caret     *input.TextCursor
-	drawable  drawable.Drawable
+	loaded     bool
+	lazyLoaded bool
+	writeMode  bool
+	indexMode  bool
+	buffer     []rune
+	caret      *input.TextCursor
+	drawable   drawable.Drawable
 }
 
 func NewTextAreaDrawable(buffer []rune, caret *input.TextCursor) *TextAreaDrawable {
@@ -33,12 +34,13 @@ func NewTextAreaDrawable(buffer []rune, caret *input.TextCursor) *TextAreaDrawab
 	copy(clone, buffer)
 
 	return &TextAreaDrawable{
-		loaded:    false,
-		writeMode: false,
-		indexMode: false,
-		buffer:    clone,
-		caret:     caret,
-		drawable:  drawable.Drawable{},
+		loaded:     false,
+		lazyLoaded: false,
+		writeMode:  false,
+		indexMode:  false,
+		buffer:     clone,
+		caret:      caret,
+		drawable:   drawable.Drawable{},
 	}
 }
 
@@ -69,6 +71,15 @@ func (d *TextAreaDrawable) ToDrawable() drawable.Drawable {
 
 func (d *TextAreaDrawable) init() {
 	d.loaded = true
+	d.lazyLoaded = false
+}
+
+func (d *TextAreaDrawable) lazyInit(size terminal.Winsize) {
+	if d.lazyLoaded {
+		return
+	}
+
+	d.lazyLoaded = true
 
 	start := math.SubClampZero(d.caret.SelectStart(), 1)
 	end := d.caret.SelectEnd()
@@ -86,7 +97,7 @@ func (d *TextAreaDrawable) init() {
 	txt.Text = append(txt.Text, fragments...)
 
 	lines := d.normalizeLinesEnd(*txt)
-	lines = d.fixEmptyLines(lines)
+	lines = d.fixEmptyLines(size, lines)
 
 	drawable := line.LineDrawableFromLines(lines...)
 	drawable.Init()
@@ -95,9 +106,12 @@ func (d *TextAreaDrawable) init() {
 }
 
 func (d *TextAreaDrawable) wipe() {
+	d.lazyLoaded = false
+
 	if d.drawable.Wipe == nil {
 		return
 	}
+
 	d.drawable.Wipe()
 }
 
@@ -261,9 +275,9 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 	return lines
 }
 
-func (d *TextAreaDrawable) fixEmptyLines(lines []text.Line) []text.Line {
+func (d *TextAreaDrawable) fixEmptyLines(size terminal.Winsize, lines []text.Line) []text.Line {
 	for i, line := range lines {
-		if text.FragmentMeasure(line.Text...) != 0 {
+		if text.FragmentMeasure(int(size.Cols), line.Text...) != 0 {
 			continue
 		}
 
@@ -281,6 +295,8 @@ func (d *TextAreaDrawable) fixEmptyLines(lines []text.Line) []text.Line {
 }
 func (d *TextAreaDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
+
+	d.lazyInit(size)
 
 	return d.drawable.Draw(size)
 }

@@ -76,14 +76,11 @@ func (l *Line) Clone() *Line {
 	return newLine
 }
 
-func LineMeasure(line *Line) int {
-	fragsLen := FragmentMeasure(line.Text...)
-	return style.SpecMeasure(line.Spec, fragsLen)
-}
-
-func LineMeasureWithContext(line *Line, ctx style.LayoutContext) int {
-	fragsLen := FragmentMeasureWithContext(ctx, line.Text...)
-	return style.SpecMeasureWithContext(line.Spec, fragsLen, ctx)
+func LineMeasure(line *Line, cols int) int {
+	return style.SpecMeasure(line.Spec, style.LayoutContext{
+		Text: FragmentMeasure(cols, line.Text...),
+		Cols: cols,
+	})
 }
 
 func LineToString(line *Line) string {

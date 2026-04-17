@@ -66,7 +66,10 @@ func applySpecStyles(spec style.Spec, size terminal.Winsize, text string, logica
 			return text
 		}
 
-		logicalSize = style.SpecMeasureOf(k, spec, logicalSize)
+		logicalSize = style.SpecMeasureOf(k, spec, style.LayoutContext{
+			Text: logicalSize,
+			Cols: cols,
+		})
 	}
 
 	return text
@@ -137,7 +140,7 @@ func trimRight(styl style.Spec, data string, logicalSize int) string {
 	return helper.TrimRight(data, size, opts)
 }
 
-//TODO: Explore the risks of using cols as default
+// TODO: Explore the risks of using cols as default
 func paddingCenter(styl style.Spec, cols int, data string, logicalSize int) string {
 	args := styl.Args()
 

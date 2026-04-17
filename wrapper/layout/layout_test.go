@@ -69,7 +69,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	for i := 1; i < len(lines)-1; i++ {
 		width := 0
 		for _, f := range lines[i].Text {
-			width += text.FragmentMeasure(f)
+			width += text.FragmentMeasure(int(size.Cols), f)
 		}
 
 		assert.LessOrEqual(t, int(size.Cols), width)
@@ -153,7 +153,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 	for _, l := range drawStt.Buffer {
 		width := 0
 		for _, f := range l.Text {
-			width += text.FragmentMeasure(f)
+			width += text.FragmentMeasure(sizeCols, f)
 		}
 		assert.LessOrEqual(t, sizeCols, width)
 	}

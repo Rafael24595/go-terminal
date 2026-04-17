@@ -9,45 +9,43 @@ import (
 )
 
 type LayoutContext struct {
+	Text int
 	Cols int
 }
 
 type argMap = map[SpcArgKey]commons.Argument
 
-var specMeasureTableWithContext = dict.NewInmutableLinkedMap(
-	dict.P(SpcKindFill, func(spep Spec, size int, ctx LayoutContext) int {
+var specMeasureTable = dict.NewInmutableLinkedMap(
+	dict.P(SpcKindFill, func(spep Spec, ctx LayoutContext) int {
 		return spep.args[KeyFillSize].Intd(ctx.Cols)
 	}),
-)
-
-var specMeasureTable = dict.NewInmutableLinkedMap(
-	dict.P(SpcKindTrimLeft, func(spec Spec, size int) int {
-		arg := spec.args[KeyTrimLeftSize].Intd(size)
-		return min(size, arg)
+	dict.P(SpcKindTrimLeft, func(spec Spec, ctx LayoutContext) int {
+		arg := spec.args[KeyTrimLeftSize].Intd(ctx.Text)
+		return min(ctx.Text, arg)
 	}),
-	dict.P(SpcKindTrimRight, func(spec Spec, size int) int {
-		arg := spec.args[KeyTrimRightSize].Intd(size)
-		return min(size, arg)
+	dict.P(SpcKindTrimRight, func(spec Spec, ctx LayoutContext) int {
+		arg := spec.args[KeyTrimRightSize].Intd(ctx.Text)
+		return min(ctx.Text, arg)
 	}),
-	dict.P(SpcKindPaddingCenter, func(spec Spec, size int) int {
-		arg := spec.args[KeyPaddingCenterSize].Intd(size)
-		return max(size, arg)
+	dict.P(SpcKindPaddingCenter, func(spec Spec, ctx LayoutContext) int {
+		arg := spec.args[KeyPaddingCenterSize].Intd(ctx.Cols)
+		return min(ctx.Cols, arg)
 	}),
-	dict.P(SpcKindPaddingLeft, func(spec Spec, size int) int {
-		arg := spec.args[KeyPaddingLeftSize].Intd(size)
-		return max(size, arg)
+	dict.P(SpcKindPaddingLeft, func(spec Spec, ctx LayoutContext) int {
+		arg := spec.args[KeyPaddingLeftSize].Intd(ctx.Text)
+		return max(ctx.Text, arg)
 	}),
-	dict.P(SpcKindPaddingRight, func(spec Spec, size int) int {
-		arg := spec.args[KeyPaddingRightSize].Intd(size)
-		return max(size, arg)
+	dict.P(SpcKindPaddingRight, func(spec Spec, ctx LayoutContext) int {
+		arg := spec.args[KeyPaddingRightSize].Intd(ctx.Text)
+		return max(ctx.Text, arg)
 	}),
-	dict.P(SpcKindRepeatLeft, func(spec Spec, size int) int {
-		arg := spec.args[KeyRepeatLeftSize].Intd(size)
-		return max(size, arg)
+	dict.P(SpcKindRepeatLeft, func(spec Spec, ctx LayoutContext) int {
+		arg := spec.args[KeyRepeatLeftSize].Intd(ctx.Text)
+		return max(ctx.Text, arg)
 	}),
-	dict.P(SpcKindRepeatRight, func(spec Spec, size int) int {
-		arg := spec.args[KeyRepeatRightSize].Intd(size)
-		return max(size, arg)
+	dict.P(SpcKindRepeatRight, func(spec Spec, ctx LayoutContext) int {
+		arg := spec.args[KeyRepeatRightSize].Intd(ctx.Text)
+		return max(ctx.Text, arg)
 	}),
 )
 
@@ -155,32 +153,32 @@ func MergeSpec(styles ...Spec) Spec {
 }
 
 func EraseSpec(target Spec, styles SpecKind) (Spec, Spec) {
-    removedKind := target.kind & styles
-    
-    removedSpec := SpecFromKind(removedKind)
-    if removedKind == SpcKindNone {
-        return target, removedSpec
-    }
+	removedKind := target.kind & styles
 
-    for kind, keys := range specArgsTable {
-        if removedKind&kind == 0 {
+	removedSpec := SpecFromKind(removedKind)
+	if removedKind == SpcKindNone {
+		return target, removedSpec
+	}
+
+	for kind, keys := range specArgsTable {
+		if removedKind&kind == 0 {
 			continue
 		}
 
 		for _, key := range keys {
-			val, ok := target.args[key];
-			if  !ok {
+			val, ok := target.args[key]
+			if !ok {
 				continue
 			}
 
 			removedSpec.args[key] = val
 			delete(target.args, key)
 		}
-    }
+	}
 
-    target.kind &= ^styles
+	target.kind &= ^styles
 
-    return target, removedSpec
+	return target, removedSpec
 }
 
 func (s Spec) Kind() SpecKind {
@@ -339,27 +337,18 @@ func specDirection(
 	}
 }
 
-func SpecMeasureOf(kind SpecKind, spec Spec, size int) int {
-	if predicate, ok := specMeasureTable.Get(kind); ok {
-		return predicate(spec, size)
+func SpecMeasureOf(kind SpecKind, spec Spec, ctx LayoutContext) int {
+	if p, ok := specMeasureTable.Get(kind); ok {
+		return p(spec, ctx)
 	}
-	return size
+	return ctx.Text
 }
 
-func SpecMeasureWithContext(spec Spec, size int, ctx LayoutContext) int {
-	for k, f := range specMeasureTableWithContext.All() {
-		if spec.kind.HasAny(k) {
-			size = f(spec, size, ctx)
-		}
-	}
-	return SpecMeasure(spec, size)
-}
-
-func SpecMeasure(spec Spec, size int) int {
+func SpecMeasure(spec Spec, ctx LayoutContext) int {
 	for k, p := range specMeasureTable.All() {
 		if spec.kind.HasAny(k) {
-			size = p(spec, size)
+			ctx.Text = p(spec, ctx)
 		}
 	}
-	return size
+	return ctx.Text
 }

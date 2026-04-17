@@ -205,7 +205,7 @@ func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
 				continue
 			}
 
-			inheritCols := d.inheritCols(buffer, i)
+			inheritCols := d.inheritCols(size, buffer, i)
 			fixedSize := terminal.Winsize{
 				Rows: size.Rows,
 				Cols: d.fixed[i].cols + inheritCols,
@@ -257,7 +257,11 @@ func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
 	return buffer, recalcule
 }
 
-func (d *HStackDrawable) inheritCols(buffer []block, bufferIndex int) uint16 {
+func (d *HStackDrawable) inheritCols(
+	size terminal.Winsize,
+	buffer []block,
+	bufferIndex int,
+) uint16 {
 	if bufferIndex == 0 {
 		return 0
 	}
@@ -270,7 +274,7 @@ func (d *HStackDrawable) inheritCols(buffer []block, bufferIndex int) uint16 {
 	}
 
 	line := block.lines[lineIndex]
-	if text.FragmentMeasure(line.Text...) != 0 {
+	if text.FragmentMeasure(int(size.Cols), line.Text...) != 0 {
 		return 0
 	}
 

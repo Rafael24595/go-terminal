@@ -18,14 +18,6 @@ func WordTokenFromFragments(fragments ...Fragment) WordToken {
 	}
 }
 
-func (t WordToken) Size() int {
-	size := 0
-	for _, f := range t.Text {
-		size += FragmentMeasure(f)
-	}
-	return size
-}
-
 func TokenizeLineWords(line *Line) []WordToken {
 	tokens := make([]WordToken, 0, len(line.Text))
 	fragments := make([]Fragment, 0, 4)
@@ -113,7 +105,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 		}
 
 		frag := frags[0]
-		size := FragmentMeasure(frag)
+		size := FragmentMeasure(cols, frag)
 
 		if size <= remaining {
 			current.Text = append(current.Text, frag)
@@ -127,7 +119,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 		taken, rest := TakeFromFragment(&frag, remaining)
 
 		current.Text = append(current.Text, *taken)
-		width += FragmentMeasure(*taken)
+		width += FragmentMeasure(cols, *taken)
 
 		frags = append([]Fragment{*rest}, frags[1:]...)
 

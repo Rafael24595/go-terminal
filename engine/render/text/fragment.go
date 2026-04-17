@@ -59,18 +59,14 @@ func (f *Fragment) Size() int {
 	return runes.Measure(f.Text)
 }
 
-func FragmentMeasure(frags ...Fragment) int {
+func FragmentMeasure(cols int, frags ...Fragment) int {
 	measure := 0
 	for _, f := range frags {
-		measure += style.SpecMeasure(f.Spec, f.Size())
-	}
-	return measure
-}
-
-func FragmentMeasureWithContext(ctx style.LayoutContext, frags ...Fragment) int {
-	measure := 0
-	for _, f := range frags {
-		measure += style.SpecMeasureWithContext(f.Spec, f.Size(), ctx)
+		ctx := style.LayoutContext{
+			Text: f.Size(),
+			Cols: cols,
+		}
+		measure += style.SpecMeasure(f.Spec, ctx)
 	}
 	return measure
 }

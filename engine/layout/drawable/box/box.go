@@ -143,7 +143,7 @@ func (d *BoxDrawable) styleLines(size terminal.Winsize, lines ...text.Line) []te
 
 	minSize := d.minSize + vertical
 	maxSize := uint(size.Cols)
-	maxLine := drawable.MaxLineSize(lines...)
+	maxLine := drawable.MaxLineSize(int(size.Cols), lines...)
 
 	padding := math.Clamp(maxLine, minSize, maxSize)
 
@@ -209,7 +209,7 @@ func (d *BoxDrawable) styleLine(size uint, line text.Line) text.Line {
 }
 
 func (d *BoxDrawable) calcPadding(size uint, line text.Line) (uint, uint) {
-	totalWidth := uint(text.FragmentMeasure(line.Text...))
+	totalWidth := uint(text.FragmentMeasure(int(size), line.Text...))
 
 	remaining := size - totalWidth
 
