@@ -85,7 +85,11 @@ func makeSections(t table.Table, cursor input.MatrixCursor, size terminal.Winsiz
 	return sections
 }
 
-func headersFromSize(size map[string]int, headers []string, cursor input.MatrixCursor) ([]string, *input.MatrixCursor) {
+func headersFromSize(
+	size map[string]int,
+	headers []string,
+	cursor input.MatrixCursor,
+) ([]string, *input.MatrixCursor) {
 	filtered := make([]string, 0)
 
 	var fixCursor *input.MatrixCursor
@@ -110,7 +114,11 @@ func headersFromSize(size map[string]int, headers []string, cursor input.MatrixC
 	return filtered, fixCursor
 }
 
-func makeHeaders(size map[string]int, headers []string, separator marker.TableSeparatorMeta) *text.Line {
+func makeHeaders(
+	size map[string]int,
+	headers []string,
+	separator marker.TableSeparatorMeta,
+) *text.Line {
 	headersLen := len(headers)
 
 	capacity := 2*headersLen + 1
@@ -233,7 +241,12 @@ func renderedRowSize(size map[string]int, separator marker.TableSeparatorMeta) i
 	return total + joinSize + borderSize
 }
 
-func adjustSize(size map[string]int, headers []string, cols int, rowSize int) (map[string]int, bool) {
+func adjustSize(
+	size map[string]int,
+	headers []string,
+	cols int,
+	rowSize int,
+) (map[string]int, bool) {
 	if rowSize <= cols {
 		return size, true
 	}
@@ -269,7 +282,12 @@ func adjustSize(size map[string]int, headers []string, cols int, rowSize int) (m
 	return newSize, excess == 0
 }
 
-func splitTable(size map[string]int, headers []string, splitTable marker.TableSeparatorMeta, cols int) []map[string]int {
+func splitTable(
+	size map[string]int,
+	headers []string,
+	splitTable marker.TableSeparatorMeta,
+	cols int,
+) []map[string]int {
 	tables := make([]map[string]int, 0)
 
 	leftLen := runes.Measure(splitTable.Left)
