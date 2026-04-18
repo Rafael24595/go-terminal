@@ -7,7 +7,6 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
@@ -18,28 +17,24 @@ type TableDrawable struct {
 	loaded     bool
 	lazyLoaded bool
 	size       terminal.Winsize
-	padding    style.HorizontalPosition
-	spec       style.Spec
 	table      table.Table
 	sections   []section
 	cursor     input.MatrixCursor
 }
 
-func NewTableDrawable(table table.Table, cursor input.MatrixCursor, padding style.HorizontalPosition) *TableDrawable {
+func NewTableDrawable(table table.Table, cursor input.MatrixCursor) *TableDrawable {
 	return &TableDrawable{
 		loaded:     false,
 		lazyLoaded: false,
 		size:       terminal.Winsize{},
-		padding:    padding,
-		spec:       style.SpecEmpty(),
 		table:      table,
 		sections:   make([]section, 0),
 		cursor:     cursor,
 	}
 }
 
-func TableDrawableFromTable(table table.Table, cursor input.MatrixCursor, padding style.HorizontalPosition) drawable.Drawable {
-	return NewTableDrawable(table, cursor, padding).ToDrawable()
+func TableDrawableFromTable(table table.Table, cursor input.MatrixCursor) drawable.Drawable {
+	return NewTableDrawable(table, cursor).ToDrawable()
 }
 
 func (d *TableDrawable) ToDrawable() drawable.Drawable {
@@ -70,8 +65,6 @@ func (d *TableDrawable) lazyInit(size terminal.Winsize) {
 	d.lazyLoaded = true
 
 	d.size = size
-
-	d.spec = makeSpec(d.spec, size, d.padding)
 	d.sections = makeSections(d.table, d.cursor, size)
 
 	for i := range d.sections {
@@ -99,26 +92,12 @@ func (d *TableDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 			continue
 		}
 
-		formatHeaders := addStyle(d.spec, headers[i]...)
-		formatBody := addStyle(d.spec, body...)
-		formatFooter := addStyle(d.spec, footers[i]...)
-
-		result = append(result, formatHeaders...)
-		result = append(result, formatBody...)
-		result = append(result, formatFooter...)
+		result = append(result, headers[i]...)
+		result = append(result, body...)
+		result = append(result, footers[i]...)
 	}
 
-	result = d.fillRest(result)
 	return result, hasNext
-}
-
-func (d *TableDrawable) fillRest(result []text.Line) []text.Line {
-	resultSize := min(int(d.size.Rows), len(result))
-	for range int(d.size.Rows) - resultSize {
-		result = append(result, *text.NewLine(""))
-	}
-
-	return result
 }
 
 func (d *TableDrawable) drawStatic() ([][]text.Line, [][]text.Line, int) {
@@ -172,29 +151,4 @@ func (d *TableDrawable) drawDynamic(remaining int) ([][]text.Line, bool) {
 	}
 
 	return bodies, len(empty) != len(d.sections)
-}
-
-func makeSpec(base style.Spec, size terminal.Winsize, padding style.HorizontalPosition) style.Spec {
-	cols := uint(size.Cols)
-
-	var spec style.Spec
-	switch padding {
-	case style.Left:
-		spec = style.SpecPaddingLeft(cols)
-	case style.Center:
-		spec = style.SpecPaddingCenter(cols)
-	case style.Right:
-		spec = style.SpecPaddingRight(cols)
-	default:
-		return base
-	}
-
-	return style.MergeSpec(base, spec)
-}
-
-func addStyle(spec style.Spec, lines ...text.Line) []text.Line {
-	for i := range lines {
-		lines[i].Spec = style.MergeSpec(lines[i].Spec, spec)
-	}
-	return lines
 }

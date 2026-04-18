@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
@@ -52,7 +53,8 @@ type Table[T any] struct {
 	title     []text.Line
 	table     *table.Table
 	cursor    *input.MatrixCursor
-	padding   style.HorizontalPosition
+	positionY style.VerticalPosition
+	positionX style.HorizontalPosition
 }
 
 func NewTable[T any]() *Table[T] {
@@ -62,7 +64,8 @@ func NewTable[T any]() *Table[T] {
 		title:     make([]text.Line, 0),
 		table:     table.NewTable(),
 		cursor:    input.NewMatrixCursor(0, 0, false),
-		padding:   style.Right,
+		positionY: style.Middle,
+		positionX: style.Center,
 	}
 }
 
@@ -86,8 +89,13 @@ func (c *Table[T]) SetActionHandler(handler input.TableActionHandler) *Table[T] 
 	return c
 }
 
-func (c *Table[T]) DefinePadding(padding style.HorizontalPosition) *Table[T] {
-	c.padding = padding
+func (c *Table[T]) SetPositionY(position style.VerticalPosition) *Table[T] {
+	c.positionY = position
+	return c
+}
+
+func (c *Table[T]) SetPositionX(position style.HorizontalPosition) *Table[T] {
+	c.positionX = position
 	return c
 }
 
@@ -192,8 +200,14 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 	vm.Header.Push(
 		block.BlockDrawableFromLines(c.title...),
 	)
+
+	table := drawable_table.TableDrawableFromTable(*c.table, *c.cursor)
+	
 	vm.Kernel.Push(
-		drawable_table.TableDrawableFromTable(*c.table, *c.cursor, c.padding),
+		position.NewPositionDrawable(table).
+			PositionY(c.positionY).
+			PositionX(c.positionX).
+			ToDrawable(),
 	)
 
 	var input *viewmodel.InputLine

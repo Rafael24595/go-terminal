@@ -69,7 +69,8 @@ func parser(lang Language) []table.Field {
 func NewTestTable() screen.Screen {
 	return primitive.NewTable[Language]().
 		SetName("article - ipsum").
-		DefinePadding(style.Center).
+		SetPositionY(style.Top).
+		SetPositionX(style.Center).
 		EnableAction().
 		AddTitle(
 			*text.NewLine("Donec massa sem"),
