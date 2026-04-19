@@ -6,11 +6,11 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen/primitive"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/box"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/decorator/box"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-terminal/engine/model/chunk"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -21,7 +21,7 @@ func NewTestHStack() screen.Screen {
 
 	vm.Header.Push(makeTitle())
 	vm.Kernel.Push(makeKernel())
-	
+
 	vm.Pager.SetPredicate(pager.PredicatePage())
 
 	return primitive.NewTemplateScreen().

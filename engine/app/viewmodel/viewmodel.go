@@ -3,11 +3,11 @@ package viewmodel
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 
-	drawable_help "github.com/Rafael24595/go-terminal/engine/layout/drawable/help"
+	drawable_help "github.com/Rafael24595/go-terminal/engine/layout/drawable/widget/help"
 )
 
 type ViewModel struct {

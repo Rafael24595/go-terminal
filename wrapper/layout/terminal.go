@@ -6,7 +6,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 )

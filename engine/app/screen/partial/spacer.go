@@ -4,8 +4,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-terminal/engine/render/spacer"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 )

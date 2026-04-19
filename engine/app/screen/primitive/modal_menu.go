@@ -5,7 +5,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/modal"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/widget/modal"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"

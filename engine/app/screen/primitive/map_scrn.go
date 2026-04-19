@@ -4,7 +4,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-terminal/engine/model/action"
 )
 

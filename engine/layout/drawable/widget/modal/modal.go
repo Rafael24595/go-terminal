@@ -4,12 +4,11 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/box"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/justify"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stack"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/static"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/decorator/box"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/justify"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
@@ -113,8 +112,8 @@ func (d *ModalDrawable) lazyInit(size terminal.Winsize) {
 	optionsBlock.Init()
 
 	stack := stack.VStackDrawableFromDrawables(
-		static.StaticDrawableFromDrawable(title),
-		static.StaticDrawableFromDrawable(optionsBlock),
+		title,
+		optionsBlock,
 	)
 
 	box := box.NewBoxDrawable(stack).

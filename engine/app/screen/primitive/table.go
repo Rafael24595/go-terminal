@@ -5,8 +5,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/position"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
@@ -14,7 +14,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 
-	drawable_table "github.com/Rafael24595/go-terminal/engine/layout/drawable/table"
+	drawable_table "github.com/Rafael24595/go-terminal/engine/layout/drawable/widget/table"
 )
 
 const default_table_name = "Table"
@@ -202,7 +202,7 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 	)
 
 	table := drawable_table.TableDrawableFromTable(*c.table, *c.cursor)
-	
+
 	vm.Kernel.Push(
 		position.NewPositionDrawable(table).
 			PositionY(c.positionY).

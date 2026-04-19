@@ -8,7 +8,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/model/action"
 	"github.com/Rafael24595/go-terminal/engine/model/inline"
 
-	drawable_inline "github.com/Rafael24595/go-terminal/engine/layout/drawable/inline"
+	drawable_inline "github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/inline"
 )
 
 type Inline struct {

@@ -4,8 +4,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/heap"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/block"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/loop"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/loop"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
@@ -13,7 +13,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/render/text"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 
-	drawable_line "github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	drawable_line "github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
 )
 
 // TODO: Use as a argument.

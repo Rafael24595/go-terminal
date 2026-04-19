@@ -10,7 +10,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/model/inline"
 
-	drawable_inline "github.com/Rafael24595/go-terminal/engine/layout/drawable/inline"
+	drawable_inline "github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/inline"
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
 )
 

@@ -8,7 +8,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-terminal/engine/model/chunk"
 	"github.com/Rafael24595/go-terminal/engine/render/sink"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
