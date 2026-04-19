@@ -303,20 +303,8 @@ func (d *HStackDrawable) makeLines(blocks []block) []text.Line {
 }
 
 func (d *HStackDrawable) fixLayout(size terminal.Winsize) []chunkLayer {
-	cols, zeroes := d.countCols(size)
-
-	assert.True(cols <= size.Cols, drawable.MessageNewElement, size.Cols)
-	cols = min(size.Cols, cols)
-
-	available := uint16(0)
-	rest := uint16(0)
-	if zeroes > 0 {
-		remaining := math.SubClampZero(size.Cols, cols)
-		available = remaining / zeroes
-		rest = remaining % zeroes
-	}
-
 	layers := make([]chunkLayer, 0, len(d.fixed))
+	available, rest := d.calcSpace(size)
 
 	for _, v := range d.fixed {
 		if !v.status {
@@ -346,6 +334,24 @@ func (d *HStackDrawable) fixLayout(size terminal.Winsize) []chunkLayer {
 	}, drawable.MessageNewElement, size.Cols)
 
 	return layers
+}
+
+func (d *HStackDrawable) calcSpace(size terminal.Winsize) (uint16, uint16) {
+	cols, zeroes := d.countCols(size)
+
+	assert.True(cols <= size.Cols, drawable.MessageNewElement, size.Cols)
+
+	if zeroes == 0 {
+		return 0, 0
+	}
+
+	cols = min(size.Cols, cols)
+	remaining := math.SubClampZero(size.Cols, cols)
+
+	available := remaining / zeroes
+	rest := remaining % zeroes
+
+	return available, rest
 }
 
 func (d *HStackDrawable) HasNext() bool {
