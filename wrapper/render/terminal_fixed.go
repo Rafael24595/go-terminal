@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/helper"
+	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/render"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -43,8 +44,8 @@ func (r *FixedTerminalRender) Render(lines []text.Line, size terminal.Winsize) s
 
 	content := r.render.Render(lines, newSize)
 
-	diffRows := int(size.Rows - rows)
-	diffCols := int(size.Cols - cols)
+	diffRows := math.SubClampZero(size.Rows, rows)
+	diffCols := math.SubClampZero(size.Cols, cols)
 
 	renderedLines := strings.Split(content, "\n")
 
@@ -52,14 +53,13 @@ func (r *FixedTerminalRender) Render(lines []text.Line, size terminal.Winsize) s
 	leftPadding := diffCols / 2
 
 	buffer := make([]string, size.Rows)
-
 	for i := range size.Rows {
 		buffer[i] = helper.FillRight(marker.DefaultPaddingText, int(size.Cols))
 	}
 
 	index := topPadding
 	for _, line := range renderedLines {
-		fixed := helper.Right(marker.DefaultPaddingText, leftPadding)
+		fixed := helper.Right(marker.DefaultPaddingText, int(leftPadding))
 		buffer[index] = helper.Right(fixed+line, int(size.Cols))
 		index += 1
 	}
