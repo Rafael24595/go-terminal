@@ -35,8 +35,9 @@ func (l *FixedLayout) ToLayout() layout.Layout {
 }
 
 func (l *FixedLayout) Appy(state *state.UIState, vm viewmodel.ViewModel, size terminal.Winsize) []text.Line {
-	rows := min(l.maxRows, size.Rows)
-	cols := min(l.maxCols, size.Cols)
-	winsize := terminal.NewWinsize(rows, cols)
+	winsize := terminal.NewWinsize(
+		min(l.maxRows, size.Rows),
+		min(l.maxCols, size.Cols),
+	)
 	return l.layout.Apply(state, vm, winsize)
 }
