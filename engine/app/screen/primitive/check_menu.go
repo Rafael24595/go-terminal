@@ -9,8 +9,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/widget/checkmenu"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/widget/checkmenu"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
@@ -236,7 +236,7 @@ func (c *CheckMenu) activeIds() set.Set[string] {
 func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 	source := c.definitionSource()
 
-	indexmenu := check.NewCheckMenuDrawable(c.options).
+	indexmenu := checkmenu.NewCheckMenuDrawable(c.options).
 		WriteMode(c.action.ActionMode).
 		Meta(c.meta).
 		Cursor(c.cursor)
@@ -254,17 +254,17 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 		pager.PredicateFocus(),
 	)
 
+	vm.Helper.Push(
+		key.ActionsToHelpWithOverride(
+			source.Overrides, source.Actions...,
+		)...,
+	)
+
 	option := min(len(c.options)-1, int(c.cursor))
 	text := c.options[option].Label.Text
 
 	input := viewmodel.NewInputLine(
 		block.BlockDrawableFromString(text),
-	)
-
-	vm.Helper.Push(
-		key.ActionsToHelpWithOverride(
-			source.Overrides, source.Actions...,
-		)...,
 	)
 
 	vm.SetInput(input)

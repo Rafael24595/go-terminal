@@ -1,4 +1,4 @@
-package check
+package checkmenu
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
