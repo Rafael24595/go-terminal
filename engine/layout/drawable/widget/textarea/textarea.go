@@ -140,7 +140,7 @@ func (d *TextAreaDrawable) resolveFragments(renderBuffer []rune, start uint, end
 
 func (d *TextAreaDrawable) resolveBackwardSelection(renderBuffer []rune, start uint, end uint) ([]text.Fragment, uint, uint) {
 	selection := renderBuffer[start:end]
-	caretAtom := d.BlinkStyle()
+	caretAtom := d.blinkStyle()
 
 	frags := make([]text.Fragment, 0, 2)
 
@@ -174,7 +174,7 @@ func (d *TextAreaDrawable) resolveBackwardSelection(renderBuffer []rune, start u
 
 func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start uint, end uint) ([]text.Fragment, uint, uint) {
 	selection := renderBuffer[start:end]
-	caretAtom := d.BlinkStyle()
+	caretAtom := d.blinkStyle()
 
 	frags := make([]text.Fragment, 0, 3)
 
@@ -221,7 +221,7 @@ func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start ui
 	return frags, start, end
 }
 
-func (c *TextAreaDrawable) BlinkStyle() style.Atom {
+func (c *TextAreaDrawable) blinkStyle() style.Atom {
 	if !c.writeMode {
 		return style.AtmNone
 	}
