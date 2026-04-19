@@ -2,12 +2,14 @@ package dict
 
 import (
 	"iter"
+	"sync"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/list"
 )
 
 type LinkedMap[K comparable, V any] struct {
+	init sync.Once
 	inmu bool
 	list *list.List[Pair[K, V]]
 	data map[K]*list.Item[Pair[K, V]]
@@ -18,7 +20,7 @@ func NewLinkedMap[K comparable, V any]() *LinkedMap[K, V] {
 }
 
 func NewInmutableLinkedMap[K comparable, V any](pairs ...Pair[K, V]) *LinkedMap[K, V] {
-	linked := NewLinkedMap[K, V]()
+	linked := NewLinkedMap[K, V]().Init()
 	linked.inmu = true
 
 	for _, p := range pairs {
@@ -28,22 +30,26 @@ func NewInmutableLinkedMap[K comparable, V any](pairs ...Pair[K, V]) *LinkedMap[
 	return linked
 }
 
+func (m *LinkedMap[K, V]) lazyInit() *LinkedMap[K, V] {
+	return m.Init()
+}
+
 func (m *LinkedMap[K, V]) Init() *LinkedMap[K, V] {
-	m.list = list.New[Pair[K, V]]()
-	m.data = make(map[K]*list.Item[Pair[K, V]])
+	m.init.Do(func() {
+		m.list = list.New[Pair[K, V]]()
+		m.data = make(map[K]*list.Item[Pair[K, V]])
+	})
 	return m
 }
 
-func (m *LinkedMap[K, V]) lazyInit() *LinkedMap[K, V] {
-	if m.list == nil {
-		return m.Init()
-	}
-	return m
+func (m *LinkedMap[K, V]) Exists(k K) bool {
+	_, exists := m.Get(k)
+	return exists
 }
 
 func (m *LinkedMap[K, V]) Get(k K) (V, bool) {
 	m.lazyInit()
-	
+
 	if item, exists := m.data[k]; exists {
 		return item.Data.Value, true
 	}
@@ -123,6 +129,18 @@ func (m *LinkedMap[K, V]) Keys() iter.Seq[K] {
 	return func(yield func(K) bool) {
 		for item := range m.list.All() {
 			if !yield(item.Data.Key) {
+				return
+			}
+		}
+	}
+}
+
+func (m *LinkedMap[K, V]) Values() iter.Seq[V] {
+	m.lazyInit()
+
+	return func(yield func(V) bool) {
+		for item := range m.list.All() {
+			if !yield(item.Data.Value) {
 				return
 			}
 		}

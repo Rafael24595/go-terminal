@@ -1,8 +1,12 @@
 package list
 
-import "iter"
+import (
+	"iter"
+	"sync"
+)
 
 type List[T any] struct {
+	init sync.Once
 	root Item[T]
 	size uint
 }
@@ -11,17 +15,16 @@ func New[T any]() *List[T] {
 	return new(List[T]).Init()
 }
 
-func (l *List[T]) Init() *List[T] {
-	l.root.next = &l.root
-	l.root.prev = &l.root
-	l.size = 0
-	return l
+func (l *List[T]) lazyInit() *List[T] {
+	return l.Init()
 }
 
-func (l *List[T]) lazyInit() *List[T] {
-	if l.root.next == nil || l.root.prev == nil {
-		l.Init()
-	}
+func (l *List[T]) Init() *List[T] {
+	l.init.Do(func() {
+		l.root.next = &l.root
+		l.root.prev = &l.root
+		l.size = 0
+	})
 	return l
 }
 
