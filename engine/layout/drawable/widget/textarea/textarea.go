@@ -199,20 +199,24 @@ func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start ui
 		return frags, start, end
 	}
 
+	if selectionSize == 1 {
+		headerFrag := text.FragmentFromRunes(marker.PrintableCaretRunes).
+			AddAtom(caretAtom)
+		frags = append(frags, *headerFrag)
+	}
+
 	footer := marker.PrintableCaretRunes
 	if int(end) < len(renderBuffer)-1 && renderBuffer[end+1] != key.ENTER_LF {
 		footer = renderBuffer[end : end+1]
 		end += 1
 	}
 
-	headerFrag := text.FragmentFromRunes(marker.PrintableCaretRunes).
-		AddAtom(caretAtom)
 	selectFrag := text.FragmentFromRunes(selection).
 		AddAtom(caretAtom)
 	footerFrag := text.FragmentFromRunes(footer).
 		AddAtom(caretAtom, style.AtmFocus)
 
-	frags = append(frags, *headerFrag, *selectFrag, *footerFrag)
+	frags = append(frags, *selectFrag, *footerFrag)
 
 	return frags, start, end
 }
