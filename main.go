@@ -112,7 +112,7 @@ func main() {
 		newSize, _ := trm.Size()
 
 		//TODO: Replace with chan events
-		if newSize.Cols != size.Cols || newSize.Rows != size.Rows {
+		if !size.Eq(newSize) {
 			cmd.Update()
 			lytf.Update(newSize.Rows-paddingRows, newSize.Cols-paddingCols)
 			rndf.Update(newSize.Rows-paddingRows, newSize.Cols-paddingCols)
