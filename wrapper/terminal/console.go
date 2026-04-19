@@ -103,8 +103,7 @@ func (c *Console) Write(fragment string) error {
 
 func (c *Console) WriteLine(line ...string) error {
 	for _, l := range line {
-		assert.True(
-			c.cursor < c.winsize.Rows,
+		assert.True(terminal.Rows(c.cursor) < c.winsize.Rows,
 			"buffer overflow[%d]: the line '%s' cannot be appended at %d position",
 			c.winsize.Rows, l, c.cursor,
 		)

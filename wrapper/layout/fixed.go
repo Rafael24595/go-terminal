@@ -10,11 +10,11 @@ import (
 
 type FixedLayout struct {
 	layout  layout.Layout
-	maxRows uint16
+	maxRows terminal.Rows
 	maxCols uint16
 }
 
-func NewFixed(layout layout.Layout, maxRows, maxCols uint16) *FixedLayout {
+func NewFixed(layout layout.Layout, maxRows terminal.Rows, maxCols uint16) *FixedLayout {
 	return &FixedLayout{
 		layout:  layout,
 		maxRows: maxRows,
@@ -22,7 +22,7 @@ func NewFixed(layout layout.Layout, maxRows, maxCols uint16) *FixedLayout {
 	}
 }
 
-func (l *FixedLayout) Update(maxRows uint16, maxCols uint16) *FixedLayout {
+func (l *FixedLayout) Update(maxRows terminal.Rows, maxCols uint16) *FixedLayout {
 	l.maxCols = maxCols
 	l.maxRows = maxRows
 	return l

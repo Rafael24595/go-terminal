@@ -6,8 +6,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -23,7 +23,7 @@ const (
 
 type BoxDrawable struct {
 	loaded    bool
-	paddingY  uint
+	paddingY  terminal.Rows
 	paddingX  uint
 	minSize   uint
 	textAlign style.HorizontalPosition
@@ -35,7 +35,7 @@ func NewBoxDrawable(drawable drawable.Drawable) *BoxDrawable {
 	return &BoxDrawable{
 		loaded:    false,
 		minSize:   default_min_size,
-		paddingY:  default_padding,
+		paddingY:  terminal.Rows(default_padding),
 		paddingX:  default_padding,
 		textAlign: style.Center,
 		separator: marker.DefaultBoxSeparator,
@@ -57,7 +57,7 @@ func (d *BoxDrawable) Separator(separator marker.BoxSeparatorMeta) *BoxDrawable 
 	return d
 }
 
-func (d *BoxDrawable) PaddingY(padding uint) *BoxDrawable {
+func (d *BoxDrawable) PaddingY(padding terminal.Rows) *BoxDrawable {
 	d.paddingY = padding
 	return d
 }
@@ -233,8 +233,8 @@ func (d *BoxDrawable) calcPadding(size uint, line text.Line) (uint, uint) {
 }
 
 func (d *BoxDrawable) clampSize(size terminal.Winsize) terminal.Winsize {
-	vertical := 2
-	rows := math.SubClampZero(size.Rows, uint16(vertical))
+	vertical := terminal.Rows(2)
+	rows := math.SubClampZero(size.Rows, vertical)
 
 	horizontal := horizontalStaticSize(d.separator)
 	cols := math.SubClampZero(size.Cols, uint16(horizontal))

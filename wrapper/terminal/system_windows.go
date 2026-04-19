@@ -67,7 +67,7 @@ func Size() (terminal.Winsize, error) {
 	}
 
 	return terminal.Winsize{
-		Rows: uint16(info.Window.Bottom-info.Window.Top) + 1,
+		Rows: terminal.Rows(info.Window.Bottom-info.Window.Top) + 1,
 		Cols: uint16(info.Window.Right-info.Window.Left) + 1,
 	}, nil
 }

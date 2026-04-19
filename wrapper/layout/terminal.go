@@ -5,6 +5,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
+	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
@@ -28,18 +29,21 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.W
 		helperLines = drawStaticLines(helper, size)
 	}
 
-	static := len(headerLines) + len(footerLines) + len(inputLines) + len(helperLines)
-	rest := int(size.Rows) - static
-	if rest < 0 {
+	static := terminal.Rows(
+		len(headerLines) + len(footerLines) + len(inputLines) + len(helperLines),
+	)
+
+	if static > size.Rows {
 		return []text.Line{
 			*text.NewLine("Too low resolution"),
 		}
 	}
 
-	remSize := terminal.NewWinsize(uint16(rest), size.Cols)
+	rest := math.SubClampZero(size.Rows, static)
+	remSize := terminal.NewWinsize(rest, size.Cols)
 	lines := vm.InitDynamicLayers(remSize)
 
-	dynamicSize := terminal.NewWinsize(uint16(rest), size.Cols)
+	dynamicSize := terminal.NewWinsize(rest, size.Cols)
 	drawCtx := draw.NewDrawContext(state, dynamicSize)
 	drawStt := drawDynamicLines(drawCtx, vm.Pager, lines)
 
@@ -123,7 +127,7 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 				}
 
 				state.Cursor += 1
-				if state.Cursor < ctx.Size.Rows {
+				if terminal.Rows(state.Cursor) < ctx.Size.Rows {
 					continue
 				}
 

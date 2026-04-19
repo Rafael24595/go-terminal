@@ -1,16 +1,16 @@
 package terminal
 
-// TODO: Use custom type for rows and cols.
+// TODO: Use custom type for cols.
 
-//type Rows uint16
+type Rows uint16
 //type Cols uint16
 
 type Winsize struct {
-	Rows uint16
+	Rows Rows
 	Cols uint16
 }
 
-func NewWinsize(rows, cols uint16) Winsize {
+func NewWinsize(rows Rows, cols uint16) Winsize {
 	return Winsize{
 		Rows: rows,
 		Cols: cols,

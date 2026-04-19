@@ -63,11 +63,14 @@ func TestBlockDrawable_Draw_ShouldAccumulateLines(t *testing.T) {
 		return []text.Line{*text.NewLine("golang")}, true
 	}
 
-	rows := uint16(3)
+	rows := 3
 	bd := NewBlockDrawable(dw)
 	bd.init()
 
-	lines, hasNext := bd.draw(terminal.Winsize{Rows: rows, Cols: 10})
+	lines, hasNext := bd.draw(terminal.Winsize{
+		Rows: terminal.Rows(rows),
+		Cols: 10,
+	})
 
 	assert.Len(t, int(rows), lines)
 	assert.Equal(t, count, int(rows))

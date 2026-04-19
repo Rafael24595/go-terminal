@@ -19,7 +19,7 @@ const (
 
 type PositionDrawable struct {
 	loaded    bool
-	marginY   uint
+	marginY   terminal.Rows
 	marginX   uint
 	absolute  bool
 	positionY style.VerticalPosition
@@ -30,7 +30,7 @@ type PositionDrawable struct {
 func NewPositionDrawable(drawable drawable.Drawable) *PositionDrawable {
 	return &PositionDrawable{
 		loaded:    false,
-		marginY:   default_margin,
+		marginY:   terminal.Rows(default_margin),
 		marginX:   default_margin,
 		absolute:  true,
 		positionX: style.Center,
@@ -43,7 +43,7 @@ func PositionDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable 
 	return NewPositionDrawable(drawable).ToDrawable()
 }
 
-func (d *PositionDrawable) MarginY(margin uint) *PositionDrawable {
+func (d *PositionDrawable) MarginY(margin terminal.Rows) *PositionDrawable {
 	d.marginY = margin
 	return d
 }
@@ -89,7 +89,7 @@ func (d *PositionDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	fixedSize := terminal.Winsize{
-		Rows: math.SubClampZero(size.Rows, uint16(d.marginY)*2),
+		Rows: math.SubClampZero(size.Rows, d.marginY*2),
 		Cols: math.SubClampZero(size.Cols, uint16(d.marginX)*2),
 	}
 
@@ -115,18 +115,18 @@ func (d *PositionDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 }
 
 func (d *PositionDrawable) makeTopMargin(size terminal.Winsize, lines []text.Line) []text.Line {
-	width := len(lines)
+	width := terminal.Rows(len(lines))
 
-	if d.positionY == style.Top || width >= int(size.Rows) {
+	if d.positionY == style.Top || width >= size.Rows {
 		return make([]text.Line, d.marginY)
 	}
 
-	start := (size.Rows - uint16(width))
+	start := size.Rows - width
 	if d.positionY == style.Middle {
 		start /= 2
 	}
 
-	return make([]text.Line, start+uint16(d.marginY))
+	return make([]text.Line, start+d.marginY)
 }
 
 func (d *PositionDrawable) addBottomMargin(lines []text.Line) []text.Line {

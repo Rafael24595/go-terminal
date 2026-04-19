@@ -12,11 +12,11 @@ import (
 
 type FixedTerminalRender struct {
 	render  render.Render
-	maxRows uint16
+	maxRows terminal.Rows
 	maxCols uint16
 }
 
-func NewFixed(render render.Render, maxRows, maxCols uint16) *FixedTerminalRender {
+func NewFixed(render render.Render, maxRows terminal.Rows, maxCols uint16) *FixedTerminalRender {
 	return &FixedTerminalRender{
 		render:  render,
 		maxRows: maxRows,
@@ -24,7 +24,7 @@ func NewFixed(render render.Render, maxRows, maxCols uint16) *FixedTerminalRende
 	}
 }
 
-func (l *FixedTerminalRender) Update(maxRows uint16, maxCols uint16) *FixedTerminalRender {
+func (l *FixedTerminalRender) Update(maxRows terminal.Rows, maxCols uint16) *FixedTerminalRender {
 	l.maxCols = maxCols
 	l.maxRows = maxRows
 	return l
