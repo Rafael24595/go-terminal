@@ -1,5 +1,7 @@
 package winsize
 
+type Transformer func(Winsize) Winsize
+
 // TODO: Use custom type for cols.
 
 type Rows uint16
