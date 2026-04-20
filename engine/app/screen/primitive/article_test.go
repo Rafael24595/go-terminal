@@ -7,8 +7,8 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
 )
@@ -71,7 +71,7 @@ func TestArticle_View(t *testing.T) {
 
 	vm := article.view(*state)
 
-	size := terminal.Winsize{
+	size := winsize.Winsize{
 		Rows: 3,
 		Cols: 10,
 	}

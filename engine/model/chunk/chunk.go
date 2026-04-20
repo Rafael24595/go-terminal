@@ -2,7 +2,7 @@ package chunk
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 )
 
 const max_chunk = 100
@@ -11,7 +11,7 @@ const (
 	err_chunk_size = "chunk value should be less or equals than %s"
 )
 
-type chunkAdapter func(size terminal.Winsize) uint16
+type chunkAdapter func(size winsize.Winsize) uint16
 
 type Chunk struct {
 	Adapter chunkAdapter
@@ -45,13 +45,13 @@ func Percent(chk uint16) Chunk {
 }
 
 func percAdapter(chunk uint16) chunkAdapter {
-	return func(size terminal.Winsize) uint16 {
+	return func(size winsize.Winsize) uint16 {
 		return (size.Cols * chunk) / 100
 	}
 }
 
 func colsAdapter(cols uint16) chunkAdapter {
-	return func(size terminal.Winsize) uint16 {
+	return func(size winsize.Winsize) uint16 {
 		if cols > size.Cols {
 			return size.Cols
 		}

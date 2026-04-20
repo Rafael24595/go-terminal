@@ -12,15 +12,15 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
 func TestTerminalApply_FixedAndPaged(t *testing.T) {
-	size := terminal.Winsize{Rows: 6, Cols: 10}
+	size := winsize.Winsize{Rows: 6, Cols: 10}
 
 	vm := viewmodel.NewViewModel()
 
@@ -77,7 +77,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 }
 
 func TestTerminalApply_MultiplePages(t *testing.T) {
-	size := terminal.Winsize{Rows: 4, Cols: 8}
+	size := winsize.Winsize{Rows: 4, Cols: 8}
 
 	stt := state.NewUIState()
 
@@ -144,7 +144,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 	vm := viewmodel.NewViewModel()
 
-	dynamicSize := terminal.NewWinsize(2, uint16(sizeCols))
+	dynamicSize := winsize.NewWinsize(2, uint16(sizeCols))
 	drawCtx := draw.NewDrawContext(stt, dynamicSize)
 	drawStt := drawDynamicLines(drawCtx, vm.Pager, layer)
 
@@ -174,7 +174,7 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 
 	layer.Init()
 
-	result := drawStaticLines(layer, terminal.Winsize{
+	result := drawStaticLines(layer, winsize.Winsize{
 		Rows: 2,
 		Cols: 80,
 	})
@@ -195,7 +195,7 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 
 	layer.Init()
 
-	result := drawStaticLines(layer, terminal.Winsize{
+	result := drawStaticLines(layer, winsize.Winsize{
 		Rows: 3,
 		Cols: 7,
 	})
@@ -209,7 +209,7 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 }
 
 func TestTerminalApply_InitializeLayers(t *testing.T) {
-	size := terminal.Winsize{Rows: 5, Cols: 8}
+	size := winsize.Winsize{Rows: 5, Cols: 8}
 
 	stt := state.NewUIState()
 

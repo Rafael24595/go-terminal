@@ -9,9 +9,9 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameHelpDrawable = "HelpDrawable"
@@ -59,7 +59,7 @@ func (d *HelpDrawable) wipe() {
 	d.drawable.Wipe()
 }
 
-func (d *HelpDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *HelpDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	return d.drawable.Draw(size)

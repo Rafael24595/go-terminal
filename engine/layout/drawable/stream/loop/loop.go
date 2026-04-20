@@ -4,8 +4,8 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameLoopDrawable = "LoopDrawable"
@@ -43,7 +43,7 @@ func (d *LoopDrawable) init() {
 	d.drawable.Init()
 }
 
-func (d *LoopDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *LoopDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	lines, status := d.drawable.Draw(size)

@@ -7,8 +7,8 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameMockDrawable = "MockDrawable"
@@ -22,7 +22,7 @@ type MockDrawable struct {
 	DrawCalls  int
 	Lines      []text.Line
 	Status     bool
-	Size       terminal.Winsize
+	Size       winsize.Winsize
 }
 
 func (m *MockDrawable) Init() {
@@ -33,7 +33,7 @@ func (m *MockDrawable) Wipe() {
 	m.WipeCalled = true
 }
 
-func (m *MockDrawable) Draw(size terminal.Winsize) ([]text.Line, bool) {
+func (m *MockDrawable) Draw(size winsize.Winsize) ([]text.Line, bool) {
 	m.DrawCalls++
 	m.Size = size
 	return m.Lines, m.Status
@@ -60,7 +60,7 @@ func Test_DrawableBasicSuite(t *testing.T, dw drawable.Drawable) {
 
 	Helper_ToDrawable(t, dw)
 	assert.Panic(t, func() {
-		dw.Draw(terminal.Winsize{})
+		dw.Draw(winsize.Winsize{})
 	})
 }
 

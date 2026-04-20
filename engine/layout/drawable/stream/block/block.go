@@ -5,8 +5,8 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameBlockDrawable = "BlockDrawable"
@@ -57,7 +57,7 @@ func (d *BlockDrawable) init() {
 	d.drawable.Init()
 }
 
-func (d *BlockDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *BlockDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	lines := make([]text.Line, 0)

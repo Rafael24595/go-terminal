@@ -2,8 +2,8 @@ package drawable
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 type Drawable struct {
@@ -12,7 +12,7 @@ type Drawable struct {
 	Tags set.Set[string]
 	Init func()
 	Wipe func()
-	Draw func(size terminal.Winsize) ([]text.Line, bool)
+	Draw func(size winsize.Winsize) ([]text.Line, bool)
 }
 
 func (d Drawable) SetCode(code string) Drawable {

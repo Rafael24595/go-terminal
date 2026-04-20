@@ -5,8 +5,8 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
@@ -58,16 +58,16 @@ func TestVStack_Shift_Order(t *testing.T) {
 	d1 := m1.ToDrawable()
 	d2 := m2.ToDrawable()
 
-	d1.Draw = func(_ terminal.Winsize) ([]text.Line, bool) {
+	d1.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
 		m1.Order = count
 		count++
-		return m1.Draw(terminal.Winsize{})
+		return m1.Draw(winsize.Winsize{})
 	}
 
-	d2.Draw = func(_ terminal.Winsize) ([]text.Line, bool) {
+	d2.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
 		m2.Order = count
 		count++
-		return m2.Draw(terminal.Winsize{})
+		return m2.Draw(winsize.Winsize{})
 	}
 
 	stack.Push(d1)
@@ -75,7 +75,7 @@ func TestVStack_Shift_Order(t *testing.T) {
 
 	stack.init()
 
-	stack.draw(terminal.Winsize{})
+	stack.draw(winsize.Winsize{})
 
 	assert.Equal(t, 0, m1.Order)
 	assert.Equal(t, 1, m2.Order)
@@ -92,16 +92,16 @@ func TestVStack_Unshift_Order(t *testing.T) {
 	d1 := m1.ToDrawable()
 	d2 := m2.ToDrawable()
 
-	d1.Draw = func(_ terminal.Winsize) ([]text.Line, bool) {
+	d1.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
 		m1.Order = count
 		count++
-		return m1.Draw(terminal.Winsize{})
+		return m1.Draw(winsize.Winsize{})
 	}
 
-	d2.Draw = func(_ terminal.Winsize) ([]text.Line, bool) {
+	d2.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
 		m2.Order = count
 		count++
-		return m2.Draw(terminal.Winsize{})
+		return m2.Draw(winsize.Winsize{})
 	}
 
 	stack.Push(d1)
@@ -109,7 +109,7 @@ func TestVStack_Unshift_Order(t *testing.T) {
 
 	stack.init()
 
-	stack.draw(terminal.Winsize{})
+	stack.draw(winsize.Winsize{})
 
 	assert.Equal(t, 1, m1.Order)
 	assert.Equal(t, 0, m2.Order)
@@ -128,7 +128,7 @@ func TestVStack_Draw_BreaksOnTrue(t *testing.T) {
 
 	stack.init()
 
-	_, global := stack.draw(terminal.Winsize{})
+	_, global := stack.draw(winsize.Winsize{})
 
 	assert.True(t, global)
 	assert.Equal(t, 0, d2.DrawCalls)
@@ -143,8 +143,8 @@ func TestVStack_DisablesLayer(t *testing.T) {
 
 	stack.init()
 
-	stack.draw(terminal.Winsize{})
-	stack.draw(terminal.Winsize{})
+	stack.draw(winsize.Winsize{})
+	stack.draw(winsize.Winsize{})
 
 	assert.Equal(t, 1, d1.DrawCalls)
 }
@@ -172,7 +172,7 @@ func TestVStack_BufferConcat(t *testing.T) {
 
 	stack.init()
 
-	buffer, _ := stack.draw(terminal.Winsize{})
+	buffer, _ := stack.draw(winsize.Winsize{})
 
 	assert.Len(t, 2, buffer)
 	assert.Equal(t, "golang", text.LineToString(&buffer[0])+text.LineToString(&buffer[1]))
@@ -193,7 +193,7 @@ func TestVStack_ShortCircuitStopsPropagation(t *testing.T) {
 
 	stack.init()
 
-	stack.draw(terminal.Winsize{})
+	stack.draw(winsize.Winsize{})
 
 	assert.Equal(t, 1, d1.DrawCalls)
 	assert.Equal(t, 1, d2.DrawCalls)

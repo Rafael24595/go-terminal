@@ -10,13 +10,13 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/model/action"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
-func drawSources(vm viewmodel.ViewModel, winsize terminal.Winsize) {
+func drawSources(vm viewmodel.ViewModel, winsize winsize.Winsize) {
 	header := vm.Header.ToDrawable()
 	header.Init()
 	header.Draw(winsize)
@@ -118,7 +118,7 @@ func TestMapScreen_ActionSingleFocus(t *testing.T) {
 
 	drawSources(
 		s.View(state.UIState{}),
-		terminal.Winsize{},
+		winsize.Winsize{},
 	)
 
 	assert.False(t, headerBase.InitCalled)
@@ -161,7 +161,7 @@ func TestMapScreen_ActionMultipleFocus(t *testing.T) {
 
 	drawSources(
 		s.View(state.UIState{}),
-		terminal.Winsize{},
+		winsize.Winsize{},
 	)
 
 	assert.False(t, linesBase.InitCalled)

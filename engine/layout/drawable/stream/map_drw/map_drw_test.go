@@ -5,12 +5,12 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
-func mockDrawInputMap(w terminal.Winsize) terminal.Winsize {
+func mockDrawInputMap(w winsize.Winsize) winsize.Winsize {
 	return w
 }
 
@@ -26,7 +26,7 @@ func TestMap_ShouldPanicIfNewElementsAddedAfterInitialization(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
 	bd := NewMapDrawable(mock.ToDrawable()).
 		SetDrawInputMap(mockDrawInputMap)
-		
+
 	dw := bd.ToDrawable()
 	dw.Init()
 
@@ -51,7 +51,7 @@ func TestMap_ReturnBaseIfNils(t *testing.T) {
 
 func TestMap_InputMapping(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	mockSize := terminal.Winsize{
+	mockSize := winsize.Winsize{
 		Rows: 50,
 		Cols: 50,
 	}
@@ -60,7 +60,7 @@ func TestMap_InputMapping(t *testing.T) {
 		SetDrawInputMap(PredFixedWinsize(mockSize)).
 		ToDrawable()
 
-	size := terminal.Winsize{
+	size := winsize.Winsize{
 		Rows: 25,
 		Cols: 25,
 	}
@@ -80,7 +80,7 @@ func TestMap_OutputMapping(t *testing.T) {
 	}
 
 	dw := NewMapDrawable(mock.ToDrawable()).
-		SetDrawOutputMap(func(w terminal.Winsize, d drawable.Drawable) ([]text.Line, bool) {
+		SetDrawOutputMap(func(w winsize.Winsize, d drawable.Drawable) ([]text.Line, bool) {
 			lines, _ := d.Draw(w)
 			return []text.Line{
 				*lines[0].UnshiftFragments(
@@ -91,7 +91,7 @@ func TestMap_OutputMapping(t *testing.T) {
 		}).
 		ToDrawable()
 
-	size := terminal.Winsize{
+	size := winsize.Winsize{
 		Rows: 25,
 		Cols: 25,
 	}

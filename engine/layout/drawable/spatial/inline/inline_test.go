@@ -5,9 +5,9 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
-	
+
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
@@ -22,12 +22,12 @@ func TestInline_LazyInit(t *testing.T) {
 	bd := NewInlineDrawable(mock.ToDrawable())
 
 	assert.False(t, bd.lazyLoaded)
-	assert.True(t, 
+	assert.True(t,
 		drawable_test.Helper_IsDrawableNil(t, bd.drawable),
 	)
 
 	bd.init()
-	bd.draw(terminal.Winsize{})
+	bd.draw(winsize.Winsize{})
 
 	assert.True(t, bd.lazyLoaded)
 	drawable_test.Helper_ToDrawable(t, bd.drawable)
@@ -55,7 +55,7 @@ func TestInline_JoinsChildren(t *testing.T) {
 
 	dr.Init()
 
-	lines, _ := dr.Draw(terminal.Winsize{
+	lines, _ := dr.Draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 10,
 	})
@@ -88,7 +88,7 @@ func TestInline_JoinsChildrenWithSeparator(t *testing.T) {
 
 	dr.Init()
 
-	lines, _ := dr.Draw(terminal.Winsize{
+	lines, _ := dr.Draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 16,
 	})
@@ -115,7 +115,7 @@ func TestInline_MultipleLines(t *testing.T) {
 
 	dr.Init()
 
-	lines, _ := dr.Draw(terminal.Winsize{
+	lines, _ := dr.Draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 9,
 	})
@@ -131,7 +131,7 @@ func TestInline_Empty(t *testing.T) {
 
 	dr.Init()
 
-	lines, _ := dr.Draw(terminal.Winsize{})
+	lines, _ := dr.Draw(winsize.Winsize{})
 
 	assert.Len(t, 0, lines)
 }

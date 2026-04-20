@@ -9,10 +9,10 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameIndexMenuDrawable = "IndexMenuDrawable"
@@ -128,7 +128,7 @@ func (d *IndexMenuDrawable) wipe() {
 	d.drawable.Wipe()
 }
 
-func (d *IndexMenuDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *IndexMenuDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	return d.drawable.Draw(size)

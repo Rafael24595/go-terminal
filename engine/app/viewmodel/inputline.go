@@ -5,9 +5,9 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameInputLineDrawable = "InputLineDrawable"
@@ -60,7 +60,7 @@ func (d *inputLineDrawable) init() {
 
 func (d *inputLineDrawable) wipe() {}
 
-func (d *inputLineDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *inputLineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	lines := make([]text.Line, 0)

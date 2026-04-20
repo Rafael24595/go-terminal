@@ -1,4 +1,4 @@
-package terminal
+package winsize
 
 // TODO: Use custom type for cols.
 

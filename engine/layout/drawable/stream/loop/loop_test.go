@@ -5,9 +5,9 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
-	
+
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
@@ -29,7 +29,7 @@ func TestLoop_Child_WipeCalled(t *testing.T) {
 
 	assert.False(t, mock.WipeCalled)
 
-	dw.Draw(terminal.Winsize{})
+	dw.Draw(winsize.Winsize{})
 
 	assert.True(t, mock.WipeCalled)
 }
@@ -39,6 +39,6 @@ func TestLoopDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
 	bd := NewLoopDrawable(mock.ToDrawable())
 
 	assert.Panic(t, func() {
-		bd.draw(terminal.Winsize{})
+		bd.draw(winsize.Winsize{})
 	})
 }

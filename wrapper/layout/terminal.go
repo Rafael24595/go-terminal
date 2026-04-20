@@ -8,12 +8,12 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 // TODO: Implement tokenize lines method to prevent line feed injection.
-func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.Winsize) []text.Line {
+func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size winsize.Winsize) []text.Line {
 	header, footer := vm.InitStaticLayers()
 
 	headerLines := drawStaticLines(header, size)
@@ -29,7 +29,7 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.W
 		helperLines = drawStaticLines(helper, size)
 	}
 
-	static := terminal.Rows(
+	static := winsize.Rows(
 		len(headerLines) + len(footerLines) + len(inputLines) + len(helperLines),
 	)
 
@@ -40,10 +40,10 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.W
 	}
 
 	rest := math.SubClampZero(size.Rows, static)
-	remSize := terminal.NewWinsize(rest, size.Cols)
+	remSize := winsize.NewWinsize(rest, size.Cols)
 	lines := vm.InitDynamicLayers(remSize)
 
-	dynamicSize := terminal.NewWinsize(rest, size.Cols)
+	dynamicSize := winsize.NewWinsize(rest, size.Cols)
 	drawCtx := draw.NewDrawContext(state, dynamicSize)
 	drawStt := drawDynamicLines(drawCtx, vm.Pager, lines)
 
@@ -59,7 +59,7 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size terminal.W
 	return allLines
 }
 
-func drawStaticLines(drawable drawable.Drawable, size terminal.Winsize) []text.Line {
+func drawStaticLines(drawable drawable.Drawable, size winsize.Winsize) []text.Line {
 	rows := int(size.Rows)
 	cols := int(size.Cols)
 
@@ -127,7 +127,7 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 				}
 
 				state.Cursor += 1
-				if terminal.Rows(state.Cursor) < ctx.Size.Rows {
+				if winsize.Rows(state.Cursor) < ctx.Size.Rows {
 					continue
 				}
 

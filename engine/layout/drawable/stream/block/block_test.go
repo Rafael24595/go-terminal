@@ -5,8 +5,8 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
@@ -32,7 +32,7 @@ func TestBlockDrawable_Draw_ShouldReturnEmptyIfRowsIsZero(t *testing.T) {
 
 	bd.init()
 
-	lines, hasNext := bd.draw(terminal.Winsize{Rows: 0, Cols: 10})
+	lines, hasNext := bd.draw(winsize.Winsize{Rows: 0, Cols: 10})
 
 	assert.Len(t, 0, lines)
 	assert.True(t, hasNext)
@@ -46,7 +46,7 @@ func TestBlockDrawable_Draw_ShouldStopWhenChildHasNoNext(t *testing.T) {
 	bd := NewBlockDrawable(mock.ToDrawable())
 	bd.init()
 
-	lines, hasNext := bd.draw(terminal.Winsize{Rows: 5, Cols: 10})
+	lines, hasNext := bd.draw(winsize.Winsize{Rows: 5, Cols: 10})
 
 	assert.Len(t, 1, lines)
 	assert.False(t, hasNext)
@@ -58,7 +58,7 @@ func TestBlockDrawable_Draw_ShouldAccumulateLines(t *testing.T) {
 	mc := &drawable_test.MockDrawable{}
 	dw := mc.ToDrawable()
 
-	dw.Draw = func(size terminal.Winsize) ([]text.Line, bool) {
+	dw.Draw = func(size winsize.Winsize) ([]text.Line, bool) {
 		count++
 		return []text.Line{*text.NewLine("golang")}, true
 	}
@@ -67,8 +67,8 @@ func TestBlockDrawable_Draw_ShouldAccumulateLines(t *testing.T) {
 	bd := NewBlockDrawable(dw)
 	bd.init()
 
-	lines, hasNext := bd.draw(terminal.Winsize{
-		Rows: terminal.Rows(rows),
+	lines, hasNext := bd.draw(winsize.Winsize{
+		Rows: winsize.Rows(rows),
 		Cols: 10,
 	})
 

@@ -5,8 +5,8 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameInlineDrawable = "InlineDrawable"
@@ -14,7 +14,7 @@ const NameInlineDrawable = "InlineDrawable"
 type InlineDrawable struct {
 	loaded     bool
 	lazyLoaded bool
-	size       terminal.Winsize
+	size       winsize.Winsize
 	separator  string
 	drawables  []drawable.Drawable
 	drawable   drawable.Drawable
@@ -24,7 +24,7 @@ func NewInlineDrawable(drawables ...drawable.Drawable) *InlineDrawable {
 	return &InlineDrawable{
 		loaded:     false,
 		lazyLoaded: false,
-		size:       terminal.Winsize{},
+		size:       winsize.Winsize{},
 		separator:  "",
 		drawables:  drawables,
 		drawable:   drawable.Drawable{},
@@ -60,7 +60,7 @@ func (d *InlineDrawable) wipe() {
 	d.lazyLoaded = false
 }
 
-func (d *InlineDrawable) lazyInit(size terminal.Winsize) {
+func (d *InlineDrawable) lazyInit(size winsize.Winsize) {
 	if d.lazyLoaded {
 		return
 	}
@@ -77,7 +77,7 @@ func (d *InlineDrawable) lazyInit(size terminal.Winsize) {
 	d.drawable.Init()
 }
 
-func (d *InlineDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *InlineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	d.lazyInit(size)

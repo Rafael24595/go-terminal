@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
 )
@@ -81,7 +81,7 @@ func TestHistory_ViewFooter(t *testing.T) {
 	footer := vm.Footer.ToDrawable()
 	footer.Init()
 
-	lines, _ := footer.Draw(terminal.Winsize{})
+	lines, _ := footer.Draw(winsize.Winsize{})
 
 	assert.Len(t, 0, lines)
 
@@ -91,7 +91,7 @@ func TestHistory_ViewFooter(t *testing.T) {
 	footer = vm.Footer.ToDrawable()
 	footer.Init()
 
-	lines, _ = footer.Draw(terminal.Winsize{
+	lines, _ = footer.Draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 10,
 	})

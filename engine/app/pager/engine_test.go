@@ -5,15 +5,15 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 	"github.com/Rafael24595/go-terminal/engine/app/draw"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 func TestEnginePage(t *testing.T) {
 	engine := EnginePage()
 
 	ctx := &draw.DrawContext{
-		Size: terminal.Winsize{Rows: 3},
+		Size: winsize.Winsize{Rows: 3},
 	}
 
 	state := &draw.DrawState{
@@ -35,7 +35,7 @@ func TestEnginePage_AlwaysResetsBuffer(t *testing.T) {
 	engine := EnginePage()
 
 	ctx := &draw.DrawContext{
-		Size: terminal.Winsize{Rows: 2},
+		Size: winsize.Winsize{Rows: 2},
 	}
 
 	state := &draw.DrawState{
@@ -52,7 +52,7 @@ func TestEngineScroll(t *testing.T) {
 	engine := EngineScroll()
 
 	ctx := &draw.DrawContext{
-		Size: terminal.Winsize{Rows: 3},
+		Size: winsize.Winsize{Rows: 3},
 	}
 
 	state := &draw.DrawState{

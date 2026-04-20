@@ -9,9 +9,9 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameModalDrawable = "ModalDrawable"
@@ -78,7 +78,7 @@ func (d *ModalDrawable) init() {
 	d.lazyLoaded = false
 }
 
-func (d *ModalDrawable) lazyInit(size terminal.Winsize) {
+func (d *ModalDrawable) lazyInit(size winsize.Winsize) {
 	if d.lazyLoaded {
 		return
 	}
@@ -137,7 +137,7 @@ func (d *ModalDrawable) wipe() {
 	d.drawable.Wipe()
 }
 
-func (d *ModalDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *ModalDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	d.lazyInit(size)

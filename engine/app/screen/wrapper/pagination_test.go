@@ -10,8 +10,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
 )
@@ -78,7 +78,7 @@ func TestPagination_ViewFooter(t *testing.T) {
 	footer := vm.Footer.ToDrawable()
 	footer.Init()
 
-	lines, _ := footer.Draw(terminal.Winsize{
+	lines, _ := footer.Draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 10,
 	})

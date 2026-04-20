@@ -11,10 +11,10 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameTextAreaDrawable = "TextAreaDrawable"
@@ -74,7 +74,7 @@ func (d *TextAreaDrawable) init() {
 	d.lazyLoaded = false
 }
 
-func (d *TextAreaDrawable) lazyInit(size terminal.Winsize) {
+func (d *TextAreaDrawable) lazyInit(size winsize.Winsize) {
 	if d.lazyLoaded {
 		return
 	}
@@ -279,7 +279,7 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 	return lines
 }
 
-func (d *TextAreaDrawable) fixEmptyLines(size terminal.Winsize, lines []text.Line) []text.Line {
+func (d *TextAreaDrawable) fixEmptyLines(size winsize.Winsize, lines []text.Line) []text.Line {
 	for i, line := range lines {
 		if text.FragmentMeasure(int(size.Cols), line.Text...) != 0 {
 			continue
@@ -297,7 +297,7 @@ func (d *TextAreaDrawable) fixEmptyLines(size terminal.Winsize, lines []text.Lin
 	}
 	return lines
 }
-func (d *TextAreaDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *TextAreaDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	d.lazyInit(size)

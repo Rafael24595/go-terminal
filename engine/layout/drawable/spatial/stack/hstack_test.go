@@ -6,8 +6,8 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
 	"github.com/Rafael24595/go-terminal/engine/model/chunk"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
 
@@ -28,7 +28,7 @@ func TestHStack_Distribution(t *testing.T) {
 	)
 
 	stack.init()
-	stack.lazyInit(terminal.Winsize{
+	stack.lazyInit(winsize.Winsize{
 		Cols: 100,
 	})
 
@@ -49,7 +49,7 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 	stack.Push(d2.ToDrawable(), d3.ToDrawable())
 
 	stack.init()
-	stack.lazyInit(terminal.Winsize{
+	stack.lazyInit(winsize.Winsize{
 		Cols: 100,
 	})
 
@@ -59,7 +59,7 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 }
 
 func TestHStack_RenderOutput(t *testing.T) {
-	size := terminal.Winsize{Rows: 1, Cols: 6}
+	size := winsize.Winsize{Rows: 1, Cols: 6}
 
 	dA := &drawable_test.MockDrawable{
 		Lines: []text.Line{

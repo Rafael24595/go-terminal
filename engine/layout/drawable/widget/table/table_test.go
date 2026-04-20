@@ -6,7 +6,7 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/test"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
@@ -30,7 +30,7 @@ func TestTable_LazyInit(t *testing.T) {
 	assert.Len(t, 0, dw.sections)
 
 	dw.init()
-	dw.draw(terminal.Winsize{
+	dw.draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 11,
 	})

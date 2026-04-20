@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 )
 
 func TestDynamic(t *testing.T) {
@@ -12,7 +12,7 @@ func TestDynamic(t *testing.T) {
 
 	assert.False(t, c.Sized)
 
-	res := c.Adapter(terminal.Winsize{
+	res := c.Adapter(winsize.Winsize{
 		Cols: 80,
 	})
 
@@ -37,7 +37,7 @@ func TestColums(t *testing.T) {
 			c := Colums(tt.columns)
 			assert.True(t, c.Sized)
 
-			res := c.Adapter(terminal.Winsize{
+			res := c.Adapter(winsize.Winsize{
 				Cols: tt.terminal,
 			})
 
@@ -65,8 +65,8 @@ func TestPercent(t *testing.T) {
 			c := Percent(tt.percent)
 			assert.True(t, c.Sized)
 
-			res := c.Adapter(terminal.Winsize{Cols: tt.terminal})
-			
+			res := c.Adapter(winsize.Winsize{Cols: tt.terminal})
+
 			assert.Equal(t, tt.expected, res)
 		})
 	}

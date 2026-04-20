@@ -8,10 +8,10 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameBoxDrawable = "BoxDrawable"
@@ -23,7 +23,7 @@ const (
 
 type BoxDrawable struct {
 	loaded    bool
-	paddingY  terminal.Rows
+	paddingY  winsize.Rows
 	paddingX  uint
 	minSize   uint
 	textAlign style.HorizontalPosition
@@ -35,7 +35,7 @@ func NewBoxDrawable(drawable drawable.Drawable) *BoxDrawable {
 	return &BoxDrawable{
 		loaded:    false,
 		minSize:   default_min_size,
-		paddingY:  terminal.Rows(default_padding),
+		paddingY:  winsize.Rows(default_padding),
 		paddingX:  default_padding,
 		textAlign: style.Center,
 		separator: marker.DefaultBoxSeparator,
@@ -57,7 +57,7 @@ func (d *BoxDrawable) Separator(separator marker.BoxSeparatorMeta) *BoxDrawable 
 	return d
 }
 
-func (d *BoxDrawable) PaddingY(padding terminal.Rows) *BoxDrawable {
+func (d *BoxDrawable) PaddingY(padding winsize.Rows) *BoxDrawable {
 	d.paddingY = padding
 	return d
 }
@@ -104,7 +104,7 @@ func (d *BoxDrawable) makeDrawable() drawable.Drawable {
 		ToDrawable()
 }
 
-func (d *BoxDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *BoxDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	lines, hasNext := d.drawChild(size)
@@ -114,7 +114,7 @@ func (d *BoxDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	return styled, hasNext
 }
 
-func (d *BoxDrawable) drawChild(size terminal.Winsize) ([]text.Line, bool) {
+func (d *BoxDrawable) drawChild(size winsize.Winsize) ([]text.Line, bool) {
 	lines := make([]text.Line, 0)
 
 	clampSize := d.clampSize(size)
@@ -138,7 +138,7 @@ func (d *BoxDrawable) drawChild(size terminal.Winsize) ([]text.Line, bool) {
 	return lines, remaining <= 0
 }
 
-func (d *BoxDrawable) styleLines(size terminal.Winsize, lines ...text.Line) []text.Line {
+func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []text.Line {
 	vertical := horizontalStaticSize(d.separator)
 
 	minSize := d.minSize + vertical
@@ -232,14 +232,14 @@ func (d *BoxDrawable) calcPadding(size uint, line text.Line) (uint, uint) {
 	return 0, 0
 }
 
-func (d *BoxDrawable) clampSize(size terminal.Winsize) terminal.Winsize {
-	vertical := terminal.Rows(2)
+func (d *BoxDrawable) clampSize(size winsize.Winsize) winsize.Winsize {
+	vertical := winsize.Rows(2)
 	rows := math.SubClampZero(size.Rows, vertical)
 
 	horizontal := horizontalStaticSize(d.separator)
 	cols := math.SubClampZero(size.Cols, uint16(horizontal))
 
-	return terminal.NewWinsize(rows, cols)
+	return winsize.NewWinsize(rows, cols)
 }
 
 func horizontalSeparatorSize(separator marker.BoxSeparatorMeta) (uint, uint) {

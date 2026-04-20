@@ -10,22 +10,22 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-terminal/engine/model/chunk"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/sink"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameHStackDrawable = "HStackDrawable"
 
 type block struct {
-	size  terminal.Winsize
+	size  winsize.Winsize
 	lines []text.Line
 }
 
 type HStackDrawable struct {
 	loaded     bool
 	lazyLoaded bool
-	size       terminal.Winsize
+	size       winsize.Winsize
 	items      []chunkLayer
 	fixed      []chunkLayer
 }
@@ -35,7 +35,7 @@ func NewHStackDrawable(items ...drawable.Drawable) *HStackDrawable {
 	return &HStackDrawable{
 		loaded:     false,
 		lazyLoaded: false,
-		size:       terminal.Winsize{},
+		size:       winsize.Winsize{},
 		items:      layers,
 		fixed:      make([]chunkLayer, 0),
 	}
@@ -141,7 +141,7 @@ func (d *HStackDrawable) init() {
 	d.lazyLoaded = false
 }
 
-func (d *HStackDrawable) lazyInit(size terminal.Winsize) {
+func (d *HStackDrawable) lazyInit(size winsize.Winsize) {
 	if d.lazyLoaded {
 		return
 	}
@@ -166,7 +166,7 @@ func (d *HStackDrawable) wipe() {
 	}
 }
 
-func (d *HStackDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *HStackDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	d.lazyInit(size)
@@ -186,7 +186,7 @@ func (d *HStackDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	return lines, len(d.fixed) > 0
 }
 
-func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
+func (d *HStackDrawable) makeBlocks(size winsize.Winsize) ([]block, bool) {
 	buffer := make([]block, len(d.fixed))
 	recalcule := false
 
@@ -206,7 +206,7 @@ func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
 			}
 
 			inheritCols := d.inheritCols(size, buffer, i)
-			fixedSize := terminal.Winsize{
+			fixedSize := winsize.Winsize{
 				Rows: size.Rows,
 				Cols: d.fixed[i].cols + inheritCols,
 			}
@@ -258,7 +258,7 @@ func (d *HStackDrawable) makeBlocks(size terminal.Winsize) ([]block, bool) {
 }
 
 func (d *HStackDrawable) inheritCols(
-	size terminal.Winsize,
+	size winsize.Winsize,
 	buffer []block,
 	bufferIndex int,
 ) uint16 {
@@ -302,7 +302,7 @@ func (d *HStackDrawable) makeLines(blocks []block) []text.Line {
 	return buffer
 }
 
-func (d *HStackDrawable) fixLayout(size terminal.Winsize) []chunkLayer {
+func (d *HStackDrawable) fixLayout(size winsize.Winsize) []chunkLayer {
 	layers := make([]chunkLayer, 0, len(d.fixed))
 	available, rest := d.calcSpace(size)
 
@@ -336,7 +336,7 @@ func (d *HStackDrawable) fixLayout(size terminal.Winsize) []chunkLayer {
 	return layers
 }
 
-func (d *HStackDrawable) calcSpace(size terminal.Winsize) (uint16, uint16) {
+func (d *HStackDrawable) calcSpace(size winsize.Winsize) (uint16, uint16) {
 	cols, zeroes := d.countCols(size)
 
 	assert.True(cols <= size.Cols, drawable.MessageNewElement, size.Cols)
@@ -363,7 +363,7 @@ func (d *HStackDrawable) HasNext() bool {
 	return false
 }
 
-func (d *HStackDrawable) countCols(size terminal.Winsize) (uint16, uint16) {
+func (d *HStackDrawable) countCols(size winsize.Winsize) (uint16, uint16) {
 	cols := uint16(0)
 	zeroes := uint16(0)
 
@@ -383,7 +383,7 @@ func (d *HStackDrawable) countCols(size terminal.Winsize) (uint16, uint16) {
 	return cols, zeroes
 }
 
-func (d *HStackDrawable) valideChunks(size terminal.Winsize) bool {
+func (d *HStackDrawable) valideChunks(size winsize.Winsize) bool {
 	cols, _ := d.countCols(size)
 	return cols <= size.Cols
 }

@@ -6,9 +6,9 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 
 	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
 )
@@ -37,7 +37,7 @@ func TestNewInputLine_NoContent_ReturnsPromptOnly(t *testing.T) {
 	drawable := input.ToDrawable()
 
 	drawable.Init()
-	lines, status := drawable.Draw(terminal.Winsize{})
+	lines, status := drawable.Draw(winsize.Winsize{})
 
 	assert.False(t, status)
 	assert.Len(t, 1, lines)
@@ -58,7 +58,7 @@ func TestNewInputLine_WithSingleLine_AddsPrompt(t *testing.T) {
 	drawable := input.ToDrawable()
 
 	drawable.Init()
-	lines, _ := drawable.Draw(terminal.Winsize{})
+	lines, _ := drawable.Draw(winsize.Winsize{})
 
 	assert.Len(t, 2, lines)
 	assert.Equal(t, marker.DefaultInputLinePrompt+" golang", text.LineToString(&lines[1]))
@@ -80,7 +80,7 @@ func TestNewInputLine_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
 	drawable := input.ToDrawable()
 
 	drawable.Init()
-	lines, _ := drawable.Draw(terminal.Winsize{})
+	lines, _ := drawable.Draw(winsize.Winsize{})
 
 	assert.Len(t, 3, lines)
 

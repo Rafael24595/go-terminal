@@ -7,8 +7,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/table"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameTableDrawable = "TableDrawable"
@@ -16,7 +16,7 @@ const NameTableDrawable = "TableDrawable"
 type TableDrawable struct {
 	loaded     bool
 	lazyLoaded bool
-	size       terminal.Winsize
+	size       winsize.Winsize
 	table      table.Table
 	sections   []section
 	cursor     input.MatrixCursor
@@ -26,7 +26,7 @@ func NewTableDrawable(table table.Table, cursor input.MatrixCursor) *TableDrawab
 	return &TableDrawable{
 		loaded:     false,
 		lazyLoaded: false,
-		size:       terminal.Winsize{},
+		size:       winsize.Winsize{},
 		table:      table,
 		sections:   make([]section, 0),
 		cursor:     cursor,
@@ -57,7 +57,7 @@ func (d *TableDrawable) wipe() {
 	d.lazyLoaded = false
 }
 
-func (d *TableDrawable) lazyInit(size terminal.Winsize) {
+func (d *TableDrawable) lazyInit(size winsize.Winsize) {
 	if d.lazyLoaded {
 		return
 	}
@@ -74,7 +74,7 @@ func (d *TableDrawable) lazyInit(size terminal.Winsize) {
 	}
 }
 
-func (d *TableDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *TableDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	if size.Rows == 0 {

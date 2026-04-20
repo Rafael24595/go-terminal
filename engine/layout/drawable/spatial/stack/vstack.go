@@ -7,8 +7,8 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameVStackDrawable = "VStackDrawable"
@@ -115,7 +115,7 @@ func (d *VStackDrawable) wipe() {
 	}
 }
 
-func (d *VStackDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *VStackDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	buffer := make([]text.Line, 0)

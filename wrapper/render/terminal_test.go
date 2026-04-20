@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 func TestRenderLineFragments_MergeSameStyles(t *testing.T) {
@@ -20,7 +20,7 @@ func TestRenderLineFragments_MergeSameStyles(t *testing.T) {
 		*text.NewFragment("g").AddAtom(style.AtmBold),
 	)
 
-	out := renderLineFragments(*line, terminal.Winsize{})
+	out := renderLineFragments(*line, winsize.Winsize{})
 
 	assert.Equal(t, applyAtomStyles("Golang", style.AtmBold), out)
 }
@@ -32,7 +32,7 @@ func TestRenderLineFragments_StyleChange(t *testing.T) {
 		*text.NewFragment("Ziglang").AddAtom(style.AtmSelect),
 	)
 
-	out := renderLineFragments(*line, terminal.Winsize{})
+	out := renderLineFragments(*line, winsize.Winsize{})
 
 	expected :=
 		applyAtomStyles("Hi", style.AtmBold) +
@@ -49,7 +49,7 @@ func TestRenderLineFragments_DoNotMergeNonContiguous(t *testing.T) {
 		*text.NewFragment("t").AddAtom(style.AtmBold),
 	)
 
-	out := renderLineFragments(*line, terminal.Winsize{})
+	out := renderLineFragments(*line, winsize.Winsize{})
 
 	expected :=
 		applyAtomStyles("R", style.AtmBold) +
@@ -62,7 +62,7 @@ func TestRenderLineFragments_DoNotMergeNonContiguous(t *testing.T) {
 func TestRenderLineFragments_EmptyLine(t *testing.T) {
 	line := text.Line{}
 
-	out := renderLineFragments(line, terminal.Winsize{})
+	out := renderLineFragments(line, winsize.Winsize{})
 
 	assert.Equal(t, "", out)
 }

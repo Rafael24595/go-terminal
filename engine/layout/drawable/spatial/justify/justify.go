@@ -6,10 +6,10 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const (
@@ -84,7 +84,7 @@ func (d *JustifyDrawable) wipe() {
 	d.cursor = 0
 }
 
-func (d *JustifyDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *JustifyDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	if d.cursor >= uint16(len(d.fragments)) {

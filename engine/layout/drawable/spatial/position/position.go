@@ -5,10 +5,10 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NamePositionDrawable = "PositionDrawable"
@@ -19,7 +19,7 @@ const (
 
 type PositionDrawable struct {
 	loaded    bool
-	marginY   terminal.Rows
+	marginY   winsize.Rows
 	marginX   uint
 	absolute  bool
 	positionY style.VerticalPosition
@@ -30,7 +30,7 @@ type PositionDrawable struct {
 func NewPositionDrawable(drawable drawable.Drawable) *PositionDrawable {
 	return &PositionDrawable{
 		loaded:    false,
-		marginY:   terminal.Rows(default_margin),
+		marginY:   winsize.Rows(default_margin),
 		marginX:   default_margin,
 		absolute:  true,
 		positionX: style.Center,
@@ -43,7 +43,7 @@ func PositionDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable 
 	return NewPositionDrawable(drawable).ToDrawable()
 }
 
-func (d *PositionDrawable) MarginY(margin terminal.Rows) *PositionDrawable {
+func (d *PositionDrawable) MarginY(margin winsize.Rows) *PositionDrawable {
 	d.marginY = margin
 	return d
 }
@@ -85,10 +85,10 @@ func (d *PositionDrawable) init() {
 	d.drawable.Init()
 }
 
-func (d *PositionDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *PositionDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
-	fixedSize := terminal.Winsize{
+	fixedSize := winsize.Winsize{
 		Rows: math.SubClampZero(size.Rows, d.marginY*2),
 		Cols: math.SubClampZero(size.Cols, uint16(d.marginX)*2),
 	}
@@ -114,8 +114,8 @@ func (d *PositionDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
 	return base, hasNext
 }
 
-func (d *PositionDrawable) makeTopMargin(size terminal.Winsize, lines []text.Line) []text.Line {
-	width := terminal.Rows(len(lines))
+func (d *PositionDrawable) makeTopMargin(size winsize.Winsize, lines []text.Line) []text.Line {
+	width := winsize.Rows(len(lines))
 
 	if d.positionY == style.Top || width >= size.Rows {
 		return make([]text.Line, d.marginY)
@@ -161,7 +161,7 @@ func (d *PositionDrawable) styleLines(spec style.Spec, lines ...text.Line) []tex
 	return lines
 }
 
-func makeSpec(size terminal.Winsize, position style.HorizontalPosition) style.Spec {
+func makeSpec(size winsize.Winsize, position style.HorizontalPosition) style.Spec {
 	cols := uint(size.Cols)
 
 	switch position {

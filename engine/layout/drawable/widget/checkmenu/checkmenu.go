@@ -4,13 +4,13 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/justify"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/justify"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameCheckMenuDrawable = "CheckMenuDrawable"
@@ -140,7 +140,7 @@ func (d *CheckMenuDrawable) addStyles() []text.Fragment {
 	return frags
 }
 
-func (d *CheckMenuDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *CheckMenuDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.initialized, drawable.MessageInitialized)
 
 	return d.drawable.Draw(size)

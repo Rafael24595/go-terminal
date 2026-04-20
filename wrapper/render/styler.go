@@ -5,8 +5,8 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/dict"
 	"github.com/Rafael24595/go-terminal/engine/helper"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 var specStylesTable = dict.NewInmutableLinkedMap(
@@ -51,7 +51,7 @@ var specAtomTable = dict.NewInmutableLinkedMap(
 	}),
 )
 
-func applySpecStyles(spec style.Spec, size terminal.Winsize, text string, logicalSize int) string {
+func applySpecStyles(spec style.Spec, size winsize.Winsize, text string, logicalSize int) string {
 	var exit bool
 	var cols int = int(size.Cols)
 

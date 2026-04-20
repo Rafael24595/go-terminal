@@ -5,8 +5,8 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
 const NameLineDrawable = "LineDrawable"
@@ -54,7 +54,7 @@ func (d *LineDrawable) wipe() {
 	d.source = d.lines
 }
 
-func (d *LineDrawable) draw(size terminal.Winsize) ([]text.Line, bool) {
+func (d *LineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	if len(d.source) == 0 {

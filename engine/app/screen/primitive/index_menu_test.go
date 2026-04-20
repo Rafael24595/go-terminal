@@ -10,8 +10,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
 )
@@ -188,7 +188,7 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	kernel := vm.Kernel.ToDrawable()
 
 	kernel.Init()
-	lines, _ := kernel.Draw(terminal.Winsize{Cols: 10, Rows: 2})
+	lines, _ := kernel.Draw(winsize.Winsize{Cols: 10, Rows: 2})
 
 	assert.NotNil(t, vm.Pager)
 	assert.Equal(t, pager.CodePredicateFocus, vm.Pager.Predicate.Code)

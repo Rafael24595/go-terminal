@@ -5,7 +5,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 
 	drawable_help "github.com/Rafael24595/go-terminal/engine/layout/drawable/widget/help"
 )
@@ -45,14 +45,14 @@ func (v *ViewModel) InitStaticLayers() (drawable.Drawable, drawable.Drawable) {
 	return header, footer
 }
 
-func (v *ViewModel) InitDynamicLayers(size terminal.Winsize) drawable.Drawable {
+func (v *ViewModel) InitDynamicLayers(size winsize.Winsize) drawable.Drawable {
 	kernel := v.Kernel.ToDrawable()
 	kernel.Init()
 
 	return kernel
 }
 
-func (v *ViewModel) InitInputLine(size terminal.Winsize) (drawable.Drawable, bool) {
+func (v *ViewModel) InitInputLine(size winsize.Winsize) (drawable.Drawable, bool) {
 	if v.Input == nil {
 		return drawable.Drawable{}, false
 	}
@@ -63,7 +63,7 @@ func (v *ViewModel) InitInputLine(size terminal.Winsize) (drawable.Drawable, boo
 	return drawable, true
 }
 
-func (v *ViewModel) InitHelper(size terminal.Winsize) (drawable.Drawable, bool) {
+func (v *ViewModel) InitHelper(size winsize.Winsize) (drawable.Drawable, bool) {
 	if !v.Helper.Show {
 		return drawable.Drawable{}, false
 	}
