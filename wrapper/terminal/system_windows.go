@@ -4,10 +4,12 @@
 package wrapper_terminal
 
 import (
+	"context"
 	"syscall"
+	"time"
 	"unsafe"
 
-	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 )
 
 type coord struct {
@@ -53,7 +55,7 @@ func onClose(rawmode uintptr) {
 	restoreRaw(rawmode)
 }
 
-func Size() (terminal.Winsize, error) {
+func Size() (winsize.Winsize, error) {
 	handle := syscall.Handle(syscall.Stdout)
 
 	var info consoleScreenBufferInfo
@@ -63,13 +65,17 @@ func Size() (terminal.Winsize, error) {
 	)
 
 	if r == 0 {
-		return terminal.Winsize{}, e
+		return winsize.Winsize{}, e
 	}
 
-	return terminal.Winsize{
-		Rows: terminal.Rows(info.Window.Bottom-info.Window.Top) + 1,
-		Cols: uint16(info.Window.Right-info.Window.Left) + 1,
-	}, nil
+	return winsize.New(
+		winsize.Rows(info.Window.Bottom-info.Window.Top)+1,
+		uint16(info.Window.Right-info.Window.Left)+1,
+	), nil
+}
+
+func ResizeEvents(ctx context.Context) <-chan winsize.Winsize {
+	return timeResizeEvents(ctx, 10*time.Millisecond)
 }
 
 func enableANSI() {

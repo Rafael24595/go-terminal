@@ -4,7 +4,10 @@
 package wrapper_terminal
 
 import (
-	core_terminal "github.com/Rafael24595/go-terminal/engine/terminal"
+	"context"
+	"time"
+
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 )
 
 func onStart() (uintptr, error) {
@@ -13,10 +16,10 @@ func onStart() (uintptr, error) {
 
 func onClose(rawmode uintptr) {}
 
-func Size() core_terminal.Winsize {
-	return core_terminal.Winsize{
-		Rows: 80,
-		Cols: 150,
-	}
+func Size() core_winsize.Winsize {
+	return core_winsize.New(80, 150)
 }
 
+func ResizeEvents(ctx context.Context) <-chan winsize.Winsize {
+	return timeResizeSignal(ctx, 10*time.Millisecond)
+}

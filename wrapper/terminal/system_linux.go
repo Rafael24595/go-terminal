@@ -4,11 +4,13 @@
 package wrapper_terminal
 
 import (
+	"context"
 	"os"
+	"os/signal"
 	"syscall"
 	"unsafe"
 
-	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 )
 
 const (
@@ -24,33 +26,61 @@ func onClose(rawmode uintptr) {
 	restoreRaw(rawmode)
 }
 
-type winsize struct {
+type linuxWinsize struct {
 	Row    uint16
 	Col    uint16
 	Xpixel uint16
 	Ypixel uint16
 }
 
-func Size() terminal.Winsize {
-	ws := &winsize{}
+func Size() (winsize.Winsize, error) {
+	ws := &linuxWinsize{}
 
-	_, _, errno := syscall.Syscall(
+	_, _, err := syscall.Syscall(
 		syscall.SYS_IOCTL,
 		os.Stdout.Fd(),
 		uintptr(syscall.TIOCGWINSZ),
 		uintptr(unsafe.Pointer(ws)),
 	)
 
-	if errno != 0 {
-		return terminal.Winsize{
-			Err: errno,
-		}
+	if err != 0 {
+		return winsize.Winsize{}, err
 	}
 
-	return terminal.Winsize{
-		Rows: uint16(ws.Row),
-		Cols: uint16(ws.Col),
-	}
+	return winsize.New(
+		winsize.Rows(ws.Row),
+		uint16(ws.Col),
+	), nil
+}
+
+func ResizeEvents(ctx context.Context) chan winsize.Winsize {
+	out := make(chan winsize.Winsize, 1)
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGWINCH)
+
+	go func() {
+		defer close(out)
+		defer signal.Stop(sig)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-sig:
+				size, err := Size()
+				if err != nil {
+					continue
+				}
+
+				select {
+				case out <- size:
+				default:
+				}
+			}
+		}
+	}()
+
+	return out
 }
 
 type termios struct {
