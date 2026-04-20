@@ -12,7 +12,7 @@ type Winsize struct {
 	Cols uint16
 }
 
-func NewWinsize(rows Rows, cols uint16) Winsize {
+func New(rows Rows, cols uint16) Winsize {
 	return Winsize{
 		Rows: rows,
 		Cols: cols,

@@ -144,7 +144,7 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 	vm := viewmodel.NewViewModel()
 
-	dynamicSize := winsize.NewWinsize(2, uint16(sizeCols))
+	dynamicSize := winsize.New(2, uint16(sizeCols))
 	drawCtx := draw.NewDrawContext(stt, dynamicSize)
 	drawStt := drawDynamicLines(drawCtx, vm.Pager, layer)
 

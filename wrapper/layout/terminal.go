@@ -40,10 +40,10 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size winsize.Wi
 	}
 
 	rest := math.SubClampZero(size.Rows, static)
-	remSize := winsize.NewWinsize(rest, size.Cols)
+	remSize := winsize.New(rest, size.Cols)
 	lines := vm.InitDynamicLayers(remSize)
 
-	dynamicSize := winsize.NewWinsize(rest, size.Cols)
+	dynamicSize := winsize.New(rest, size.Cols)
 	drawCtx := draw.NewDrawContext(state, dynamicSize)
 	drawStt := drawDynamicLines(drawCtx, vm.Pager, lines)
 

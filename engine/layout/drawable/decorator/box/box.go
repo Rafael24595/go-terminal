@@ -239,7 +239,7 @@ func (d *BoxDrawable) clampSize(size winsize.Winsize) winsize.Winsize {
 	horizontal := horizontalStaticSize(d.separator)
 	cols := math.SubClampZero(size.Cols, uint16(horizontal))
 
-	return winsize.NewWinsize(rows, cols)
+	return winsize.New(rows, cols)
 }
 
 func horizontalSeparatorSize(separator marker.BoxSeparatorMeta) (uint, uint) {
