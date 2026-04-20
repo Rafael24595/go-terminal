@@ -11,6 +11,12 @@ type ScreenEvent struct {
 	Key key.Key
 }
 
+func NewEvent(key key.Key) ScreenEvent {
+	return ScreenEvent{
+		Key: key,
+	}
+}
+
 type ScreenResult struct {
 	IgnoreParents bool
 	Screen        *Screen
