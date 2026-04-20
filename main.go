@@ -5,24 +5,25 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-log/log"
 	"github.com/Rafael24595/go-log/log/model/record"
 	"github.com/Rafael24595/go-log/log/provider/file"
+	"github.com/Rafael24595/go-terminal/engine/app/core"
 	"github.com/Rafael24595/go-terminal/engine/app/pager"
 	"github.com/Rafael24595/go-terminal/engine/app/runtime"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/screen/partial"
 	"github.com/Rafael24595/go-terminal/engine/app/screen/wrapper"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/layout"
 	"github.com/Rafael24595/go-terminal/engine/model/action"
 	"github.com/Rafael24595/go-terminal/engine/model/inline"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize/transformer"
 	"github.com/Rafael24595/go-terminal/engine/render"
+	"github.com/Rafael24595/go-terminal/engine/render/adapter"
 	"github.com/Rafael24595/go-terminal/engine/render/spacer"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 
@@ -43,6 +44,29 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	configLog(ctx)
+	defer log.OnClose()
+
+	terminal := makeTerminal(ctx)
+
+	transformer := transformer.WithMargin(paddingRows, paddingCols)
+	layout := makeLayout(transformer)
+	render := makeRender(transformer)
+
+	cleaner := context_cleaner.NewContextCleaner()
+
+	screen := makeScreen()
+
+	<-core.NewEngine(
+		terminal,
+		layout,
+		render,
+		cleaner,
+		screen,
+	).RunWithContext(ctx)
+}
+
+func configLog(ctx context.Context) {
 	provider := file.FileProvider{
 		Session: runtime.Instance.SessionId(),
 	}
@@ -51,121 +75,52 @@ func main() {
 		panic(err.Error())
 	}
 
-	defer log.OnClose()
-
 	assert.DefaultWriter(
 		log.WriterFromCategory(record.WARNING),
 	)
+}
 
-	state := state.NewUIState()
+func makeTerminal(ctx context.Context) terminal.Terminal {
+	return wrapper_terminal.NewConsole().
+		Color("\x1b[0;32m").
+		Context(ctx).
+		ToTerminal()
+}
 
-	cmd := wrapper_terminal.NewConsole()
-	cmd.Color("\x1b[0;32m")
+func makeScreen() screen.Screen {
+	landing := wrapper_screen.NewLanding()
+	header := wrapper_screen.NewBaseHeader(landing)
 
-	trm := cmd.ToTerminal()
-
-	size, _ := trm.Size()
-
-	pc := size.Cols - paddingCols
-	pr := size.Rows - paddingRows
-
-	lnd := wrapper_screen.NewLanding()
-	hdr := wrapper_screen.NewBaseHeader(lnd)
-
-	his := wrapper.NewHistory(hdr).ToScreen()
-
-	pge := wrapper.NewPagination(his).
+	history := wrapper.NewHistory(header).ToScreen()
+	pagination := wrapper.NewPagination(history).
 		ForceEngine(pager.EnginePage()).
 		ToScreen()
+	helper := wrapper.NewHelp(pagination).ToScreen()
 
-	hlp := wrapper.NewHelp(pge).ToScreen()
-
-	inl := partial.NewInline(hlp).
+	inline := partial.NewInline(helper).
 		PushAction(action.FocusFooter,
 			inline.NewFilterMeta(inline.TargetTags, screen.SystemScreenMeta),
 		).
 		ToScreen()
 
-	stc := partial.NewSpacer(inl).
+	return partial.NewSpacer(inline).
 		Header(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach)).
 		Footer(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach)).
 		ToScreen()
-
-	lyt := layout.NewLayout(wrapper_layout.TerminalApply)
-	lytf := wrapper_layout.NewFixed(lyt, pr, pc)
-	lyt = lytf.ToLayout()
-
-	rnd := render.NewRender(wrapper_render.TerminalRender)
-	rndf := wrapper_render.NewFixed(rnd, pr, pc)
-	rnd = rndf.ToRender()
-
-	cls := context_cleaner.NewContextCleaner()
-
-	trm.OnStart()
-	defer trm.OnClose()
-
-	inputChan := make(chan key.Key, 64)
-	go readInput(trm, inputChan)
-
-	//TODO: Use events instead sleep loop
-	for {
-		newSize, _ := trm.Size()
-
-		//TODO: Replace with chan events
-		if !size.Eq(newSize) {
-			cmd.Update()
-			lytf.Update(newSize.Rows-paddingRows, newSize.Cols-paddingCols)
-			rndf.Update(newSize.Rows-paddingRows, newSize.Cols-paddingCols)
-		}
-
-		size = newSize
-
-		vmd := stc.View(*state)
-
-		lns := lyt.Apply(state, vmd, size)
-		str := rnd.Render(lns, size)
-
-		trm.WriteAll(str)
-		trm.Flush()
-		trm.Clear()
-
-		select {
-		case key, ok := <-inputChan:
-			if !ok {
-				return
-			}
-			result := stc.Update(state, screen.ScreenEvent{
-				Key: key,
-			})
-
-			state.Pager = result.Pager
-
-			if result.Screen != nil {
-				stc = *result.Screen
-			}
-
-			state = cls.Cleanup(result, state)
-
-		default:
-		}
-
-		time.Sleep(20 * time.Millisecond)
-	}
 }
 
-func readInput(t terminal.Terminal, ch chan<- key.Key) {
-	for {
-		rn, err := t.ReadKey()
-		if err != nil {
-			println(err)
-			close(ch)
-			return
-		}
+func makeLayout(transformer winsize.Transformer) layout.Layout {
+	return layout.NewBuilder(wrapper_layout.TerminalApply).
+		Transformer(transformer).
+		ToLayout()
+}
 
-		ch <- *rn
-		if rn.Code == key.ActionExit {
-			close(ch)
-			return
-		}
-	}
+func makeRender(transformer winsize.Transformer) render.Render {
+	adapter := adapter.WithPadding(
+		transformer,
+		wrapper_render.TerminalRawRender,
+	)
+
+	return render.NewBuilder(adapter).
+		ToRender()
 }
