@@ -1,18 +1,29 @@
 package render
 
 import (
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-type render func([]text.Line, terminal.Winsize) string
+type Adapter func([]text.Line, winsize.Winsize) string
+type RawAdapter func([]text.Line, winsize.Winsize) []string
 
 type Render struct {
-	Render render
+	Render Adapter
 }
 
-func NewRender(render render) Render {
+type RenderBuilder struct {
+	render Adapter
+}
+
+func NewBuilder(render Adapter) *RenderBuilder {
+	return &RenderBuilder{
+		render: render,
+	}
+}
+
+func (b *RenderBuilder) ToRender() Render {
 	return Render{
-		Render: render,
+		Render: b.render,
 	}
 }

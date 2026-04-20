@@ -4,22 +4,12 @@ import (
 	"strings"
 
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
 	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
 )
 
-func TerminalRender(lines []text.Line, size terminal.Winsize) string {
-	buffer := make([]string, size.Rows)
-
-	body := terminalRenderBuffer(lines, size)
-
-	copy(buffer, body)
-
-	return strings.Join(buffer, "\n")
-}
-
-func terminalRenderBuffer(lines []text.Line, size terminal.Winsize) []string {
+func TerminalRawRender(lines []text.Line, size winsize.Winsize) []string {
 	buffer := make([]string, len(lines))
 
 	for i, line := range lines {
@@ -37,16 +27,16 @@ func terminalRenderBuffer(lines []text.Line, size terminal.Winsize) []string {
 	return buffer
 }
 
-func renderLineFragments(line text.Line, size terminal.Winsize) string {
+func renderLineFragments(line text.Line, size winsize.Winsize) string {
 	var buffer strings.Builder
 
 	fragments := ""
 	atomStyles := style.AtmNone
 
-	lineSize := terminal.Winsize{
-		Rows: size.Rows,
-		Cols: size.Cols,
-	}
+	lineSize := winsize.New(
+		size.Rows,
+		size.Cols,
+	)
 
 	for _, f := range line.Text {
 		spec := applySpecStyles(f.Spec, lineSize, f.Text, f.Size())
