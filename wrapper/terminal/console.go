@@ -1,36 +1,34 @@
 package wrapper_terminal
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
+	wrapper_ansi "github.com/Rafael24595/go-terminal/wrapper/ansi"
 )
 
-const RESET_ATTRS = "\x1b[0m"
-const RESET_CURSOR = "\x1b[H"
-const CLEAN_CONSOLE = "\x1B[2J\x1B[H"
-
-const ERASE_LINE = "\r\033[K"
-
-const HIDE_CURSOR = "\x1b[?25l"
-const SHOW_CURSOR = "\x1b[?25h"
-
 type Console struct {
-	reader  *inputReader
-	buffer  []string
-	cursor  uint16
-	winsize terminal.Winsize
-	rawmode uintptr
-	color   string
+	context    context.Context
+	keyChan    chan key.Key
+	resizeChan chan winsize.Winsize
+	reader     *inputReader
+	buffer     []string
+	cursor     uint16
+	winsize    winsize.Winsize
+	rawmode    uintptr
+	color      string
 }
 
 func NewConsole() *Console {
 	winsize, _ := Size()
 	return &Console{
+		context: context.Background(),
 		reader:  newInputReader(),
 		buffer:  make([]string, winsize.Rows),
 		cursor:  0,
@@ -44,56 +42,126 @@ func (c *Console) Color(color string) *Console {
 	return c
 }
 
-func (c *Console) Update() *Console {
-	winsize, _ := Size()
-	if winsize.Cols == c.winsize.Cols && winsize.Rows == c.winsize.Rows {
-		return c
+func (c *Console) Context(context context.Context) *Console {
+	c.context = context
+	return c
+}
+
+func (c *Console) ToTerminal() terminal.Terminal {
+	return terminal.Terminal{
+		OnStart:      c.OnStart,
+		OnClose:      c.OnClose,
+		ResizeEvents: c.ResizeEvents,
+		KeyEvents:    c.KeyEvents,
+		Size:         c.Size,
+		Clear:        c.Clear,
+		Write:        c.Write,
+		WriteLine:    c.WriteLine,
+		WriteAll:     c.WriteAll,
+		Flush:        c.Flush,
+	}
+}
+
+func (c *Console) OnStart() error {
+	c.rawmode, _ = onStart()
+	fmt.Print(c.color + wrapper_ansi.CleanConsole + wrapper_ansi.HideCursor)
+	return nil
+}
+
+func (c *Console) OnClose() error {
+	onClose(c.rawmode)
+	fmt.Print(wrapper_ansi.ResetAttrs + wrapper_ansi.CleanConsole + wrapper_ansi.ShowCursor + wrapper_ansi.ResetCursor)
+	return nil
+}
+
+func (c *Console) ResizeEvents() <-chan winsize.Winsize {
+	if c.resizeChan != nil {
+		return c.resizeChan
+	}
+
+	source := ResizeEvents(c.context)
+	c.resizeChan = make(chan winsize.Winsize, 1)
+	go c.listenResizeEvents(source)
+
+	return c.resizeChan
+}
+
+func (c *Console) listenResizeEvents(source <-chan winsize.Winsize) {
+	defer close(c.resizeChan)
+
+	for {
+		select {
+		case <-c.context.Done():
+			return
+		case size, ok := <-source:
+			if !ok {
+				return
+			}
+			c.defineSize(size)
+			select {
+			case c.resizeChan <- size:
+			default:
+			}
+		}
+	}
+}
+
+func (c *Console) KeyEvents() <-chan key.Key {
+	if c.keyChan != nil {
+		return c.keyChan
+	}
+
+	c.keyChan = make(chan key.Key)
+	go c.listenKeyEvents()
+
+	return c.keyChan
+}
+
+func (c *Console) listenKeyEvents() {
+	defer close(c.keyChan)
+
+	for {
+		k, err := c.reader.readRune()
+		if err != nil {
+			return
+		}
+
+		select {
+		case <-c.context.Done():
+			return
+		case c.keyChan <- *k:
+		}
+	}
+}
+
+func (c *Console) Size() (winsize.Winsize, error) {
+	winsize, err := Size()
+	if err != nil {
+		return c.winsize, err
 	}
 
 	c.buffer = make([]string, winsize.Rows)
 	c.cursor = 0
 	c.winsize = winsize
 
-	return c
+	return c.defineSize(winsize), nil
 }
 
-func (c *Console) ToTerminal() terminal.Terminal {
-	return terminal.Terminal{
-		OnStart:   c.OnStart,
-		OnClose:   c.OnClose,
-		Size:      c.Size,
-		Clear:     c.Clear,
-		ReadKey:   c.ReadKey,
-		Write:     c.Write,
-		WriteLine: c.WriteLine,
-		WriteAll:  c.WriteAll,
-		Flush:     c.Flush,
+func (c *Console) defineSize(winsize winsize.Winsize) winsize.Winsize {
+	if c.winsize.Eq(winsize) {
+		return c.winsize
 	}
-}
 
-func (c *Console) OnStart() error {
-	c.rawmode, _ = onStart()
-	fmt.Print(c.color + CLEAN_CONSOLE + HIDE_CURSOR)
-	return nil
-}
+	c.buffer = make([]string, winsize.Rows)
+	c.cursor = 0
+	c.winsize = winsize
 
-func (c *Console) OnClose() error {
-	onClose(c.rawmode)
-	fmt.Print(RESET_ATTRS + CLEAN_CONSOLE + SHOW_CURSOR + RESET_CURSOR)
-	return nil
-}
-
-func (c *Console) Size() (terminal.Winsize, error) {
-	return Size()
+	return c.winsize
 }
 
 func (c *Console) Clear() error {
-	fmt.Print(RESET_CURSOR)
+	fmt.Print(wrapper_ansi.ResetCursor)
 	return nil
-}
-
-func (c *Console) ReadKey() (*key.Key, error) {
-	return c.reader.readRune()
 }
 
 func (c *Console) Write(fragment string) error {
@@ -103,12 +171,12 @@ func (c *Console) Write(fragment string) error {
 
 func (c *Console) WriteLine(line ...string) error {
 	for _, l := range line {
-		assert.True(terminal.Rows(c.cursor) < c.winsize.Rows,
+		assert.True(winsize.Rows(c.cursor) < c.winsize.Rows,
 			"buffer overflow[%d]: the line '%s' cannot be appended at %d position",
 			c.winsize.Rows, l, c.cursor,
 		)
 
-		c.buffer[c.cursor] = ERASE_LINE + l
+		c.buffer[c.cursor] = wrapper_ansi.EraseLine + l
 
 		c.cursor += 1
 	}
@@ -125,8 +193,10 @@ func (c *Console) Flush() error {
 	return nil
 }
 
-func (c *Console) clearBuffer() error {
+func (c *Console) clearBuffer() *Console {
 	c.cursor = 0
-	c.buffer = make([]string, c.winsize.Rows)
-	return nil
+	for i := range c.buffer {
+		c.buffer[i] = ""
+	}
+	return c
 }
