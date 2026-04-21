@@ -167,13 +167,13 @@ func (c *TextArea) definition() screen.Definition {
 	return c.definitionSource().Definition
 }
 
-func (c *TextArea) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
-	state.Pager.ForceShow = true
+func (c *TextArea) update(stt *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
+	stt.Pager.ForceShow = true
 
 	if !c.writeMode {
-		return c.updateRead(state, evnt)
+		return c.updateRead(stt, evnt)
 	}
-	return c.updateWrite(state, evnt)
+	return c.updateWrite(stt, evnt)
 }
 
 func (c *TextArea) updateRead(stt *state.UIState, evt screen.ScreenEvent) screen.ScreenResult {
@@ -566,7 +566,13 @@ func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 		)...,
 	)
 
+	vm.Behavior.NeedsPulse = c.needsPulse()
+
 	return *vm
+}
+
+func (c *TextArea) needsPulse() bool {
+	return c.caret.IsBlinking() && c.writeMode
 }
 
 func (c *TextArea) mainDrawableCode() string {
