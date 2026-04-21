@@ -34,7 +34,7 @@ type input struct {
 	padding   uint64
 }
 
-func sendDummyKey() {
+func sendDummyKey() error {
 	inputs := []input{
 		{
 			inputType: INPUT_KEYBOARD,
@@ -59,6 +59,8 @@ func sendDummyKey() {
 
 	if ret == 0 {
 		//TODO: Log and force user manual input instead panic.
-		panic("SendInput failed:" + err.Error())
+		return err
 	}
+
+	return nil
 }

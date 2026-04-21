@@ -63,13 +63,23 @@ func (c *Console) ToTerminal() terminal.Terminal {
 }
 
 func (c *Console) OnStart() error {
-	c.rawmode, _ = onStart()
+	rawmode, err := onStart()
+	if err != nil {
+		return err
+	}
+
+	c.rawmode = rawmode
 	fmt.Print(c.color + wrapper_ansi.CleanConsole + wrapper_ansi.HideCursor)
+	
 	return nil
 }
 
 func (c *Console) OnClose() error {
-	onClose(c.rawmode)
+	err := onClose(c.rawmode)
+	if err != nil {
+		return err
+	}
+	
 	fmt.Print(wrapper_ansi.ResetAttrs + wrapper_ansi.CleanConsole + wrapper_ansi.ShowCursor + wrapper_ansi.ResetCursor)
 	return nil
 }
