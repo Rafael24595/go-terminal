@@ -2,24 +2,24 @@ package state
 
 import "github.com/Rafael24595/go-terminal/engine/helper/math"
 
-type PagerState struct {
+type PagerContext struct {
 	TargetPage uint
 	ActualPage uint
 	HasMore    bool
 	ForceShow  bool
 }
 
-func (s *PagerState) DecTarget() *PagerState {
+func (s *PagerContext) DecTarget() *PagerContext {
 	s.TargetPage = math.SubClampZero(s.TargetPage, 1)
 	return s
 }
 
-func (s *PagerState) IncTarget() *PagerState {
+func (s *PagerContext) IncTarget() *PagerContext {
 	s.TargetPage += 1
 	return s
 }
 
-func (s *PagerState) ConfirmPage(page ...uint) *PagerState {
+func (s *PagerContext) ConfirmPage(page ...uint) *PagerContext {
 	if len(page) > 0 {
 		s.TargetPage = page[0]
 	}

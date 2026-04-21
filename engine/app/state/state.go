@@ -2,14 +2,14 @@ package state
 
 type UIState struct {
 	Helper HelperContext
-	Pager  PagerState
+	Pager  PagerContext
 	Stack  *StackContext
 }
 
 func NewUIState() *UIState {
 	return &UIState{
 		Helper: HelperContext{},
-		Pager:  PagerState{},
+		Pager:  PagerContext{},
 		Stack:  newStackContext(),
 	}
 }

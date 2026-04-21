@@ -11,7 +11,7 @@ func TestPredicatePage(t *testing.T) {
 	p := PredicatePage()
 
 	state := state.UIState{
-		Pager: state.PagerState{
+		Pager: state.PagerContext{
 			TargetPage: 2,
 		},
 	}

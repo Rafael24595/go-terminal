@@ -20,7 +20,7 @@ func NewEvent(key key.Key) ScreenEvent {
 type ScreenResult struct {
 	IgnoreParents bool
 	Screen        *Screen
-	Pager         state.PagerState
+	Pager         state.PagerContext
 }
 
 type Definition struct {
@@ -37,7 +37,7 @@ func ScreenResultFromScreen(screen *Screen) ScreenResult {
 	return ScreenResult{
 		IgnoreParents: false,
 		Screen:        screen,
-		Pager:         state.PagerState{},
+		Pager:         state.PagerContext{},
 	}
 }
 
@@ -53,7 +53,7 @@ func EmptyScreenResult() ScreenResult {
 	return ScreenResult{
 		IgnoreParents: false,
 		Screen:        nil,
-		Pager:         state.PagerState{},
+		Pager:         state.PagerContext{},
 	}
 }
 
