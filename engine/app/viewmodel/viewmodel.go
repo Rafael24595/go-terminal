@@ -11,22 +11,24 @@ import (
 )
 
 type ViewModel struct {
-	Header *stack.VStackDrawable
-	Kernel *stack.VStackDrawable
-	Footer *stack.VStackDrawable
-	Input  *InputLine
-	Pager  pager.PagerStrategy
-	Helper *help.HelpMeta
+	Header   *stack.VStackDrawable
+	Kernel   *stack.VStackDrawable
+	Footer   *stack.VStackDrawable
+	Input    *InputLine
+	Pager    pager.PagerStrategy
+	Helper   *help.HelpMeta
+	Behavior BehaviorContext
 }
 
 func NewViewModel() *ViewModel {
 	return &ViewModel{
-		Header: stack.NewVStackDrawable(),
-		Kernel: stack.NewVStackDrawable(),
-		Footer: stack.NewVStackDrawable(),
-		Input:  nil,
-		Pager:  pager.NewStrategy(),
-		Helper: help.NewHelpMeta(),
+		Header:   stack.NewVStackDrawable(),
+		Kernel:   stack.NewVStackDrawable(),
+		Footer:   stack.NewVStackDrawable(),
+		Input:    nil,
+		Pager:    pager.NewStrategy(),
+		Helper:   help.NewHelpMeta(),
+		Behavior: BehaviorContext{},
 	}
 }
 
