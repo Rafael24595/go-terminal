@@ -2,13 +2,18 @@ package core
 
 import (
 	"context"
+	"time"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	"github.com/Rafael24595/go-log/log"
 	"github.com/Rafael24595/go-terminal/engine/app/cleaner"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
+	local "github.com/Rafael24595/go-terminal/engine/commons/log"
 	"github.com/Rafael24595/go-terminal/engine/layout"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/pulse"
 	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
@@ -18,6 +23,7 @@ type Engine struct {
 	running  bool
 	context  context.Context
 	doneSgnl chan struct{}
+	pulse    *pulse.Pulse
 	terminal terminal.Terminal
 	layout   layout.Layout
 	render   render.Render
@@ -32,9 +38,11 @@ func NewEngine(
 	cleaner cleaner.StateCleaner,
 	screen screen.Screen,
 ) *Engine {
+	pulse := pulse.New(50 * time.Millisecond)
 	return &Engine{
 		context:  nil,
 		doneSgnl: make(chan struct{}),
+		pulse:    pulse,
 		terminal: terminal,
 		layout:   layout,
 		render:   render,
@@ -76,18 +84,23 @@ func (e *Engine) RunWithContext(ctx context.Context) <-chan struct{} {
 
 func (e *Engine) run() {
 	defer close(e.doneSgnl)
+	defer e.pulse.Exit()
 
-	e.terminal.OnStart()
-	defer e.terminal.OnClose()
-
-	state := state.NewUIState()
-
-	size, err := e.terminal.Size()
+	err := e.terminal.OnStart()
 	if err != nil {
-		println(err)
+		log.Error(err)
 		return
 	}
 
+	defer local.LogErrorHandler(e.terminal.OnClose)
+
+	size, err := e.terminal.Size()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	state := state.NewUIState()
 	e.renderFrame(state, size)
 
 	keys := e.terminal.KeyEvents()
@@ -95,9 +108,11 @@ func (e *Engine) run() {
 
 	for {
 		select {
-		//TODO: Add configurable ticker
 		case <-e.context.Done():
 			return
+
+		case <-e.pulse.Listen():
+			e.renderFrame(state, size)
 
 		case k, ok := <-keys:
 			if !ok || k.Code == key.ActionExit {
@@ -112,7 +127,6 @@ func (e *Engine) run() {
 			}
 
 			size = s
-
 			e.renderFrame(state, size)
 
 		case <-e.doneSgnl:
@@ -138,24 +152,58 @@ func (e *Engine) updateScreen(
 		screen.NewEvent(key),
 	)
 
-	state.Pager = result.Pager
-	if result.Screen != nil {
-		e.screen = *result.Screen
-	}
+	e.manageResult(state, result)
+	e.manageScreen(result)
 
 	state = e.cleaner.Cleanup(result, state)
+
 	e.renderFrame(state, size)
 
 	return state
 }
 
-func (e *Engine) renderFrame(state *state.UIState, size winsize.Winsize) {
-	vmd := e.screen.View(*state)
+func (e *Engine) manageResult(state *state.UIState, result screen.ScreenResult) *state.UIState {
+	state.Pager = result.Pager
+	return state
+}
 
-	lines := e.layout.Apply(state, vmd, size)
+func (e *Engine) manageScreen(result screen.ScreenResult) screen.ScreenResult {
+	if result.Screen != nil {
+		e.screen = *result.Screen
+	}
+	return result
+}
+
+func (e *Engine) syncPulse(vm viewmodel.ViewModel) viewmodel.ViewModel {
+	if vm.Behavior.NeedsPulse {
+		e.pulse.Enable()
+		return vm
+	}
+
+	e.pulse.Disable()
+	return vm
+}
+
+func (e *Engine) renderFrame(state *state.UIState, size winsize.Winsize) {
+	vm := e.screen.View(*state)
+
+	e.syncPulse(vm)
+
+	lines := e.layout.Apply(state, vm, size)
 	result := e.render.Render(lines, size)
 
-	e.terminal.WriteAll(result)
-	e.terminal.Flush()
-	e.terminal.Clear()
+	err := e.terminal.WriteAll(result)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = e.terminal.Flush()
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = e.terminal.Clear()
+	if err != nil {
+		log.Error(err)
+	}
 }
