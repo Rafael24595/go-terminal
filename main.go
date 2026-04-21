@@ -27,7 +27,10 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/render/spacer"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 
-	context_cleaner "github.com/Rafael24595/go-terminal/engine/app/cleaner/context"
+	"github.com/Rafael24595/go-terminal/engine/app/cleaner/composite"
+	"github.com/Rafael24595/go-terminal/engine/app/cleaner/stack"
+
+	local "github.com/Rafael24595/go-terminal/engine/commons/log"
 
 	wrapper_layout "github.com/Rafael24595/go-terminal/wrapper/layout"
 	wrapper_render "github.com/Rafael24595/go-terminal/wrapper/render"
@@ -45,7 +48,7 @@ func main() {
 	defer stop()
 
 	configLog(ctx)
-	defer log.OnClose()
+	defer local.WriterErrorHandler(os.Stderr, log.OnClose)
 
 	terminal := makeTerminal(ctx)
 
@@ -53,7 +56,9 @@ func main() {
 	layout := makeLayout(transformer)
 	render := makeRender(transformer)
 
-	cleaner := context_cleaner.NewContextCleaner()
+	cleaner := composite.NewCleaner(
+		stack.Cleanup,
+	)
 
 	screen := makeScreen()
 
