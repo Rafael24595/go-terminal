@@ -1,4 +1,4 @@
-package context
+package stack
 
 import (
 	"github.com/Rafael24595/go-terminal/engine/app/cleaner"
@@ -6,15 +6,15 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 )
 
-func NewContextCleaner() cleaner.StateCleaner {
+func NewCleaner() cleaner.StateCleaner {
 	return cleaner.StateCleaner{
-		Cleanup: cleanup,
+		Cleanup: Cleanup,
 	}
 }
 
-func cleanup(result screen.ScreenResult, stt *state.UIState) *state.UIState {
-	if result.Screen != nil {
-		stack := result.Screen.Stack()
+func Cleanup(res screen.ScreenResult, stt *state.UIState) *state.UIState {
+	if res.Screen != nil {
+		stack := res.Screen.Stack()
 		stt.Stack.RetainOnly(stack)
 	}
 	return stt

@@ -1,10 +1,10 @@
-package context
+package stack
 
 import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
@@ -13,14 +13,14 @@ import (
 	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
 )
 
-func TestContext_ToStateCleaner(t *testing.T) {
-	cleaner := NewContextCleaner()
+func TestStack_ToStateCleaner(t *testing.T) {
+	cleaner := NewCleaner()
 
 	cleaner_test.Helper_ToStateCleaner(t, cleaner)
 }
 
-func TestContextCleaner_PreservesActiveState(t *testing.T) {
-	cleaner := NewContextCleaner()
+func TestStack_PreservesActiveState(t *testing.T) {
+	cleaner := NewCleaner()
 	stt := state.NewUIState()
 
 	screenBase := screen_test.MockScreen{
@@ -45,8 +45,8 @@ func TestContextCleaner_PreservesActiveState(t *testing.T) {
 	assert.Equal(t, "golang", value.Stringf())
 }
 
-func TestContextCleaner_RemovesInactiveState(t *testing.T) {
-	cleaner := NewContextCleaner()
+func TestStack_RemovesInactiveState(t *testing.T) {
+	cleaner := NewCleaner()
 	stt := state.NewUIState()
 
 	screenBase := screen_test.MockScreen{
@@ -79,8 +79,8 @@ func TestContextCleaner_RemovesInactiveState(t *testing.T) {
 	assert.Equal(t, "ziglang", value.Stringf())
 }
 
-func TestContextCleaner_TransitionBetweenScreens(t *testing.T) {
-	cleaner := NewContextCleaner()
+func TestStack_TransitionBetweenScreens(t *testing.T) {
+	cleaner := NewCleaner()
 	stt := state.NewUIState()
 
 	screenBase := screen_test.MockScreen{
