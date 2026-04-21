@@ -22,8 +22,8 @@ func onStart() (uintptr, error) {
 	return enableRaw()
 }
 
-func onClose(rawmode uintptr) {
-	restoreRaw(rawmode)
+func onClose(rawmode uintptr) error {
+	return restoreRaw(rawmode)
 }
 
 type linuxWinsize struct {
@@ -93,7 +93,15 @@ func enableRaw() (uintptr, error) {
 	fd := uintptr(syscall.Stdin)
 
 	var tio termios
-	_, _, err := syscall.Syscall6(syscall.SYS_IOCTL, fd, uintptr(syscall.TCGETS), uintptr(unsafe.Pointer(&tio)), 0, 0, 0)
+
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_IOCTL,
+		fd,
+		uintptr(syscall.TCGETS),
+		uintptr(unsafe.Pointer(&tio)),
+		0, 0, 0,
+	)
+
 	if err != 0 {
 		return 0, err
 	}
@@ -103,7 +111,14 @@ func enableRaw() (uintptr, error) {
 	tio.Cc[syscall.VMIN] = 0
 	tio.Cc[syscall.VTIME] = 1
 
-	_, _, err = syscall.Syscall6(syscall.SYS_IOCTL, fd, uintptr(syscall.TCSETS), uintptr(unsafe.Pointer(&tio)), 0, 0, 0)
+	_, _, err = syscall.Syscall6(
+		syscall.SYS_IOCTL,
+		fd,
+		uintptr(syscall.TCSETS),
+		uintptr(unsafe.Pointer(&tio)),
+		0, 0, 0,
+	)
+
 	if err != 0 {
 		return 0, err
 	}
@@ -111,7 +126,20 @@ func enableRaw() (uintptr, error) {
 	return uintptr(unsafe.Pointer(&tio)), nil
 }
 
-func restoreRaw(old uintptr) {
+func restoreRaw(old uintptr) error {
 	fd := os.Stdin.Fd()
-	syscall.Syscall6(syscall.SYS_IOCTL, fd, uintptr(syscall.TCSETS), old, 0, 0, 0)
+
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_IOCTL,
+		fd,
+		uintptr(syscall.TCSETS),
+		old,
+		0, 0, 0,
+	)
+
+	if err != 0 {
+		return err
+	}
+
+	return nil
 }
