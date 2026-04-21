@@ -12,6 +12,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 )
 
+const resize_duration = 150 * time.Millisecond
+
 type coord struct {
 	X int16
 	Y int16
@@ -46,26 +48,34 @@ const (
 )
 
 func onStart() (uintptr, error) {
-	sendDummyKey()
-	enableANSI()
+	err := sendDummyKey()
+	if err != nil {
+		return 0, err
+	}
+
+	err = enableANSI()
+	if err != nil {
+		return 0, err
+	}
+
 	return enableRaw()
 }
 
-func onClose(rawmode uintptr) {
-	restoreRaw(rawmode)
+func onClose(rawmode uintptr) error {
+	return restoreRaw(rawmode)
 }
 
 func Size() (winsize.Winsize, error) {
 	handle := syscall.Handle(syscall.Stdout)
 
 	var info consoleScreenBufferInfo
-	r, _, e := getCSBI.Call(
+	ret, _, err := getCSBI.Call(
 		uintptr(handle),
 		uintptr(unsafe.Pointer(&info)),
 	)
 
-	if r == 0 {
-		return winsize.Winsize{}, e
+	if ret == 0 {
+		return winsize.Winsize{}, err
 	}
 
 	return winsize.New(
@@ -75,21 +85,35 @@ func Size() (winsize.Winsize, error) {
 }
 
 func ResizeEvents(ctx context.Context) <-chan winsize.Winsize {
-	return timeResizeEvents(ctx, 10*time.Millisecond)
+	return timeResizeEvents(ctx, resize_duration)
 }
 
-func enableANSI() {
+func enableANSI() error {
 	handle := syscall.Handle(syscall.Stdout)
 
 	getConsoleMode := kernel32.NewProc("GetConsoleMode")
 	setConsoleMode := kernel32.NewProc("SetConsoleMode")
 
 	var mode uint32
-	getConsoleMode.Call(uintptr(handle),
-		uintptr(unsafe.Pointer(&mode)))
+	ret, _, err := getConsoleMode.Call(
+		uintptr(handle),
+		uintptr(unsafe.Pointer(&mode)),
+	)
 
-	setConsoleMode.Call(uintptr(handle),
-		uintptr(mode|ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+	if ret == 0 {
+		return err
+	}
+
+	ret, _, err = setConsoleMode.Call(
+		uintptr(handle),
+		uintptr(mode|ENABLE_VIRTUAL_TERMINAL_PROCESSING),
+	)
+
+	if ret == 0 {
+		return err
+	}
+
+	return nil
 }
 
 func enableRaw() (uintptr, error) {
@@ -99,8 +123,14 @@ func enableRaw() (uintptr, error) {
 	setConsoleMode := kernel32.NewProc("SetConsoleMode")
 
 	var mode uint32
-	getConsoleMode.Call(uintptr(handle),
-		uintptr(unsafe.Pointer(&mode)))
+	ret, _, err := getConsoleMode.Call(
+		uintptr(handle),
+		uintptr(unsafe.Pointer(&mode)),
+	)
+
+	if ret == 0 {
+		return 0, err
+	}
 
 	oldMode := mode
 	mode &^= ENABLE_PROCESSED_INPUT |
@@ -109,12 +139,31 @@ func enableRaw() (uintptr, error) {
 
 	mode |= ENABLE_VIRTUAL_TERMINAL_INPUT
 
-	setConsoleMode.Call(uintptr(handle), uintptr(mode))
+	ret, _, err = setConsoleMode.Call(
+		uintptr(handle),
+		uintptr(mode),
+	)
+
+	if ret == 0 {
+		return 0, err
+	}
 
 	return uintptr(oldMode), nil
 }
 
-func restoreRaw(old uintptr) {
+func restoreRaw(old uintptr) error {
 	handle := syscall.Handle(syscall.Stdin)
-	kernel32.NewProc("SetConsoleMode").Call(uintptr(handle), old)
+
+	setConsoleMode := kernel32.NewProc("SetConsoleMode")
+
+	ret, _, err := setConsoleMode.Call(
+		uintptr(handle),
+		old,
+	)
+
+	if ret == 0 {
+		return err
+	}
+
+	return nil
 }
