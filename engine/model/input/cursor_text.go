@@ -28,6 +28,10 @@ func NewTextCursor(blink bool) *TextCursor {
 	}
 }
 
+func (c *TextCursor) IsBlinking() bool {
+	return c.blink
+}
+
 func (c *TextCursor) EnableBlinking() *TextCursor {
 	c.blink = true
 	return c
