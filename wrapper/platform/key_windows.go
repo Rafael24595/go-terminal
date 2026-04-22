@@ -1,18 +1,17 @@
 //go:build !mock_cmd && windows
 // +build !mock_cmd,windows
 
-package wrapper_terminal
+package platform
 
 import (
 	"syscall"
 	"unsafe"
-
-	"github.com/Rafael24595/go-terminal/engine/model/key"
 )
 
 const (
 	INPUT_KEYBOARD  = 1
 	KEYEVENTF_KEYUP = 0x0002
+	VK_SHIFT = 0x10
 )
 
 var (
@@ -39,13 +38,13 @@ func sendDummyKey() error {
 		{
 			inputType: INPUT_KEYBOARD,
 			ki: keyboardInput{
-				wVk: key.VK_SHIFT,
+				wVk: VK_SHIFT,
 			},
 		},
 		{
 			inputType: INPUT_KEYBOARD,
 			ki: keyboardInput{
-				wVk:     key.VK_SHIFT,
+				wVk:     VK_SHIFT,
 				dwFlags: KEYEVENTF_KEYUP,
 			},
 		},

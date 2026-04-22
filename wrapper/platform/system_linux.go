@@ -1,13 +1,14 @@
 //go:build !mock_cmd && linux
 // +build !mock_cmd,linux
 
-package wrapper_terminal
+package platform
 
 import (
 	"context"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 	"unsafe"
 
 	"github.com/Rafael24595/go-terminal/engine/model/winsize"
@@ -18,11 +19,11 @@ const (
 	ECHO   = 0x0002
 )
 
-func onStart() (uintptr, error) {
+func OnStart() (uintptr, error) {
 	return enableRaw()
 }
 
-func onClose(rawmode uintptr) error {
+func OnClose(rawmode uintptr) error {
 	return restoreRaw(rawmode)
 }
 
@@ -53,7 +54,7 @@ func Size() (winsize.Winsize, error) {
 	), nil
 }
 
-func ResizeEvents(ctx context.Context) chan winsize.Winsize {
+func ResizeSystemEvents(ctx context.Context, _ time.Duration) <-chan winsize.Winsize {
 	out := make(chan winsize.Winsize, 1)
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGWINCH)

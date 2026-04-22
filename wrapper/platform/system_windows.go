@@ -1,7 +1,7 @@
 //go:build !mock_cmd && windows
 // +build !mock_cmd,windows
 
-package wrapper_terminal
+package platform
 
 import (
 	"context"
@@ -11,8 +11,6 @@ import (
 
 	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 )
-
-const resize_duration = 150 * time.Millisecond
 
 type coord struct {
 	X int16
@@ -47,7 +45,7 @@ const (
 	ENABLE_VIRTUAL_TERMINAL_INPUT      = uint32(0x0200)
 )
 
-func onStart() (uintptr, error) {
+func OnStart() (uintptr, error) {
 	err := sendDummyKey()
 	if err != nil {
 		return 0, err
@@ -61,7 +59,7 @@ func onStart() (uintptr, error) {
 	return enableRaw()
 }
 
-func onClose(rawmode uintptr) error {
+func OnClose(rawmode uintptr) error {
 	return restoreRaw(rawmode)
 }
 
@@ -84,8 +82,8 @@ func Size() (winsize.Winsize, error) {
 	), nil
 }
 
-func ResizeEvents(ctx context.Context) <-chan winsize.Winsize {
-	return timeResizeEvents(ctx, resize_duration)
+func ResizeSystemEvents(ctx context.Context, drt time.Duration) <-chan winsize.Winsize {
+	return ResizeReactiveEvents(ctx, drt)
 }
 
 func enableANSI() error {
