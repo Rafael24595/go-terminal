@@ -12,8 +12,7 @@ type Terminal struct {
 	KeyEvents    func() <-chan key.Key
 	Size         func() (winsize.Winsize, error)
 	Clear        func() error
-	Write        func(string) error
-	WriteLine    func(...string) error
+	Write        func(...string) error
 	WriteAll     func(string) error
 	Flush        func() error
 }
