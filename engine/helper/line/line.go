@@ -1,6 +1,6 @@
 package line
 
-import "github.com/Rafael24595/go-terminal/engine/model/key"
+import "github.com/Rafael24595/go-terminal/engine/model/ascii"
 
 func DistanceFromLF(buffer []rune, from int) int {
 	return from - FindLineStart(buffer, from)
@@ -8,7 +8,7 @@ func DistanceFromLF(buffer []rune, from int) int {
 
 func FindLineStart(buf []rune, from int) int {
 	for i := from - 1; i >= 0; i-- {
-		if buf[i] == key.ENTER_LF {
+		if buf[i] == ascii.ENTER_LF {
 			return i + 1
 		}
 	}
@@ -17,7 +17,7 @@ func FindLineStart(buf []rune, from int) int {
 
 func FindLineEnd(buf []rune, start int) int {
 	i := start
-	for i < len(buf) && buf[i] != key.ENTER_LF {
+	for i < len(buf) && buf[i] != ascii.ENTER_LF {
 		i++
 	}
 	return i
@@ -25,7 +25,7 @@ func FindLineEnd(buf []rune, start int) int {
 
 func FindNextLineStart(buf []rune, from int) int {
 	for i := from; i < len(buf); i++ {
-		if buf[i] == key.ENTER_LF {
+		if buf[i] == ascii.ENTER_LF {
 			return i + 1
 		}
 	}

@@ -7,7 +7,7 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-terminal/engine/model/ascii"
 )
 
 var NextWordRunes = []RuneDefinition{
@@ -24,14 +24,14 @@ var NextWordRunes = []RuneDefinition{
 		Skip: true,
 	},
 	{
-		Rune: key.ENTER_LF,
+		Rune: ascii.ENTER_LF,
 		Skip: true,
 	},
 }
 
 var NextLineRunes = []RuneDefinition{
 	{
-		Rune: key.ENTER_LF,
+		Rune: ascii.ENTER_LF,
 		Skip: false,
 	},
 }

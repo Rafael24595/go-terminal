@@ -9,8 +9,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-terminal/engine/model/ascii"
 	"github.com/Rafael24595/go-terminal/engine/model/input"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
 	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/marker"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
@@ -124,9 +124,9 @@ func (d *TextAreaDrawable) resolveFragments(renderBuffer []rune, start uint, end
 
 	var selection []text.Fragment
 	if d.caret.Caret() != d.caret.Anchor() && end == d.caret.Anchor() {
-		selection, start, end = d.resolveBackwardSelection(renderBuffer, start, end)
+		selection, _, end = d.resolveBackwardSelection(renderBuffer, start, end)
 	} else {
-		selection, start, end = d.resolveForwardSelection(renderBuffer, start, end)
+		selection, _, end = d.resolveForwardSelection(renderBuffer, start, end)
 	}
 
 	frags = append(frags, selection...)
@@ -156,7 +156,7 @@ func (d *TextAreaDrawable) resolveBackwardSelection(renderBuffer []rune, start u
 		return frags, start, end
 	}
 
-	if int(start) > 0 && selection[0] == key.ENTER_LF {
+	if int(start) > 0 && selection[0] == ascii.ENTER_LF {
 		focusAtom = style.AtmNone
 
 		headerFrag := text.FragmentFromRunes(marker.PrintableCaretRunes).
@@ -189,7 +189,7 @@ func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start ui
 		return frags, start, end
 	}
 
-	if selection[selectionSize-1] != key.ENTER_LF {
+	if selection[selectionSize-1] != ascii.ENTER_LF {
 		headerFrag := text.FragmentFromRunes(selection[:selectionSize-1]).
 			AddAtom(caretAtom)
 		footerFrag := text.FragmentFromRunes(selection[selectionSize-1:]).
@@ -206,7 +206,7 @@ func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start ui
 	}
 
 	footer := marker.PrintableCaretRunes
-	if int(end) < len(renderBuffer)-1 && renderBuffer[end+1] != key.ENTER_LF {
+	if int(end) < len(renderBuffer)-1 && renderBuffer[end+1] != ascii.ENTER_LF {
 		footer = renderBuffer[end : end+1]
 		end += 1
 	}

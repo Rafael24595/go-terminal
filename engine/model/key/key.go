@@ -3,31 +3,8 @@ package key
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
+	"github.com/Rafael24595/go-terminal/engine/model/ascii"
 	"github.com/Rafael24595/go-terminal/engine/model/help"
-)
-
-const (
-	CTRL_A = 0x01
-	CTRL_E = 0x05
-	CTRL_D = 0x04
-	CTRL_C = 0x03
-	CTRL_G = 0x07
-	CTRL_T = 0x14
-	CTRL_W = 0x17
-)
-
-const (
-	ESC        = 0x1b
-	DEL        = 0x7f
-	TAB        = 0x09
-	ENTER_LF   = 0x0A
-	ENTER_CR   = 0x0D
-	TILDE      = 0x7E
-	BACK_SPACE = 0x08
-)
-
-const (
-	VK_SHIFT = 0x10
 )
 
 type KeyAction int
@@ -68,16 +45,16 @@ const (
 )
 
 var ControlKeyMap = map[rune]*Key{
-	CTRL_A:     NewKeyCode(ActionHome),
-	CTRL_E:     NewKeyCode(ActionEnd),
-	CTRL_C:     NewKeyCode(ActionExit),
-	CTRL_W:     NewKeyCode(ActionDeleteBackward),
-	CTRL_D:     NewKeyCode(ActionDeleteForward),
-	TAB:        NewKeyCode(ActionTab),
-	ENTER_LF:   NewKeyCode(ActionEnter),
-	ENTER_CR:   NewKeyCode(ActionEnter),
-	DEL:        NewKeyCode(ActionBackspace),
-	BACK_SPACE: NewKeyCode(ActionBackspace),
+	ascii.CTRL_A:     NewKeyCode(ActionHome),
+	ascii.CTRL_E:     NewKeyCode(ActionEnd),
+	ascii.CTRL_C:     NewKeyCode(ActionExit),
+	ascii.CTRL_W:     NewKeyCode(ActionDeleteBackward),
+	ascii.CTRL_D:     NewKeyCode(ActionDeleteForward),
+	ascii.TAB:        NewKeyCode(ActionTab),
+	ascii.ENTER_LF:   NewKeyCode(ActionEnter),
+	ascii.ENTER_CR:   NewKeyCode(ActionEnter),
+	ascii.DEL:        NewKeyCode(ActionBackspace),
+	ascii.BACK_SPACE: NewKeyCode(ActionBackspace),
 }
 
 var AltKeyMap = map[rune]*Key{

@@ -12,6 +12,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper/runes"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-terminal/engine/layout/drawable/widget/textarea"
+	"github.com/Rafael24595/go-terminal/engine/model/ascii"
 	"github.com/Rafael24595/go-terminal/engine/model/buffer"
 	"github.com/Rafael24595/go-terminal/engine/model/delta"
 	"github.com/Rafael24595/go-terminal/engine/model/event"
@@ -208,7 +209,7 @@ func (c *TextArea) updateWrite(stt *state.UIState, evt screen.ScreenEvent) scree
 		return c.moveForward(stt, evt)
 
 	case key.ActionEnter:
-		ky = *key.NewKeyRune(key.ENTER_LF)
+		ky = *key.NewKeyRune(ascii.ENTER_LF)
 
 	case key.ActionArrowUp:
 		return c.moveUp(stt, evt)

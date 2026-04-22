@@ -1,0 +1,11 @@
+package ascii
+
+const (
+	CTRL_A = 0x01
+	CTRL_E = 0x05
+	CTRL_D = 0x04
+	CTRL_C = 0x03
+	CTRL_G = 0x07
+	CTRL_T = 0x14
+	CTRL_W = 0x17
+)
