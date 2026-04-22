@@ -5,12 +5,13 @@ import (
 	"time"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	local "github.com/Rafael24595/go-terminal/engine/commons/log"
+
 	"github.com/Rafael24595/go-log/log"
 	"github.com/Rafael24595/go-terminal/engine/app/cleaner"
 	"github.com/Rafael24595/go-terminal/engine/app/screen"
 	"github.com/Rafael24595/go-terminal/engine/app/state"
 	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	local "github.com/Rafael24595/go-terminal/engine/commons/log"
 	"github.com/Rafael24595/go-terminal/engine/layout"
 	"github.com/Rafael24595/go-terminal/engine/model/key"
 	"github.com/Rafael24595/go-terminal/engine/model/pulse"
@@ -103,6 +104,7 @@ func (e *Engine) run() {
 	state := state.NewUIState()
 	e.renderFrame(state, size)
 
+	pulses := e.pulse.Listen()
 	keys := e.terminal.KeyEvents()
 	resizes := e.terminal.ResizeEvents()
 
@@ -111,7 +113,7 @@ func (e *Engine) run() {
 		case <-e.context.Done():
 			return
 
-		case <-e.pulse.Listen():
+		case <-pulses:
 			e.renderFrame(state, size)
 
 		case k, ok := <-keys:
