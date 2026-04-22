@@ -34,9 +34,9 @@ import (
 
 	wrapper_layout "github.com/Rafael24595/go-terminal/wrapper/layout"
 	wrapper_render "github.com/Rafael24595/go-terminal/wrapper/render"
+	wrapper_console "github.com/Rafael24595/go-terminal/wrapper/terminal/console"
 
 	wrapper_screen "github.com/Rafael24595/go-terminal/wrapper/screen"
-	wrapper_terminal "github.com/Rafael24595/go-terminal/wrapper/terminal"
 )
 
 const paddingCols = 10
@@ -86,9 +86,10 @@ func configLog(ctx context.Context) {
 }
 
 func makeTerminal(ctx context.Context) terminal.Terminal {
-	return wrapper_terminal.NewConsole().
-		Color("\x1b[0;32m").
+	return wrapper_console.NewBuilder().
 		Context(ctx).
+		Reactive(wrapper_console.DefaultReactiveDuration).
+		Color("\x1b[0;32m").
 		ToTerminal()
 }
 
