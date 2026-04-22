@@ -7,6 +7,8 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/helper"
 	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/render/style"
+
+	wrapper_ansi "github.com/Rafael24595/go-terminal/wrapper/ansi"
 )
 
 var specStylesTable = dict.NewInmutableLinkedMap(
@@ -44,16 +46,16 @@ var specAtomTable = dict.NewInmutableLinkedMap(
 		return strings.ToUpper(text)
 	}),
 	dict.P(style.AtmBold, func(text string) string {
-		return Bold + text + NoBold
+		return wrapper_ansi.Bold + text + wrapper_ansi.NormalWeight
 	}),
 	dict.P(style.AtmSelect, func(text string) string {
-		return Reverse + text + NoReverse
+		return wrapper_ansi.Reverse + text + wrapper_ansi.NoReverse
 	}),
 )
 
 func applySpecStyles(spec style.Spec, size winsize.Winsize, text string, logicalSize int) string {
 	var exit bool
-	var cols int = int(size.Cols)
+	cols := int(size.Cols)
 
 	kind := spec.Kind()
 	for k, p := range specStylesTable.All() {

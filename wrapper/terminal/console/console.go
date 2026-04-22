@@ -9,7 +9,7 @@ import (
 	"github.com/Rafael24595/go-terminal/engine/model/winsize"
 	"github.com/Rafael24595/go-terminal/engine/terminal"
 	"github.com/Rafael24595/go-terminal/wrapper/platform"
-	
+
 	wrapper_ansi "github.com/Rafael24595/go-terminal/wrapper/ansi"
 	wrapper_reader "github.com/Rafael24595/go-terminal/wrapper/terminal/reader"
 )
@@ -58,7 +58,7 @@ func (c *Console) OnStart() error {
 
 	c.rawmode = rawmode
 
-	fmt.Print(c.color + wrapper_ansi.CleanConsole + wrapper_ansi.HideCursor)
+	fmt.Print(c.color + wrapper_ansi.FullReset + wrapper_ansi.HideCursor)
 
 	return nil
 }
@@ -69,7 +69,7 @@ func (c *Console) OnClose() error {
 		return err
 	}
 
-	fmt.Print(wrapper_ansi.ResetAttrs + wrapper_ansi.CleanConsole + wrapper_ansi.ShowCursor + wrapper_ansi.ResetCursor)
+	fmt.Print(wrapper_ansi.Reset + wrapper_ansi.FullReset + wrapper_ansi.ShowCursor + wrapper_ansi.CursorHome)
 
 	return nil
 }
@@ -144,13 +144,13 @@ func (c *Console) Size() (winsize.Winsize, error) {
 }
 
 func (c *Console) Clear() error {
-	fmt.Print(wrapper_ansi.ResetCursor)
+	fmt.Print(wrapper_ansi.CursorHome)
 	return nil
 }
 
 func (c *Console) Write(lines ...string) error {
 	for _, l := range lines {
-		c.buffer.setLine(wrapper_ansi.EraseLine + l).
+		c.buffer.setLine(wrapper_ansi.ClearLine + l).
 			nextLine()
 	}
 	return nil
