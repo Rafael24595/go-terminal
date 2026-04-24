@@ -2,10 +2,10 @@ package line
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	"github.com/Rafael24595/go-terminal/engine/helper"
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/render/marker"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 const separator = " | "

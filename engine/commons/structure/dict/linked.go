@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/list"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/list"
 )
 
 type LinkedMap[K comparable, V any] struct {

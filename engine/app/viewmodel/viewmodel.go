@@ -1,13 +1,13 @@
 package viewmodel
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/pager"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
-	"github.com/Rafael24595/go-terminal/engine/model/help"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 
-	drawable_help "github.com/Rafael24595/go-terminal/engine/layout/drawable/widget/help"
+	drawable_help "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/help"
 )
 
 type ViewModel struct {

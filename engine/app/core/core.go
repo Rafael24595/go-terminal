@@ -5,19 +5,19 @@ import (
 	"time"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	local "github.com/Rafael24595/go-terminal/engine/commons/log"
+	local "github.com/Rafael24595/go-reacterm-core/engine/commons/log"
 
 	"github.com/Rafael24595/go-log/log"
-	"github.com/Rafael24595/go-terminal/engine/app/cleaner"
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/engine/model/pulse"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/cleaner"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/pulse"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render"
+	"github.com/Rafael24595/go-reacterm-core/engine/terminal"
 )
 
 type Engine struct {

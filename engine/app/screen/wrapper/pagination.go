@@ -4,15 +4,15 @@ import (
 	"fmt"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	"github.com/Rafael24595/go-terminal/engine/app/pager"
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
-	"github.com/Rafael24595/go-terminal/engine/model/help"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 var sources = map[pager.EngineCode]screen.DefinitionSources{

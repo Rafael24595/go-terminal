@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
 
 func ResizeReactiveEvents(ctx context.Context, drt time.Duration) <-chan winsize.Winsize {

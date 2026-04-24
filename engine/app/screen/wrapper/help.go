@@ -1,10 +1,10 @@
 package wrapper
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 )
 
 type Help struct {

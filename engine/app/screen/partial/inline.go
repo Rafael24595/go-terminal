@@ -1,14 +1,14 @@
 package partial
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/screen/primitive"
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/model/action"
-	"github.com/Rafael24595/go-terminal/engine/model/inline"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/action"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/inline"
 
-	drawable_inline "github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/inline"
+	drawable_inline "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/inline"
 )
 
 type Inline struct {

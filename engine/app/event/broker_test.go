@@ -10,19 +10,19 @@ import (
 )
 
 func TestBroker_ZeroValueUsage(t *testing.T) {
-    var b EventBroker[int]
-    
-    ch := make(chan Event[int], 1)
-    
-    b.Subscribe(ch)
-    b.Publish(42)
-    
-    select {
-    case e := <-ch:
+	var b EventBroker[int]
+
+	ch := make(chan Event[int], 1)
+
+	b.Subscribe(ch)
+	b.Publish(42)
+
+	select {
+	case e := <-ch:
 		assert.Equal(t, 42, e.Value)
-    case <-time.After(500 * time.Millisecond):
-        t.Fatal("timeout: zero value did not initialize the goroutines correctly")
-    }
+	case <-time.After(500 * time.Millisecond):
+		t.Fatal("timeout: zero value did not initialize the goroutines correctly")
+	}
 }
 
 func TestEventBroker_PublishSubscribe(t *testing.T) {
@@ -44,7 +44,7 @@ func TestEventBroker_PublishSubscribe(t *testing.T) {
 
 func TestEventBroker_MultipleSubscribers(t *testing.T) {
 	broker := NewBroker[int]()
-	
+
 	const numSubs = 10
 	const numEvents = 5
 
@@ -135,43 +135,41 @@ func TestEventBroker_ContextCancellation(t *testing.T) {
 }
 
 func TestBroker_MultipleCloseSources(t *testing.T) {
-    ctx, cancel := context.WithCancel(context.Background())
-    broker := NewBrokerWithCtx[int](ctx)
+	ctx, cancel := context.WithCancel(context.Background())
+	broker := NewBrokerWithCtx[int](ctx)
 
-    go cancel()
-    go broker.Close()
+	go cancel()
+	go broker.Close()
 
-    time.Sleep(50 * time.Millisecond)
+	<-broker.done
 
 	assert.False(t, broker.IsRunning())
 
-	<- broker.done
-
 	assert.Panic(t, func() {
-		broker.Publish(10) 
+		broker.Publish(10)
 	})
 }
 
 func TestBroker_SubscribeUnsubscribeStress(t *testing.T) {
-    broker := NewBroker[int]()
-    channels := make([]chan Event[int], 100)
-    
-    for i := range channels {
-        channels[i] = make(chan Event[int], 1)
-        broker.Subscribe(channels[i])
-    }
-    
-    for i := range 50 {
-        broker.Unsubscribe(channels[i])
-    }
-    
-    broker.Publish(1)
-    
-    for i := range 50 {
-        select {
-        case <-channels[i]:
-            t.Errorf("the %d channel received an event", i)
-        default:
-        }
-    }
+	broker := NewBroker[int]()
+	channels := make([]chan Event[int], 100)
+
+	for i := range channels {
+		channels[i] = make(chan Event[int], 1)
+		broker.Subscribe(channels[i])
+	}
+
+	for i := range 50 {
+		broker.Unsubscribe(channels[i])
+	}
+
+	broker.Publish(1)
+
+	for i := range 50 {
+		select {
+		case <-channels[i]:
+			t.Errorf("the %d channel received an event", i)
+		default:
+		}
+	}
 }

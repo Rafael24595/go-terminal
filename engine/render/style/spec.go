@@ -4,8 +4,8 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/commons"
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/dict"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/dict"
 )
 
 type LayoutContext struct {

@@ -1,8 +1,8 @@
 package screen
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/model/help"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 )
 
 type DefinitionSources struct {

@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	"github.com/Rafael24595/go-terminal/engine/model/input"
-	"github.com/Rafael24595/go-terminal/engine/model/table"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 
-	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
+	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
 func TestTable_DrawableBasicSuite(t *testing.T) {

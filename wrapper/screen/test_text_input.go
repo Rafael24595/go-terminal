@@ -1,9 +1,9 @@
 package wrapper_screen
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/screen/primitive"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 func NewTestTextInput() screen.Screen {

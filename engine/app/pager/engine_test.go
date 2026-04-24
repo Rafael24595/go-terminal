@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	"github.com/Rafael24595/go-terminal/engine/app/draw"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/draw"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 func TestEnginePage(t *testing.T) {

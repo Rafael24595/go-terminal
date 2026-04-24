@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/wrapper/platform"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/wrapper/platform"
 )
 
 const DefaultReactiveDuration = 150 * time.Millisecond

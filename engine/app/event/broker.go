@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/dict"
-	"github.com/Rafael24595/go-terminal/engine/platform/clock"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/dict"
+	"github.com/Rafael24595/go-reacterm-core/engine/platform/clock"
 )
 
 const default_buffer_size = uint(16)
@@ -113,9 +113,10 @@ func (b *EventBroker[T]) Publish(value T) {
 	b.lazyInit()
 
 	select {
+	case b.chnl <- NewEvent(value):
+		return
 	case <-b.done:
 		assert.Unreachable("cannot publish to a closed broker")
-	case b.chnl <- NewEvent(value):
 	}
 }
 

@@ -3,14 +3,14 @@ package checkmenu
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/justify"
-	"github.com/Rafael24595/go-terminal/engine/model/input"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render/marker"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/justify"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 const NameCheckMenuDrawable = "CheckMenuDrawable"

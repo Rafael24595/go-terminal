@@ -3,15 +3,15 @@ package box
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render/marker"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 const NameBoxDrawable = "BoxDrawable"

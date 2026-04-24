@@ -1,9 +1,9 @@
 package input
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/platform/clock"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/platform/clock"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 )
 
 const blink_ms = 750

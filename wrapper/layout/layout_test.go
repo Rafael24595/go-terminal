@@ -6,17 +6,17 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-terminal/engine/app/draw"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/draw"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
-	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
+	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
 func TestTerminalApply_FixedAndPaged(t *testing.T) {

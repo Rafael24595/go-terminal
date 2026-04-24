@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/heap"
+
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/heap"
 )
 
 func TestMinHeap(t *testing.T) {

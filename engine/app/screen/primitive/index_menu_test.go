@@ -5,15 +5,15 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-terminal/engine/app/pager"
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/model/input"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
-	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
+	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
 func TestIndexMenu_ToScreen(t *testing.T) {

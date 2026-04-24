@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/engine/render/marker"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 )
 
 type TextLayoutOpts struct {

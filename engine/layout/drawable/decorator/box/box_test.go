@@ -5,7 +5,7 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
+	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
 func TestBox_DrawableBasicSuite(t *testing.T) {

@@ -3,12 +3,12 @@ package adapter
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/helper"
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render"
-	"github.com/Rafael24595/go-terminal/engine/render/marker"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 func JoinLines(inner render.RawAdapter) render.Adapter {

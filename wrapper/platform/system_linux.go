@@ -11,7 +11,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
 
 const (

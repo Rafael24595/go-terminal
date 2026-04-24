@@ -3,9 +3,9 @@ package loop
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 const NameLoopDrawable = "LoopDrawable"

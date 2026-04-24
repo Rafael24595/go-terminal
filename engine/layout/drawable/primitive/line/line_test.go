@@ -3,7 +3,7 @@ package line
 import (
 	"testing"
 
-	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
+	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
 func TestLine_DrawableBasicSuite(t *testing.T) {

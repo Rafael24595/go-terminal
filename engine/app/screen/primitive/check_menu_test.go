@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/model/input"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
-	"github.com/Rafael24595/go-terminal/test/support/mock"
 
-	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/test/support/mock"
+
+	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
 func TestCheckMenu_ToScreen(t *testing.T) {

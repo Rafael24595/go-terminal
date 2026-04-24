@@ -1,6 +1,6 @@
 package delta
 
-import "github.com/Rafael24595/go-terminal/engine/helper/runes"
+import "github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 
 type Delta struct {
 	Start uint

@@ -3,12 +3,12 @@ package wrapper_render
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/dict"
-	"github.com/Rafael24595/go-terminal/engine/helper"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/dict"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 
-	wrapper_ansi "github.com/Rafael24595/go-terminal/wrapper/ansi"
+	wrapper_ansi "github.com/Rafael24595/go-reacterm-core/wrapper/ansi"
 )
 
 var specStylesTable = dict.NewInmutableLinkedMap(

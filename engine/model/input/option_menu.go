@@ -1,8 +1,8 @@
 package input
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 type MenuOptionAction = func() screen.Screen

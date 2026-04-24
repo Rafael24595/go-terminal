@@ -1,6 +1,6 @@
 version: '1.1'
 
 project:
-  name: go-terminal
+  name: go-reacterm-core
   version: v0.1.0
-  description: Go Terminal
+  description: Go Reactive Terminal Core

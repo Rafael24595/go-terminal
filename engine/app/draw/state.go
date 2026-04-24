@@ -1,8 +1,8 @@
 package draw
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/work"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/work"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 type DrawState struct {

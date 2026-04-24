@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
-	"github.com/Rafael24595/go-terminal/wrapper/platform"
-	wrapper_reader "github.com/Rafael24595/go-terminal/wrapper/terminal/reader"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/terminal"
+	"github.com/Rafael24595/go-reacterm-core/wrapper/platform"
+	wrapper_reader "github.com/Rafael24595/go-reacterm-core/wrapper/terminal/reader"
 )
 
 type ConsoleBuilder struct {

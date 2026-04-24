@@ -1,6 +1,6 @@
 package input
 
-import "github.com/Rafael24595/go-terminal/engine/helper/math"
+import "github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 
 type MatrixCursor struct {
 	Row  uint32

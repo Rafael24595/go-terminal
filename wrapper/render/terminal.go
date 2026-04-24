@@ -3,10 +3,10 @@ package wrapper_render
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 func TerminalRawRender(lines []text.Line, size winsize.Winsize) []string {

@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/model/input"
-	"github.com/Rafael24595/go-terminal/engine/render/marker"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+
+	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 var separator = marker.TableSeparatorMeta{

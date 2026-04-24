@@ -4,8 +4,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 )
 
 type WordToken struct {

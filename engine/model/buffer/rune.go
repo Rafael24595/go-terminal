@@ -1,9 +1,9 @@
 package buffer
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/engine/helper/text"
-	"github.com/Rafael24595/go-terminal/engine/model/delta"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/delta"
 )
 
 type RuneBuffer struct {

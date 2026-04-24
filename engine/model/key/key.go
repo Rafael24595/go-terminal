@@ -3,8 +3,8 @@ package key
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-terminal/engine/model/ascii"
-	"github.com/Rafael24595/go-terminal/engine/model/help"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/ascii"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 )
 
 type KeyAction int

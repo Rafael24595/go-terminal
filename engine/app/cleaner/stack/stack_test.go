@@ -5,12 +5,12 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 
-	cleaner_test "github.com/Rafael24595/go-terminal/test/engine/app/cleaner"
-	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
+	cleaner_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/cleaner"
+	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
 func TestStack_ToStateCleaner(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/render/marker"
+
+	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 )
 
 func TestNewTable_ShouldInitializeEmptyTable(t *testing.T) {

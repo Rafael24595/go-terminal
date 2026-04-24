@@ -3,9 +3,9 @@ package help
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/model/help"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 
-	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
+	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
 func TestHelp_DrawableBasicSuite(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/helper/line"
+
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/line"
 )
 
 func TestFindLineStart_Simple(t *testing.T) {

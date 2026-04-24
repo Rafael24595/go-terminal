@@ -5,10 +5,10 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/engine/model/delta"
-	"github.com/Rafael24595/go-terminal/engine/platform/clock"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/delta"
+	"github.com/Rafael24595/go-reacterm-core/engine/platform/clock"
 )
 
 const expires_ms = 1000
@@ -260,12 +260,8 @@ func (s *TextEventService) shouldFlush(action ActionKind, text string) bool {
 		return true
 	}
 
-	now := s.clock()
-	if now-last.timestamp >= expires_ms {
-		return true
-	}
-
-	return false
+	time := s.clock() - last.timestamp
+	return time >= expires_ms
 }
 
 func (s *TextEventService) limitEvents() {
@@ -281,4 +277,3 @@ func (s *TextEventService) limitEvents() {
 	s.events = buff
 	s.cursor = max(0, s.cursor-excess)
 }
-

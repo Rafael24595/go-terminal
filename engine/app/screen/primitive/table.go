@@ -1,20 +1,20 @@
 package primitive
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/pager"
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
-	"github.com/Rafael24595/go-terminal/engine/model/help"
-	"github.com/Rafael24595/go-terminal/engine/model/input"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/engine/model/table"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
-	drawable_table "github.com/Rafael24595/go-terminal/engine/layout/drawable/widget/table"
+	drawable_table "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/table"
 )
 
 const default_table_name = "Table"

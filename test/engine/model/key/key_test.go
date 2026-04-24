@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/model/key"
+
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 )
 
 func TestModMask_HasAny(t *testing.T) {

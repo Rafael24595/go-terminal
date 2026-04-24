@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
+
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 )
 
 func TestAppendAt(t *testing.T) {

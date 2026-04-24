@@ -6,9 +6,9 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 func TestSplitLineWords_Simple(t *testing.T) {
@@ -108,11 +108,11 @@ func TestSplitLineWords_MultipleFragments(t *testing.T) {
 }
 
 func TestTokenizeLines_Integrity(t *testing.T) {
-    line := text.NewLine("golang ziglang 10.50 rust")
-    
-    assert.Len(t, 1, line.Text)
+	line := text.NewLine("golang ziglang 10.50 rust")
 
-    tokenized := TokenizeLines(*line)
+	assert.Len(t, 1, line.Text)
+
+	tokenized := TokenizeLines(*line)
 
 	assert.Len(t, 1, tokenized)
 	assert.Len(t, 7, tokenized[0].Text)

@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
 
-	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
+
+	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
 func TestHelp_ToScreen(t *testing.T) {
@@ -111,13 +111,13 @@ func TestHelp_WrapsReturnedScreen(t *testing.T) {
 		Key: ky,
 	}
 
-	result := wrapped.Update(stt, screen.ScreenEvent{
+	wrapped.Update(stt, screen.ScreenEvent{
 		Key: *key.NewKeyCode(key.CustomActionHelp),
 	})
 
 	assert.True(t, stt.Helper.ShowHelp)
 
-	result = wrapped.Update(stt, evt)
+	result := wrapped.Update(stt, evt)
 
 	assert.True(t, called)
 	assert.NotNil(t, result.Screen)

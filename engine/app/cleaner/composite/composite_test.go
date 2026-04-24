@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 
-	cleaner_test "github.com/Rafael24595/go-terminal/test/engine/app/cleaner"
+	cleaner_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/cleaner"
 )
 
 func TestComposite_ToStateCleaner(t *testing.T) {

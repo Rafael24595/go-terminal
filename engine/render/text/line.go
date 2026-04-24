@@ -3,7 +3,7 @@ package text
 import (
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 )
 
 type Line struct {

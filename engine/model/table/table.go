@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/Rafael24595/go-terminal/engine/render/marker"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 )
 
 type Table struct {

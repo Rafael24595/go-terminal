@@ -2,18 +2,18 @@ package primitive
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/decorator/box"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/position"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
-	"github.com/Rafael24595/go-terminal/engine/model/buffer"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
-	text_transformer "github.com/Rafael24595/go-terminal/engine/helper/text"
+	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
 
 const default_text_input_name = "TextInput"

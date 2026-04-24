@@ -5,7 +5,7 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 )
 
 func TestAbsSigned(t *testing.T) {

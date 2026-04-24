@@ -5,15 +5,15 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/model/action"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/action"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 
-	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
-	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
+	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
+	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
 func drawSources(vm viewmodel.ViewModel, winsize winsize.Winsize) {

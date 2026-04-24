@@ -1,13 +1,13 @@
 package wrapper_screen
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/screen/primitive"
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/engine/model/buffer"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
-	text_transformer "github.com/Rafael24595/go-terminal/engine/helper/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 func NewTestTextArea() screen.Screen {

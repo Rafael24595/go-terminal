@@ -1,11 +1,11 @@
 package primitive
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/screen"
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/spatial/stack"
-	"github.com/Rafael24595/go-terminal/engine/model/action"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/action"
 )
 
 type MapScreen struct {
@@ -21,9 +21,7 @@ func NewMapScreen(screen screen.Screen) *MapScreen {
 }
 
 func (c *MapScreen) PushAction(actions ...action.Action) *MapScreen {
-	for _, a := range actions {
-		c.actions = append(c.actions, a)
-	}
+	c.actions = append(c.actions, actions...)
 	return c
 }
 

@@ -1,9 +1,9 @@
 package sink
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/dict"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/dict"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 var specStylesTable = dict.NewInmutableLinkedMap(

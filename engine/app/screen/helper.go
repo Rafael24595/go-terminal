@@ -1,7 +1,7 @@
 package screen
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 )
 
 func IsKeyRequired(def Definition, ky key.Key) bool {

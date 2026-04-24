@@ -1,4 +1,4 @@
-module github.com/Rafael24595/go-terminal
+module github.com/Rafael24595/go-reacterm-core
 
 go 1.25.5
 

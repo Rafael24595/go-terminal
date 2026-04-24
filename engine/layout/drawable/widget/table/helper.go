@@ -1,19 +1,19 @@
 package table
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/heap"
-	"github.com/Rafael24595/go-terminal/engine/helper/runes"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/block"
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable/stream/loop"
-	"github.com/Rafael24595/go-terminal/engine/model/input"
-	"github.com/Rafael24595/go-terminal/engine/model/table"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/render/marker"
-	"github.com/Rafael24595/go-terminal/engine/render/style"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/heap"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/loop"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
-	drawable_line "github.com/Rafael24595/go-terminal/engine/layout/drawable/primitive/line"
+	drawable_line "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 )
 
 // TODO: Use as a argument.

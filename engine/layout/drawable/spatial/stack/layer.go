@@ -1,8 +1,8 @@
 package stack
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/layout/drawable"
-	"github.com/Rafael24595/go-terminal/engine/model/chunk"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 )
 
 type layer struct {

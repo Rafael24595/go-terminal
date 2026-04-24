@@ -1,6 +1,6 @@
 package text
 
-import "github.com/Rafael24595/go-terminal/engine/render/style"
+import "github.com/Rafael24595/go-reacterm-core/engine/render/style"
 
 func FragmentsFromString(text ...string) []Fragment {
 	fragments := make([]Fragment, len(text))
@@ -34,7 +34,7 @@ func HasFocus(line *Line) bool {
 }
 
 func CloneLines(lines ...Line) []Line {
-    clones := make([]Line, len(lines))
+	clones := make([]Line, len(lines))
 	for i, v := range lines {
 		clones[i] = *v.Clone()
 	}

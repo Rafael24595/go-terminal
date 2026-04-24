@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Rafael24595/go-terminal/engine/model/key"
-	"github.com/Rafael24595/go-terminal/engine/model/winsize"
-	"github.com/Rafael24595/go-terminal/engine/terminal"
-	"github.com/Rafael24595/go-terminal/wrapper/platform"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/terminal"
+	"github.com/Rafael24595/go-reacterm-core/wrapper/platform"
 
-	wrapper_ansi "github.com/Rafael24595/go-terminal/wrapper/ansi"
-	wrapper_reader "github.com/Rafael24595/go-terminal/wrapper/terminal/reader"
+	wrapper_ansi "github.com/Rafael24595/go-reacterm-core/wrapper/ansi"
+	wrapper_reader "github.com/Rafael24595/go-reacterm-core/wrapper/terminal/reader"
 )
 
 type Console struct {

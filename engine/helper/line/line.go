@@ -1,6 +1,6 @@
 package line
 
-import "github.com/Rafael24595/go-terminal/engine/model/ascii"
+import "github.com/Rafael24595/go-reacterm-core/engine/model/ascii"
 
 func DistanceFromLF(buffer []rune, from int) int {
 	return from - FindLineStart(buffer, from)

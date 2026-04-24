@@ -3,7 +3,7 @@ package pager
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 )

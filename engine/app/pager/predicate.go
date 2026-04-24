@@ -1,6 +1,6 @@
 package pager
 
-import "github.com/Rafael24595/go-terminal/engine/app/state"
+import "github.com/Rafael24595/go-reacterm-core/engine/app/state"
 
 type PredicateCode uint16
 

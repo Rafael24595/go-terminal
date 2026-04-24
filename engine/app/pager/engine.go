@@ -1,9 +1,9 @@
 package pager
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/draw"
-	"github.com/Rafael24595/go-terminal/engine/helper/math"
-	"github.com/Rafael24595/go-terminal/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/draw"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 type EngineCode uint16
@@ -40,7 +40,7 @@ func EngineScroll() Engine {
 		Code: CodeEngineScroll,
 		Func: func(ctx *draw.DrawContext, stt *draw.DrawState) *draw.DrawState {
 			if len(stt.Buffer) == 0 {
-				return stt	
+				return stt
 			}
 
 			copy(stt.Buffer, stt.Buffer[1:])

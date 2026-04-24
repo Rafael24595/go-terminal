@@ -3,10 +3,10 @@ package state
 import (
 	"sync"
 
-	"github.com/Rafael24595/go-terminal/engine/commons"
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
-	"github.com/Rafael24595/go-terminal/engine/model/param"
-	"github.com/Rafael24595/go-terminal/engine/platform/clock"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/param"
+	"github.com/Rafael24595/go-reacterm-core/engine/platform/clock"
 )
 
 type StackContext struct {

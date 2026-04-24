@@ -7,8 +7,8 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/Rafael24595/go-terminal/engine/model/ascii"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/ascii"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 )
 
 const (

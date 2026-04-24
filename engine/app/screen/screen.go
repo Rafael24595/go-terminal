@@ -1,10 +1,10 @@
 package screen
 
 import (
-	"github.com/Rafael24595/go-terminal/engine/app/state"
-	"github.com/Rafael24595/go-terminal/engine/app/viewmodel"
-	"github.com/Rafael24595/go-terminal/engine/commons/structure/set"
-	"github.com/Rafael24595/go-terminal/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 )
 
 type ScreenEvent struct {

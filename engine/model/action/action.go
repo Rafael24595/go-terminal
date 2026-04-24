@@ -1,6 +1,6 @@
 package action
 
-import "github.com/Rafael24595/go-terminal/engine/layout/drawable"
+import "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 
 type ActionKind uint8
 

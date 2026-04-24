@@ -7,8 +7,8 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-terminal/engine/model/delta"
-	"github.com/Rafael24595/go-terminal/test/support/mock"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/delta"
+	"github.com/Rafael24595/go-reacterm-core/test/support/mock"
 )
 
 func applyDeltaStr(buffer string, d *delta.Delta) string {
@@ -367,7 +367,6 @@ func TestPushEvent_Typing(t *testing.T) {
 	}
 
 	s.PushEvent(Insert, uint(i), uint(i), "", " ")
-	i++
 
 	assert.Len(t, 1, s.actions)
 	assert.Len(t, 4, s.events)

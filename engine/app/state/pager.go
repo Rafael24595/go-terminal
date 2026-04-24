@@ -1,6 +1,6 @@
 package state
 
-import "github.com/Rafael24595/go-terminal/engine/helper/math"
+import "github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 
 type PagerContext struct {
 	TargetPage uint

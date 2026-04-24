@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/app/cleaner"
+
+	"github.com/Rafael24595/go-reacterm-core/engine/app/cleaner"
 )
 
 func Helper_ToStateCleaner(t *testing.T, cleaner cleaner.StateCleaner) {

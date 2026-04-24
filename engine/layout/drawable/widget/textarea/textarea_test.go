@@ -3,9 +3,9 @@ package textarea
 import (
 	"testing"
 
-	"github.com/Rafael24595/go-terminal/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 
-	drawable_test "github.com/Rafael24595/go-terminal/test/engine/layout/drawable"
+	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
 func TestTextArea_DrawableBasicSuite(t *testing.T) {

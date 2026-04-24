@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
-	"github.com/Rafael24595/go-terminal/engine/render/text"
 
-	screen_test "github.com/Rafael24595/go-terminal/test/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+
+	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
 func TestTable_ToScreen(t *testing.T) {
