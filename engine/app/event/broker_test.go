@@ -129,7 +129,7 @@ func TestEventBroker_ContextCancellation(t *testing.T) {
 
 	cancel()
 
-	time.Sleep(time.Millisecond * 10)
+	<-broker.done
 
 	assert.False(t, broker.IsRunning())
 }
