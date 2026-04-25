@@ -69,7 +69,7 @@ func TestSpacer_AddsHeaderLinesWhenEmpty(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Header(spacer.NewSpacerMeta(1, spacer.SpacerAppend))
+		Header(spacer.NewMeta(1, spacer.Once, spacer.After))
 
 	s := w.ToScreen()
 
@@ -94,7 +94,7 @@ func TestSpacer_AddsHeaderLines(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Header(spacer.NewSpacerMeta(1, spacer.SpacerAppend))
+		Header(spacer.NewMeta(1, spacer.Once, spacer.After))
 
 	s := w.ToScreen()
 
@@ -127,7 +127,7 @@ func TestSpacer_HeaderBetween(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Header(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach))
+		Header(spacer.NewMeta(1, spacer.Between, spacer.After))
 
 	s := w.ToScreen()
 
@@ -150,7 +150,7 @@ func TestSpacer_AddsFooterLinesWhenEmpty(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Footer(spacer.NewSpacerMeta(1, spacer.SpacerAppend))
+		Header(spacer.NewMeta(1, spacer.Once, spacer.Before))
 
 	s := w.ToScreen()
 
@@ -175,7 +175,7 @@ func TestSpacer_AddsFooterLines(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Footer(spacer.NewSpacerMeta(1, spacer.SpacerAppend))
+		Footer(spacer.NewMeta(1, spacer.Once, spacer.After))
 
 	s := w.ToScreen()
 
@@ -208,7 +208,7 @@ func TestSpacer_FooterBetween(t *testing.T) {
 	}
 
 	w := NewSpacer(base.ToScreen()).
-		Footer(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach))
+		Footer(spacer.NewMeta(1, spacer.Between, spacer.Before))
 
 	s := w.ToScreen()
 

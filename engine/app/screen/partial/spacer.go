@@ -11,8 +11,8 @@ import (
 )
 
 type Spacer struct {
-	header spacer.SpacerMeta
-	footer spacer.SpacerMeta
+	header spacer.Meta
+	footer spacer.Meta
 	screen screen.Screen
 }
 
@@ -22,12 +22,12 @@ func NewSpacer(screen screen.Screen) *Spacer {
 	}
 }
 
-func (c *Spacer) Header(header spacer.SpacerMeta) *Spacer {
+func (c *Spacer) Header(header spacer.Meta) *Spacer {
 	c.header = header
 	return c
 }
 
-func (c *Spacer) Footer(footer spacer.SpacerMeta) *Spacer {
+func (c *Spacer) Footer(footer spacer.Meta) *Spacer {
 	c.footer = footer
 	return c
 }
@@ -73,7 +73,7 @@ func (c *Spacer) addHeaderStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
 		c.makeSpaces(c.header.Size)...,
 	)
 
-	if c.header.Mode == spacer.SpacerAppend {
+	if c.header.Insertion == spacer.Once {
 		vm.Header.Push(spcr)
 		return vm
 	}
@@ -93,7 +93,7 @@ func (c *Spacer) addFooterStyles(vm viewmodel.ViewModel) viewmodel.ViewModel {
 		c.makeSpaces(c.footer.Size)...,
 	)
 
-	if c.footer.Mode == spacer.SpacerAppend {
+	if c.footer.Insertion == spacer.Once {
 		vm.Footer.Unshift(spcr)
 		return vm
 	}

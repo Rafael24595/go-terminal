@@ -3,7 +3,6 @@ package partial
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
-	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/action"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/inline"
@@ -52,15 +51,13 @@ func (c *Inline) groupDrawables(filter inline.FilterMeta) action.ActionFunc {
 		rest := make([]drawable.Drawable, 0, len(drawables))
 		filt := make([]drawable.Drawable, 0, len(drawables))
 
-		values := set.SetFrom(filter.Values...)
-
 		for _, d := range drawables {
-			if filter.Target == inline.TargetCode && values.Has(d.Code) {
+			if filter.Target == inline.TargetCode && filter.Values.Has(d.Code) {
 				filt = append(filt, d)
 				continue
 			}
 
-			if filter.Target == inline.TargetTags && d.Tags.Any(values) {
+			if filter.Target == inline.TargetTags && d.Tags.Any(filter.Values) {
 				filt = append(filt, d)
 				continue
 			}

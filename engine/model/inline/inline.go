@@ -1,5 +1,7 @@
 package inline
 
+import "github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
+
 const DefaultInlineSeparator = " | "
 
 type Target uint8
@@ -11,12 +13,12 @@ const (
 
 type FilterMeta struct {
 	Target Target
-	Values []string
+	Values set.Set[string]
 }
 
 func NewFilterMeta(target Target, values ...string) FilterMeta {
 	return FilterMeta{
 		Target: target,
-		Values: values,
+		Values: set.SetFrom(values...),
 	}
 }

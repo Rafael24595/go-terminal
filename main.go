@@ -110,8 +110,8 @@ func makeScreen() screen.Screen {
 		ToScreen()
 
 	return partial.NewSpacer(inline).
-		Header(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach)).
-		Footer(spacer.NewSpacerMeta(1, spacer.SpacerAfterEach)).
+		Header(spacer.NewMeta(1, spacer.Between, spacer.After)).
+		Footer(spacer.NewMeta(1, spacer.Between, spacer.Before)).
 		ToScreen()
 }
 
