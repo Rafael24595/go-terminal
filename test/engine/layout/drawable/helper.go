@@ -16,6 +16,7 @@ const NameMockDrawable = "MockDrawable"
 type MockDrawable struct {
 	Order      int
 	Code       string
+	Tags       set.Set[string]
 	Name       string
 	InitCalled bool
 	WipeCalled bool
@@ -48,7 +49,7 @@ func (m *MockDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
 		Name: name,
 		Code: m.Code,
-		Tags: make(set.Set[string]),
+		Tags: m.Tags,
 		Init: m.Init,
 		Wipe: m.Wipe,
 		Draw: m.Draw,
