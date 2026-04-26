@@ -1,4 +1,4 @@
-package partial
+package inline
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
@@ -6,29 +6,30 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/inline"
 
 	drawable_inline "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/inline"
 )
 
+const DefaultInlineSeparator = " | "
+
 const name = "inline_transformer"
 
-type inlinePredicate func(inline.FilterMeta, drawable.Drawable) bool
+type inlinePredicate func(pipeline.Filter, drawable.Drawable) bool
 
-var inlinePredicates = map[inline.Target]inlinePredicate{
-	inline.TargetCode: func(m inline.FilterMeta, d drawable.Drawable) bool {
-		return m.Values.Has(d.Code)
+var inlinePredicates = map[pipeline.Criterion]inlinePredicate{
+	pipeline.Code: func(f pipeline.Filter, d drawable.Drawable) bool {
+		return f.Values.Has(d.Code)
 	},
-	inline.TargetTags: func(m inline.FilterMeta, d drawable.Drawable) bool {
-		return d.Tags.Any(m.Values)
+	pipeline.Tags: func(f pipeline.Filter, d drawable.Drawable) bool {
+		return d.Tags.Any(f.Values)
 	},
 }
 
-func InlineTransformer(separator string, meta inline.FilterMeta, target pipeline.Target) pipeline.Transformer {
+func InlineTransformer(separator string, filter pipeline.Filter, section pipeline.Section) pipeline.Transformer {
 	return func(vm viewmodel.ViewModel) viewmodel.ViewModel {
-		accessor, ok := pipeline.FindViewModelAccessor(target)
+		accessor, ok := pipeline.FindViewModelAccessor(section)
 		if !ok {
-			assert.Unreachable("unsupported target '%d'", target)
+			assert.Unreachable("unsupported target '%d'", section)
 			return vm
 		}
 
@@ -40,7 +41,7 @@ func InlineTransformer(separator string, meta inline.FilterMeta, target pipeline
 		remaining := make([]drawable.Drawable, 0, itemsLen)
 
 		for _, d := range items {
-			if matchesFilter(meta, d) {
+			if matchesFilter(filter, d) {
 				matched = append(matched, d)
 			} else {
 				remaining = append(remaining, d)
@@ -65,10 +66,10 @@ func InlineTransformer(separator string, meta inline.FilterMeta, target pipeline
 	}
 }
 
-func matchesFilter(meta inline.FilterMeta, drawable drawable.Drawable) bool {
-	predicate, ok := inlinePredicates[meta.Target]
+func matchesFilter(filter pipeline.Filter, drawable drawable.Drawable) bool {
+	predicate, ok := inlinePredicates[filter.Criterion]
 	if !ok {
 		return false
 	}
-	return predicate(meta, drawable)
+	return predicate(filter, drawable)
 }

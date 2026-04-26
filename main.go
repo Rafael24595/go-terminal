@@ -15,16 +15,15 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/runtime"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline/inline"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline/spacer"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/wrapper"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/action"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/inline"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize/transformer"
 	"github.com/Rafael24595/go-reacterm-core/engine/render"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/adapter"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/spacer"
 	"github.com/Rafael24595/go-reacterm-core/engine/terminal"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/app/cleaner/composite"
@@ -103,16 +102,29 @@ func makeScreen() screen.Screen {
 		ToScreen()
 	helper := wrapper.NewHelp(pagination).ToScreen()
 
-	inline := partial.NewInline(helper).
-		PushAction(action.FocusFooter,
-			inline.NewFilterMeta(inline.TargetTags, screen.SystemScreenMeta),
-		).
-		ToScreen()
+	return makePipeline(helper)
+}
 
-	return partial.NewSpacer(inline).
-		Header(spacer.NewMeta(1, spacer.Between, spacer.After)).
-		Footer(spacer.NewMeta(1, spacer.Between, spacer.Before)).
-		ToScreen()
+func makePipeline(scrn screen.Screen) screen.Screen {
+	inlineStep := inline.InlineTransformer(
+		inline.DefaultInlineSeparator,
+		pipeline.NewFilter(pipeline.Tags, screen.SystemMetaTag),
+		pipeline.Footer,
+	)
+
+	spacerHeader := spacer.SpacerTransformer(
+		spacer.NewMeta(1, spacer.Between, spacer.After),
+		pipeline.Header,
+	)
+
+	spacerFooter := spacer.SpacerTransformer(
+		spacer.NewMeta(1, spacer.Between, spacer.Before),
+		pipeline.Footer,
+	)
+
+	return pipeline.NewPipeline(scrn,
+		inlineStep, spacerHeader, spacerFooter,
+	).ToScreen()
 }
 
 func makeLayout(transformer winsize.Transformer) layout.Layout {

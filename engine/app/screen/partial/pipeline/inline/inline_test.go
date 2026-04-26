@@ -1,4 +1,4 @@
-package partial
+package inline
 
 import (
 	"testing"
@@ -8,29 +8,27 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/inline"
 
-	drawable_inline "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/inline"
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-var targets = []pipeline.Target{
+var targets = []pipeline.Section{
 	pipeline.Footer,
 	pipeline.Header,
 	pipeline.Kernel,
 }
 
-func findAccesor(t *testing.T, tr pipeline.Target) pipeline.StackAccessor {
-	acc, ok := pipeline.FindViewModelAccessor(tr)
+func findAccesor(t *testing.T, s pipeline.Section) pipeline.StackAccessor {
+	acc, ok := pipeline.FindViewModelAccessor(s)
 	if !ok {
-		t.Fatalf("unhandled target %d", tr)
+		t.Fatalf("unhandled target %d", s)
 	}
 	return acc
 }
 
 func TestInline_GroupDrawables_NoMatches(t *testing.T) {
-	meta := inline.NewFilterMeta(
-		inline.TargetCode, "x",
+	meta := pipeline.NewFilter(
+		pipeline.Code, "x",
 	)
 
 	mc1 := drawable_test.MockDrawable{
@@ -61,8 +59,8 @@ func TestInline_GroupDrawables_NoMatches(t *testing.T) {
 }
 
 func TestInline_GroupDrawables_ByCode(t *testing.T) {
-	meta := inline.NewFilterMeta(
-		inline.TargetCode, "a",
+	meta := pipeline.NewFilter(
+		pipeline.Code, "a",
 	)
 
 	mc1 := drawable_test.MockDrawable{
@@ -88,13 +86,13 @@ func TestInline_GroupDrawables_ByCode(t *testing.T) {
 
 		assert.Equal(t, 2, len(items))
 		assert.Equal(t, "b", items[0].Code)
-		assert.Equal(t, drawable_inline.NameInlineDrawable, items[1].Name)
+		assert.Equal(t, name, items[1].Name)
 	}
 }
 
 func TestInline_GroupDrawables_ByTags(t *testing.T) {
-	meta := inline.NewFilterMeta(
-		inline.TargetTags, "a",
+	meta := pipeline.NewFilter(
+		pipeline.Tags, "a",
 	)
 
 	mc1 := drawable_test.MockDrawable{
@@ -119,13 +117,13 @@ func TestInline_GroupDrawables_ByTags(t *testing.T) {
 		items := acc.Get(vm).Items()
 
 		assert.Equal(t, 2, len(items))
-		assert.Equal(t, drawable_inline.NameInlineDrawable, items[1].Name)
+		assert.Equal(t, name, items[1].Name)
 	}
 }
 
 func TestInline_GroupDrawables_MultipleMatches(t *testing.T) {
-	meta := inline.NewFilterMeta(
-		inline.TargetCode, "a",
+	meta := pipeline.NewFilter(
+		pipeline.Code, "a",
 	)
 
 	mc1 := drawable_test.MockDrawable{
@@ -155,6 +153,6 @@ func TestInline_GroupDrawables_MultipleMatches(t *testing.T) {
 
 		assert.Equal(t, 2, len(items))
 		assert.Equal(t, "b", items[0].Code)
-		assert.Equal(t, drawable_inline.NameInlineDrawable, items[1].Name)
+		assert.Equal(t, name, items[1].Name)
 	}
 }

@@ -1,9 +1,9 @@
 package pipeline
 
-type Target uint8
+type Section uint8
 
 const (
-	Header Target = iota
+	Header Section = iota
 	Kernel
 	Footer
 )

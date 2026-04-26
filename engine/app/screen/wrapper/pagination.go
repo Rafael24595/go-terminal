@@ -160,7 +160,7 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 
 		vm.Footer.Unshift(
 			block.BlockDrawableFromLines(footer...).
-				AddTag(screen.SystemScreenMeta),
+				AddTag(screen.SystemMetaTag),
 		)
 	}
 

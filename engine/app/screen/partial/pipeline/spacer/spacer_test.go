@@ -7,28 +7,27 @@ import (
 
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/spacer"
 
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-var targets = []pipeline.Target{
+var targets = []pipeline.Section{
 	pipeline.Footer,
 	pipeline.Header,
 	pipeline.Kernel,
 }
 
-func findAccesor(t *testing.T, tr pipeline.Target) pipeline.StackAccessor {
-	acc, ok := pipeline.FindViewModelAccessor(tr)
+func findAccesor(t *testing.T, s pipeline.Section) pipeline.StackAccessor {
+	acc, ok := pipeline.FindViewModelAccessor(s)
 	if !ok {
-		t.Fatalf("unhandled target %d", tr)
+		t.Fatalf("unhandled target %d", s)
 	}
 	return acc
 }
 
 func TestSpacer_AddsHeaderLinesWhenEmpty(t *testing.T) {
 	for _, v := range targets {
-		meta := spacer.NewMeta(1, spacer.Once, spacer.After)
+		meta := NewMeta(1, Once, After)
 		transformer := SpacerTransformer(meta, v)
 
 		vm := transformer(
@@ -55,7 +54,7 @@ func TestSpacer_AddsHeaderLines(t *testing.T) {
 			mc.ToDrawable(),
 		)
 
-		meta := spacer.NewMeta(1, spacer.Once, spacer.After)
+		meta := NewMeta(1, Once, After)
 		transformer := SpacerTransformer(meta, v)
 
 		vm = transformer(vm)
@@ -87,7 +86,7 @@ func TestSpacer_HeaderBetween(t *testing.T) {
 			mc2.ToDrawable(),
 		)
 
-		meta := spacer.NewMeta(1, spacer.Between, spacer.After)
+		meta := NewMeta(1, Between, After)
 		transformer := SpacerTransformer(meta, v)
 
 		vm = transformer(vm)

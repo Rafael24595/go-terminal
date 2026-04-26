@@ -16,7 +16,7 @@ type Pipeline struct {
 func NewPipeline(screen screen.Screen, steps ...Transformer) *Pipeline {
 	return &Pipeline{
 		screen: screen,
-		steps:  make([]Transformer, 0),
+		steps:  steps,
 	}
 }
 

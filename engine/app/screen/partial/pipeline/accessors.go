@@ -10,7 +10,7 @@ type StackAccessor struct {
 	Set func(viewmodel.ViewModel, *stack.VStackDrawable) viewmodel.ViewModel
 }
 
-var viewModelAccessors = map[Target]StackAccessor{
+var viewModelAccessors = map[Section]StackAccessor{
 	Header: {
 		Get: func(vm viewmodel.ViewModel) *stack.VStackDrawable {
 			return vm.Header
@@ -40,8 +40,8 @@ var viewModelAccessors = map[Target]StackAccessor{
 	},
 }
 
-func FindViewModelAccessor(target Target) (StackAccessor, bool) {
-	accessor, ok := viewModelAccessors[target]
+func FindViewModelAccessor(section Section) (StackAccessor, bool) {
+	accessor, ok := viewModelAccessors[section]
 	if !ok {
 		return StackAccessor{}, false
 	}

@@ -97,7 +97,7 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 
 	vm.Footer.Unshift(
 		block.BlockDrawableFromLines(footer...).
-			AddTag(screen.SystemScreenMeta),
+			AddTag(screen.SystemMetaTag),
 	)
 
 	actions := screen.FilterKeyRequired(

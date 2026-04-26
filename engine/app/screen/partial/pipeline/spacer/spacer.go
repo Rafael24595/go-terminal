@@ -7,15 +7,14 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/spacer"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 const name = "spacer_transformer"
 
-type spacerPlacement func(spacer.Meta, drawable.Drawable, *stack.VStackDrawable) *stack.VStackDrawable
+type spacerPlacement func(Meta, drawable.Drawable, *stack.VStackDrawable) *stack.VStackDrawable
 
-func SpacerTransformer(meta spacer.Meta, targets ...pipeline.Target) pipeline.Transformer {
+func SpacerTransformer(meta Meta, sections ...pipeline.Section) pipeline.Transformer {
 	placeSpacer := resolvePlacement(meta)
 
 	drawable := block.BlockDrawableFromLines(
@@ -25,10 +24,10 @@ func SpacerTransformer(meta spacer.Meta, targets ...pipeline.Target) pipeline.Tr
 	drawable.Name = name
 
 	return func(vm viewmodel.ViewModel) viewmodel.ViewModel {
-		for _, target := range targets {
-			accessor, ok := pipeline.FindViewModelAccessor(target)
+		for _, section := range sections {
+			accessor, ok := pipeline.FindViewModelAccessor(section)
 			if !ok {
-				assert.Unreachable("unsupported target '%d'", target)
+				assert.Unreachable("unsupported target '%d'", section)
 				continue
 			}
 
@@ -44,19 +43,19 @@ func SpacerTransformer(meta spacer.Meta, targets ...pipeline.Target) pipeline.Tr
 	}
 }
 
-func resolvePlacement(meta spacer.Meta) spacerPlacement {
-	if meta.Position == spacer.Before {
+func resolvePlacement(meta Meta) spacerPlacement {
+	if meta.Position == Before {
 		return prependSpacer
 	}
 	return appendSpacer
 }
 
 func prependSpacer(
-	meta spacer.Meta,
+	meta Meta,
 	drawable drawable.Drawable,
 	vStack *stack.VStackDrawable,
 ) *stack.VStackDrawable {
-	if meta.Insertion == spacer.Once {
+	if meta.Insertion == Once {
 		vStack.Unshift(drawable)
 		return vStack
 	}
@@ -70,11 +69,11 @@ func prependSpacer(
 }
 
 func appendSpacer(
-	meta spacer.Meta,
+	meta Meta,
 	drawable drawable.Drawable,
 	vStack *stack.VStackDrawable,
 ) *stack.VStackDrawable {
-	if meta.Insertion == spacer.Once {
+	if meta.Insertion == Once {
 		vStack.Push(drawable)
 		return vStack
 	}
