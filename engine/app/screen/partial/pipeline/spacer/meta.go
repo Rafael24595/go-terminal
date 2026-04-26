@@ -1,11 +1,6 @@
 package spacer
 
-type Placement uint8
-
-const (
-	Before Placement = iota
-	After
-)
+import "github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline"
 
 type Insertion uint8
 
@@ -17,10 +12,10 @@ const (
 type Meta struct {
 	Size      uint8
 	Insertion Insertion
-	Position  Placement
+	Position  pipeline.Placement
 }
 
-func NewMeta(size uint8, insertion Insertion, placement Placement) Meta {
+func NewMeta(size uint8, insertion Insertion, placement pipeline.Placement) Meta {
 	return Meta{
 		Size:      size,
 		Insertion: insertion,

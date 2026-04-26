@@ -113,12 +113,12 @@ func makePipeline(scrn screen.Screen) screen.Screen {
 	)
 
 	spacerHeader := spacer.SpacerTransformer(
-		spacer.NewMeta(1, spacer.Between, spacer.After),
+		spacer.NewMeta(1, spacer.Between, pipeline.After),
 		pipeline.Header,
 	)
 
 	spacerFooter := spacer.SpacerTransformer(
-		spacer.NewMeta(1, spacer.Between, spacer.Before),
+		spacer.NewMeta(1, spacer.Between, pipeline.Before),
 		pipeline.Footer,
 	)
 

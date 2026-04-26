@@ -44,7 +44,7 @@ func SpacerTransformer(meta Meta, sections ...pipeline.Section) pipeline.Transfo
 }
 
 func resolvePlacement(meta Meta) spacerPlacement {
-	if meta.Position == Before {
+	if meta.Position == pipeline.Before {
 		return prependSpacer
 	}
 	return appendSpacer

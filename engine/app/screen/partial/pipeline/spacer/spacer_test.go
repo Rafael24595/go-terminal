@@ -27,7 +27,7 @@ func findAccesor(t *testing.T, s pipeline.Section) pipeline.StackAccessor {
 
 func TestSpacer_AddsHeaderLinesWhenEmpty(t *testing.T) {
 	for _, v := range targets {
-		meta := NewMeta(1, Once, After)
+		meta := NewMeta(1, Once, pipeline.After)
 		transformer := SpacerTransformer(meta, v)
 
 		vm := transformer(
@@ -54,7 +54,7 @@ func TestSpacer_AddsHeaderLines(t *testing.T) {
 			mc.ToDrawable(),
 		)
 
-		meta := NewMeta(1, Once, After)
+		meta := NewMeta(1, Once, pipeline.After)
 		transformer := SpacerTransformer(meta, v)
 
 		vm = transformer(vm)
@@ -86,7 +86,7 @@ func TestSpacer_HeaderBetween(t *testing.T) {
 			mc2.ToDrawable(),
 		)
 
-		meta := NewMeta(1, Between, After)
+		meta := NewMeta(1, Between, pipeline.After)
 		transformer := SpacerTransformer(meta, v)
 
 		vm = transformer(vm)
