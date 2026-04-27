@@ -1,60 +1,41 @@
 package stack
 
 import (
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 )
 
-type layer struct {
+type layer[T math.Number] struct {
 	drawable drawable.Drawable
+	chunk    chunk.Chunk[T]
+	value    T
 	status   bool
 }
 
-func layersFromDrawables(items ...drawable.Drawable) []layer {
-	layers := make([]layer, len(items))
-	for i, item := range items {
-		layers[i] = layerFromDrawable(item)
-	}
-	return layers
-}
-
-func layerFromDrawable(item drawable.Drawable) layer {
-	return layer{
-		drawable: item,
-		status:   true,
-	}
-}
-
-type chunkLayer struct {
-	drawable drawable.Drawable
-	chunk    chunk.Chunk
-	cols     uint16
-	status   bool
-}
-
-func chunkLayerFromLayer(other chunkLayer, cols uint16) chunkLayer {
-	return chunkLayer{
+func layerFromLayer[T math.Number](other layer[T], value T) layer[T] {
+	return layer[T]{
 		drawable: other.drawable,
 		chunk:    other.chunk,
-		cols:     cols,
+		value:    value,
 		status:   true,
 	}
 }
 
-func chunkLayerFromDrawable(item drawable.Drawable, chunk chunk.Chunk, cols uint16) chunkLayer {
-	return chunkLayer{
+func layerFromDrawable[T math.Number](item drawable.Drawable, value chunk.Chunk[T], cols T) layer[T] {
+	return layer[T]{
 		drawable: item,
-		chunk:    chunk,
-		cols:     cols,
+		chunk:    value,
+		value:    cols,
 		status:   true,
 	}
 }
 
-func chunkLayersFromDrawables(chk chunk.Chunk, cols uint16, items ...drawable.Drawable) []chunkLayer {
-	layers := make([]chunkLayer, len(items))
+func layersFromDrawables[T math.Number](chk chunk.Chunk[T], value T, items ...drawable.Drawable) []layer[T] {
+	layers := make([]layer[T], len(items))
 	for i, item := range items {
-		layers[i] = chunkLayerFromDrawable(
-			item, chk, cols,
+		layers[i] = layerFromDrawable(
+			item, chk, value,
 		)
 	}
 	return layers

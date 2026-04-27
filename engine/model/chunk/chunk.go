@@ -2,7 +2,7 @@ package chunk
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 )
 
 const max_chunk = 100
@@ -11,49 +11,49 @@ const (
 	err_chunk_size = "chunk value should be less or equals than %s"
 )
 
-type chunkAdapter func(size winsize.Winsize) uint16
+type chunkAdapter[T math.Number] func(size T) T
 
-type Chunk struct {
-	Adapter chunkAdapter
+type Chunk[T math.Number] struct {
+	Adapter chunkAdapter[T]
 	Sized   bool
 }
 
-func Dynamic() Chunk {
-	return Chunk{
-		Adapter: colsAdapter(0),
+func Dynamic[T math.Number]() Chunk[T] {
+	return Chunk[T]{
+		Adapter: fixAdapter(T(0)),
 		Sized:   false,
 	}
 }
 
-func Colums(cols uint16) Chunk {
-	return Chunk{
-		Adapter: colsAdapter(cols),
+func Fixed[T math.Number](fix T) Chunk[T] {
+	return Chunk[T]{
+		Adapter: fixAdapter(fix),
 		Sized:   true,
 	}
 }
 
-func Percent(chk uint16) Chunk {
+func Percent[T math.Number](chk T) Chunk[T] {
 	if chk > max_chunk {
 		assert.Unreachable(err_chunk_size, max_chunk)
 		chk = max_chunk
 	}
 
-	return Chunk{
-		Adapter: percAdapter(chk),
+	return Chunk[T]{
+		Adapter: perAdapter(chk),
 		Sized:   true,
 	}
 }
 
-func percAdapter(chunk uint16) chunkAdapter {
-	return func(size winsize.Winsize) uint16 {
-		return (size.Cols * chunk) / 100
+func perAdapter[T math.Number](chunk T) chunkAdapter[T] {
+	return func(size T) T {
+		return (size * chunk) / 100
 	}
 }
 
-func colsAdapter(cols uint16) chunkAdapter {
-	return func(size winsize.Winsize) uint16 {
-		if cols > size.Cols {
-			return size.Cols
+func fixAdapter[T math.Number](cols T) chunkAdapter[T] {
+	return func(size T) T {
+		if cols > size {
+			return size
 		}
 		return cols
 	}

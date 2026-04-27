@@ -61,7 +61,7 @@ func makeKernel() drawable.Drawable {
 
 	hstack.PushChunk(
 		pst2.ToDrawable(),
-		chunk.Colums(28),
+		chunk.Fixed[uint16](28),
 	)
 
 	article := line.LineDrawableFromLines(

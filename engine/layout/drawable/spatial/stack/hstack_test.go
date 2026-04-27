@@ -34,9 +34,9 @@ func TestHStack_Distribution(t *testing.T) {
 
 	assert.Len(t, 3, stack.fixed)
 
-	assert.Equal(t, 34, stack.fixed[0].cols)
-	assert.Equal(t, 33, stack.fixed[1].cols)
-	assert.Equal(t, 33, stack.fixed[2].cols)
+	assert.Equal(t, 34, stack.fixed[0].value)
+	assert.Equal(t, 33, stack.fixed[1].value)
+	assert.Equal(t, 33, stack.fixed[2].value)
 }
 
 func TestHStack_MixedFixedAndDynamic(t *testing.T) {
@@ -45,7 +45,7 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 	d3 := &drawable_test.MockDrawable{}
 
 	stack := NewHStackDrawable()
-	stack.PushChunk(d1.ToDrawable(), chunk.Colums(20))
+	stack.PushChunk(d1.ToDrawable(), chunk.Fixed[uint16](20))
 	stack.Push(d2.ToDrawable(), d3.ToDrawable())
 
 	stack.init()
@@ -53,9 +53,9 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 		Cols: 100,
 	})
 
-	assert.Equal(t, 20, stack.fixed[0].cols)
-	assert.Equal(t, 40, stack.fixed[1].cols)
-	assert.Equal(t, 40, stack.fixed[2].cols)
+	assert.Equal(t, 20, stack.fixed[0].value)
+	assert.Equal(t, 40, stack.fixed[1].value)
+	assert.Equal(t, 40, stack.fixed[2].value)
 }
 
 func TestHStack_RenderOutput(t *testing.T) {
@@ -73,8 +73,8 @@ func TestHStack_RenderOutput(t *testing.T) {
 	}
 
 	stack := NewHStackDrawable()
-	stack.PushChunk(dA.ToDrawable(), chunk.Percent(50))
-	stack.PushChunk(dB.ToDrawable(), chunk.Percent(50))
+	stack.PushChunk(dA.ToDrawable(), chunk.Percent[uint16](50))
+	stack.PushChunk(dB.ToDrawable(), chunk.Percent[uint16](50))
 
 	stack.init()
 

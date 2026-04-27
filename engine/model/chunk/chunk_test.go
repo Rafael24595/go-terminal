@@ -4,17 +4,14 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
 
 func TestDynamic(t *testing.T) {
-	c := Dynamic()
+	c := Dynamic[uint]()
 
 	assert.False(t, c.Sized)
 
-	res := c.Adapter(winsize.Winsize{
-		Cols: 80,
-	})
+	res := c.Adapter(80)
 
 	assert.Equal(t, 0, res)
 }
@@ -34,12 +31,10 @@ func TestColums(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := Colums(tt.columns)
+			c := Fixed(tt.columns)
 			assert.True(t, c.Sized)
 
-			res := c.Adapter(winsize.Winsize{
-				Cols: tt.terminal,
-			})
+			res := c.Adapter(tt.terminal)
 
 			assert.Equal(t, tt.expected, res)
 		})
@@ -65,7 +60,7 @@ func TestPercent(t *testing.T) {
 			c := Percent(tt.percent)
 			assert.True(t, c.Sized)
 
-			res := c.Adapter(winsize.Winsize{Cols: tt.terminal})
+			res := c.Adapter(tt.terminal)
 
 			assert.Equal(t, tt.expected, res)
 		})

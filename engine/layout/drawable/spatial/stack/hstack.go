@@ -26,18 +26,18 @@ type HStackDrawable struct {
 	loaded     bool
 	lazyLoaded bool
 	size       winsize.Winsize
-	items      []chunkLayer
-	fixed      []chunkLayer
+	items      []layer[uint16]
+	fixed      []layer[uint16]
 }
 
 func NewHStackDrawable(items ...drawable.Drawable) *HStackDrawable {
-	layers := chunkLayersFromDrawables(chunk.Dynamic(), 0, items...)
+	layers := layersFromDrawables(chunk.Dynamic[uint16](), 0, items...)
 	return &HStackDrawable{
 		loaded:     false,
 		lazyLoaded: false,
 		size:       winsize.Winsize{},
 		items:      layers,
-		fixed:      make([]chunkLayer, 0),
+		fixed:      make([]layer[uint16], 0),
 	}
 }
 
@@ -48,7 +48,7 @@ func HStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 func (d *HStackDrawable) Unshift(items ...drawable.Drawable) *HStackDrawable {
 	assert.False(d.loaded, drawable.MessageNewElement)
 
-	layers := chunkLayersFromDrawables(chunk.Dynamic(), 0, items...)
+	layers := layersFromDrawables(chunk.Dynamic[uint16](), 0, items...)
 	d.items = append(layers, d.items...)
 
 	return d
@@ -59,27 +59,27 @@ func (d *HStackDrawable) Push(items ...drawable.Drawable) *HStackDrawable {
 
 	for _, item := range items {
 		d.items = append(d.items,
-			chunkLayerFromDrawable(item, chunk.Dynamic(), 0),
+			layerFromDrawable(item, chunk.Dynamic[uint16](), 0),
 		)
 	}
 
 	return d
 }
 
-func (d *HStackDrawable) UnshiftChunk(item drawable.Drawable, chunk chunk.Chunk) *HStackDrawable {
+func (d *HStackDrawable) UnshiftChunk(item drawable.Drawable, chunk chunk.Chunk[uint16]) *HStackDrawable {
 	assert.False(d.loaded, drawable.MessageNewElement)
 
-	newLayer := chunkLayerFromDrawable(item, chunk, 0)
+	newLayer := layerFromDrawable(item, chunk, 0)
 
-	d.items = append([]chunkLayer{newLayer}, d.items...)
+	d.items = append([]layer[uint16]{newLayer}, d.items...)
 
 	return d
 }
 
-func (d *HStackDrawable) PushChunk(item drawable.Drawable, chunk chunk.Chunk) *HStackDrawable {
+func (d *HStackDrawable) PushChunk(item drawable.Drawable, chunk chunk.Chunk[uint16]) *HStackDrawable {
 	assert.False(d.loaded, drawable.MessageNewElement)
 
-	newLayer := chunkLayerFromDrawable(item, chunk, 0)
+	newLayer := layerFromDrawable(item, chunk, 0)
 
 	d.items = append(d.items, newLayer)
 
@@ -208,7 +208,7 @@ func (d *HStackDrawable) makeBlocks(size winsize.Winsize) ([]block, bool) {
 			inheritCols := d.inheritCols(size, buffer, i)
 			fixedSize := winsize.Winsize{
 				Rows: size.Rows,
-				Cols: d.fixed[i].cols + inheritCols,
+				Cols: d.fixed[i].value + inheritCols,
 			}
 
 			lines, status := d.fixed[i].drawable.Draw(fixedSize)
@@ -278,7 +278,7 @@ func (d *HStackDrawable) inheritCols(
 		return 0
 	}
 
-	return d.fixed[bufferIndex-1].cols
+	return d.fixed[bufferIndex-1].value
 }
 
 func (d *HStackDrawable) makeLines(blocks []block) []text.Line {
@@ -302,8 +302,8 @@ func (d *HStackDrawable) makeLines(blocks []block) []text.Line {
 	return buffer
 }
 
-func (d *HStackDrawable) fixLayout(size winsize.Winsize) []chunkLayer {
-	layers := make([]chunkLayer, 0, len(d.fixed))
+func (d *HStackDrawable) fixLayout(size winsize.Winsize) []layer[uint16] {
+	layers := make([]layer[uint16], 0, len(d.fixed))
 	available, rest := d.calcSpace(size)
 
 	for _, v := range d.fixed {
@@ -315,7 +315,7 @@ func (d *HStackDrawable) fixLayout(size winsize.Winsize) []chunkLayer {
 
 		chunk := uint16(0)
 		if chk.Sized {
-			chunk = min(size.Cols, chk.Adapter(size))
+			chunk = min(size.Cols, chk.Adapter(size.Cols))
 		} else {
 			chunk = available
 			if rest > 0 {
@@ -325,7 +325,7 @@ func (d *HStackDrawable) fixLayout(size winsize.Winsize) []chunkLayer {
 		}
 
 		layers = append(layers,
-			chunkLayerFromLayer(v, chunk),
+			layerFromLayer(v, chunk),
 		)
 	}
 
@@ -355,11 +355,17 @@ func (d *HStackDrawable) calcSpace(size winsize.Winsize) (uint16, uint16) {
 }
 
 func (d *HStackDrawable) HasNext() bool {
-	for _, item := range d.items {
+	items := d.items
+	if d.lazyLoaded {
+		items = d.fixed
+	}
+
+	for _, item := range items {
 		if item.status {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -376,7 +382,7 @@ func (d *HStackDrawable) countCols(size winsize.Winsize) (uint16, uint16) {
 		if !chk.Sized {
 			zeroes += 1
 		} else {
-			cols += chk.Adapter(size)
+			cols += chk.Adapter(size.Cols)
 		}
 	}
 
