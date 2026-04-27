@@ -6,7 +6,9 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
@@ -14,15 +16,21 @@ import (
 const NameVStackDrawable = "VStackDrawable"
 
 type VStackDrawable struct {
-	loaded bool
-	items  []layer
+	loaded     bool
+	lazyLoaded bool
+	size       winsize.Winsize
+	items      []layer[winsize.Rows]
+	fixed      []layer[winsize.Rows]
 }
 
 func NewVStackDrawable(items ...drawable.Drawable) *VStackDrawable {
-	layers := layersFromDrawables(items...)
+	layers := layersFromDrawables(chunk.Dynamic[winsize.Rows](), 0, items...)
 	return &VStackDrawable{
-		loaded: false,
-		items:  layers,
+		loaded:     false,
+		lazyLoaded: false,
+		size:       winsize.Winsize{},
+		items:      layers,
+		fixed:      make([]layer[winsize.Rows], 0),
 	}
 }
 
@@ -33,7 +41,7 @@ func VStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 func (d *VStackDrawable) Unshift(items ...drawable.Drawable) *VStackDrawable {
 	assert.False(d.loaded, drawable.MessageNewElement)
 
-	layers := layersFromDrawables(items...)
+	layers := layersFromDrawables(chunk.Dynamic[winsize.Rows](), 0, items...)
 	d.items = append(layers, d.items...)
 	return d
 }
@@ -42,11 +50,31 @@ func (d *VStackDrawable) Push(items ...drawable.Drawable) *VStackDrawable {
 	assert.False(d.loaded, drawable.MessageNewElement)
 
 	for _, item := range items {
-		d.items = append(d.items, layer{
-			drawable: item,
-			status:   true,
-		})
+		d.items = append(d.items,
+			layerFromDrawable(item, chunk.Dynamic[winsize.Rows](), 0),
+		)
 	}
+
+	return d
+}
+
+func (d *VStackDrawable) UnshiftChunk(item drawable.Drawable, chunk chunk.Chunk[winsize.Rows]) *VStackDrawable {
+	assert.False(d.loaded, drawable.MessageNewElement)
+
+	newLayer := layerFromDrawable(item, chunk, 0)
+
+	d.items = append([]layer[winsize.Rows]{newLayer}, d.items...)
+
+	return d
+}
+
+func (d *VStackDrawable) PushChunk(item drawable.Drawable, chunk chunk.Chunk[winsize.Rows]) *VStackDrawable {
+	assert.False(d.loaded, drawable.MessageNewElement)
+
+	newLayer := layerFromDrawable(item, chunk, 0)
+
+	d.items = append(d.items, newLayer)
+
 	return d
 }
 
@@ -102,10 +130,22 @@ func (d *VStackDrawable) tags() set.Set[string] {
 
 func (d *VStackDrawable) init() {
 	d.loaded = true
+	d.lazyLoaded = false
+}
 
-	for i := range d.items {
-		d.items[i].drawable.Init()
-		d.items[i].status = true
+func (d *VStackDrawable) lazyInit(size winsize.Winsize) {
+	if d.lazyLoaded {
+		return
+	}
+
+	d.lazyLoaded = true
+
+	d.fixed = d.items
+	d.fixed = d.fixLayout(size)
+
+	for i := range d.fixed {
+		d.fixed[i].drawable.Init()
+		d.fixed[i].status = true
 	}
 }
 
@@ -118,35 +158,103 @@ func (d *VStackDrawable) wipe() {
 func (d *VStackDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
-	buffer := make([]text.Line, 0)
-	gStatus := false
+	d.lazyInit(size)
 
-	for i := range d.items {
-		if !d.items[i].status {
+	if !d.size.Eq(size) {
+		d.fixed = d.fixLayout(size)
+		d.size = size
+	}
+
+	lines, recalc := d.makeLines(size)
+
+	if !d.size.Eq(size) || recalc {
+		d.fixed = d.fixLayout(size)
+	}
+
+	return lines, len(d.fixed) > 0
+}
+
+func (d *VStackDrawable) makeLines(size winsize.Winsize) ([]text.Line, bool) {
+	buffer := make([]text.Line, 0, size.Rows)
+	recalcule := false
+
+	for i := range d.fixed {
+		if !d.fixed[i].status {
 			continue
 		}
 
-		lines, status := d.items[i].drawable.Draw(size)
-		if !status {
-			d.items[i].status = false
-		}
-
-		buffer = append(buffer, lines...)
-		gStatus = status || gStatus
-
-		if gStatus {
+		bufferLen := winsize.Rows(len(buffer))
+		remaining := math.SubClampZero(size.Rows, bufferLen)
+		if remaining <= 0 {
 			break
 		}
+
+		rows := remaining
+		if d.fixed[i].chunk.Sized {
+			value := d.fixed[i].value
+			rows = min(value, remaining)
+		}
+
+		fixedSize := winsize.Winsize{
+			Rows: winsize.Rows(rows),
+			Cols: size.Cols,
+		}
+
+		lines, status := d.fixed[i].drawable.Draw(fixedSize)
+		if !status {
+			d.fixed[i].status = false
+			recalcule = true
+		}
+
+		linesLen := winsize.Rows(len(lines))
+		if linesLen < rows && d.fixed[i].chunk.Sized {
+			padded := make([]text.Line, rows)
+			copy(padded, lines)
+			lines = padded
+			linesLen = rows
+		}
+
+		limit := min(rows, linesLen)
+		buffer = append(buffer, lines[:limit]...)
 	}
 
-	return buffer, gStatus
+	return buffer, recalcule
+}
+
+func (d *VStackDrawable) fixLayout(size winsize.Winsize) []layer[winsize.Rows] {
+	layers := make([]layer[winsize.Rows], 0, len(d.fixed))
+
+	for _, v := range d.fixed {
+		if !v.status {
+			continue
+		}
+
+		chk := v.chunk
+
+		chunk := winsize.Rows(0)
+		if chk.Sized {
+			chunk = min(size.Rows, chk.Adapter(size.Rows))
+		}
+
+		layers = append(layers,
+			layerFromLayer(v, chunk),
+		)
+	}
+
+	return layers
 }
 
 func (d *VStackDrawable) HasNext() bool {
-	for _, item := range d.items {
+	items := d.items
+	if d.lazyLoaded {
+		items = d.fixed
+	}
+
+	for _, item := range items {
 		if item.status {
 			return true
 		}
 	}
+
 	return false
 }
