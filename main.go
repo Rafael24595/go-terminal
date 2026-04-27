@@ -94,9 +94,8 @@ func makeTerminal(ctx context.Context) terminal.Terminal {
 
 func makeScreen() screen.Screen {
 	landing := wrapper_screen.NewLanding()
-	header := wrapper_screen.NewBaseHeader(landing)
 
-	history := wrapper.NewHistory(header).ToScreen()
+	history := wrapper.NewHistory(landing).ToScreen()
 	pagination := wrapper.NewPagination(history).
 		ForceEngine(pager.EnginePage()).
 		ToScreen()
@@ -106,6 +105,8 @@ func makeScreen() screen.Screen {
 }
 
 func makePipeline(scrn screen.Screen) screen.Screen {
+	headerStep := wrapper_screen.NewBaseHeader()
+
 	inlineStep := inline.InlineTransformer(
 		inline.DefaultInlineSeparator,
 		pipeline.NewFilter(pipeline.Tags, screen.SystemMetaTag),
@@ -123,7 +124,7 @@ func makePipeline(scrn screen.Screen) screen.Screen {
 	)
 
 	return pipeline.NewPipeline(scrn,
-		inlineStep, spacerHeader, spacerFooter,
+		headerStep, inlineStep, spacerHeader, spacerFooter,
 	).ToScreen()
 }
 

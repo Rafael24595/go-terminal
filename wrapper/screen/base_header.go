@@ -1,14 +1,14 @@
 package wrapper_screen
 
 import (
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/wrapper"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline/header"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-func NewBaseHeader(screen screen.Screen) screen.Screen {
-	header := text.ApplyLineSpec(
+func NewBaseHeader() pipeline.Transformer {
+	lines := text.ApplyLineSpec(
 		style.SpecFromKind(style.SpcKindPaddingCenter),
 		*text.LineFromFragments(
 			*text.NewFragment("Lorem ipsum dolor sit amet").AddAtom(style.AtmUpper),
@@ -21,7 +21,5 @@ func NewBaseHeader(screen screen.Screen) screen.Screen {
 		),
 	)
 
-	return wrapper.NewHeader(screen).
-		AddHeader(header...).
-		ToScreen()
+	return header.HeaderTransformer(pipeline.Before, lines...)
 }
