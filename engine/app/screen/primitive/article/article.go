@@ -1,4 +1,4 @@
-package primitive
+package article
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
@@ -9,7 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const default_article_name = "Article"
+const name = "Article"
 
 type Article struct {
 	reference string
@@ -17,9 +17,9 @@ type Article struct {
 	article   []text.Line
 }
 
-func NewArticle() *Article {
+func New() *Article {
 	return &Article{
-		reference: default_article_name,
+		reference: name,
 		title:     make([]text.Line, 0),
 		article:   make([]text.Line, 0),
 	}

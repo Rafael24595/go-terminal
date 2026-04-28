@@ -2,19 +2,20 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
-	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+
+	text_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive/text"
+	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
 
 func NewTestTextArea() screen.Screen {
 	textTitle := "Suspendisse sem arcu"
 	sizeTitle := runes.Measureu(textTitle)
 
-	return primitive.NewTextArea().
+	return text_screen.NewArea().
 		SetName("textarea - amet").
 		SetBuffer(buffer.NewRuneBuffer().
 			Transformer(text_transformer.FullTextTransformer).

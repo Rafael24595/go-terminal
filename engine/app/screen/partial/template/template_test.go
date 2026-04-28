@@ -1,4 +1,4 @@
-package primitive
+package template
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestTemplate_ToScreen(t *testing.T) {
-	article := NewTemplateScreen()
+	article := New()
 	screen := article.ToScreen()
 
 	screen_test.Helper_ToScreen(t, screen)

@@ -1,4 +1,4 @@
-package primitive
+package table
 
 import (
 	"testing"
@@ -11,7 +11,7 @@ import (
 )
 
 func TestTable_ToScreen(t *testing.T) {
-	menu := NewTable[int]().
+	menu := New[int]().
 		SetName("base").
 		AddTitle(*text.NewLine("Welcome"))
 
@@ -23,9 +23,9 @@ func TestTable_ToScreen(t *testing.T) {
 }
 
 func TestTable_Stack(t *testing.T) {
-	stack := NewTable[int]().
+	stack := New[int]().
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(default_table_name))
+	assert.True(t, stack.Has(name))
 }

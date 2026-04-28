@@ -2,7 +2,7 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive/checkmenu"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -32,7 +32,7 @@ func NewTestCheck() screen.Screen {
 		input.NewCheckOption("4", *text.NewFragment("Check 4")),
 	}
 
-	return primitive.NewCheckMenu().
+	return checkmenu.New().
 		SetName("menu - tortor").
 		SetLimit(1).
 		AddTitle(title...).

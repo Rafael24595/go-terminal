@@ -1,4 +1,4 @@
-package primitive
+package text
 
 import (
 	"testing"
@@ -8,8 +8,8 @@ import (
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
-func TestModalMenu_ToScreen(t *testing.T) {
-	menu := NewModalMenu().
+func TestTextInput_ToScreen(t *testing.T) {
+	menu := NewInput().
 		SetName("base")
 
 	screen := menu.ToScreen()
@@ -19,10 +19,10 @@ func TestModalMenu_ToScreen(t *testing.T) {
 	assert.Equal(t, screen.Name(), "base")
 }
 
-func TestModalMenu_Stack(t *testing.T) {
-	stack := NewModalMenu().
+func TestTextInput_Stack(t *testing.T) {
+	stack := NewInput().
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(default_modal_menu_name))
+	assert.True(t, stack.Has(input_name))
 }

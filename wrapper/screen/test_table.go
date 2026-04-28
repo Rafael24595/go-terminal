@@ -2,10 +2,11 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+	
+	table_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive/table"
 )
 
 type Language struct {
@@ -67,7 +68,7 @@ func parser(lang Language) []table.Field {
 }
 
 func NewTestTable() screen.Screen {
-	return primitive.NewTable[Language]().
+	return table_screen.New[Language]().
 		SetName("article - ipsum").
 		SetPositionY(style.Top).
 		SetPositionX(style.Center).

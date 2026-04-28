@@ -2,13 +2,13 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive/article"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 func NewTestArticle() screen.Screen {
-	return primitive.NewArticle().
+	return article.New().
 		SetName("article - dolor").
 		AddTitle(
 			*text.NewLine("Ac accumsan dolor laoreet"),

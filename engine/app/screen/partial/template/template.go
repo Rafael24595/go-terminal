@@ -1,4 +1,4 @@
-package primitive
+package template
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
@@ -7,32 +7,32 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 )
 
-type TemplateScreen struct {
+type Template struct {
 	reference string
 	stack     set.Set[string]
 	model     viewmodel.ViewModel
 }
 
-func NewTemplateScreen() *TemplateScreen {
-	return &TemplateScreen{}
+func New() *Template {
+	return &Template{}
 }
 
-func (c *TemplateScreen) SetName(reference string) *TemplateScreen {
+func (c *Template) SetName(reference string) *Template {
 	c.reference = reference
 	return c
 }
 
-func (c *TemplateScreen) SetStack(stack set.Set[string]) *TemplateScreen {
+func (c *Template) SetStack(stack set.Set[string]) *Template {
 	c.stack = stack
 	return c
 }
 
-func (c *TemplateScreen) SetViewModel(model viewmodel.ViewModel) *TemplateScreen {
+func (c *Template) SetViewModel(model viewmodel.ViewModel) *Template {
 	c.model = model
 	return c
 }
 
-func (c *TemplateScreen) ToScreen() screen.Screen {
+func (c *Template) ToScreen() screen.Screen {
 	screen := screen.Screen{
 		Definition: c.definition,
 		Update:     c.update,
@@ -50,14 +50,14 @@ func (c *TemplateScreen) ToScreen() screen.Screen {
 	return screen
 }
 
-func (c *TemplateScreen) definition() screen.Definition {
+func (c *Template) definition() screen.Definition {
 	return screen.DefinitionFromKeys()
 }
 
-func (c *TemplateScreen) update(stt *state.UIState, _ screen.ScreenEvent) screen.ScreenResult {
+func (c *Template) update(stt *state.UIState, _ screen.ScreenEvent) screen.ScreenResult {
 	return screen.ScreenResultFromUIState(stt)
 }
 
-func (c *TemplateScreen) view(stt state.UIState) viewmodel.ViewModel {
+func (c *Template) view(stt state.UIState) viewmodel.ViewModel {
 	return *c.model.Clone()
 }

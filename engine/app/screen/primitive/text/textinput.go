@@ -1,7 +1,8 @@
-package primitive
+package text
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
@@ -16,10 +17,10 @@ import (
 	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
 
-const default_text_input_name = "TextInput"
-const default_text_input_limit = 20
+const input_name = "TextInput"
+const input_limit = 20
 
-const text_input_max_limit = 30
+const input_max_limit = 30
 
 type TextInput struct {
 	limit    uint64
@@ -27,16 +28,16 @@ type TextInput struct {
 	textarea *TextArea
 }
 
-func NewTextInput() *TextInput {
-	handler := buffer.NewLimitedRuneHandler(default_text_input_limit, buffer.String)
+func NewInput() *TextInput {
+	handler := buffer.NewLimitedRuneHandler(input_limit, buffer.String)
 
-	textarea := NewTextArea().SetName(default_text_input_name)
-	textarea.buffer.Handler(handler)
-	textarea.buffer.Transformer(text_transformer.VoidTextTransformer)
+	area := NewArea().SetName(input_name)
+	area.buffer.Handler(handler)
+	area.buffer.Transformer(text_transformer.VoidTextTransformer)
 
 	return &TextInput{
-		limit:    default_text_input_limit,
-		textarea: textarea,
+		limit:    input_limit,
+		textarea: area,
 	}
 }
 
@@ -47,7 +48,7 @@ func (c *TextInput) SetName(name string) *TextInput {
 
 func (c *TextInput) SetType(limit uint64, input buffer.InputType) *TextInput {
 	assert.True(
-		limit <= text_input_max_limit,
+		limit <= input_max_limit,
 		"longer text fields should use the text area screen instead of the input one.",
 	)
 

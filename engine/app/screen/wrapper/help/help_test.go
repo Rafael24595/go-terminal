@@ -1,4 +1,4 @@
-package wrapper
+package help
 
 import (
 	"testing"
@@ -17,8 +17,8 @@ func TestHelp_ToScreen(t *testing.T) {
 		Name: "base",
 	}
 
-	h := NewHelp(mock.ToScreen())
-	scrn := h.ToScreen()
+	scrn := New(mock.ToScreen()).
+		ToScreen()
 
 	screen_test.Helper_ToScreen(t, scrn)
 
@@ -30,7 +30,7 @@ func TestHelp_Stack(t *testing.T) {
 		Name: "base",
 	}
 
-	stack := NewHelp(mock.ToScreen()).
+	stack := New(mock.ToScreen()).
 		ToScreen().
 		Stack()
 
@@ -42,7 +42,7 @@ func TestHelp_ToggleHelpKey(t *testing.T) {
 
 	mock := screen_test.MockScreen{}
 
-	scrn := NewHelp(mock.ToScreen()).ToScreen()
+	scrn := New(mock.ToScreen()).ToScreen()
 
 	state := &state.UIState{}
 	event := screen.ScreenEvent{
@@ -69,7 +69,7 @@ func TestHelp_DelegatesUpdateWhenKeyRequired(t *testing.T) {
 		},
 	}
 
-	scrn := NewHelp(mock.ToScreen()).ToScreen()
+	scrn := New(mock.ToScreen()).ToScreen()
 
 	state := &state.UIState{}
 	event := screen.ScreenEvent{
@@ -103,7 +103,7 @@ func TestHelp_WrapsReturnedScreen(t *testing.T) {
 		},
 	}
 
-	help := NewHelp(mockBase.ToScreen())
+	help := New(mockBase.ToScreen())
 	wrapped := help.ToScreen()
 
 	stt := &state.UIState{}

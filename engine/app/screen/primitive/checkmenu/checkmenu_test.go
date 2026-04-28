@@ -1,4 +1,4 @@
-package primitive
+package checkmenu
 
 import (
 	"testing"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestCheckMenu_ToScreen(t *testing.T) {
-	menu := NewCheckMenu().
+	menu := New().
 		SetName("base").
 		AddTitle(*text.NewLine("Welcome"))
 
@@ -25,17 +25,17 @@ func TestCheckMenu_ToScreen(t *testing.T) {
 }
 
 func TestCheckMenu_Stack(t *testing.T) {
-	stack := NewCheckMenu().
+	stack := New().
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(default_check_menu_name))
+	assert.True(t, stack.Has(name))
 }
 
 func TestCheckMenu_SwitchState_WithLimit(t *testing.T) {
 	clock := &mock.TestClock{Time: 1000}
 
-	menu := NewCheckMenu().
+	menu := New().
 		SetLimit(2).
 		AddOptions(
 			input.NewCheckOption("1", *text.NewFragment("option 1")),

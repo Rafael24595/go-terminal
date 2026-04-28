@@ -1,9 +1,10 @@
-package wrapper
+package pagination
 
 import (
 	"fmt"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
@@ -48,7 +49,7 @@ type Pagination struct {
 	forceEngine *pager.Engine
 }
 
-func NewPagination(screen screen.Screen) *Pagination {
+func New(screen screen.Screen) *Pagination {
 	return &Pagination{
 		engine:      pager.CodeEnginePaged,
 		screen:      screen,
@@ -101,7 +102,7 @@ func (c *Pagination) update(state *state.UIState, event screen.ScreenEvent) scre
 
 	result := c.screen.Update(state, event)
 	if result.Screen != nil {
-		newWrapper := NewPagination(*result.Screen)
+		newWrapper := New(*result.Screen)
 		newWrapper.engine = c.engine
 		newWrapper.forceEngine = c.forceEngine
 		newScreen := newWrapper.ToScreen()
@@ -122,14 +123,12 @@ func (c *Pagination) localUpdate(state *state.UIState, event screen.ScreenEvent)
 	if event.Key.Code == keyback {
 		state.Pager.DecTarget()
 		result := screen.ScreenResultFromUIState(state)
-
 		return &result
 	}
 
 	if event.Key.Code == keyNext {
 		state.Pager.IncTarget()
 		result := screen.ScreenResultFromUIState(state)
-
 		return &result
 	}
 

@@ -18,7 +18,9 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline/inline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline/spacer"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/wrapper"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/wrapper/help"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/wrapper/history"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/wrapper/pagination"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize/transformer"
@@ -95,11 +97,11 @@ func makeTerminal(ctx context.Context) terminal.Terminal {
 func makeScreen() screen.Screen {
 	landing := wrapper_screen.NewLanding()
 
-	history := wrapper.NewHistory(landing).ToScreen()
-	pagination := wrapper.NewPagination(history).
+	history := history.New(landing).ToScreen()
+	pagination := pagination.New(history).
 		ForceEngine(pager.EnginePage()).
 		ToScreen()
-	helper := wrapper.NewHelp(pagination).ToScreen()
+	helper := help.New(pagination).ToScreen()
 
 	return makePipeline(helper)
 }
@@ -123,7 +125,7 @@ func makePipeline(scrn screen.Screen) screen.Screen {
 		pipeline.Footer,
 	)
 
-	return pipeline.NewPipeline(scrn,
+	return pipeline.New(scrn,
 		headerStep, inlineStep, spacerHeader, spacerFooter,
 	).ToScreen()
 }

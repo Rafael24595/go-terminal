@@ -1,4 +1,4 @@
-package wrapper
+package history
 
 import (
 	"testing"
@@ -18,8 +18,8 @@ func TestHistory_ToScreen(t *testing.T) {
 		Name: "base",
 	}
 
-	h := NewHistory(base.ToScreen())
-	scrn := h.ToScreen()
+	scrn := New(base.ToScreen()).
+		ToScreen()
 
 	screen_test.Helper_ToScreen(t, scrn)
 
@@ -31,7 +31,7 @@ func TestHistory_Stack(t *testing.T) {
 		Name: "base",
 	}
 
-	stack := NewHistory(mock.ToScreen()).
+	stack := New(mock.ToScreen()).
 		ToScreen().
 		Stack()
 
@@ -53,8 +53,8 @@ func TestHistory_BackNavigation(t *testing.T) {
 		},
 	}
 
-	h := NewHistory(mockNext.ToScreen())
-	scrn := h.ToScreen()
+	scrn := New(mockNext.ToScreen()).
+		ToScreen()
 
 	assert.Equal(t, scrn.Name(), "next")
 
@@ -74,7 +74,7 @@ func TestHistory_ViewFooter(t *testing.T) {
 	mock := screen_test.MockScreen{}
 	scrn := mock.ToScreen()
 
-	h := NewHistory(scrn)
+	h := New(scrn)
 
 	vm := h.view(*state.NewUIState())
 

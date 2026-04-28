@@ -1,4 +1,4 @@
-package wrapper
+package pagination
 
 import (
 	"testing"
@@ -21,7 +21,7 @@ func TestPagination_ToScreen(t *testing.T) {
 		Name: "base",
 	}
 
-	p := NewPagination(base.ToScreen())
+	p := New(base.ToScreen())
 	screen := p.ToScreen()
 
 	screen_test.Helper_ToScreen(t, screen)
@@ -34,7 +34,7 @@ func TestPagination_Stack(t *testing.T) {
 		Name: "base",
 	}
 
-	stack := NewPagination(mock.ToScreen()).
+	stack := New(mock.ToScreen()).
 		ToScreen().
 		Stack()
 
@@ -47,7 +47,7 @@ func TestPagination_LocalUpdate(t *testing.T) {
 		Name: "base",
 	}
 
-	p := NewPagination(base.ToScreen())
+	p := New(base.ToScreen())
 
 	scrn := p.ToScreen()
 
@@ -72,7 +72,7 @@ func TestPagination_ViewFooter(t *testing.T) {
 		},
 	}
 
-	p := NewPagination(base.ToScreen())
+	p := New(base.ToScreen())
 	vm := p.view(*stt)
 
 	footer := vm.Footer.ToDrawable()
@@ -98,7 +98,7 @@ func TestPagination_UpdateDelegates(t *testing.T) {
 		},
 	}
 
-	p := NewPagination(base.ToScreen())
+	p := New(base.ToScreen())
 	scrn := p.ToScreen()
 
 	scrn.Update(state.NewUIState(), screen.ScreenEvent{Key: *key.NewKeyRune('x')})
@@ -114,7 +114,7 @@ func TestPagination_PageNeverNegative(t *testing.T) {
 		Name: "base",
 	}
 
-	p := NewPagination(base.ToScreen())
+	p := New(base.ToScreen())
 	scrn := p.ToScreen()
 
 	scrn.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})

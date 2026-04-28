@@ -3,7 +3,7 @@ package wrapper_screen
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/template"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
@@ -24,7 +24,7 @@ func NewTestHStack() screen.Screen {
 
 	vm.Pager.SetPredicate(pager.PredicatePage())
 
-	return primitive.NewTemplateScreen().
+	return template.New().
 		SetName("hstack-test").
 		SetViewModel(*vm).
 		ToScreen()

@@ -34,8 +34,8 @@ func TestPipeline_ToScreen(t *testing.T) {
 		Name: "base",
 	}
 
-	h := NewPipeline(mock.ToScreen())
-	scrn := h.ToScreen()
+	scrn := New(mock.ToScreen()).
+		ToScreen()
 
 	screen_test.Helper_ToScreen(t, scrn)
 
@@ -47,7 +47,7 @@ func TestPipeline_Stack(t *testing.T) {
 		Name: "base",
 	}
 
-	stack := NewPipeline(mock.ToScreen()).
+	stack := New(mock.ToScreen()).
 		ToScreen().
 		Stack()
 
@@ -71,7 +71,7 @@ func TestPipeline_WrapsReturnedScreen(t *testing.T) {
 		},
 	}
 
-	help := NewPipeline(mockBase.ToScreen()).
+	help := New(mockBase.ToScreen()).
 		ToScreen()
 
 	stt := &state.UIState{}
@@ -105,7 +105,7 @@ func TestPipeline_ActionSingleFocus(t *testing.T) {
 		},
 	}
 
-	w := NewPipeline(mockScreen.ToScreen())
+	w := New(mockScreen.ToScreen())
 
 	w.PushSteps(
 		func(vm viewmodel.ViewModel) viewmodel.ViewModel {

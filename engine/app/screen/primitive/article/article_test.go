@@ -1,4 +1,4 @@
-package primitive
+package article
 
 import (
 	"testing"
@@ -14,30 +14,30 @@ import (
 )
 
 func TestArticle_ToScreen(t *testing.T) {
-	article := NewArticle().SetName("MyScreen")
+	article := New().SetName("MyScreen")
 	screen := article.ToScreen()
 
 	screen_test.Helper_ToScreen(t, screen)
 }
 
 func TestArticle_Stack(t *testing.T) {
-	stack := NewArticle().
+	stack := New().
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(default_article_name))
+	assert.True(t, stack.Has(name))
 }
 
 func TestNewArticle_DefaultValues(t *testing.T) {
-	article := NewArticle()
+	article := New()
 
-	assert.Equal(t, default_article_name, article.ToScreen().Name())
+	assert.Equal(t, name, article.ToScreen().Name())
 	assert.Len(t, 0, article.title)
 	assert.Len(t, 0, article.article)
 }
 
 func TestArticle_SetName(t *testing.T) {
-	article := NewArticle()
+	article := New()
 	result := article.SetName("CustomName")
 
 	assert.Equal(t, "CustomName", article.ToScreen().Name())
@@ -48,7 +48,7 @@ func TestArticle_AddTitleAndArticle(t *testing.T) {
 	title := text.NewLine("Title")
 	body := text.NewLine("Body")
 
-	article := NewArticle().
+	article := New().
 		AddTitle(*title).
 		AddArticle(*body)
 
@@ -63,7 +63,7 @@ func TestArticle_View(t *testing.T) {
 	title := text.NewLine("Title")
 	body := text.NewLine("Body")
 
-	article := NewArticle().
+	article := New().
 		AddTitle(*title).
 		AddArticle(*body)
 
@@ -94,7 +94,7 @@ func TestArticle_View(t *testing.T) {
 }
 
 func TestArticle_Update(t *testing.T) {
-	article := NewArticle()
+	article := New()
 	initialState := &state.UIState{}
 
 	article.update(initialState, screen.ScreenEvent{})

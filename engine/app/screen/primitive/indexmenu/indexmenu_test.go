@@ -1,4 +1,4 @@
-package primitive
+package indexmenu
 
 import (
 	"testing"
@@ -17,7 +17,7 @@ import (
 )
 
 func TestIndexMenu_ToScreen(t *testing.T) {
-	menu := NewIndexMenu().
+	menu := New().
 		SetName("base").
 		AddTitle(
 			*text.NewLine("Welcome"),
@@ -38,24 +38,24 @@ func TestIndexMenu_ToScreen(t *testing.T) {
 }
 
 func TestIndexMenu_Stack(t *testing.T) {
-	stack := NewIndexMenu().
+	stack := New().
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(default_index_menu_name))
+	assert.True(t, stack.Has(name))
 }
 
 func TestIndexMenu_DefaultValues(t *testing.T) {
-	menu := NewIndexMenu()
+	menu := New()
 
-	assert.Equal(t, menu.reference, default_index_menu_name)
+	assert.Equal(t, menu.reference, name)
 	assert.Len(t, 0, menu.title)
 	assert.Len(t, 0, menu.options)
 	assert.Equal(t, menu.cursor, uint(0))
 }
 
 func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
-	menu := NewIndexMenu().
+	menu := New().
 		AddTitle(
 			*text.NewLine("Title 1"),
 		).
@@ -77,7 +77,7 @@ func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 }
 
 func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
-	menu := NewIndexMenu().
+	menu := New().
 		AddOptions(
 			input.NewMenuOption(
 				"opt_a",
@@ -99,14 +99,14 @@ func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
 }
 
 func TestIndexMenu_SetCursor_Empty(t *testing.T) {
-	menu := NewIndexMenu()
+	menu := New()
 	menu.SetCursor(5)
 
 	assert.Equal(t, menu.cursor, uint(0))
 }
 
 func TestIndexMenu_CursorNavigation(t *testing.T) {
-	menu := NewIndexMenu().
+	menu := New().
 		AddOptions(
 			input.NewMenuOption(
 				"opt_a",
@@ -142,7 +142,7 @@ func TestIndexMenu_Action(t *testing.T) {
 		Name: func() string { return "next" },
 	}
 
-	menu := NewIndexMenu().
+	menu := New().
 		AddOptions(
 			input.NewMenuOption(
 				"opt_go",
@@ -162,7 +162,7 @@ func TestIndexMenu_Action(t *testing.T) {
 }
 
 func TestIndexMenu_ViewCursor(t *testing.T) {
-	menu := NewIndexMenu().
+	menu := New().
 		AddOptions(
 			input.NewMenuOption(
 				"opt_a",

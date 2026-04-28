@@ -1,7 +1,8 @@
-package primitive
+package modalmenu
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
@@ -14,11 +15,11 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const default_modal_menu_name = "ModalMenu"
+const name = "ModalMenu"
 
-const ArgIdModalMenu param.Typed[string] = "id_modal_menu"
+const ArgActiveOption param.Typed[string] = "id_modal_menu"
 
-var modal_definition = screen.NewDefinitionSources(
+var definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Active selected"},
 	},
@@ -39,9 +40,9 @@ type ModalMenu struct {
 	cursor    uint
 }
 
-func NewModalMenu() *ModalMenu {
+func New() *ModalMenu {
 	return &ModalMenu{
-		reference: default_modal_menu_name,
+		reference: name,
 		text:      make([]text.Line, 0),
 		options:   make([]input.MenuOption, 0),
 		cursor:    0,
@@ -81,7 +82,7 @@ func (c *ModalMenu) ToScreen() screen.Screen {
 }
 
 func (c *ModalMenu) definition() screen.Definition {
-	return modal_definition.Definition
+	return definition.Definition
 }
 
 func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen.ScreenResult {
@@ -112,7 +113,7 @@ func (c *ModalMenu) actionEnter(stt *state.UIState) screen.ScreenResult {
 	state.PushParam(
 		stt.Stack,
 		c.reference,
-		ArgIdModalMenu,
+		ArgActiveOption,
 		option.Id,
 	)
 
@@ -145,7 +146,7 @@ func (c *ModalMenu) view(_ state.UIState) viewmodel.ViewModel {
 
 	vm.Helper.Push(
 		key.ActionsToHelpWithOverride(
-			modal_definition.Overrides, modal_definition.Actions...,
+			definition.Overrides, definition.Actions...,
 		)...,
 	)
 

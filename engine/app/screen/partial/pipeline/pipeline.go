@@ -13,7 +13,7 @@ type Pipeline struct {
 	steps  []Transformer
 }
 
-func NewPipeline(screen screen.Screen, steps ...Transformer) *Pipeline {
+func New(screen screen.Screen, steps ...Transformer) *Pipeline {
 	return &Pipeline{
 		screen: screen,
 		steps:  steps,
@@ -38,7 +38,7 @@ func (c *Pipeline) ToScreen() screen.Screen {
 func (c *Pipeline) update(state *state.UIState, event screen.ScreenEvent) screen.ScreenResult {
 	result := c.screen.Update(state, event)
 	if result.Screen != nil {
-		newScreen := NewPipeline(*result.Screen).
+		newScreen := New(*result.Screen).
 			PushSteps(c.steps...).
 			ToScreen()
 		result.Screen = &newScreen

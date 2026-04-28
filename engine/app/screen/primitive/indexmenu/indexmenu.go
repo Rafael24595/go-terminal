@@ -1,4 +1,4 @@
-package primitive
+package indexmenu
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
@@ -17,9 +17,9 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const default_index_menu_name = "IndexMenu"
+const name = "IndexMenu"
 
-const ArgIdIndexMenu param.Typed[string] = "id_index_menu"
+const ArgActiveIndex param.Typed[string] = "id_index_menu"
 
 var index_menu_definition = screen.DefinitionFromKeys(
 	key.NewKeysCode(
@@ -39,9 +39,9 @@ type IndexMenu struct {
 	cursor    uint
 }
 
-func NewIndexMenu() *IndexMenu {
+func New() *IndexMenu {
 	return &IndexMenu{
-		reference: default_index_menu_name,
+		reference: name,
 		meta:      marker.HyphenIndex,
 		title:     make([]text.Line, 0),
 		options:   make([]input.MenuOption, 0),
@@ -114,7 +114,7 @@ func (c *IndexMenu) actionEnter(stt *state.UIState) screen.ScreenResult {
 	state.PushParam(
 		stt.Stack,
 		c.reference,
-		ArgIdIndexMenu,
+		ArgActiveIndex,
 		option.Id,
 	)
 

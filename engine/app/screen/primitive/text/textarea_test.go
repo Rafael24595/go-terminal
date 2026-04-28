@@ -1,4 +1,4 @@
-package primitive
+package text
 
 import (
 	"testing"
@@ -11,7 +11,7 @@ import (
 )
 
 func TestTextArea_ToScreen(t *testing.T) {
-	menu := NewTextArea().
+	menu := NewArea().
 		SetName("base").
 		AddTitle(*text.NewLine("Welcome"))
 
@@ -23,9 +23,9 @@ func TestTextArea_ToScreen(t *testing.T) {
 }
 
 func TestTextArea_Stack(t *testing.T) {
-	stack := NewTextArea().
+	stack := NewArea().
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(default_text_area_name))
+	assert.True(t, stack.Has(area_name))
 }

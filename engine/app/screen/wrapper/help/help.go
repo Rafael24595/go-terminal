@@ -1,4 +1,4 @@
-package wrapper
+package help
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
@@ -12,7 +12,7 @@ type Help struct {
 	screen   screen.Screen
 }
 
-func NewHelp(screen screen.Screen) *Help {
+func New(screen screen.Screen) *Help {
 	return &Help{
 		helpMode: false,
 		screen:   screen,
@@ -35,7 +35,7 @@ func (c *Help) update(state *state.UIState, event screen.ScreenEvent) screen.Scr
 	if requiredKey {
 		result := c.screen.Update(state, event)
 		if result.Screen != nil {
-			newWrapper := NewHelp(*result.Screen)
+			newWrapper := New(*result.Screen)
 			newWrapper.helpMode = c.helpMode
 			newScreen := newWrapper.ToScreen()
 			result.Screen = &newScreen

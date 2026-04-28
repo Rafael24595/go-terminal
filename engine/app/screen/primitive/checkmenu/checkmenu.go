@@ -1,4 +1,4 @@
-package primitive
+package checkmenu
 
 import (
 	"sort"
@@ -21,11 +21,11 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const default_check_menu_name = "CheckMenu"
+const name = "CheckMenu"
 
-const ArgCheckMenuActive param.Typed[set.Set[string]] = "check_menu_active"
+const ArgActiveChecks param.Typed[set.Set[string]] = "check_menu_active"
 
-var check_menu_read_definition = screen.NewDefinitionSources(
+var read_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit mode"},
 	},
@@ -34,7 +34,7 @@ var check_menu_read_definition = screen.NewDefinitionSources(
 	},
 )
 
-var check_menu_write_definition = screen.NewDefinitionSources(
+var write_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
 		key.ActionEsc:       {Code: []string{"ESC"}, Detail: "Write Mode"},
 		key.ActionEnter:     {Code: []string{"RET"}, Detail: "Active selected"},
@@ -63,9 +63,9 @@ type CheckMenu struct {
 	cursor       uint
 }
 
-func NewCheckMenu() *CheckMenu {
+func New() *CheckMenu {
 	return &CheckMenu{
-		reference: default_check_menu_name,
+		reference: name,
 		clock:     clock.UnixMilliClock,
 		action:    input.NewCheckAction(),
 		meta:      marker.BracketsCheck,
@@ -130,9 +130,9 @@ func (c *CheckMenu) ToScreen() screen.Screen {
 
 func (c *CheckMenu) definitionSource() screen.DefinitionSources {
 	if c.action.ActionMode {
-		return check_menu_write_definition
+		return write_definition
 	}
-	return check_menu_read_definition
+	return read_definition
 }
 
 func (c *CheckMenu) definition() screen.Definition {
@@ -160,7 +160,7 @@ func (c *CheckMenu) updateNavigation(stt *state.UIState, evt screen.ScreenEvent)
 		state.PushParam(
 			stt.Stack,
 			c.reference,
-			ArgCheckMenuActive,
+			ArgActiveChecks,
 			c.activeIds(),
 		)
 	case key.ActionArrowLeft:

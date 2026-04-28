@@ -2,13 +2,13 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive/modalmenu"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 func NewTestModal() screen.Screen {
-	return primitive.NewModalMenu().
+	return modalmenu.New().
 		SetName("modal - dolor").
 		AddText(
 			*text.NewLine("AD Lorem ipsum dolor sit amet"),

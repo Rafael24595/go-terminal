@@ -1,4 +1,4 @@
-package wrapper
+package history
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-var history_definition = screen.NewDefinitionSources(
+var definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{},
 	[]key.KeyAction{
 		key.CustomActionBack,
@@ -25,7 +25,7 @@ type History struct {
 	screen  screen.Screen
 }
 
-func NewHistory(screen screen.Screen) *History {
+func New(screen screen.Screen) *History {
 	return &History{
 		screen: screen,
 	}
@@ -43,7 +43,7 @@ func (c *History) ToScreen() screen.Screen {
 
 func (c *History) definition() screen.Definition {
 	def := c.screen.Definition()
-	def.RequireKeys = append(def.RequireKeys, history_definition.Keys...)
+	def.RequireKeys = append(def.RequireKeys, definition.Keys...)
 	return def
 }
 
@@ -59,7 +59,7 @@ func (c *History) update(state *state.UIState, event screen.ScreenEvent) screen.
 
 	result := c.screen.Update(state, event)
 	if result.Screen != nil {
-		newWrapper := NewHistory(*result.Screen)
+		newWrapper := New(*result.Screen)
 		newWrapper.history = &c.screen
 		newScreen := newWrapper.ToScreen()
 		result.Screen = &newScreen
@@ -73,7 +73,7 @@ func (c *History) localUpdate(_ *state.UIState, event screen.ScreenEvent) *scree
 		return nil
 	}
 
-	newBack := NewHistory(*c.history)
+	newBack := New(*c.history)
 	newScreen := newBack.ToScreen()
 	result := screen.ScreenResultFromScreen(&newScreen)
 
@@ -102,7 +102,7 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 
 	actions := screen.FilterKeyRequired(
 		c.screen.Definition(),
-		history_definition.Actions...,
+		definition.Actions...,
 	)
 
 	vm.Helper.Unshift(

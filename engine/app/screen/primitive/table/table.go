@@ -1,4 +1,4 @@
-package primitive
+package table
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
@@ -17,14 +17,14 @@ import (
 	drawable_table "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/table"
 )
 
-const default_table_name = "Table"
+const name = "Table"
 
-var table_disabled_definition = screen.NewDefinitionSources(
+var disabled_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{},
 	[]key.KeyAction{},
 )
 
-var table_read_definition = screen.NewDefinitionSources(
+var read_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit mode"},
 	},
@@ -33,7 +33,7 @@ var table_read_definition = screen.NewDefinitionSources(
 	},
 )
 
-var table_write_definition = screen.NewDefinitionSources(
+var write_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
 		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Write Mode"},
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Active selected"},
@@ -57,9 +57,9 @@ type Table[T any] struct {
 	positionX style.HorizontalPosition
 }
 
-func NewTable[T any]() *Table[T] {
+func New[T any]() *Table[T] {
 	return &Table[T]{
-		reference: default_table_name,
+		reference: name,
 		action:    input.NewTableAction(),
 		title:     make([]text.Line, 0),
 		table:     table.NewTable(),
@@ -133,14 +133,14 @@ func (c *Table[T]) ToScreen() screen.Screen {
 
 func (c *Table[T]) definitionSource() screen.DefinitionSources {
 	if !c.action.EnableMode {
-		return table_disabled_definition
+		return disabled_definition
 	}
 
 	if c.action.ActionMode {
-		return table_write_definition
+		return write_definition
 	}
 
-	return table_read_definition
+	return read_definition
 }
 
 func (c *Table[T]) definition() screen.Definition {

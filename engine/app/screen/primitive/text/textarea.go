@@ -1,4 +1,4 @@
-package primitive
+package text
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
@@ -25,11 +25,11 @@ import (
 	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
 
-const default_text_area_name = "TextArea"
+const area_name = "TextArea"
 
-const ArgTextAreaBuffer param.Typed[[]rune] = "text_area_buffer"
+const ArgAreaBuffer param.Typed[[]rune] = "text_area_buffer"
 
-var text_area_read_definition = screen.NewDefinitionSources(
+var area_read_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
 		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Exit/Back"},
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit text"},
@@ -39,7 +39,7 @@ var text_area_read_definition = screen.NewDefinitionSources(
 	},
 )
 
-var text_area_write_definition = screen.NewDefinitionSources(
+var area_write_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
 		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Save & Quit"},
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "New line"},
@@ -77,12 +77,12 @@ type TextArea struct {
 	caret     *input.TextCursor
 }
 
-func NewTextArea() *TextArea {
+func NewArea() *TextArea {
 	runeBuffer := buffer.NewRuneBuffer().
 		Transformer(text_transformer.FullTextTransformer)
 
 	return &TextArea{
-		reference: default_text_area_name,
+		reference: area_name,
 		history:   event.NewTextEventService(),
 		writeMode: false,
 		indexMode: false,
@@ -159,9 +159,9 @@ func (c *TextArea) ToScreen() screen.Screen {
 
 func (c *TextArea) definitionSource() screen.DefinitionSources {
 	if c.writeMode {
-		return text_area_write_definition
+		return area_write_definition
 	}
-	return text_area_read_definition
+	return area_read_definition
 }
 
 func (c *TextArea) definition() screen.Definition {
@@ -223,7 +223,7 @@ func (c *TextArea) updateWrite(stt *state.UIState, evt screen.ScreenEvent) scree
 	state.PushParam(
 		stt.Stack,
 		c.reference,
-		ArgTextAreaBuffer,
+		ArgAreaBuffer,
 		c.buffer.Buffer(),
 	)
 
