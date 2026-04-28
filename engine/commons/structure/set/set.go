@@ -22,8 +22,10 @@ func SetFrom[T comparable](slice ...T) Set[T] {
 	return s
 }
 
-func (s Set[T]) Add(v T) {
-	s[v] = struct{}{}
+func (s Set[T]) Add(v ...T) {
+	for _, t := range v {
+		s[t] = struct{}{}
+	}
 }
 
 func (s Set[T]) Merge(v Set[T]) {

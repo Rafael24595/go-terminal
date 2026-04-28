@@ -24,9 +24,7 @@ func (d Drawable) AddTag(tags ...string) Drawable {
 	if d.Tags == nil {
 		d.Tags = make(set.Set[string])
 	}
-
-	for _, t := range tags {
-		d.Tags[t] = struct{}{}
-	}
+	
+	d.Tags.Add(tags...)
 	return d
 }
