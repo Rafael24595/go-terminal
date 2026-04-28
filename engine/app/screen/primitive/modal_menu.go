@@ -1,6 +1,7 @@
 package primitive
 
 import (
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
@@ -9,10 +10,13 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/param"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const default_modal_menu_name = "IndexMenu"
+const default_modal_menu_name = "ModalMenu"
+
+const ArgIdModalMenu param.Typed[string] = "id_modal_menu"
 
 var modal_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{
@@ -95,9 +99,35 @@ func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen
 		if size > 0 {
 			c.cursor = min(size-1, c.cursor+1)
 		}
+	case key.ActionEnter:
+		return c.actionEnter(state)
 	}
 
 	return screen.ScreenResultFromUIState(state)
+}
+
+func (c *ModalMenu) actionEnter(stt *state.UIState) screen.ScreenResult {
+	option := c.options[c.cursor]
+
+	state.PushParam(
+		stt.Stack,
+		c.reference,
+		ArgIdModalMenu,
+		option.Id,
+	)
+
+	if option.Action().Name != nil {
+		scrn := c.options[c.cursor].Action()
+		return screen.ScreenResultFromScreen(&scrn)
+	}
+
+	assert.Unreachable(
+		"menu actions should not be nil: %s - %s",
+		c.reference,
+		option.Label.Text,
+	)
+
+	return screen.EmptyScreenResult()
 }
 
 func (c *ModalMenu) view(_ state.UIState) viewmodel.ViewModel {
