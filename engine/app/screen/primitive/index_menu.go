@@ -102,30 +102,32 @@ func (c *IndexMenu) update(stt *state.UIState, evt screen.ScreenEvent) screen.Sc
 	case key.ActionTab, key.ActionArrowDown:
 		c.cursor = (c.cursor + 1) % size
 	case key.ActionEnter:
-		option := c.options[c.cursor]
-
-		state.PushParam(
-			stt.Stack,
-			c.reference,
-			ArgIdIndexMenu,
-			option.Id,
-		)
-
-		if option.Action().Name != nil {
-			scrn := c.options[c.cursor].Action()
-
-			result := screen.ScreenResultFromUIState(stt)
-			result.Screen = &scrn
-
-			return result
-		}
-
-		assert.Unreachable(
-			"menu actions should not be nil: %s - %s",
-			c.reference,
-			option.Label.Text,
-		)
+		return c.actionEnter(stt)
 	}
+
+	return screen.EmptyScreenResult()
+}
+
+func (c *IndexMenu) actionEnter(stt *state.UIState) screen.ScreenResult {
+	option := c.options[c.cursor]
+
+	state.PushParam(
+		stt.Stack,
+		c.reference,
+		ArgIdIndexMenu,
+		option.Id,
+	)
+
+	if option.Action().Name != nil {
+		scrn := c.options[c.cursor].Action()
+		return screen.ScreenResultFromScreen(&scrn)
+	}
+
+	assert.Unreachable(
+		"menu actions should not be nil: %s - %s",
+		c.reference,
+		option.Label.Text,
+	)
 
 	return screen.EmptyScreenResult()
 }
