@@ -32,6 +32,7 @@ type Engine struct {
 	screen   screen.Screen
 }
 
+// TODO: Disable pulse on proactive terminal
 func NewEngine(
 	terminal terminal.Terminal,
 	layout layout.Layout,
@@ -104,7 +105,6 @@ func (e *Engine) run() {
 	state := state.NewUIState()
 	e.renderFrame(state, size)
 
-	pulses := e.pulse.Listen()
 	keys := e.terminal.KeyEvents()
 	resizes := e.terminal.ResizeEvents()
 
@@ -113,7 +113,7 @@ func (e *Engine) run() {
 		case <-e.context.Done():
 			return
 
-		case <-pulses:
+		case <-e.pulse.Listen():
 			e.renderFrame(state, size)
 
 		case k, ok := <-keys:
@@ -189,10 +189,11 @@ func (e *Engine) syncPulse(vm viewmodel.ViewModel) viewmodel.ViewModel {
 func (e *Engine) renderFrame(state *state.UIState, size winsize.Winsize) {
 	vm := e.screen.View(*state)
 
-	e.syncPulse(vm)
-
 	lines := e.layout.Apply(state, vm, size)
 	result := e.render.Render(lines, size)
+
+	e.syncPager(state, &vm)
+	e.syncPulse(vm)
 
 	err := e.terminal.WriteAll(result)
 	if err != nil {
@@ -208,4 +209,14 @@ func (e *Engine) renderFrame(state *state.UIState, size winsize.Winsize) {
 	if err != nil {
 		log.Error(err)
 	}
+}
+
+func (e *Engine) syncPager(state *state.UIState, vm *viewmodel.ViewModel) (*state.UIState, *viewmodel.ViewModel) {
+	if state.Pager.Syncronyzed {
+		return state, vm
+	}
+
+	vm.Behavior.NeedsPulse = true
+	state.Pager.Syncronyzed = true
+	return state, vm
 }
