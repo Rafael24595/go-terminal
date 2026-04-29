@@ -27,10 +27,7 @@ func FocusInitTransformer(engine pager.Engine) pipeline.InitTransformer {
 					winsize.Rows(state.Cursor),
 				)
 
-				limit := winsize.Rows(len(lines))
-				if len(lines) > int(remaining) {
-					limit = remaining
-				}
+				limit := min(len(lines), int(remaining))
 
 				chunk := lines[:limit]
 				lines = lines[limit:]
