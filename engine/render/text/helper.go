@@ -24,12 +24,21 @@ func ApplyLineSpec(style style.Spec, lines ...Line) []Line {
 	return lines
 }
 
-func HasFocus(lines ...Line) bool {
+func HasAtom(atom style.Atom, lines ...Line) bool {
 	for _, line := range lines {
 		for _, v := range line.Text {
-			if v.Atom.HasAny(style.AtmFocus) {
+			if v.Atom.HasAny(atom) {
 				return true
 			}
+		}
+	}
+	return false
+}
+
+func EraseAtom(atom style.Atom, lines ...Line) bool {
+	for _, line := range lines {
+		for _, v := range line.Text {
+			v.Atom = style.EraseAtom(v.Atom, atom)
 		}
 	}
 	return false

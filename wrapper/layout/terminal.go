@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
@@ -122,7 +123,7 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 				state.Work.Advance()
 
 				state.MarkFocus(
-					text.HasFocus(fx),
+					text.HasAtom(style.AtmFocus, fx),
 				)
 
 				if winsize.Rows(state.Cursor) < ctx.Size.Rows {
