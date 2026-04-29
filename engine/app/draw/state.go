@@ -24,3 +24,23 @@ func NewDrawStatus(ctx *DrawContext) *DrawState {
 		Focus:   false,
 	}
 }
+
+func (s *DrawState) MarkFocus(focus bool) *DrawState {
+	s.Focus = s.Focus || focus
+	return s
+}
+
+func (s *DrawState) SetAndNext(line text.Line) *DrawState {
+	s.Buffer[s.Cursor] = line
+	s.Cursor += 1
+	return s
+}
+
+func (s *DrawState) Reset() {
+	for i := range s.Buffer {
+		s.Buffer[i] = text.Line{}
+	}
+
+	s.Cursor = 0
+	s.Focus = false
+}

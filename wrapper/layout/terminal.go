@@ -118,15 +118,13 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 			state.Work.Add(len(fixed))
 
 			for f, fx := range fixed {
-				state.Buffer[state.Cursor] = fx
-
+				state.SetAndNext(fx)
 				state.Work.Advance()
 
-				if f := text.HasFocus(&fx); f {
-					state.Focus = f
-				}
+				state.MarkFocus(
+					text.HasFocus(fx),
+				)
 
-				state.Cursor += 1
 				if winsize.Rows(state.Cursor) < ctx.Size.Rows {
 					continue
 				}

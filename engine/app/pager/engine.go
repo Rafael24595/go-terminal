@@ -24,12 +24,8 @@ func EnginePage() Engine {
 	return Engine{
 		Code: CodeEnginePaged,
 		Func: func(ctx *draw.DrawContext, stt *draw.DrawState) *draw.DrawState {
-			stt.Buffer = make([]text.Line, ctx.Size.Rows)
-			stt.Cursor = 0
-
-			stt.Focus = false
+			stt.Reset()
 			stt.Page += 1
-
 			return stt
 		},
 	}
