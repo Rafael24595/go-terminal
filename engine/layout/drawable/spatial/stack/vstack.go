@@ -185,7 +185,7 @@ func (d *VStackDrawable) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 
 		bufferLen := winsize.Rows(len(buffer))
 		remaining := math.SubClampZero(size.Rows, bufferLen)
-		if remaining <= 0 {
+		if remaining == 0 {
 			break
 		}
 
