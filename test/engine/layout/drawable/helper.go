@@ -22,6 +22,8 @@ type MockDrawable struct {
 	WipeCalled bool
 	DrawCalls  int
 	Lines      []text.Line
+	queue      []text.Line
+	Chunk      uint
 	Status     bool
 	Size       winsize.Winsize
 }
@@ -37,7 +39,21 @@ func (m *MockDrawable) Wipe() {
 func (m *MockDrawable) Draw(size winsize.Winsize) ([]text.Line, bool) {
 	m.DrawCalls++
 	m.Size = size
-	return m.Lines, m.Status
+
+	if m.Chunk == 0 {
+		return m.Lines, m.Status
+	}
+
+	if len(m.queue) == 0 {
+		m.queue = m.Lines
+	}
+
+	limit := min(int(m.Chunk), len(m.queue))
+	
+	data := m.queue[:limit]
+	m.queue = m.queue[limit:]
+
+	return data, len(m.queue) > 0
 }
 
 func (m *MockDrawable) ToDrawable() drawable.Drawable {
