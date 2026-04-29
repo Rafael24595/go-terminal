@@ -24,10 +24,12 @@ func ApplyLineSpec(style style.Spec, lines ...Line) []Line {
 	return lines
 }
 
-func HasFocus(line *Line) bool {
-	for _, v := range line.Text {
-		if v.Atom.HasAny(style.AtmFocus) {
-			return true
+func HasFocus(lines ...Line) bool {
+	for _, line := range lines {
+		for _, v := range line.Text {
+			if v.Atom.HasAny(style.AtmFocus) {
+				return true
+			}
 		}
 	}
 	return false
