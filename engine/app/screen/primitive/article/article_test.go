@@ -14,7 +14,7 @@ import (
 )
 
 func TestArticle_ToScreen(t *testing.T) {
-	article := New().SetName("MyScreen")
+	article := New().Name("MyScreen")
 	screen := article.ToScreen()
 
 	screen_test.Helper_ToScreen(t, screen)
@@ -25,20 +25,20 @@ func TestArticle_Stack(t *testing.T) {
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(name))
+	assert.True(t, stack.Has(Name))
 }
 
 func TestNewArticle_DefaultValues(t *testing.T) {
 	article := New()
 
-	assert.Equal(t, name, article.ToScreen().Name())
+	assert.Equal(t, Name, article.ToScreen().Name())
 	assert.Len(t, 0, article.title)
 	assert.Len(t, 0, article.article)
 }
 
 func TestArticle_SetName(t *testing.T) {
 	article := New()
-	result := article.SetName("CustomName")
+	result := article.Name("CustomName")
 
 	assert.Equal(t, "CustomName", article.ToScreen().Name())
 	assert.Equal(t, result, article)

@@ -2,7 +2,7 @@ package inline
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
@@ -13,7 +13,7 @@ import (
 
 const DefaultInlineSeparator = " | "
 
-const name = "inline_transformer"
+const Name = "inline_transformer"
 
 type inlinePredicate func(pipeline.Filter, drawable.Drawable) bool
 
@@ -53,13 +53,13 @@ func InlineTransformer(separator string, filter pipeline.Filter, section pipelin
 			return vm
 		}
 
-		inlineDrawable := drawable_inline.NewInlineDrawable(matched...).
+		inlineDrawable := drawable_inline.New(matched...).
 			Separator(separator).
 			ToDrawable()
 
-		inlineDrawable.Name = name
+		inlineDrawable.Name = Name
 
-		newVStack := stack.NewVStackDrawable(
+		newVStack := stack.NewVStack(
 			append(remaining, inlineDrawable)...,
 		)
 

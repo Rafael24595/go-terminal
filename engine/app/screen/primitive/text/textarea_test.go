@@ -27,5 +27,5 @@ func TestTextArea_Stack(t *testing.T) {
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(area_name))
+	assert.True(t, stack.Has(NameArea))
 }

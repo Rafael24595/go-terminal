@@ -10,13 +10,13 @@ import (
 
 func TestBox_DrawableBasicSuite(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	dw := BoxDrawableFromDrawable(mock.ToDrawable())
+	dw := DrawableFromDrawable(mock.ToDrawable())
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
 func TestBoxDrawable_Init_ShouldPropagateToChild(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	bd := NewBoxDrawable(mock.ToDrawable())
+	bd := New(mock.ToDrawable())
 
 	bd.init()
 

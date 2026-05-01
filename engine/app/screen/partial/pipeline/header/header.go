@@ -7,11 +7,11 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const name = "header_transformer"
+const Name = "header_transformer"
 
 func HeaderTransformer(placement pipeline.Placement, lines ...text.Line) pipeline.Transformer {
-	drawable := block.BlockDrawableFromLines(lines...)
-	drawable.Name = name
+	drawable := block.DrawableFromLines(lines...)
+	drawable.Name = Name
 
 	return func(vm viewmodel.ViewModel) viewmodel.ViewModel {
 		switch placement {

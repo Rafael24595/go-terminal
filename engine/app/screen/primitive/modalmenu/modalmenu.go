@@ -2,7 +2,7 @@ package modalmenu
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
@@ -15,7 +15,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const name = "ModalMenu"
+const Name = "modal_menu"
 
 const ArgActiveOption param.Typed[string] = "id_modal_menu"
 
@@ -42,7 +42,7 @@ type ModalMenu struct {
 
 func New() *ModalMenu {
 	return &ModalMenu{
-		reference: name,
+		reference: Name,
 		text:      make([]text.Line, 0),
 		options:   make([]input.MenuOption, 0),
 		cursor:    0,
@@ -136,7 +136,7 @@ func (c *ModalMenu) view(_ state.UIState) viewmodel.ViewModel {
 
 	frags := input.FragmentFromMenuOption(c.options...)
 
-	modal := modal.NewModalDrawable().
+	modal := modal.New().
 		AddText(c.text...).
 		AddOptions(frags...).
 		DefineCursor(c.cursor).

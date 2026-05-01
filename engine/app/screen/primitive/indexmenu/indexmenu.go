@@ -17,7 +17,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const name = "IndexMenu"
+const Name = "index_menu"
 
 const ArgActiveIndex param.Typed[string] = "id_index_menu"
 
@@ -41,7 +41,7 @@ type IndexMenu struct {
 
 func New() *IndexMenu {
 	return &IndexMenu{
-		reference: name,
+		reference: Name,
 		meta:      marker.HyphenIndex,
 		title:     make([]text.Line, 0),
 		options:   make([]input.MenuOption, 0),
@@ -135,14 +135,14 @@ func (c *IndexMenu) actionEnter(stt *state.UIState) screen.ScreenResult {
 func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
 	frags := input.FragmentFromMenuOption(c.options...)
 
-	indexmenu := indexmenu.NewIndexMenuDrawable(frags).
+	indexmenu := indexmenu.New(frags).
 		Meta(c.meta).
 		Cursor(c.cursor)
 
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		block.BlockDrawableFromLines(c.title...),
+		block.DrawableFromLines(c.title...),
 	)
 	vm.Kernel.Push(
 		indexmenu.ToDrawable(),
@@ -154,7 +154,7 @@ func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
 
 	option := min(len(c.options)-1, int(c.cursor))
 	text := c.options[option].Label.Text
-	input := viewmodel.NewInputLine(block.BlockDrawableFromString(text))
+	input := viewmodel.NewInputLine(block.DrawableFromString(text))
 	vm.SetInput(input)
 
 	return *vm

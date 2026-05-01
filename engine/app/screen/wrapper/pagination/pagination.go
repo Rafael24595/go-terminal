@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
@@ -158,7 +158,7 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 		}
 
 		vm.Footer.Unshift(
-			block.BlockDrawableFromLines(footer...).
+			block.DrawableFromLines(footer...).
 				AddTag(screen.SystemMetaTag),
 		)
 	}

@@ -9,7 +9,7 @@ import (
 
 func NewTestArticle() screen.Screen {
 	return article.New().
-		SetName("article - dolor").
+		Name("article - dolor").
 		AddTitle(
 			*text.NewLine("Ac accumsan dolor laoreet"),
 			*text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),

@@ -13,7 +13,7 @@ import (
 
 func TestLoop_DrawableBasicSuite(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	dw := LoopDrawableFromDrawable(mock.ToDrawable())
+	dw := DrawableFromDrawable(mock.ToDrawable())
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
@@ -24,7 +24,7 @@ func TestLoop_Child_WipeCalled(t *testing.T) {
 		},
 	}
 
-	dw := LoopDrawableFromDrawable(mock.ToDrawable())
+	dw := DrawableFromDrawable(mock.ToDrawable())
 	dw.Init()
 
 	assert.False(t, mock.WipeCalled)
@@ -36,7 +36,7 @@ func TestLoop_Child_WipeCalled(t *testing.T) {
 
 func TestLoopDrawable_Draw_ShouldPanicIfNotInitialized(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	bd := NewLoopDrawable(mock.ToDrawable())
+	bd := New(mock.ToDrawable())
 
 	assert.Panic(t, func() {
 		bd.draw(winsize.Winsize{})

@@ -9,6 +9,6 @@ import (
 )
 
 func TestTextArea_DrawableBasicSuite(t *testing.T) {
-	dw := TextAreaDrawableFromData([]rune{}, input.NewTextCursor(false))
+	dw := New([]rune{}, input.NewTextCursor(false)).ToDrawable()
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }

@@ -25,7 +25,7 @@ import (
 	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
 
-const area_name = "TextArea"
+const NameArea = "text_area"
 
 const ArgAreaBuffer param.Typed[[]rune] = "text_area_buffer"
 
@@ -82,7 +82,7 @@ func NewArea() *TextArea {
 		Transformer(text_transformer.FullTextTransformer)
 
 	return &TextArea{
-		reference: area_name,
+		reference: NameArea,
 		history:   event.NewTextEventService(),
 		writeMode: false,
 		indexMode: false,
@@ -544,14 +544,14 @@ func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 		predicate = pager.PredicateFocus()
 	}
 
-	textarea := textarea.NewTextAreaDrawable(c.buffer.Facade(), c.caret).
+	textarea := textarea.New(c.buffer.Facade(), c.caret).
 		WriteMode(c.writeMode).
 		IndexMode(c.indexMode)
 
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		block.BlockDrawableFromLines(c.title...),
+		block.DrawableFromLines(c.title...),
 	)
 
 	code := c.mainDrawableCode()

@@ -129,7 +129,7 @@ func TestWrapNextLine_Fit(t *testing.T) {
 }
 
 func TestWrapNextLine_FitWithMeta(t *testing.T) {
-	meta := &IndexMeta{
+	meta := &indexMeta{
 		totalWidth: 4,
 		sufix:      " | ",
 		digits:     1,
@@ -157,7 +157,7 @@ func TestWrapNextLine_Split(t *testing.T) {
 }
 
 func TestWrapNextLine_SplitWithMeta(t *testing.T) {
-	meta := &IndexMeta{
+	meta := &indexMeta{
 		totalWidth: 4,
 		sufix:      " | ",
 		digits:     1,
@@ -217,7 +217,7 @@ func TestWrapNextLine_BreakLongWordMultipleFragments(t *testing.T) {
 }
 
 func TestWrapNextLine_IndexShouldBeLesser(t *testing.T) {
-	meta := &IndexMeta{
+	meta := &indexMeta{
 		totalWidth: 4,
 		sufix:      " | ",
 		digits:     1,

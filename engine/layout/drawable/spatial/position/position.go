@@ -11,7 +11,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NamePositionDrawable = "PositionDrawable"
+const Name = "position_drawable"
 
 const (
 	default_margin = uint(0)
@@ -27,7 +27,7 @@ type PositionDrawable struct {
 	drawable  drawable.Drawable
 }
 
-func NewPositionDrawable(drawable drawable.Drawable) *PositionDrawable {
+func New(drawable drawable.Drawable) *PositionDrawable {
 	return &PositionDrawable{
 		loaded:    false,
 		marginY:   winsize.Rows(default_margin),
@@ -39,8 +39,8 @@ func NewPositionDrawable(drawable drawable.Drawable) *PositionDrawable {
 	}
 }
 
-func PositionDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
-	return NewPositionDrawable(drawable).ToDrawable()
+func DrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
+	return New(drawable).ToDrawable()
 }
 
 func (d *PositionDrawable) MarginY(margin winsize.Rows) *PositionDrawable {
@@ -58,19 +58,19 @@ func (d *PositionDrawable) Absolute(absolute bool) *PositionDrawable {
 	return d
 }
 
-func (d *PositionDrawable) PositionY(vertical style.VerticalPosition) *PositionDrawable {
-	d.positionY = vertical
+func (d *PositionDrawable) PositionY(y style.VerticalPosition) *PositionDrawable {
+	d.positionY = y
 	return d
 }
 
-func (d *PositionDrawable) PositionX(horizontal style.HorizontalPosition) *PositionDrawable {
-	d.positionX = horizontal
+func (d *PositionDrawable) PositionX(x style.HorizontalPosition) *PositionDrawable {
+	d.positionX = x
 	return d
 }
 
 func (d *PositionDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NamePositionDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,

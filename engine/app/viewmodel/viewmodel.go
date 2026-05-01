@@ -22,9 +22,9 @@ type ViewModel struct {
 
 func NewViewModel() *ViewModel {
 	return &ViewModel{
-		Header:   stack.NewVStackDrawable(),
-		Kernel:   stack.NewVStackDrawable(),
-		Footer:   stack.NewVStackDrawable(),
+		Header:   stack.NewVStack(),
+		Kernel:   stack.NewVStack(),
+		Footer:   stack.NewVStack(),
 		Input:    nil,
 		Pager:    pager.NewStrategy(),
 		Helper:   help.NewHelpMeta(),
@@ -70,7 +70,7 @@ func (v *ViewModel) InitHelper(size winsize.Winsize) (drawable.Drawable, bool) {
 		return drawable.Drawable{}, false
 	}
 
-	drawable := drawable_help.HelpDrawableFromMeta(v.Helper)
+	drawable := drawable_help.DrawableFromMeta(v.Helper)
 	drawable.Init()
 
 	return drawable, true

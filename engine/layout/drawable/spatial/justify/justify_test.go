@@ -64,7 +64,7 @@ func renderLine(cols int, mode style.Justify, line text.Line) string {
 }
 
 func TestJustify_DrawableBasicSuite(t *testing.T) {
-	dw := JustifyDrawableFromFragments([]text.Fragment{})
+	dw := DrawableFromFragments([]text.Fragment{})
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 

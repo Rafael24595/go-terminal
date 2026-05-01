@@ -12,13 +12,13 @@ import (
 
 func TestBlock_DrawableBasicSuite(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	dw := BlockDrawableFromDrawable(mock.ToDrawable())
+	dw := DrawableFromDrawable(mock.ToDrawable())
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
 func TestBlockDrawable_Init_ShouldPropagateToChild(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	bd := NewBlockDrawable(mock.ToDrawable())
+	bd := New(mock.ToDrawable())
 
 	bd.init()
 
@@ -28,7 +28,7 @@ func TestBlockDrawable_Init_ShouldPropagateToChild(t *testing.T) {
 
 func TestBlockDrawable_Draw_ShouldReturnEmptyIfRowsIsZero(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	bd := NewBlockDrawable(mock.ToDrawable())
+	bd := New(mock.ToDrawable())
 
 	bd.init()
 
@@ -43,7 +43,7 @@ func TestBlockDrawable_Draw_ShouldStopWhenChildHasNoNext(t *testing.T) {
 		Lines: []text.Line{*text.NewLine("golang")},
 	}
 
-	bd := NewBlockDrawable(mock.ToDrawable())
+	bd := New(mock.ToDrawable())
 	bd.init()
 
 	lines, hasNext := bd.draw(winsize.Winsize{Rows: 5, Cols: 10})
@@ -64,7 +64,7 @@ func TestBlockDrawable_Draw_ShouldAccumulateLines(t *testing.T) {
 	}
 
 	rows := 3
-	bd := NewBlockDrawable(dw)
+	bd := New(dw)
 	bd.init()
 
 	lines, hasNext := bd.draw(winsize.Winsize{

@@ -9,6 +9,6 @@ import (
 )
 
 func TestIndexMenu_DrawableBasicSuite(t *testing.T) {
-	dw := TextIndexMenuFromData([]text.Fragment{})
+	dw := DrawableFromOptions([]text.Fragment{})
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }

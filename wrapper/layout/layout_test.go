@@ -25,13 +25,13 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		block.BlockDrawableFromLines(
+		block.DrawableFromLines(
 			*text.NewLine("HEADER", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Kernel.Push(
-		line.LineDrawableFromLines(
+		line.DrawableFromLines(
 			*text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
 			*text.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			*text.NewLine("LINE THREE IS LONG", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -84,13 +84,13 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		block.BlockDrawableFromLines(
+		block.DrawableFromLines(
 			*text.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Kernel.Push(
-		line.LineDrawableFromLines(
+		line.DrawableFromLines(
 			*text.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			*text.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			*text.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -132,9 +132,9 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 		*text.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindPaddingLeft)),
 	}
 
-	dw := block.BlockDrawableFromLines(lines...)
+	dw := block.DrawableFromLines(lines...)
 
-	layer := stack.NewVStackDrawable().
+	layer := stack.NewVStack().
 		Push(dw).
 		ToDrawable()
 
@@ -166,9 +166,9 @@ func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
 		*text.NewLine("ziglang"),
 	}
 
-	dw := block.BlockDrawableFromLines(lines...)
+	dw := block.DrawableFromLines(lines...)
 
-	layer := stack.NewVStackDrawable().
+	layer := stack.NewVStack().
 		Push(dw).
 		ToDrawable()
 
@@ -187,9 +187,9 @@ func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
 		*text.NewLine("golang ziglang"),
 	}
 
-	dw := block.BlockDrawableFromLines(lines...)
+	dw := block.DrawableFromLines(lines...)
 
-	layer := stack.NewVStackDrawable().
+	layer := stack.NewVStack().
 		Push(dw).
 		ToDrawable()
 
@@ -216,17 +216,17 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		block.BlockDrawableFromLines(
+		block.DrawableFromLines(
 			*text.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Kernel.Push(
-		line.LineDrawableFromLines(
+		line.DrawableFromLines(
 			*text.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 	vm.Footer.Push(
-		block.BlockDrawableFromLines(
+		block.DrawableFromLines(
 			*text.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)

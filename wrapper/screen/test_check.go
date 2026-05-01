@@ -33,8 +33,8 @@ func NewTestCheck() screen.Screen {
 	}
 
 	return checkmenu.New().
-		SetName("menu - tortor").
-		SetLimit(1).
+		Name("menu - tortor").
+		Limit(1).
 		AddTitle(title...).
 		AddOptions(options...).
 		ToScreen()

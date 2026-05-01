@@ -2,7 +2,7 @@ package spacer
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
@@ -11,18 +11,18 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const name = "spacer_transformer"
+const Name = "spacer_transformer"
 
 type spacerPlacement func(Meta, drawable.Drawable, *stack.VStackDrawable) *stack.VStackDrawable
 
 func SpacerTransformer(meta Meta, sections ...pipeline.Section) pipeline.Transformer {
 	placeSpacer := resolvePlacement(meta)
 
-	drawable := block.BlockDrawableFromLines(
+	drawable := block.DrawableFromLines(
 		buildSpacerLines(meta.Size)...,
 	)
 
-	drawable.Name = name
+	drawable.Name = Name
 
 	return func(vm viewmodel.ViewModel) viewmodel.ViewModel {
 		for _, section := range sections {
@@ -61,7 +61,7 @@ func prependSpacer(
 		return vStack
 	}
 
-	newVStack := stack.NewVStackDrawable()
+	newVStack := stack.NewVStack()
 	for _, h := range vStack.Items() {
 		newVStack.Push(drawable, h)
 	}
@@ -79,7 +79,7 @@ func appendSpacer(
 		return vStack
 	}
 
-	newVStack := stack.NewVStackDrawable()
+	newVStack := stack.NewVStack()
 	for _, h := range vStack.Items() {
 		newVStack.Push(h, drawable)
 	}

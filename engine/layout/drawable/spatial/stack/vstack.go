@@ -13,7 +13,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameVStackDrawable = "VStackDrawable"
+const NameVStack = "vstack_drawable"
 
 type VStackDrawable struct {
 	loaded     bool
@@ -23,7 +23,7 @@ type VStackDrawable struct {
 	fixed      []layer[winsize.Rows]
 }
 
-func NewVStackDrawable(items ...drawable.Drawable) *VStackDrawable {
+func NewVStack(items ...drawable.Drawable) *VStackDrawable {
 	layers := layersFromDrawables(chunk.Dynamic[winsize.Rows](), 0, items...)
 	return &VStackDrawable{
 		loaded:     false,
@@ -35,7 +35,7 @@ func NewVStackDrawable(items ...drawable.Drawable) *VStackDrawable {
 }
 
 func VStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
-	return NewVStackDrawable(items...).ToDrawable()
+	return NewVStack(items...).ToDrawable()
 }
 
 func (d *VStackDrawable) Unshift(items ...drawable.Drawable) *VStackDrawable {
@@ -103,7 +103,7 @@ func (d *VStackDrawable) Items() []drawable.Drawable {
 
 func (d *VStackDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameVStackDrawable,
+		Name: NameVStack,
 		Code: d.code(),
 		Tags: d.tags(),
 		Init: d.init,

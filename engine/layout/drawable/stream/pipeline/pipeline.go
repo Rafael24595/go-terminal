@@ -20,7 +20,7 @@ type PipelineDrawable struct {
 	dataSteps []DataTransformer
 }
 
-func NewPipelineDrawable(drawable drawable.Drawable) *PipelineDrawable {
+func New(drawable drawable.Drawable) *PipelineDrawable {
 	return &PipelineDrawable{
 		loaded:    false,
 		drawable:  drawable,
@@ -29,7 +29,7 @@ func NewPipelineDrawable(drawable drawable.Drawable) *PipelineDrawable {
 	}
 }
 
-func (d *PipelineDrawable) SetInitStep(step InitTransformer) *PipelineDrawable {
+func (d *PipelineDrawable) InitStep(step InitTransformer) *PipelineDrawable {
 	if d.loaded {
 		assert.Unreachable(drawable.MessageNewElement)
 		return d
@@ -44,7 +44,7 @@ func (d *PipelineDrawable) PushDataSteps(steps ...DataTransformer) *PipelineDraw
 		assert.Unreachable(drawable.MessageNewElement)
 		return d
 	}
-	
+
 	d.dataSteps = append(d.dataSteps, steps...)
 	return d
 }

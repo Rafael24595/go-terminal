@@ -24,5 +24,5 @@ func TestModalMenu_Stack(t *testing.T) {
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(name))
+	assert.True(t, stack.Has(Name))
 }

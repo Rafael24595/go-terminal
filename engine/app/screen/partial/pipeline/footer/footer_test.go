@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/partial/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
@@ -15,8 +15,8 @@ import (
 
 func TestFooter_InsertsBefore(t *testing.T) {
 	vm := viewmodel.ViewModel{
-		Footer: stack.NewVStackDrawable(
-			line.LineDrawableFromLines(
+		Footer: stack.NewVStack(
+			line.DrawableFromLines(
 				*text.NewLine("line_01"),
 			),
 		),
@@ -44,8 +44,8 @@ func TestFooter_InsertsBefore(t *testing.T) {
 
 func TestFooter_InsertsAfter(t *testing.T) {
 	vm := viewmodel.ViewModel{
-		Footer: stack.NewVStackDrawable(
-			line.LineDrawableFromLines(
+		Footer: stack.NewVStack(
+			line.DrawableFromLines(
 				*text.NewLine("line_01"),
 			),
 		),

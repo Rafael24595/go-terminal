@@ -18,7 +18,7 @@ const (
 	SlotsAround  = 2
 )
 
-const NameJustifyDrawable = "JustifyDrawable"
+const Name = "justify_drawable"
 
 type JustifyDrawable struct {
 	loaded    bool
@@ -29,27 +29,27 @@ type JustifyDrawable struct {
 	cursor    uint16
 }
 
-func NewJustifyDrawable(fragments []text.Fragment) *JustifyDrawable {
+func New(frags []text.Fragment) *JustifyDrawable {
 	return &JustifyDrawable{
 		loaded:    false,
 		maxOpts:   style.DefaultMaxOpts,
 		justify:   style.JustifyAround,
-		fragments: fragments,
+		fragments: frags,
 		cursor:    0,
 	}
 }
 
-func JustifyDrawableFromFragments(fragments []text.Fragment) drawable.Drawable {
-	return NewJustifyDrawable(fragments).ToDrawable()
+func DrawableFromFragments(frags []text.Fragment) drawable.Drawable {
+	return New(frags).ToDrawable()
 }
 
-func (d *JustifyDrawable) MaxOpts(maxOpts uint16) *JustifyDrawable {
-	d.maxOpts = max(1, maxOpts)
+func (d *JustifyDrawable) MaxOpts(opts uint16) *JustifyDrawable {
+	d.maxOpts = max(1, opts)
 	return d
 }
 
-func (d *JustifyDrawable) MaxCols(maxCols uint16) *JustifyDrawable {
-	d.maxCols = max(1, maxCols)
+func (d *JustifyDrawable) MaxCols(cols uint16) *JustifyDrawable {
+	d.maxCols = max(1, cols)
 	return d
 }
 
@@ -58,14 +58,14 @@ func (d *JustifyDrawable) Justify(justify style.Justify) *JustifyDrawable {
 	return d
 }
 
-func (d *JustifyDrawable) AddFragments(fragments []text.Fragment) *JustifyDrawable {
-	d.fragments = append(d.fragments, fragments...)
+func (d *JustifyDrawable) AddFragments(frags []text.Fragment) *JustifyDrawable {
+	d.fragments = append(d.fragments, frags...)
 	return d
 }
 
 func (d *JustifyDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameJustifyDrawable,
+		Name: Name,
 		Code: "",
 		Tags: make(set.Set[string]),
 		Init: d.init,

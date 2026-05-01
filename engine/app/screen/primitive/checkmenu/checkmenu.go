@@ -21,7 +21,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const name = "CheckMenu"
+const Name = "check_menu"
 
 const ArgActiveChecks param.Typed[set.Set[string]] = "check_menu_active"
 
@@ -65,7 +65,7 @@ type CheckMenu struct {
 
 func New() *CheckMenu {
 	return &CheckMenu{
-		reference: name,
+		reference: Name,
 		clock:     clock.UnixMilliClock,
 		action:    input.NewCheckAction(),
 		meta:      marker.BracketsCheck,
@@ -76,17 +76,17 @@ func New() *CheckMenu {
 	}
 }
 
-func (c *CheckMenu) SetName(name string) *CheckMenu {
+func (c *CheckMenu) Name(name string) *CheckMenu {
 	c.reference = name
 	return c
 }
 
-func (c *CheckMenu) SetMeta(meta marker.CheckMeta) *CheckMenu {
+func (c *CheckMenu) Meta(meta marker.CheckMeta) *CheckMenu {
 	c.meta = meta
 	return c
 }
 
-func (c *CheckMenu) SetActionHandler(handler input.CheckActionHandler) *CheckMenu {
+func (c *CheckMenu) ActionHandler(handler input.CheckActionHandler) *CheckMenu {
 	c.action.Handler = handler
 	return c
 }
@@ -101,18 +101,18 @@ func (c *CheckMenu) AddOptions(options ...input.CheckOption) *CheckMenu {
 	return c
 }
 
-func (c *CheckMenu) SetCursor(cursor uint) *CheckMenu {
+func (c *CheckMenu) Cursor(cursor uint) *CheckMenu {
 	maxIdx := math.SubClampZero(len(c.options), 1)
 	c.cursor = math.Clamp(cursor, uint(0), uint(maxIdx))
 	return c
 }
 
-func (c *CheckMenu) SetDistribution(distribution style.Distribution) *CheckMenu {
+func (c *CheckMenu) Distribution(distribution style.Distribution) *CheckMenu {
 	c.distribution = distribution
 	return c
 }
 
-func (c *CheckMenu) SetLimit(limit uint16) *CheckMenu {
+func (c *CheckMenu) Limit(limit uint16) *CheckMenu {
 	c.limit = limit
 	return c
 }
@@ -236,7 +236,7 @@ func (c *CheckMenu) activeIds() set.Set[string] {
 func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 	source := c.definitionSource()
 
-	indexmenu := checkmenu.NewCheckMenuDrawable(c.options).
+	indexmenu := checkmenu.New(c.options).
 		WriteMode(c.action.ActionMode).
 		Meta(c.meta).
 		Cursor(c.cursor)
@@ -244,7 +244,7 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		block.BlockDrawableFromLines(c.title...),
+		block.DrawableFromLines(c.title...),
 	)
 	vm.Kernel.Push(
 		indexmenu.ToDrawable(),
@@ -264,7 +264,7 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 	text := c.options[option].Label.Text
 
 	input := viewmodel.NewInputLine(
-		block.BlockDrawableFromString(text),
+		block.DrawableFromString(text),
 	)
 
 	vm.SetInput(input)

@@ -22,22 +22,22 @@ func mockDataStep(_ winsize.Winsize, l []text.Line, s bool) ([]text.Line, bool) 
 
 func TestPipeline_DrawableBasicSuite(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	dw := NewPipelineDrawable(mock.ToDrawable()).
-		SetInitStep(mockInitStep).
+	dw := New(mock.ToDrawable()).
+		InitStep(mockInitStep).
 		ToDrawable()
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
 func TestPipeline_ShouldPanicIfNewElementsAddedAfterInitialization(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	bd := NewPipelineDrawable(mock.ToDrawable()).
-		SetInitStep(mockInitStep)
+	bd := New(mock.ToDrawable()).
+		InitStep(mockInitStep)
 
 	dw := bd.ToDrawable()
 	dw.Init()
 
 	assert.Panic(t, func() {
-		bd.SetInitStep(mockInitStep)
+		bd.InitStep(mockInitStep)
 	})
 
 	assert.Panic(t, func() {
@@ -47,13 +47,13 @@ func TestPipeline_ShouldPanicIfNewElementsAddedAfterInitialization(t *testing.T)
 
 func TestPipeline_ReturnBaseIfNils(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	dw := NewPipelineDrawable(mock.ToDrawable()).
+	dw := New(mock.ToDrawable()).
 		ToDrawable()
 
 	assert.Equal(t, drawable_test.NameMockDrawable, dw.Name)
 
-	dw = NewPipelineDrawable(mock.ToDrawable()).
-		SetInitStep(mockInitStep).
+	dw = New(mock.ToDrawable()).
+		InitStep(mockInitStep).
 		ToDrawable()
 
 	assert.Equal(t, Name, dw.Name)
@@ -70,8 +70,8 @@ func TestPipeline_InitStepTransformation(t *testing.T) {
 	}
 
 	mockLine := text.NewLine("mock_line_01")
-	bd := NewPipelineDrawable(mock.ToDrawable()).
-		SetInitStep(func(_ winsize.Winsize, _ drawable.Drawable) ([]text.Line, bool) {
+	bd := New(mock.ToDrawable()).
+		InitStep(func(_ winsize.Winsize, _ drawable.Drawable) ([]text.Line, bool) {
 			return []text.Line{*mockLine}, false
 		})
 
@@ -96,7 +96,7 @@ func TestPipeline_DataStepsChain(t *testing.T) {
 
 	mockLine1 := text.NewLine("mock_line_01")
 	mockLine2 := text.NewLine("mock_line_02")
-	bd := NewPipelineDrawable(mock.ToDrawable()).
+	bd := New(mock.ToDrawable()).
 		PushDataSteps(
 			func(_ winsize.Winsize, l []text.Line, s bool) ([]text.Line, bool) {
 				return append(l, *mockLine1), s

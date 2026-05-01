@@ -7,6 +7,8 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 )
 
+const Name = "template"
+
 type Template struct {
 	reference string
 	stack     set.Set[string]
@@ -14,20 +16,24 @@ type Template struct {
 }
 
 func New() *Template {
-	return &Template{}
+	return &Template{
+		reference: Name,
+		stack:     set.NewSet[string](),
+		model:     viewmodel.ViewModel{},
+	}
 }
 
-func (c *Template) SetName(reference string) *Template {
+func (c *Template) Name(reference string) *Template {
 	c.reference = reference
 	return c
 }
 
-func (c *Template) SetStack(stack set.Set[string]) *Template {
+func (c *Template) Stack(stack set.Set[string]) *Template {
 	c.stack = stack
 	return c
 }
 
-func (c *Template) SetViewModel(model viewmodel.ViewModel) *Template {
+func (c *Template) ViewModel(model viewmodel.ViewModel) *Template {
 	c.model = model
 	return c
 }

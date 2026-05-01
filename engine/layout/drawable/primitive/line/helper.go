@@ -2,7 +2,7 @@ package line
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/helper"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
@@ -10,21 +10,6 @@ import (
 )
 
 const separator = " | "
-
-type IndexMeta struct {
-	sufix      string
-	prefixBody string
-	digits     uint16
-	totalWidth uint32
-}
-
-func (i IndexMeta) header(index int) string {
-	return helper.Right(index, int(i.digits)) + i.sufix
-}
-
-func (i IndexMeta) body() string {
-	return i.prefixBody + i.sufix
-}
 
 func TokenizeLines(lines ...text.Line) []text.Line {
 	buffer := make([]text.Line, len(lines))
@@ -86,7 +71,7 @@ func WrapLineWords(cols int, line *text.Line) []text.Line {
 	return result
 }
 
-func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, []text.Line) {
+func WrapNextLine(cols uint16, lines []text.Line, meta *indexMeta) (*text.Line, []text.Line) {
 	if cols == 0 || len(lines) == 0 {
 		return nil, make([]text.Line, 0)
 	}
@@ -148,7 +133,7 @@ func WrapNextLine(cols uint16, lines []text.Line, meta *IndexMeta) (*text.Line, 
 	return cursor, remain
 }
 
-func computeIndexMeta(lines []text.Line) *IndexMeta {
+func computeIndexMeta(lines []text.Line) *indexMeta {
 	size := uint32(0)
 
 	for _, line := range lines {
@@ -162,7 +147,7 @@ func computeIndexMeta(lines []text.Line) *IndexMeta {
 		return nil
 	}
 
-	return &IndexMeta{
+	return &indexMeta{
 		sufix:      separator,
 		prefixBody: helper.FillRight(marker.DefaultPaddingText, int(size)),
 		digits:     uint16(size),

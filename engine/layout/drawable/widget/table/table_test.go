@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestTable_DrawableBasicSuite(t *testing.T) {
-	dw := TableDrawableFromTable(
+	dw := DrawableFromTable(
 		*table.NewTable(),
 		*input.NewMatrixCursor(0, 0, false),
 	)
@@ -21,7 +21,7 @@ func TestTable_DrawableBasicSuite(t *testing.T) {
 }
 
 func TestTable_LazyInit(t *testing.T) {
-	dw := NewTableDrawable(
+	dw := New(
 		*table.NewTable().
 			SetHeaders("lang").
 			SetCell("lang", 0, "golang"),

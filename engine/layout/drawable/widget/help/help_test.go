@@ -9,6 +9,6 @@ import (
 )
 
 func TestHelp_DrawableBasicSuite(t *testing.T) {
-	dw := HelpDrawableFromMeta(help.NewHelpMeta())
+	dw := DrawableFromMeta(help.NewHelpMeta())
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }

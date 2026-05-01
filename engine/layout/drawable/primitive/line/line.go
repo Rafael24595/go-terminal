@@ -9,30 +9,30 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameLineDrawable = "LineDrawable"
+const Name = "line_drawable"
 
 type LineDrawable struct {
 	loaded bool
-	index  *IndexMeta
+	index  *indexMeta
 	lines  []text.Line
 	source []text.Line
 }
 
-func NewLineDrawable(lines ...text.Line) *LineDrawable {
+func New(lines ...text.Line) *LineDrawable {
 	return &LineDrawable{
 		loaded: false,
-		index:  &IndexMeta{},
+		index:  &indexMeta{},
 		lines:  lines,
 	}
 }
 
-func LineDrawableFromLines(lines ...text.Line) drawable.Drawable {
-	return NewLineDrawable(lines...).ToDrawable()
+func DrawableFromLines(lines ...text.Line) drawable.Drawable {
+	return New(lines...).ToDrawable()
 }
 
 func (d *LineDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameLineDrawable,
+		Name: Name,
 		Code: "",
 		Tags: make(set.Set[string]),
 		Init: d.init,

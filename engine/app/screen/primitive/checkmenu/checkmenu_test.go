@@ -14,7 +14,7 @@ import (
 
 func TestCheckMenu_ToScreen(t *testing.T) {
 	menu := New().
-		SetName("base").
+		Name("base").
 		AddTitle(*text.NewLine("Welcome"))
 
 	screen := menu.ToScreen()
@@ -29,14 +29,14 @@ func TestCheckMenu_Stack(t *testing.T) {
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(name))
+	assert.True(t, stack.Has(Name))
 }
 
 func TestCheckMenu_SwitchState_WithLimit(t *testing.T) {
 	clock := &mock.TestClock{Time: 1000}
 
 	menu := New().
-		SetLimit(2).
+		Limit(2).
 		AddOptions(
 			input.NewCheckOption("1", *text.NewFragment("option 1")),
 			input.NewCheckOption("2", *text.NewFragment("option 2")),

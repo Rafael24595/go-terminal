@@ -8,6 +8,6 @@ import (
 
 func TestPosition_DrawableBasicSuite(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	dw := PositionDrawableFromDrawable(mock.ToDrawable())
+	dw := DrawableFromDrawable(mock.ToDrawable())
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }

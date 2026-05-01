@@ -24,5 +24,5 @@ func TestTextInput_Stack(t *testing.T) {
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(input_name))
+	assert.True(t, stack.Has(NameInput))
 }

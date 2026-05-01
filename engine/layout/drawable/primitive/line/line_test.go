@@ -7,6 +7,6 @@ import (
 )
 
 func TestLine_DrawableBasicSuite(t *testing.T) {
-	dw := LineDrawableFromLines()
+	dw := DrawableFromLines()
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }

@@ -13,7 +13,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameCheckMenuDrawable = "CheckMenuDrawable"
+const Name = "check_menu_drawable"
 
 type CheckMenuDrawable struct {
 	initialized  bool
@@ -25,7 +25,7 @@ type CheckMenuDrawable struct {
 	drawable     drawable.Drawable
 }
 
-func NewCheckMenuDrawable(options []input.CheckOption) *CheckMenuDrawable {
+func New(options []input.CheckOption) *CheckMenuDrawable {
 	clone := make([]input.CheckOption, len(options))
 	copy(clone, options)
 
@@ -39,8 +39,8 @@ func NewCheckMenuDrawable(options []input.CheckOption) *CheckMenuDrawable {
 	}
 }
 
-func CheckMenuDrawableOptions(options []input.CheckOption) drawable.Drawable {
-	return NewCheckMenuDrawable(options).ToDrawable()
+func DrawableFromOptions(options []input.CheckOption) drawable.Drawable {
+	return New(options).ToDrawable()
 }
 
 func (d *CheckMenuDrawable) Meta(meta marker.CheckMeta) *CheckMenuDrawable {
@@ -65,7 +65,7 @@ func (d *CheckMenuDrawable) Cursor(cursor uint) *CheckMenuDrawable {
 
 func (d *CheckMenuDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameCheckMenuDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,
@@ -105,11 +105,11 @@ func (d *CheckMenuDrawable) makeVertical(opts []text.Fragment) drawable.Drawable
 	for i := range opts {
 		lines[i] = *text.LineFromFragments(opts[i])
 	}
-	return line.LineDrawableFromLines(lines...)
+	return line.DrawableFromLines(lines...)
 }
 
 func (d *CheckMenuDrawable) makeHorizontal(opts []text.Fragment) drawable.Drawable {
-	return justify.NewJustifyDrawable(opts).
+	return justify.New(opts).
 		Justify(d.distribution.Justify).
 		MaxOpts(d.distribution.Limit).
 		ToDrawable()

@@ -11,7 +11,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameTableDrawable = "TableDrawable"
+const Name = "table_drawable"
 
 type TableDrawable struct {
 	loaded     bool
@@ -22,7 +22,7 @@ type TableDrawable struct {
 	cursor     input.MatrixCursor
 }
 
-func NewTableDrawable(table table.Table, cursor input.MatrixCursor) *TableDrawable {
+func New(table table.Table, cursor input.MatrixCursor) *TableDrawable {
 	return &TableDrawable{
 		loaded:     false,
 		lazyLoaded: false,
@@ -33,13 +33,13 @@ func NewTableDrawable(table table.Table, cursor input.MatrixCursor) *TableDrawab
 	}
 }
 
-func TableDrawableFromTable(table table.Table, cursor input.MatrixCursor) drawable.Drawable {
-	return NewTableDrawable(table, cursor).ToDrawable()
+func DrawableFromTable(table table.Table, cursor input.MatrixCursor) drawable.Drawable {
+	return New(table, cursor).ToDrawable()
 }
 
 func (d *TableDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameTableDrawable,
+		Name: Name,
 		Code: "",
 		Tags: make(set.Set[string]),
 		Init: d.init,

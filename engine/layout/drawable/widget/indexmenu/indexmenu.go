@@ -15,7 +15,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameIndexMenuDrawable = "IndexMenuDrawable"
+const Name = "index_menu_drawable"
 
 type IndexMenuDrawable struct {
 	loaded   bool
@@ -25,7 +25,7 @@ type IndexMenuDrawable struct {
 	drawable drawable.Drawable
 }
 
-func NewIndexMenuDrawable(options []text.Fragment) *IndexMenuDrawable {
+func New(options []text.Fragment) *IndexMenuDrawable {
 	clone := make([]text.Fragment, len(options))
 	copy(clone, options)
 
@@ -38,8 +38,8 @@ func NewIndexMenuDrawable(options []text.Fragment) *IndexMenuDrawable {
 	}
 }
 
-func TextIndexMenuFromData(options []text.Fragment) drawable.Drawable {
-	return NewIndexMenuDrawable(options).ToDrawable()
+func DrawableFromOptions(options []text.Fragment) drawable.Drawable {
+	return New(options).ToDrawable()
 }
 
 func (d *IndexMenuDrawable) Meta(meta marker.IndexMeta) *IndexMenuDrawable {
@@ -54,7 +54,7 @@ func (d *IndexMenuDrawable) Cursor(cursor uint) *IndexMenuDrawable {
 
 func (d *IndexMenuDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameIndexMenuDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,
@@ -88,7 +88,7 @@ func (d *IndexMenuDrawable) init() {
 		)
 	}
 
-	drawable := block.BlockDrawableFromLines(lines...)
+	drawable := block.DrawableFromLines(lines...)
 	drawable.Init()
 
 	d.drawable = drawable

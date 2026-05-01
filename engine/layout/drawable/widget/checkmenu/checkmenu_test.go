@@ -9,6 +9,6 @@ import (
 )
 
 func TestCheckMenu_DrawableBasicSuite(t *testing.T) {
-	dw := CheckMenuDrawableOptions([]input.CheckOption{})
+	dw := DrawableFromOptions([]input.CheckOption{})
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }

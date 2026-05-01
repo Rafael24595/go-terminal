@@ -86,7 +86,7 @@ func TestInline_GroupDrawables_ByCode(t *testing.T) {
 
 		assert.Equal(t, 2, len(items))
 		assert.Equal(t, "b", items[0].Code)
-		assert.Equal(t, name, items[1].Name)
+		assert.Equal(t, Name, items[1].Name)
 	}
 }
 
@@ -117,7 +117,7 @@ func TestInline_GroupDrawables_ByTags(t *testing.T) {
 		items := acc.Get(vm).Items()
 
 		assert.Equal(t, 2, len(items))
-		assert.Equal(t, name, items[1].Name)
+		assert.Equal(t, Name, items[1].Name)
 	}
 }
 
@@ -153,6 +153,6 @@ func TestInline_GroupDrawables_MultipleMatches(t *testing.T) {
 
 		assert.Equal(t, 2, len(items))
 		assert.Equal(t, "b", items[0].Code)
-		assert.Equal(t, name, items[1].Name)
+		assert.Equal(t, Name, items[1].Name)
 	}
 }

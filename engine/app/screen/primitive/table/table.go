@@ -17,7 +17,7 @@ import (
 	drawable_table "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/table"
 )
 
-const name = "Table"
+const Name = "table"
 
 var disabled_definition = screen.NewDefinitionSources(
 	map[key.KeyAction]help.HelpField{},
@@ -59,7 +59,7 @@ type Table[T any] struct {
 
 func New[T any]() *Table[T] {
 	return &Table[T]{
-		reference: name,
+		reference: Name,
 		action:    input.NewTableAction(),
 		title:     make([]text.Line, 0),
 		table:     table.NewTable(),
@@ -198,13 +198,13 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 	source := c.definitionSource()
 
 	vm.Header.Push(
-		block.BlockDrawableFromLines(c.title...),
+		block.DrawableFromLines(c.title...),
 	)
 
-	table := drawable_table.TableDrawableFromTable(*c.table, *c.cursor)
+	table := drawable_table.DrawableFromTable(*c.table, *c.cursor)
 
 	vm.Kernel.Push(
-		position.NewPositionDrawable(table).
+		position.New(table).
 			PositionY(c.positionY).
 			PositionX(c.positionX).
 			ToDrawable(),
@@ -216,7 +216,7 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 		preficate = pager.PredicateFocus()
 
 		cell, _ := c.table.FindCellByCoords(int(c.cursor.Row), int(c.cursor.Col))
-		input = viewmodel.NewInputLine(block.BlockDrawableFromString(cell))
+		input = viewmodel.NewInputLine(block.DrawableFromString(cell))
 	}
 
 	vm.SetInput(input)

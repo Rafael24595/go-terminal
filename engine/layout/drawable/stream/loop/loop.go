@@ -8,27 +8,27 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameLoopDrawable = "LoopDrawable"
+const Name = "loop_drawable"
 
 type LoopDrawable struct {
 	loaded   bool
 	drawable drawable.Drawable
 }
 
-func NewLoopDrawable(drawable drawable.Drawable) *LoopDrawable {
+func New(drawable drawable.Drawable) *LoopDrawable {
 	return &LoopDrawable{
 		loaded:   false,
 		drawable: drawable,
 	}
 }
 
-func LoopDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
-	return NewLoopDrawable(drawable).ToDrawable()
+func DrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
+	return New(drawable).ToDrawable()
 }
 
 func (d *LoopDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameLoopDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,

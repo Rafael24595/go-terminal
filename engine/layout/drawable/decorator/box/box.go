@@ -14,7 +14,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameBoxDrawable = "BoxDrawable"
+const Name = "box_drawable"
 
 const (
 	default_padding  = uint(0)
@@ -31,7 +31,7 @@ type BoxDrawable struct {
 	drawable  drawable.Drawable
 }
 
-func NewBoxDrawable(drawable drawable.Drawable) *BoxDrawable {
+func New(drawable drawable.Drawable) *BoxDrawable {
 	return &BoxDrawable{
 		loaded:    false,
 		minSize:   default_min_size,
@@ -43,8 +43,8 @@ func NewBoxDrawable(drawable drawable.Drawable) *BoxDrawable {
 	}
 }
 
-func BoxDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
-	return NewBoxDrawable(drawable).ToDrawable()
+func DrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
+	return New(drawable).ToDrawable()
 }
 
 func (d *BoxDrawable) MinSize(size uint) *BoxDrawable {
@@ -74,7 +74,7 @@ func (d *BoxDrawable) TextAlign(textAlign style.HorizontalPosition) *BoxDrawable
 
 func (d *BoxDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameBoxDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,
@@ -96,7 +96,7 @@ func (d *BoxDrawable) makeDrawable() drawable.Drawable {
 		return d.drawable
 	}
 
-	return position.NewPositionDrawable(d.drawable).
+	return position.New(d.drawable).
 		MarginY(d.paddingY).
 		MarginX(d.paddingX).
 		PositionY(style.Top).

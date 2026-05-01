@@ -2,7 +2,7 @@ package text
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
@@ -17,9 +17,9 @@ import (
 	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
 
-const input_name = "TextInput"
-const input_limit = 20
+const NameInput = "text_input"
 
+const input_limit = 20
 const input_max_limit = 30
 
 type TextInput struct {
@@ -31,7 +31,7 @@ type TextInput struct {
 func NewInput() *TextInput {
 	handler := buffer.NewLimitedRuneHandler(input_limit, buffer.String)
 
-	area := NewArea().SetName(input_name)
+	area := NewArea().SetName(NameInput)
 	area.buffer.Handler(handler)
 	area.buffer.Transformer(text_transformer.VoidTextTransformer)
 
@@ -120,14 +120,14 @@ func (c *TextInput) makeDrawables(vm viewmodel.ViewModel) []drawable.Drawable {
 		return dws
 	}
 
-	inp := box.NewBoxDrawable(dw).
+	inp := box.New(dw).
 		PaddingY(0).
 		PaddingX(1).
 		TextAlign(style.Left).
 		MinSize(uint(c.limit)).
 		ToDrawable()
 
-	pst := position.NewPositionDrawable(inp).
+	pst := position.New(inp).
 		PositionY(style.Top).
 		PositionX(style.Left)
 
@@ -140,7 +140,7 @@ func (c *TextInput) makeDrawables(vm viewmodel.ViewModel) []drawable.Drawable {
 	pstd := pst.MarginX(0).ToDrawable()
 
 	frags := append(c.label, *text.NewFragment(": "))
-	lbl := block.BlockDrawableFromLines(
+	lbl := block.DrawableFromLines(
 		*text.LineFromFragments(frags...),
 	)
 

@@ -9,40 +9,40 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameBlockDrawable = "BlockDrawable"
+const Name = "block_drawable"
 
 type BlockDrawable struct {
 	loaded   bool
 	drawable drawable.Drawable
 }
 
-func NewBlockDrawable(drawable drawable.Drawable) *BlockDrawable {
+func New(drawable drawable.Drawable) *BlockDrawable {
 	return &BlockDrawable{
 		loaded:   false,
 		drawable: drawable,
 	}
 }
 
-func BlockDrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
-	return NewBlockDrawable(drawable).ToDrawable()
+func DrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
+	return New(drawable).ToDrawable()
 }
 
-func BlockDrawableFromLines(lines ...text.Line) drawable.Drawable {
-	return BlockDrawableFromDrawable(
-		line.NewLineDrawable(lines...).ToDrawable(),
+func DrawableFromLines(lines ...text.Line) drawable.Drawable {
+	return DrawableFromDrawable(
+		line.New(lines...).ToDrawable(),
 	)
 }
 
-func BlockDrawableFromString(txt ...string) drawable.Drawable {
+func DrawableFromString(txt ...string) drawable.Drawable {
 	lines := text.LineFromFragments(
 		text.FragmentsFromString(txt...)...,
 	)
-	return BlockDrawableFromLines(*lines)
+	return DrawableFromLines(*lines)
 }
 
 func (d *BlockDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameBlockDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,

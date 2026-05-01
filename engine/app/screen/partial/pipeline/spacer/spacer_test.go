@@ -64,7 +64,7 @@ func TestSpacer_AddsHeaderLines(t *testing.T) {
 		assert.Len(t, 2, items)
 
 		assert.Equal(t, "mock_header", items[0].Name)
-		assert.Equal(t, name, items[1].Name)
+		assert.Equal(t, Name, items[1].Name)
 	}
 
 }
@@ -96,10 +96,10 @@ func TestSpacer_HeaderBetween(t *testing.T) {
 		assert.Len(t, 4, items)
 
 		assert.Equal(t, "mock_header_1", items[0].Name)
-		assert.Equal(t, name, items[1].Name)
+		assert.Equal(t, Name, items[1].Name)
 
 		assert.Equal(t, "mock_header_2", items[2].Name)
-		assert.Equal(t, name, items[3].Name)
+		assert.Equal(t, Name, items[3].Name)
 	}
 
 }

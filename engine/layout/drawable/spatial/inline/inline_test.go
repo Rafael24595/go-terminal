@@ -13,13 +13,13 @@ import (
 
 func TestInline_DrawableBasicSuite(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	dw := InlineDrawableFromDrawables(mock.ToDrawable())
+	dw := DrawableFromDrawables(mock.ToDrawable())
 	drawable_test.Test_DrawableBasicSuite(t, dw)
 }
 
 func TestInline_LazyInit(t *testing.T) {
 	mock := &drawable_test.MockDrawable{}
-	bd := NewInlineDrawable(mock.ToDrawable())
+	bd := New(mock.ToDrawable())
 
 	assert.False(t, bd.lazyLoaded)
 	assert.True(t,
@@ -46,7 +46,7 @@ func TestInline_JoinsChildren(t *testing.T) {
 		},
 	}
 
-	d := NewInlineDrawable(
+	d := New(
 		mock1.ToDrawable(),
 		mock2.ToDrawable(),
 	)
@@ -77,7 +77,7 @@ func TestInline_JoinsChildrenWithSeparator(t *testing.T) {
 		},
 	}
 
-	d := NewInlineDrawable(
+	d := New(
 		mock1.ToDrawable(),
 		mock2.ToDrawable(),
 	)
@@ -105,7 +105,7 @@ func TestInline_MultipleLines(t *testing.T) {
 		},
 	}
 
-	d := NewInlineDrawable(
+	d := New(
 		mock.ToDrawable(),
 	)
 
@@ -125,7 +125,7 @@ func TestInline_MultipleLines(t *testing.T) {
 }
 
 func TestInline_Empty(t *testing.T) {
-	d := NewInlineDrawable()
+	d := New()
 
 	dr := d.ToDrawable()
 

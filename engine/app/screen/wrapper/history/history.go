@@ -96,7 +96,7 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 	}
 
 	vm.Footer.Unshift(
-		block.BlockDrawableFromLines(footer...).
+		block.DrawableFromLines(footer...).
 			AddTag(screen.SystemMetaTag),
 	)
 

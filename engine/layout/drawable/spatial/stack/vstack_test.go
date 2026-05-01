@@ -18,7 +18,7 @@ func TestVStack_DrawableBasicSuite(t *testing.T) {
 }
 
 func TestVStack_ShouldPanicIfNewElementsAddedAfterInitialization(t *testing.T) {
-	bd := NewVStackDrawable()
+	bd := NewVStack()
 
 	m1 := &drawable_test.MockDrawable{}
 	bd.Push(m1.ToDrawable())
@@ -234,7 +234,7 @@ func TestVStack_FixedChunk_PadsWhenChildIsSmaller(t *testing.T) {
 		Lines: make([]text.Line, 10),
 	}
 
-	stack := NewVStackDrawable().
+	stack := NewVStack().
 		PushChunk(dw.ToDrawable(), chunk.Fixed[winsize.Rows](15)).
 		ToDrawable()
 
@@ -250,7 +250,7 @@ func TestVStack_FixedChunk_TruncatesWhenChildIsBigger(t *testing.T) {
 		Lines: make([]text.Line, 15),
 	}
 
-	stack := NewVStackDrawable().
+	stack := NewVStack().
 		PushChunk(dw.ToDrawable(), chunk.Fixed[winsize.Rows](20)).
 		ToDrawable()
 
@@ -274,7 +274,7 @@ func TestVStack_DynamicChunk_FillsRemainingSpace(t *testing.T) {
 		Lines: make([]text.Line, 5),
 	}
 
-	stack := NewVStackDrawable().
+	stack := NewVStack().
 		PushChunk(dw1.ToDrawable(), chunk.Fixed[winsize.Rows](10)).
 		PushChunk(dw2.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
 		PushChunk(dw3.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
@@ -296,7 +296,7 @@ func TestVStack_FixedOverflow_ShouldNotExceedContainer(t *testing.T) {
 		Lines: make([]text.Line, 10),
 	}
 
-	stack := NewVStackDrawable().
+	stack := NewVStack().
 		PushChunk(dw1.ToDrawable(), chunk.Fixed[winsize.Rows](10)).
 		PushChunk(dw2.ToDrawable(), chunk.Fixed[winsize.Rows](10)).
 		ToDrawable()
@@ -321,7 +321,7 @@ func TestVStack_ExactFit_NoExtraNoMissing(t *testing.T) {
 		Lines: make([]text.Line, 5),
 	}
 
-	stack := NewVStackDrawable().
+	stack := NewVStack().
 		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
 		PushChunk(dw2.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
 		PushChunk(dw3.ToDrawable(), chunk.Dynamic[winsize.Rows]()).

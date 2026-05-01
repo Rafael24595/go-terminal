@@ -21,7 +21,7 @@ func TestHStack_Distribution(t *testing.T) {
 	d2 := &drawable_test.MockDrawable{}
 	d3 := &drawable_test.MockDrawable{}
 
-	stack := NewHStackDrawable(
+	stack := NewHStack(
 		d1.ToDrawable(),
 		d2.ToDrawable(),
 		d3.ToDrawable(),
@@ -44,7 +44,7 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 	d2 := &drawable_test.MockDrawable{}
 	d3 := &drawable_test.MockDrawable{}
 
-	stack := NewHStackDrawable()
+	stack := NewHStack()
 	stack.PushChunk(d1.ToDrawable(), chunk.Fixed[uint16](20))
 	stack.Push(d2.ToDrawable(), d3.ToDrawable())
 
@@ -72,7 +72,7 @@ func TestHStack_RenderOutput(t *testing.T) {
 		},
 	}
 
-	stack := NewHStackDrawable()
+	stack := NewHStack()
 	stack.PushChunk(dA.ToDrawable(), chunk.Percent[uint16](50))
 	stack.PushChunk(dB.ToDrawable(), chunk.Percent[uint16](50))
 

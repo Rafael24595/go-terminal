@@ -14,7 +14,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameModalDrawable = "ModalDrawable"
+const Name = "modal_drawable"
 
 type ModalDrawable struct {
 	loaded     bool
@@ -26,7 +26,7 @@ type ModalDrawable struct {
 	drawable   drawable.Drawable
 }
 
-func NewModalDrawable() *ModalDrawable {
+func New() *ModalDrawable {
 	return &ModalDrawable{
 		loaded:     false,
 		lazyLoaded: false,
@@ -36,10 +36,6 @@ func NewModalDrawable() *ModalDrawable {
 		cursor:     0,
 		drawable:   drawable.Drawable{},
 	}
-}
-
-func ModalDrawableFromData(text []text.Line, options []text.Fragment, cursor uint) drawable.Drawable {
-	return NewModalDrawable().ToDrawable()
 }
 
 func (d *ModalDrawable) AddText(text ...text.Line) *ModalDrawable {
@@ -64,7 +60,7 @@ func (d *ModalDrawable) DefineCursor(cursor uint) *ModalDrawable {
 
 func (d *ModalDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameModalDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,
@@ -100,13 +96,13 @@ func (d *ModalDrawable) lazyInit(size winsize.Winsize) {
 	cols := drawable.MaxLineSize(int(size.Cols), d.text...) + 1
 	text := formatLines(d.text...)
 
-	title := block.BlockDrawableFromLines(text...)
+	title := block.DrawableFromLines(text...)
 
-	options := justify.NewJustifyDrawable(opts).
+	options := justify.New(opts).
 		MaxCols(uint16(cols)).
 		ToDrawable()
 
-	optionsBlock := block.BlockDrawableFromDrawable(options)
+	optionsBlock := block.DrawableFromDrawable(options)
 
 	title.Init()
 	optionsBlock.Init()
@@ -116,12 +112,12 @@ func (d *ModalDrawable) lazyInit(size winsize.Winsize) {
 		optionsBlock,
 	)
 
-	box := box.NewBoxDrawable(stack).
+	box := box.New(stack).
 		PaddingX(1).
 		PaddingY(1).
 		ToDrawable()
 
-	position := position.PositionDrawableFromDrawable(box)
+	position := position.DrawableFromDrawable(box)
 	position.Init()
 
 	d.drawable = position

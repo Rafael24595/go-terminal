@@ -125,7 +125,7 @@ func TestPipeline_ActionSingleFocus(t *testing.T) {
 			return vm
 		},
 		func(vm viewmodel.ViewModel) viewmodel.ViewModel {
-			vm.Footer = stack.NewVStackDrawable()
+			vm.Footer = stack.NewVStack()
 			return vm
 		},
 	)

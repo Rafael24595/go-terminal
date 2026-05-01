@@ -15,7 +15,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameHStackDrawable = "HStackDrawable"
+const NameHStack = "hstack_drawable"
 
 type block struct {
 	size  winsize.Winsize
@@ -30,7 +30,7 @@ type HStackDrawable struct {
 	fixed      []layer[uint16]
 }
 
-func NewHStackDrawable(items ...drawable.Drawable) *HStackDrawable {
+func NewHStack(items ...drawable.Drawable) *HStackDrawable {
 	layers := layersFromDrawables(chunk.Dynamic[uint16](), 0, items...)
 	return &HStackDrawable{
 		loaded:     false,
@@ -42,7 +42,7 @@ func NewHStackDrawable(items ...drawable.Drawable) *HStackDrawable {
 }
 
 func HStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
-	return NewVStackDrawable(items...).ToDrawable()
+	return NewVStack(items...).ToDrawable()
 }
 
 func (d *HStackDrawable) Unshift(items ...drawable.Drawable) *HStackDrawable {
@@ -111,7 +111,7 @@ func (d *HStackDrawable) Items() []drawable.Drawable {
 
 func (d *HStackDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameVStackDrawable,
+		Name: NameHStack,
 		Code: d.code(),
 		Tags: d.tags(),
 		Init: d.init,

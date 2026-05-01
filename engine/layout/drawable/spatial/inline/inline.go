@@ -9,7 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameInlineDrawable = "InlineDrawable"
+const Name = "inline_drawable"
 
 type InlineDrawable struct {
 	loaded     bool
@@ -20,7 +20,7 @@ type InlineDrawable struct {
 	drawable   drawable.Drawable
 }
 
-func NewInlineDrawable(drawables ...drawable.Drawable) *InlineDrawable {
+func New(drawables ...drawable.Drawable) *InlineDrawable {
 	return &InlineDrawable{
 		loaded:     false,
 		lazyLoaded: false,
@@ -31,8 +31,8 @@ func NewInlineDrawable(drawables ...drawable.Drawable) *InlineDrawable {
 	}
 }
 
-func InlineDrawableFromDrawables(drawables ...drawable.Drawable) drawable.Drawable {
-	return NewInlineDrawable(drawables...).ToDrawable()
+func DrawableFromDrawables(drawables ...drawable.Drawable) drawable.Drawable {
+	return New(drawables...).ToDrawable()
 }
 
 func (d *InlineDrawable) Separator(separator string) *InlineDrawable {
@@ -42,7 +42,7 @@ func (d *InlineDrawable) Separator(separator string) *InlineDrawable {
 
 func (d *InlineDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameInlineDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,
@@ -72,7 +72,7 @@ func (d *InlineDrawable) lazyInit(size winsize.Winsize) {
 	lines := d.drawChildren()
 	join := d.joinChildren(lines)
 
-	d.drawable = block.BlockDrawableFromLines(join...)
+	d.drawable = block.DrawableFromLines(join...)
 
 	d.drawable.Init()
 }

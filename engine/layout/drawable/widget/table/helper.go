@@ -72,12 +72,12 @@ func makeSections(t table.Table, cursor input.MatrixCursor, size winsize.Winsize
 		headerRow := makeHeaders(table, headers, separator)
 
 		sections = append(sections, section{
-			header: loop.LoopDrawableFromDrawable(
-				block.BlockDrawableFromLines(*top, *headerRow, *top),
+			header: loop.DrawableFromDrawable(
+				block.DrawableFromLines(*top, *headerRow, *top),
 			),
-			rows: drawable_line.LineDrawableFromLines(rows...),
-			footer: loop.LoopDrawableFromDrawable(
-				block.BlockDrawableFromLines(*bottom),
+			rows: drawable_line.DrawableFromLines(rows...),
+			footer: loop.DrawableFromDrawable(
+				block.DrawableFromLines(*bottom),
 			),
 		})
 	}

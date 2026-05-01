@@ -17,7 +17,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameTextAreaDrawable = "TextAreaDrawable"
+const Name = "text_area_drawable"
 
 type TextAreaDrawable struct {
 	loaded     bool
@@ -29,7 +29,7 @@ type TextAreaDrawable struct {
 	drawable   drawable.Drawable
 }
 
-func NewTextAreaDrawable(buffer []rune, caret *input.TextCursor) *TextAreaDrawable {
+func New(buffer []rune, caret *input.TextCursor) *TextAreaDrawable {
 	clone := make([]rune, len(buffer))
 	copy(clone, buffer)
 
@@ -44,10 +44,6 @@ func NewTextAreaDrawable(buffer []rune, caret *input.TextCursor) *TextAreaDrawab
 	}
 }
 
-func TextAreaDrawableFromData(buffer []rune, caret *input.TextCursor) drawable.Drawable {
-	return NewTextAreaDrawable(buffer, caret).ToDrawable()
-}
-
 func (d *TextAreaDrawable) WriteMode(writeMode bool) *TextAreaDrawable {
 	d.writeMode = writeMode
 	return d
@@ -60,7 +56,7 @@ func (d *TextAreaDrawable) IndexMode(indexMode bool) *TextAreaDrawable {
 
 func (d *TextAreaDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameTextAreaDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,
@@ -99,7 +95,7 @@ func (d *TextAreaDrawable) lazyInit(size winsize.Winsize) {
 	lines := d.normalizeLinesEnd(*txt)
 	lines = d.fixEmptyLines(size, lines)
 
-	drawable := line.LineDrawableFromLines(lines...)
+	drawable := line.DrawableFromLines(lines...)
 	drawable.Init()
 
 	d.drawable = drawable

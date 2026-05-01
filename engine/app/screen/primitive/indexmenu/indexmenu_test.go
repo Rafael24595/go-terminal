@@ -42,13 +42,13 @@ func TestIndexMenu_Stack(t *testing.T) {
 		ToScreen().
 		Stack()
 
-	assert.True(t, stack.Has(name))
+	assert.True(t, stack.Has(Name))
 }
 
 func TestIndexMenu_DefaultValues(t *testing.T) {
 	menu := New()
 
-	assert.Equal(t, menu.reference, name)
+	assert.Equal(t, menu.reference, Name)
 	assert.Len(t, 0, menu.title)
 	assert.Len(t, 0, menu.options)
 	assert.Equal(t, menu.cursor, uint(0))

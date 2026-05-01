@@ -14,7 +14,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameHelpDrawable = "HelpDrawable"
+const Name = "help_drawable"
 
 type HelpDrawable struct {
 	loaded   bool
@@ -22,20 +22,20 @@ type HelpDrawable struct {
 	drawable drawable.Drawable
 }
 
-func NewHelpDrawable(meta *help.HelpMeta) *HelpDrawable {
+func New(meta *help.HelpMeta) *HelpDrawable {
 	return &HelpDrawable{
 		loaded: false,
 		meta:   meta,
 	}
 }
 
-func HelpDrawableFromMeta(meta *help.HelpMeta) drawable.Drawable {
-	return NewHelpDrawable(meta).ToDrawable()
+func DrawableFromMeta(meta *help.HelpMeta) drawable.Drawable {
+	return New(meta).ToDrawable()
 }
 
 func (d *HelpDrawable) ToDrawable() drawable.Drawable {
 	return drawable.Drawable{
-		Name: NameHelpDrawable,
+		Name: Name,
 		Code: d.drawable.Code,
 		Tags: d.drawable.Tags,
 		Init: d.init,
@@ -67,7 +67,7 @@ func (d *HelpDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 
 func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
 	if len(meta.Fields) == 0 {
-		return block.BlockDrawableFromLines()
+		return block.DrawableFromLines()
 	}
 
 	frags := make([]text.Fragment, len(meta.Fields))
@@ -87,7 +87,7 @@ func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
 		)
 	}
 
-	return block.BlockDrawableFromLines(
+	return block.DrawableFromLines(
 		*text.EmptyLine(),
 		*text.LineFromFragments(
 			*text.NewFragment("--Help--"),
