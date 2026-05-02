@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 )
 
@@ -66,14 +68,15 @@ func (t *Table) FindCellByCoords(row, col int) (string, bool) {
 	return cols[row], true
 }
 
-func (t *Table) SetCell(header string, row int, data any) *Table {
+func (t *Table) SetCell(header string, row uint16, data any) *Table {
 	col, ok := t.cols[header]
 	if !ok {
 		return t
 	}
 
-	if row >= len(col) {
-		for i := len(col); i <= row; i++ {
+	colLen := uint16(len(col))
+	if row >= colLen {
+		for i := colLen; i <= row; i++ {
 			col = append(col, "")
 		}
 	}
@@ -84,25 +87,25 @@ func (t *Table) SetCell(header string, row int, data any) *Table {
 	return t
 }
 
-func (t *Table) Size() map[string]int {
-	size := make(map[string]int)
+func (t *Table) Size() map[string]winsize.Cols {
+	size := make(map[string]winsize.Cols)
 	for _, h := range t.headers {
 		if _, ok := size[h]; !ok {
-			size[h] = len(h)
+			size[h] = runes.Measure(h)
 		}
 
 		for _, c := range t.cols[h] {
-			size[h] = max(size[h], len(c))
+			size[h] = max(size[h], runes.Measure(c))
 		}
 	}
 
 	return size
 }
 
-func (t *Table) Cols() int {
-	return len(t.headers)
+func (t *Table) Cols() uint16 {
+	return uint16(len(t.headers))
 }
 
-func (t *Table) Rows() int {
+func (t *Table) Rows() uint16 {
 	return Rows(t.headers, t.cols)
 }

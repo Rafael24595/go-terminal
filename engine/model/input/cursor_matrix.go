@@ -1,14 +1,16 @@
 package input
 
-import "github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+import (
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+)
 
 type MatrixCursor struct {
-	Row  uint32
-	Col  uint32
+	Row  uint16
+	Col  uint16
 	Show bool
 }
 
-func NewMatrixCursor(row uint32, col uint32, show bool) *MatrixCursor {
+func NewMatrixCursor(row, col uint16, show bool) *MatrixCursor {
 	return &MatrixCursor{
 		Row:  row,
 		Col:  col,
@@ -16,8 +18,8 @@ func NewMatrixCursor(row uint32, col uint32, show bool) *MatrixCursor {
 	}
 }
 
-func (c *MatrixCursor) IncRow(len uint32) *MatrixCursor {
-	c.Row = min(len, c.Row+1)
+func (c *MatrixCursor) IncRow(limit uint16) *MatrixCursor {
+	c.Row = min(limit, c.Row+1)
 	return c
 }
 
@@ -26,8 +28,8 @@ func (c *MatrixCursor) DecRow() *MatrixCursor {
 	return c
 }
 
-func (c *MatrixCursor) IncCol(len uint32) *MatrixCursor {
-	c.Col = min(len, c.Col+1)
+func (c *MatrixCursor) IncCol(limit uint16) *MatrixCursor {
+	c.Col = min(limit, c.Col+1)
 	return c
 }
 

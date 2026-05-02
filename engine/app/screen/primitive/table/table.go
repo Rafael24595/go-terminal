@@ -5,6 +5,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
@@ -113,8 +114,9 @@ func (c *Table[T]) DefineHeaders(headers ...string) *Table[T] {
 func (c *Table[T]) AddItems(parser func(T) []table.Field, items ...T) *Table[T] {
 	rows := c.table.Rows()
 	for i, item := range items {
+		index := rows + uint16(i)
 		for _, field := range parser(item) {
-			c.table.SetCell(field.Header, rows+i, field.Value)
+			c.table.SetCell(field.Header, index, field.Value)
 		}
 	}
 	return c
@@ -170,11 +172,15 @@ func (c *Table[T]) updateNavigation(state *state.UIState, evnt screen.ScreenEven
 	case key.ActionArrowLeft:
 		c.cursor.DecCol()
 	case key.ActionArrowRight:
-		c.cursor.IncCol(uint32(c.table.Cols() - 1))
+		c.cursor.IncCol(
+			math.SubClampZero(c.table.Cols(), 1),
+		)
 	case key.ActionArrowUp:
 		c.cursor.DecRow()
 	case key.ActionArrowDown:
-		c.cursor.IncRow(uint32(c.table.Rows() - 1))
+		c.cursor.IncRow(
+			math.SubClampZero(c.table.Rows(), 1),
+		)
 	}
 
 	return screen.ScreenResultFromUIState(state)

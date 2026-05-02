@@ -1,9 +1,11 @@
 package table
 
-func Rows(headers []string, cols map[string][]string) int {
-	colSize := 0
+func Rows(headers []string, cols map[string][]string) uint16 {
+	colSize := uint16(0)
 	for _, h := range headers {
-		colSize = max(colSize, len(cols[h]))
+		colSize = max(
+			colSize, uint16(len(cols[h])),
+		)
 	}
 	return colSize
 }
