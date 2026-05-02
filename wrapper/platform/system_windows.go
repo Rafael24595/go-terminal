@@ -78,7 +78,7 @@ func Size() (winsize.Winsize, error) {
 
 	return winsize.New(
 		winsize.Rows(info.Window.Bottom-info.Window.Top)+1,
-		uint16(info.Window.Right-info.Window.Left)+1,
+		winsize.Cols(info.Window.Right-info.Window.Left)+1,
 	), nil
 }
 

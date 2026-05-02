@@ -50,7 +50,7 @@ func Size() (winsize.Winsize, error) {
 
 	return winsize.New(
 		winsize.Rows(ws.Row),
-		uint16(ws.Col),
+		winsize.Cols(ws.Col),
 	), nil
 }
 
