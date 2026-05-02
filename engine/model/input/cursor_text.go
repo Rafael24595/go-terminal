@@ -2,6 +2,7 @@ package input
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
 	"github.com/Rafael24595/go-reacterm-core/engine/platform/clock"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 )
@@ -13,8 +14,8 @@ type TextCursor struct {
 	blink  bool
 	status bool
 	time   int64
-	caret  uint
-	anchor uint
+	caret  offset.Offset
+	anchor offset.Offset
 }
 
 func NewTextCursor(blink bool) *TextCursor {
@@ -42,31 +43,31 @@ func (c *TextCursor) DisableBlinking() *TextCursor {
 	return c
 }
 
-func (c *TextCursor) Caret() uint {
+func (c *TextCursor) Caret() offset.Offset {
 	return c.caret
 }
 
-func (c *TextCursor) Anchor() uint {
+func (c *TextCursor) Anchor() offset.Offset {
 	return c.anchor
 }
 
-func (c *TextCursor) SelectStart() uint {
+func (c *TextCursor) SelectStart() offset.Offset {
 	if c.anchor < c.caret {
 		return c.anchor
 	}
 	return c.caret
 }
 
-func (c *TextCursor) SelectEnd() uint {
+func (c *TextCursor) SelectEnd() offset.Offset {
 	if c.anchor < c.caret {
 		return c.caret
 	}
 	return c.anchor
 }
 
-func (c *TextCursor) MoveCaretTo(buff []rune, caret uint) {
-	min := uint(1)
-	len := uint(len(buff))
+func (c *TextCursor) MoveCaretTo(buff []rune, caret offset.Offset) {
+	min := offset.Offset(1)
+	len := offset.Offset(len(buff))
 
 	if len == 0 {
 		min = 0
@@ -79,9 +80,9 @@ func (c *TextCursor) MoveCaretTo(buff []rune, caret uint) {
 	c.time = c.clock()
 }
 
-func (c *TextCursor) MoveSelectTo(buff []rune, caret, anchor uint) {
-	min := uint(1)
-	len := uint(len(buff))
+func (c *TextCursor) MoveSelectTo(buff []rune, caret, anchor offset.Offset) {
+	min := offset.Offset(1)
+	len := offset.Offset(len(buff))
 
 	if len == 0 {
 		min = 0
