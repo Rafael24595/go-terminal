@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/helper"
-	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
@@ -33,21 +32,21 @@ func WithPadding(
 		content := inner(lines, newSize)
 		content = normalize(content, rows)
 
-		diffRows := math.SubClampZero(size.Rows, rows)
-		diffCols := math.SubClampZero(size.Cols, cols)
+		diffRows := size.Rows.Clamp(rows)
+		diffCols := size.Cols.Clamp(cols)
 
 		topPadding := diffRows / 2
 		leftPadding := diffCols / 2
 
 		buffer := make([]string, size.Rows)
 		for i := range size.Rows {
-			buffer[i] = helper.FillRight(marker.DefaultPaddingText, int(size.Cols))
+			buffer[i] = helper.FillRight(marker.DefaultPaddingText, size.Cols)
 		}
 
 		index := topPadding
 		for _, line := range content {
-			fixed := helper.Right(marker.DefaultPaddingText, int(leftPadding))
-			buffer[index] = helper.Right(fixed+line, int(size.Cols))
+			fixed := helper.Right(marker.DefaultPaddingText, leftPadding)
+			buffer[index] = helper.Right(fixed+line, size.Cols)
 			index += 1
 		}
 
