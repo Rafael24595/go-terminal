@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
 
 func TestJoinReverse(t *testing.T) {
@@ -45,8 +47,8 @@ func TestRuneIndexToByteIndex(t *testing.T) {
 	tests := []struct {
 		name      string
 		text      string
-		runeIndex int
-		expected  int
+		runeIndex offset.Offset
+		expected  offset.Offset
 		ok        bool
 	}{
 		{
@@ -67,7 +69,7 @@ func TestRuneIndexToByteIndex(t *testing.T) {
 			name:      "unicode end",
 			text:      "a🙂b",
 			runeIndex: 3,
-			expected:  len("a🙂b"),
+			expected:  offset.Offset(len("a🙂b")),
 			ok:        true,
 		},
 		{
@@ -102,7 +104,7 @@ func TestRuneIndexToByteIndex(t *testing.T) {
 			name:      "multi rune unicode",
 			text:      "🙂🙂🙂",
 			runeIndex: 2,
-			expected:  len("🙂🙂"),
+			expected:  offset.Offset(len("🙂🙂")),
 			ok:        true,
 		},
 	}
@@ -121,7 +123,7 @@ func TestMeasure(t *testing.T) {
 	tests := []struct {
 		name string
 		text string
-		want int
+		want winsize.Cols
 	}{
 		{"ascii", "hello", 5},
 		{"unicode", "🙂🙂", 2},
@@ -140,7 +142,7 @@ func TestMeasureu(t *testing.T) {
 	tests := []struct {
 		name string
 		text string
-		want uint
+		want winsize.Cols
 	}{
 		{"ascii", "hello", 5},
 		{"unicode", "🙂🙂", 2},
@@ -148,7 +150,7 @@ func TestMeasureu(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, Measureu(tt.text))
+			assert.Equal(t, tt.want, Measure(tt.text))
 		})
 	}
 }

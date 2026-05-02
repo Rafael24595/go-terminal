@@ -8,6 +8,8 @@ import (
 
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/ascii"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
 
 var NextWordRunes = []RuneDefinition{
@@ -46,34 +48,37 @@ func NormalizeLineEnd(text string) string {
 	return strings.ReplaceAll(normalized, "\r", "\n")
 }
 
-func AppendAt(slice []rune, insert []rune, pos uint) []rune {
-	i := int(pos)
-	size := len(insert)
+func AppendAt(slice []rune, insert []rune, position offset.Offset) []rune {
+	size := offset.Offset(len(insert))
 	slice = append(slice, make([]rune, size)...)
-	copy(slice[i+size:], slice[i:])
-	copy(slice[i:], insert)
+	copy(slice[position+size:], slice[position:])
+	copy(slice[position:], insert)
 	return slice
 }
 
-func AppendRange(slice []rune, insert []rune, start, end uint) []rune {
+func AppendRange(slice []rune, insert []rune, start, end offset.Offset) []rune {
 	if start == end {
 		return AppendAt(slice, insert, start)
 	}
 
-	s := int(start)
-	e := int(end)
+	sliceLen := offset.Offset(len(slice))
+	insertLen := offset.Offset(len(insert))
 
-	oldSize := len(slice)
-	newSize := len(insert)
+	assert.False(
+		sliceLen < end,
+		"range[%d - %d] is greater than slice length %d", start, end, sliceLen,
+	)
 
-	assert.False(oldSize < e, "range[%d - %d] is greater than slice length %d", s, e, oldSize)
+	size := sliceLen.Clamp(
+		end.Clamp(start),
+	)
 
-	newSlice := make([]rune, oldSize-(e-s)+newSize)
+	newSlice := make([]rune, size+insertLen)
 
-	copy(newSlice[0:s], slice[0:s])
-	copy(newSlice[s:], insert)
-	if e < len(slice) {
-		copy(newSlice[s+newSize:], slice[e:])
+	copy(newSlice[0:start], slice[0:start])
+	copy(newSlice[start:], insert)
+	if end < sliceLen {
+		copy(newSlice[start+insertLen:], slice[end:])
 	}
 
 	return newSlice
@@ -178,31 +183,31 @@ func JoinReverse(ps []string) string {
 	return sb.String()
 }
 
-func RuneIndexToByteIndex(text string, runeIndex int) (int, bool) {
+func RuneIndexToByteIndex(text string, runeIndex offset.Offset) (offset.Offset, bool) {
 	if runeIndex == 0 {
 		return 0, true
 	}
 
-	count := 0
+	count := offset.Offset(0)
 	for i := range text {
 		if count == runeIndex {
-			return i, true
+			return offset.Offset(i), true
 		}
 		count++
 	}
 
 	if count == runeIndex {
-		return len(text), true
+		return offset.Offset(len(text)), true
 	}
 
 	return 0, false
 
 }
 
-func Measure(text string) int {
-	return utf8.RuneCountInString(text)
+func Measure(text string) winsize.Cols {
+	return winsize.Cols(utf8.RuneCountInString(text))
 }
 
-func Measureu(text string) uint {
-	return uint(Measure(text))
+func Measureo(text string) offset.Offset {
+	return offset.Offset(utf8.RuneCountInString(text))
 }
