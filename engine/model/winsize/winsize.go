@@ -1,18 +1,27 @@
 package winsize
 
+import "github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+
 type Transformer func(Winsize) Winsize
 
-// TODO: Use custom type for cols.
-
 type Rows uint16
-//type Cols uint16
+
+func (r Rows) Clamp(o Rows) Rows {
+	return math.SubClampZero(r, o)
+}
+
+type Cols uint16
+
+func (c Cols) Clamp(o Cols) Cols {
+	return math.SubClampZero(c, o)
+}
 
 type Winsize struct {
 	Rows Rows
-	Cols uint16
+	Cols Cols
 }
 
-func New(rows Rows, cols uint16) Winsize {
+func New(rows Rows, cols Cols) Winsize {
 	return Winsize{
 		Rows: rows,
 		Cols: cols,
