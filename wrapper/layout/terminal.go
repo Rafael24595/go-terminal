@@ -5,7 +5,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
-	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
@@ -40,7 +39,7 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size winsize.Wi
 		}
 	}
 
-	rest := math.SubClampZero(size.Rows, static)
+	rest := size.Rows.Clamp(static)
 	remSize := winsize.New(rest, size.Cols)
 	lines := vm.InitDynamicLayers(remSize)
 
@@ -62,7 +61,6 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size winsize.Wi
 
 func drawStaticLines(drawable drawable.Drawable, size winsize.Winsize) []text.Line {
 	rows := int(size.Rows)
-	cols := int(size.Cols)
 
 	buffer := make([]text.Line, 0)
 
@@ -77,7 +75,7 @@ func drawStaticLines(drawable drawable.Drawable, size winsize.Winsize) []text.Li
 
 		for _, lin := range lines {
 			buffer = append(buffer,
-				line.WrapLineWords(cols, &lin)...,
+				line.WrapLineWords(size.Cols, &lin)...,
 			)
 
 			if len(buffer) >= rows {
@@ -95,8 +93,6 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 		return state
 	}
 
-	cols := int(ctx.Size.Cols)
-
 	var rendered []text.Line
 	hasNext := true
 
@@ -113,7 +109,7 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 		state.Work.Add(renderedSize)
 
 		for l, ln := range rendered {
-			fixed := line.WrapLineWords(cols, &ln)
+			fixed := line.WrapLineWords(ctx.Size.Cols, &ln)
 
 			state.Work.Advance()
 			state.Work.Add(len(fixed))
