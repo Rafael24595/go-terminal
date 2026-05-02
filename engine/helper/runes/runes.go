@@ -205,9 +205,13 @@ func RuneIndexToByteIndex(text string, runeIndex offset.Offset) (offset.Offset, 
 }
 
 func Measure(text string) winsize.Cols {
-	return winsize.Cols(utf8.RuneCountInString(text))
+	return winsize.Cols(measure(text))
 }
 
 func Measureo(text string) offset.Offset {
-	return offset.Offset(utf8.RuneCountInString(text))
+	return offset.Offset(measure(text))
+}
+
+func measure(text string) int {
+	return utf8.RuneCountInString(text)
 }
