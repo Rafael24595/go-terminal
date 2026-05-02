@@ -6,17 +6,17 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 )
 
 func TestPaddingLeft_Strict(t *testing.T) {
 	spec := style.SpecPaddingLeft(6, "-")
-	cols := 20
 
 	text := "hi"
 	size := runes.Measure(text)
 
-	got := paddingLeft(spec, cols, text, size)
+	got := paddingLeft(spec, 20, text, size)
 
 	assert.Equal(t, "----hi", got)
 	assert.Equal(t, 6, len(got))
@@ -24,12 +24,11 @@ func TestPaddingLeft_Strict(t *testing.T) {
 
 func TestPaddingLeft_RespectsCols(t *testing.T) {
 	spec := style.SpecPaddingLeft(10, "-")
-	cols := 5
 
 	text := "hi"
 	size := runes.Measure(text)
 
-	got := paddingLeft(spec, cols, text, size)
+	got := paddingLeft(spec, 5, text, size)
 
 	assert.Equal(t, "---hi", got)
 	assert.Equal(t, 5, len(got))
@@ -37,12 +36,11 @@ func TestPaddingLeft_RespectsCols(t *testing.T) {
 
 func TestPaddingRight_Strict(t *testing.T) {
 	spec := style.SpecPaddingRight(6, ".")
-	cols := 20
 
 	text := "hi"
 	size := runes.Measure(text)
 
-	got := paddingRight(spec, cols, text, size)
+	got := paddingRight(spec, 20, text, size)
 
 	assert.Equal(t, "hi....", got)
 	assert.Equal(t, 6, len(got))
@@ -50,12 +48,11 @@ func TestPaddingRight_Strict(t *testing.T) {
 
 func TestPaddingRight_RespectsCols(t *testing.T) {
 	spec := style.SpecPaddingRight(10, ".")
-	cols := 5
 
 	text := "hi"
 	size := runes.Measure(text)
 
-	got := paddingRight(spec, cols, text, size)
+	got := paddingRight(spec, 5, text, size)
 
 	assert.Equal(t, "hi...", got)
 	assert.Equal(t, 5, len(got))
@@ -63,12 +60,11 @@ func TestPaddingRight_RespectsCols(t *testing.T) {
 
 func TestPaddingCenter_Strict(t *testing.T) {
 	spec := style.SpecPaddingCenter(6, "-")
-	cols := 20
 
 	text := "hi"
 	size := runes.Measure(text)
 
-	got := paddingCenter(spec, cols, text, size)
+	got := paddingCenter(spec, 20, text, size)
 
 	assert.Equal(t, "--hi--", got)
 	assert.Equal(t, 6, len(got))
@@ -76,12 +72,11 @@ func TestPaddingCenter_Strict(t *testing.T) {
 
 func TestPaddingCenter_RespectsCols(t *testing.T) {
 	spec := style.SpecPaddingCenter(6, "-")
-	cols := 4
 
 	text := "hi"
 	size := runes.Measure(text)
 
-	got := paddingCenter(spec, cols, text, size)
+	got := paddingCenter(spec, 4, text, size)
 
 	assert.Equal(t, "-hi-", got)
 	assert.Equal(t, 4, len(got))
@@ -89,12 +84,11 @@ func TestPaddingCenter_RespectsCols(t *testing.T) {
 
 func TestPaddingCenter_OddSize(t *testing.T) {
 	spec := style.SpecPaddingCenter(7, "-")
-	cols := 20
 
 	text := "hi"
 	size := runes.Measure(text)
 
-	got := paddingCenter(spec, cols, text, size)
+	got := paddingCenter(spec, 20, text, size)
 
 	assert.Equal(t, "--hi---", got)
 	assert.Equal(t, 7, len(got))
@@ -147,7 +141,7 @@ func TestRepeatRight_WithoutText_Strict(t *testing.T) {
 func TestTrimLeft_Standard(t *testing.T) {
 	tests := []struct {
 		name string
-		size uint
+		size winsize.Cols
 		in   string
 		want string
 	}{
@@ -187,7 +181,7 @@ func TestTrimLeft_Standard(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 
 			if tt.size > 0 && size > 0 {
-				assert.Equal(t, tt.size, runes.Measureu(got))
+				assert.Equal(t, tt.size, runes.Measure(got))
 			}
 		})
 	}
@@ -196,7 +190,7 @@ func TestTrimLeft_Standard(t *testing.T) {
 func TestTrimLeft_WithEllipsis(t *testing.T) {
 	tests := []struct {
 		name     string
-		size     uint
+		size     winsize.Cols
 		ellipsis string
 		in       string
 		want     string
@@ -234,7 +228,7 @@ func TestTrimLeft_WithEllipsis(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 
 			if tt.size > 0 && size > 0 {
-				assert.Equal(t, tt.size, runes.Measureu(got))
+				assert.Equal(t, tt.size, runes.Measure(got))
 			}
 		})
 	}
@@ -243,7 +237,7 @@ func TestTrimLeft_WithEllipsis(t *testing.T) {
 func TestTrimRight_Standard(t *testing.T) {
 	tests := []struct {
 		name string
-		size uint
+		size winsize.Cols
 		in   string
 		want string
 	}{
@@ -282,7 +276,7 @@ func TestTrimRight_Standard(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 
 			if tt.size > 0 && size > 0 {
-				assert.Equal(t, tt.size, runes.Measureu(got))
+				assert.Equal(t, tt.size, runes.Measure(got))
 			}
 		})
 	}
@@ -291,7 +285,7 @@ func TestTrimRight_Standard(t *testing.T) {
 func TestTrimRight_WithEllipsis(t *testing.T) {
 	tests := []struct {
 		name     string
-		size     uint
+		size     winsize.Cols
 		ellipsis string
 		in       string
 		want     string
@@ -329,7 +323,7 @@ func TestTrimRight_WithEllipsis(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 
 			if tt.size > 0 && size > 0 {
-				assert.Equal(t, tt.size, runes.Measureu(got))
+				assert.Equal(t, tt.size, runes.Measure(got))
 			}
 		})
 	}

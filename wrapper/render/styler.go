@@ -3,6 +3,7 @@ package wrapper_render
 import (
 	"strings"
 
+	"github.com/Rafael24595/go-reacterm-core/engine/commons"
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/dict"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
@@ -12,28 +13,28 @@ import (
 )
 
 var specStylesTable = dict.NewInmutableLinkedMap(
-	dict.P(style.SpcKindFill, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+	dict.P(style.SpcKindFill, func(spec style.Spec, cols winsize.Cols, text string, logicalSize winsize.Cols) (string, bool) {
 		return fill(spec, cols, text, logicalSize), true
 	}),
-	dict.P(style.SpcKindTrimLeft, func(spec style.Spec, _ int, text string, logicalSize int) (string, bool) {
+	dict.P(style.SpcKindTrimLeft, func(spec style.Spec, _ winsize.Cols, text string, logicalSize winsize.Cols) (string, bool) {
 		return trimLeft(spec, text, logicalSize), false
 	}),
-	dict.P(style.SpcKindTrimRight, func(spec style.Spec, _ int, text string, logicalSize int) (string, bool) {
+	dict.P(style.SpcKindTrimRight, func(spec style.Spec, _ winsize.Cols, text string, logicalSize winsize.Cols) (string, bool) {
 		return trimRight(spec, text, logicalSize), false
 	}),
-	dict.P(style.SpcKindPaddingCenter, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+	dict.P(style.SpcKindPaddingCenter, func(spec style.Spec, cols winsize.Cols, text string, logicalSize winsize.Cols) (string, bool) {
 		return paddingCenter(spec, cols, text, logicalSize), false
 	}),
-	dict.P(style.SpcKindPaddingLeft, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+	dict.P(style.SpcKindPaddingLeft, func(spec style.Spec, cols winsize.Cols, text string, logicalSize winsize.Cols) (string, bool) {
 		return paddingLeft(spec, cols, text, logicalSize), false
 	}),
-	dict.P(style.SpcKindPaddingRight, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+	dict.P(style.SpcKindPaddingRight, func(spec style.Spec, cols winsize.Cols, text string, logicalSize winsize.Cols) (string, bool) {
 		return paddingRight(spec, cols, text, logicalSize), false
 	}),
-	dict.P(style.SpcKindRepeatLeft, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+	dict.P(style.SpcKindRepeatLeft, func(spec style.Spec, cols winsize.Cols, text string, logicalSize winsize.Cols) (string, bool) {
 		return repeatLeft(spec, cols, text, logicalSize), false
 	}),
-	dict.P(style.SpcKindRepeatRight, func(spec style.Spec, cols int, text string, logicalSize int) (string, bool) {
+	dict.P(style.SpcKindRepeatRight, func(spec style.Spec, cols winsize.Cols, text string, logicalSize winsize.Cols) (string, bool) {
 		return repeatRight(spec, cols, text, logicalSize), false
 	}),
 )
@@ -53,9 +54,8 @@ var specAtomTable = dict.NewInmutableLinkedMap(
 	}),
 )
 
-func applySpecStyles(spec style.Spec, size winsize.Winsize, text string, logicalSize int) string {
+func applySpecStyles(spec style.Spec, size winsize.Winsize, text string, logicalSize winsize.Cols) string {
 	var exit bool
-	cols := int(size.Cols)
 
 	kind := spec.Kind()
 	for k, p := range specStylesTable.All() {
@@ -63,14 +63,14 @@ func applySpecStyles(spec style.Spec, size winsize.Winsize, text string, logical
 			continue
 		}
 
-		text, exit = p(spec, cols, text, logicalSize)
+		text, exit = p(spec, size.Cols, text, logicalSize)
 		if exit {
 			return text
 		}
 
 		logicalSize = style.SpecMeasureOf(k, spec, style.LayoutContext{
-			Text: logicalSize,
-			Cols: cols,
+			Cols:     size.Cols,
+			TextSize: logicalSize,
 		})
 	}
 
@@ -89,27 +89,27 @@ func applyAtomStyles(text string, styles ...style.Atom) string {
 	return text
 }
 
-func fill(styl style.Spec, cols int, data string, logicalSize int) string {
+func fill(styl style.Spec, cols winsize.Cols, data string, logicalSize winsize.Cols) string {
 	opts := helper.LogicalSizeOpts{
 		LogicalSize: logicalSize,
 	}
 
 	args := styl.Args()
 
-	size := args[style.KeyFillSize].Intd(cols)
+	size := commons.Mapd(args[style.KeyFillSize], cols)
 	size = min(cols, size)
 
-	return helper.FillRightWithOpts(data, min(cols, size), opts)
+	return helper.FillRightWithOpts(data, size, opts)
 }
 
-func trimLeft(styl style.Spec, data string, logicalSize int) string {
+func trimLeft(styl style.Spec, data string, logicalSize winsize.Cols) string {
 	if data == "" {
 		return data
 	}
 
 	args := styl.Args()
 
-	size := args[style.KeyTrimLeftSize].Intd(0)
+	size := commons.Mapd[winsize.Cols](args[style.KeyTrimLeftSize], 0)
 	size = max(1, size)
 
 	elip := args[style.KeyTrimEllipsisText].Stringf()
@@ -122,14 +122,14 @@ func trimLeft(styl style.Spec, data string, logicalSize int) string {
 	return helper.TrimLeft(data, size, opts)
 }
 
-func trimRight(styl style.Spec, data string, logicalSize int) string {
+func trimRight(styl style.Spec, data string, logicalSize winsize.Cols) string {
 	if data == "" {
 		return data
 	}
 
 	args := styl.Args()
 
-	size := args[style.KeyTrimRightSize].Intd(0)
+	size := commons.Mapd[winsize.Cols](args[style.KeyTrimRightSize], 0)
 	size = max(1, size)
 
 	elip := args[style.KeyTrimEllipsisText].Stringf()
@@ -143,52 +143,58 @@ func trimRight(styl style.Spec, data string, logicalSize int) string {
 }
 
 // TODO: Explore the risks of using cols as default
-func paddingCenter(styl style.Spec, cols int, data string, logicalSize int) string {
+func paddingCenter(styl style.Spec, cols winsize.Cols, data string, logicalSize winsize.Cols) string {
 	args := styl.Args()
 
-	size := args[style.KeyPaddingCenterSize].Intd(cols)
+	size := commons.Mapd(args[style.KeyPaddingCenterSize], cols)
+	size = min(cols, size)
+
 	text := args[style.KeyPaddingCenterText].Stringf()
 
 	opts := helper.TextLayoutOpts{
 		LogicalSize: logicalSize,
-		Runes:       text,
+		Text:        text,
 	}
 
-	return helper.CenterWithOpts(data, min(cols, size), opts)
+	return helper.CenterWithOpts(data, size, opts)
 }
 
-func paddingLeft(styl style.Spec, cols int, data string, logicalSize int) string {
+func paddingLeft(styl style.Spec, cols winsize.Cols, data string, logicalSize winsize.Cols) string {
 	args := styl.Args()
 
-	size := args[style.KeyPaddingLeftSize].Intd(0)
+	size := commons.Mapd[winsize.Cols](args[style.KeyPaddingLeftSize], 0)
+	size = min(cols, size)
+
 	text := args[style.KeyPaddingLeftText].Stringf()
 
 	opts := helper.TextLayoutOpts{
 		LogicalSize: logicalSize,
-		Runes:       text,
+		Text:        text,
 	}
 
-	return helper.LeftWithOpts(data, min(cols, size), opts)
+	return helper.LeftWithOpts(data, size, opts)
 }
 
-func paddingRight(styl style.Spec, cols int, data string, logicalSize int) string {
+func paddingRight(styl style.Spec, cols winsize.Cols, data string, logicalSize winsize.Cols) string {
 	args := styl.Args()
 
-	size := args[style.KeyPaddingRightSize].Intd(0)
+	size := commons.Mapd[winsize.Cols](args[style.KeyPaddingRightSize], 0)
+	size = min(cols, size)
+
 	text := args[style.KeyPaddingRightText].Stringf()
 
 	opts := helper.TextLayoutOpts{
 		LogicalSize: logicalSize,
-		Runes:       text,
+		Text:        text,
 	}
 
-	return helper.RightWithOpts(data, min(cols, size), opts)
+	return helper.RightWithOpts(data, size, opts)
 }
 
-func repeatLeft(styl style.Spec, cols int, data string, logicalSize int) string {
+func repeatLeft(styl style.Spec, cols winsize.Cols, data string, logicalSize winsize.Cols) string {
 	args := styl.Args()
 
-	size := args[style.KeyRepeatLeftSize].Intd(0)
+	size := commons.Mapd[winsize.Cols](args[style.KeyRepeatLeftSize], 0)
 	text := args[style.KeyRepeatLeftText].Stringf()
 
 	if text == "" {
@@ -203,10 +209,10 @@ func repeatLeft(styl style.Spec, cols int, data string, logicalSize int) string 
 	return helper.RepeatLeftWithOpts(data, text, min(cols, size), opts)
 }
 
-func repeatRight(styl style.Spec, cols int, data string, logicalSize int) string {
+func repeatRight(styl style.Spec, cols winsize.Cols, data string, logicalSize winsize.Cols) string {
 	args := styl.Args()
 
-	size := args[style.KeyRepeatRightSize].Intd(0)
+	size := commons.Mapd[winsize.Cols](args[style.KeyRepeatRightSize], 0)
 	text := args[style.KeyRepeatRightText].Stringf()
 
 	if text == "" {

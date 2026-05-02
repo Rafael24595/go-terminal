@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
+	"github.com/Rafael24595/go-reacterm-core/engine/commons"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
 
 func TestEraseSpec_DeleteExists(t *testing.T) {
@@ -13,13 +15,14 @@ func TestEraseSpec_DeleteExists(t *testing.T) {
 	)
 
 	modified, removed := EraseSpec(scp, SpcKindPaddingLeft)
+	size := commons.Mapd[winsize.Cols](removed.args[KeyPaddingLeftSize], 0)
 
 	assert.Equal(t, SpcKindFill, modified.kind)
 	assert.NotContains(t, modified.args, KeyPaddingLeftSize)
 	assert.Contains(t, modified.args, KeyFillSize)
 
 	assert.Equal(t, SpcKindPaddingLeft, removed.kind)
-	assert.Equal(t, 10, removed.args[KeyPaddingLeftSize].Intd(0))
+	assert.Equal(t, 10, size)
 	assert.NotContains(t, removed.args, KeyFillSize)
 }
 

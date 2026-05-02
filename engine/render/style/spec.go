@@ -6,46 +6,47 @@ import (
 
 	"github.com/Rafael24595/go-reacterm-core/engine/commons"
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/dict"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
 
 type LayoutContext struct {
-	Text int
-	Cols int
+	Cols     winsize.Cols
+	TextSize winsize.Cols
 }
 
 type argMap = map[SpcArgKey]commons.Argument
 
 var specMeasureTable = dict.NewInmutableLinkedMap(
-	dict.P(SpcKindFill, func(spep Spec, ctx LayoutContext) int {
-		return spep.args[KeyFillSize].Intd(ctx.Cols)
+	dict.P(SpcKindFill, func(spep Spec, ctx LayoutContext) winsize.Cols {
+		return commons.Mapd(spep.args[KeyFillSize], ctx.Cols)
 	}),
-	dict.P(SpcKindTrimLeft, func(spec Spec, ctx LayoutContext) int {
-		arg := spec.args[KeyTrimLeftSize].Intd(ctx.Text)
-		return min(ctx.Text, arg)
+	dict.P(SpcKindTrimLeft, func(spec Spec, ctx LayoutContext) winsize.Cols {
+		arg := commons.Mapd(spec.args[KeyTrimLeftSize], ctx.TextSize)
+		return min(ctx.TextSize, arg)
 	}),
-	dict.P(SpcKindTrimRight, func(spec Spec, ctx LayoutContext) int {
-		arg := spec.args[KeyTrimRightSize].Intd(ctx.Text)
-		return min(ctx.Text, arg)
+	dict.P(SpcKindTrimRight, func(spec Spec, ctx LayoutContext) winsize.Cols {
+		arg := commons.Mapd(spec.args[KeyTrimRightSize], ctx.TextSize)
+		return min(ctx.TextSize, arg)
 	}),
-	dict.P(SpcKindPaddingCenter, func(spec Spec, ctx LayoutContext) int {
-		arg := spec.args[KeyPaddingCenterSize].Intd(ctx.Cols)
+	dict.P(SpcKindPaddingCenter, func(spec Spec, ctx LayoutContext) winsize.Cols {
+		arg := commons.Mapd(spec.args[KeyPaddingCenterSize], ctx.Cols)
 		return min(ctx.Cols, arg)
 	}),
-	dict.P(SpcKindPaddingLeft, func(spec Spec, ctx LayoutContext) int {
-		arg := spec.args[KeyPaddingLeftSize].Intd(ctx.Text)
-		return max(ctx.Text, arg)
+	dict.P(SpcKindPaddingLeft, func(spec Spec, ctx LayoutContext) winsize.Cols {
+		arg := commons.Mapd(spec.args[KeyPaddingLeftSize], ctx.TextSize)
+		return max(ctx.TextSize, arg)
 	}),
-	dict.P(SpcKindPaddingRight, func(spec Spec, ctx LayoutContext) int {
-		arg := spec.args[KeyPaddingRightSize].Intd(ctx.Text)
-		return max(ctx.Text, arg)
+	dict.P(SpcKindPaddingRight, func(spec Spec, ctx LayoutContext) winsize.Cols {
+		arg := commons.Mapd(spec.args[KeyPaddingRightSize], ctx.TextSize)
+		return max(ctx.TextSize, arg)
 	}),
-	dict.P(SpcKindRepeatLeft, func(spec Spec, ctx LayoutContext) int {
-		arg := spec.args[KeyRepeatLeftSize].Intd(ctx.Text)
-		return max(ctx.Text, arg)
+	dict.P(SpcKindRepeatLeft, func(spec Spec, ctx LayoutContext) winsize.Cols {
+		arg := commons.Mapd(spec.args[KeyRepeatLeftSize], ctx.TextSize)
+		return max(ctx.TextSize, arg)
 	}),
-	dict.P(SpcKindRepeatRight, func(spec Spec, ctx LayoutContext) int {
-		arg := spec.args[KeyRepeatRightSize].Intd(ctx.Text)
-		return max(ctx.Text, arg)
+	dict.P(SpcKindRepeatRight, func(spec Spec, ctx LayoutContext) winsize.Cols {
+		arg := commons.Mapd(spec.args[KeyRepeatRightSize], ctx.TextSize)
+		return max(ctx.TextSize, arg)
 	}),
 )
 
@@ -203,7 +204,7 @@ func SpecFromKind(kind SpecKind) Spec {
 	}
 }
 
-func SpecPaddingLeft(size uint, text ...string) Spec {
+func SpecPaddingLeft(size winsize.Cols, text ...string) Spec {
 	return specDirection(
 		SpcKindPaddingLeft,
 		KeyPaddingLeftSize,
@@ -213,7 +214,7 @@ func SpecPaddingLeft(size uint, text ...string) Spec {
 	)
 }
 
-func SpecPaddingRight(size uint, text ...string) Spec {
+func SpecPaddingRight(size winsize.Cols, text ...string) Spec {
 	return specDirection(
 		SpcKindPaddingRight,
 		KeyPaddingRightSize,
@@ -223,7 +224,7 @@ func SpecPaddingRight(size uint, text ...string) Spec {
 	)
 }
 
-func SpecPaddingCenter(size uint, text ...string) Spec {
+func SpecPaddingCenter(size winsize.Cols, text ...string) Spec {
 	return specDirection(
 		SpcKindPaddingCenter,
 		KeyPaddingCenterSize,
@@ -233,7 +234,7 @@ func SpecPaddingCenter(size uint, text ...string) Spec {
 	)
 }
 
-func SpecRepeatLeft(size uint, text ...string) Spec {
+func SpecRepeatLeft(size winsize.Cols, text ...string) Spec {
 	return specDirection(
 		SpcKindRepeatLeft,
 		KeyRepeatLeftSize,
@@ -243,7 +244,7 @@ func SpecRepeatLeft(size uint, text ...string) Spec {
 	)
 }
 
-func SpecRepeatRight(size uint, text ...string) Spec {
+func SpecRepeatRight(size winsize.Cols, text ...string) Spec {
 	return specDirection(
 		SpcKindRepeatRight,
 		KeyRepeatRightSize,
@@ -253,7 +254,7 @@ func SpecRepeatRight(size uint, text ...string) Spec {
 	)
 }
 
-func SpecTrimLeft(size uint) Spec {
+func SpecTrimLeft(size winsize.Cols) Spec {
 	return specSize(
 		SpcKindTrimLeft,
 		KeyTrimLeftSize,
@@ -261,7 +262,7 @@ func SpecTrimLeft(size uint) Spec {
 	)
 }
 
-func SpecTrimRight(size uint) Spec {
+func SpecTrimRight(size winsize.Cols) Spec {
 	return specSize(
 		SpcKindTrimRight,
 		KeyTrimRightSize,
@@ -269,7 +270,7 @@ func SpecTrimRight(size uint) Spec {
 	)
 }
 
-func SpecTrimTextLeft(size uint, ellipsis string) Spec {
+func SpecTrimTextLeft(size winsize.Cols, ellipsis string) Spec {
 	spec := specSize(
 		SpcKindTrimLeft,
 		KeyTrimLeftSize,
@@ -281,7 +282,7 @@ func SpecTrimTextLeft(size uint, ellipsis string) Spec {
 	return spec
 }
 
-func SpecTrimTextRight(size uint, ellipsis string) Spec {
+func SpecTrimTextRight(size winsize.Cols, ellipsis string) Spec {
 	spec := specSize(
 		SpcKindTrimRight,
 		KeyTrimRightSize,
@@ -293,7 +294,7 @@ func SpecTrimTextRight(size uint, ellipsis string) Spec {
 	return spec
 }
 
-func SpecFill(size uint) Spec {
+func SpecFill(size winsize.Cols) Spec {
 	return specSize(
 		SpcKindFill,
 		KeyFillSize,
@@ -301,7 +302,7 @@ func SpecFill(size uint) Spec {
 	)
 }
 
-func specSize(kind SpecKind, sizeKey SpcArgKey, size uint) Spec {
+func specSize(kind SpecKind, sizeKey SpcArgKey, size winsize.Cols) Spec {
 	args := make(argMap)
 
 	if size > 0 {
@@ -318,7 +319,7 @@ func specDirection(
 	kind SpecKind,
 	sizeKey,
 	textKey SpcArgKey,
-	size uint,
+	size winsize.Cols,
 	text ...string,
 ) Spec {
 	args := make(argMap)
@@ -337,18 +338,18 @@ func specDirection(
 	}
 }
 
-func SpecMeasureOf(kind SpecKind, spec Spec, ctx LayoutContext) int {
-	if p, ok := specMeasureTable.Get(kind); ok {
-		return p(spec, ctx)
+func SpecMeasureOf(kind SpecKind, spec Spec, ctx LayoutContext) winsize.Cols {
+	if c, ok := specMeasureTable.Get(kind); ok {
+		return c(spec, ctx)
 	}
-	return ctx.Text
+	return ctx.TextSize
 }
 
-func SpecMeasure(spec Spec, ctx LayoutContext) int {
-	for k, p := range specMeasureTable.All() {
+func SpecMeasure(spec Spec, ctx LayoutContext) winsize.Cols {
+	for k, c := range specMeasureTable.All() {
 		if spec.kind.HasAny(k) {
-			ctx.Text = p(spec, ctx)
+			ctx.TextSize = c(spec, ctx)
 		}
 	}
-	return ctx.Text
+	return ctx.TextSize
 }
