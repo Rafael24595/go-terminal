@@ -3,6 +3,7 @@ package text
 import (
 	"strings"
 
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 )
 
@@ -76,10 +77,10 @@ func (l *Line) Clone() *Line {
 	return newLine
 }
 
-func LineMeasure(line *Line, cols int) int {
+func LineMeasure(line *Line, cols winsize.Cols) winsize.Cols {
 	return style.SpecMeasure(line.Spec, style.LayoutContext{
-		Text: FragmentMeasure(cols, line.Text...),
-		Cols: cols,
+		Cols:     cols,
+		TextSize: FragmentMeasure(cols, line.Text...),
 	})
 }
 

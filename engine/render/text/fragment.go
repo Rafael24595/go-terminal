@@ -2,6 +2,7 @@ package text
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 )
 
@@ -55,16 +56,16 @@ func (f *Fragment) CutSpec(styles style.SpecKind) *Fragment {
 	return f
 }
 
-func (f *Fragment) Size() int {
+func (f *Fragment) Size() winsize.Cols {
 	return runes.Measure(f.Text)
 }
 
-func FragmentMeasure(cols int, frags ...Fragment) int {
-	measure := 0
+func FragmentMeasure(cols winsize.Cols, frags ...Fragment) winsize.Cols {
+	measure := winsize.Cols(0)
 	for _, f := range frags {
 		ctx := style.LayoutContext{
-			Text: f.Size(),
-			Cols: cols,
+			Cols:     cols,
+			TextSize: f.Size(),
 		}
 		measure += style.SpecMeasure(f.Spec, ctx)
 	}

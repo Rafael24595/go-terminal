@@ -5,6 +5,8 @@ import (
 	"unicode"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 )
 
@@ -20,7 +22,7 @@ func WordTokenFromFragments(fragments ...Fragment) WordToken {
 
 func TokenizeLineWords(line *Line) []WordToken {
 	tokens := make([]WordToken, 0, len(line.Text))
-	fragments := make([]Fragment, 0, 4)
+	frags := make([]Fragment, 0, 4)
 
 	var sb strings.Builder
 
@@ -28,20 +30,20 @@ func TokenizeLineWords(line *Line) []WordToken {
 		if sb.Len() > 0 {
 			f := NewFragment(sb.String()).
 				CopyMeta(&frag)
-			fragments = append(fragments, *f)
+			frags = append(frags, *f)
 			sb.Reset()
 		}
 
-		if len(fragments) > 0 {
-			tokenFrags := make([]Fragment, len(fragments))
-			copy(tokenFrags, fragments)
+		if len(frags) > 0 {
+			tokenFrags := make([]Fragment, len(frags))
+			copy(tokenFrags, frags)
 
 			token := WordToken{
 				Text: tokenFrags,
 			}
 
 			tokens = append(tokens, token)
-			fragments = fragments[:0]
+			frags = frags[:0]
 		}
 	}
 
@@ -70,19 +72,24 @@ func TokenizeLineWords(line *Line) []WordToken {
 		if sb.Len() > 0 {
 			f := NewFragment(sb.String()).
 				CopyMeta(&frag)
-			fragments = append(fragments, *f)
+			frags = append(frags, *f)
 			sb.Reset()
 		}
 	}
 
-	if len(fragments) > 0 {
+	if len(frags) > 0 {
 		flush(Fragment{})
 	}
 
 	return tokens
 }
 
-func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []Line, int) {
+func SplitLongToken(
+	word WordToken,
+	cols winsize.Cols,
+	current Line,
+	width winsize.Cols,
+) (Line, []Line, winsize.Cols) {
 	emmited := make([]Line, 0)
 	if cols <= 0 {
 		emmited = append(emmited, *LineFromFragments(word.Text...))
@@ -98,7 +105,7 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 	}
 
 	for len(frags) > 0 {
-		remaining := cols - width
+		remaining := cols.Clamp(width)
 		if remaining == 0 {
 			flush()
 			continue
@@ -129,23 +136,23 @@ func SplitLongToken(word WordToken, cols int, current Line, width int) (Line, []
 	return current, emmited, width
 }
 
-func TakeFromFragment(f *Fragment, n int) (*Fragment, *Fragment) {
-	if n <= 0 {
+func TakeFromFragment(frag *Fragment, cols winsize.Cols) (*Fragment, *Fragment) {
+	if cols <= 0 {
 		return EmptyFragment().
-			CopyMeta(f), f
+			CopyMeta(frag), frag
 	}
 
-	byteIndex, canBreak := runes.RuneIndexToByteIndex(f.Text, n)
+	byteIndex, canBreak := runes.RuneIndexToByteIndex(frag.Text, offset.Offset(cols))
 	if !canBreak {
-		return f, EmptyFragment().
-			CopyMeta(f)
+		return frag, EmptyFragment().
+			CopyMeta(frag)
 	}
 
-	taken := NewFragment(f.Text[:byteIndex]).
-		CopyMeta(f)
+	taken := NewFragment(frag.Text[:byteIndex]).
+		CopyMeta(frag)
 
-	rest := NewFragment(f.Text[byteIndex:]).
-		CopyMeta(f)
+	rest := NewFragment(frag.Text[byteIndex:]).
+		CopyMeta(frag)
 
 	return taken, rest
 }
