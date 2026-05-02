@@ -3,7 +3,6 @@ package position
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
@@ -14,13 +13,13 @@ import (
 const Name = "position_drawable"
 
 const (
-	default_margin = uint(0)
+	default_margin = winsize.Cols(0)
 )
 
 type PositionDrawable struct {
 	loaded    bool
 	marginY   winsize.Rows
-	marginX   uint
+	marginX   winsize.Cols
 	absolute  bool
 	positionY style.VerticalPosition
 	positionX style.HorizontalPosition
@@ -48,7 +47,7 @@ func (d *PositionDrawable) MarginY(margin winsize.Rows) *PositionDrawable {
 	return d
 }
 
-func (d *PositionDrawable) MarginX(margin uint) *PositionDrawable {
+func (d *PositionDrawable) MarginX(margin winsize.Cols) *PositionDrawable {
 	d.marginX = margin
 	return d
 }
@@ -88,10 +87,10 @@ func (d *PositionDrawable) init() {
 func (d *PositionDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
-	fixedSize := winsize.Winsize{
-		Rows: math.SubClampZero(size.Rows, d.marginY*2),
-		Cols: math.SubClampZero(size.Cols, uint16(d.marginX)*2),
-	}
+	fixedSize := winsize.New(
+		size.Rows.Clamp(d.marginY*2),
+		size.Cols.Clamp(d.marginX*2),
+	)
 
 	spec := makeSpec(fixedSize, d.positionX)
 	frag := makeFrag(d.marginX)
@@ -162,21 +161,19 @@ func (d *PositionDrawable) styleLines(spec style.Spec, lines ...text.Line) []tex
 }
 
 func makeSpec(size winsize.Winsize, position style.HorizontalPosition) style.Spec {
-	cols := uint(size.Cols)
-
 	switch position {
 	case style.Left:
-		return style.SpecPaddingRight(cols)
+		return style.SpecPaddingRight(size.Cols)
 	case style.Center:
-		return style.SpecPaddingCenter(cols)
+		return style.SpecPaddingCenter(size.Cols)
 	case style.Right:
-		return style.SpecPaddingLeft(cols)
+		return style.SpecPaddingLeft(size.Cols)
 	}
 
 	return style.SpecEmpty()
 }
 
-func makeFrag(margin uint) *text.Fragment {
+func makeFrag(margin winsize.Cols) *text.Fragment {
 	if margin == 0 {
 		return text.EmptyFragment()
 	}

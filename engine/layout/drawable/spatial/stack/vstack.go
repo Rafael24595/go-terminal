@@ -6,7 +6,6 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
-	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
@@ -184,7 +183,7 @@ func (d *VStackDrawable) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 		}
 
 		bufferLen := winsize.Rows(len(buffer))
-		remaining := math.SubClampZero(size.Rows, bufferLen)
+		remaining := size.Rows.Clamp(bufferLen)
 		if remaining == 0 {
 			break
 		}
@@ -195,10 +194,7 @@ func (d *VStackDrawable) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 			rows = min(value, remaining)
 		}
 
-		fixedSize := winsize.Winsize{
-			Rows: winsize.Rows(rows),
-			Cols: size.Cols,
-		}
+		fixedSize := winsize.New(rows, size.Cols)
 
 		lines, status := d.fixed[i].drawable.Draw(fixedSize)
 		if !status {

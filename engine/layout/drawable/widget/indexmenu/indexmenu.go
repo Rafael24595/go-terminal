@@ -21,7 +21,7 @@ type IndexMenuDrawable struct {
 	loaded   bool
 	meta     marker.IndexMeta
 	options  []text.Fragment
-	cursor   uint
+	cursor   uint16
 	drawable drawable.Drawable
 }
 
@@ -47,7 +47,7 @@ func (d *IndexMenuDrawable) Meta(meta marker.IndexMeta) *IndexMenuDrawable {
 	return d
 }
 
-func (d *IndexMenuDrawable) Cursor(cursor uint) *IndexMenuDrawable {
+func (d *IndexMenuDrawable) Cursor(cursor uint16) *IndexMenuDrawable {
 	d.cursor = cursor
 	return d
 }
@@ -78,7 +78,7 @@ func (d *IndexMenuDrawable) init() {
 
 		padd := text.EmptyFragment().
 			AddSpec(style.SpecPaddingLeft(2))
-		indx := d.makeIndex(i, int(digits))
+		indx := d.makeIndex(i,  winsize.Cols(digits))
 		spac := text.NewFragment(marker.DefaultPaddingText)
 		mark := text.NewFragment(o.Text).
 			AddAtom(focs)
@@ -94,7 +94,7 @@ func (d *IndexMenuDrawable) init() {
 	d.drawable = drawable
 }
 
-func (d *IndexMenuDrawable) makeIndex(cursor, digits int) *text.Fragment {
+func (d *IndexMenuDrawable) makeIndex(cursor int, digits winsize.Cols) *text.Fragment {
 	if d.meta.Kind == marker.Numeric {
 		txt := helper.Right(strconv.Itoa(cursor+1), digits)
 		index := text.NewFragment(txt + ".- ")

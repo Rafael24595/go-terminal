@@ -4,7 +4,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/draw"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
-	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
@@ -22,8 +21,7 @@ func FocusInitTransformer(engine pager.Engine) pipeline.InitTransformer {
 			lines, status := drawable.Draw(size)
 
 			for len(lines) > 0 {
-				remaining := math.SubClampZero(
-					size.Rows,
+				remaining := size.Rows.Clamp(
 					winsize.Rows(state.Cursor),
 				)
 

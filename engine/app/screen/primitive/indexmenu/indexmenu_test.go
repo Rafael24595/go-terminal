@@ -51,7 +51,7 @@ func TestIndexMenu_DefaultValues(t *testing.T) {
 	assert.Equal(t, menu.reference, Name)
 	assert.Len(t, 0, menu.title)
 	assert.Len(t, 0, menu.options)
-	assert.Equal(t, menu.cursor, uint(0))
+	assert.Equal(t, menu.cursor, 0)
 }
 
 func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
@@ -92,17 +92,17 @@ func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
 		)
 
 	menu.SetCursor(10)
-	assert.Equal(t, menu.cursor, uint(1))
+	assert.Equal(t, menu.cursor, 1)
 
 	menu.SetCursor(0)
-	assert.Equal(t, menu.cursor, uint(0))
+	assert.Equal(t, menu.cursor, 0)
 }
 
 func TestIndexMenu_SetCursor_Empty(t *testing.T) {
 	menu := New()
 	menu.SetCursor(5)
 
-	assert.Equal(t, menu.cursor, uint(0))
+	assert.Equal(t, menu.cursor, 0)
 }
 
 func TestIndexMenu_CursorNavigation(t *testing.T) {
@@ -122,19 +122,19 @@ func TestIndexMenu_CursorNavigation(t *testing.T) {
 
 	scrn := menu.ToScreen()
 
-	assert.Equal(t, menu.cursor, uint(0))
+	assert.Equal(t, menu.cursor, 0)
 
 	scrn.Update(
 		state.NewUIState(),
 		screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowDown)},
 	)
-	assert.Equal(t, menu.cursor, uint(1))
+	assert.Equal(t, menu.cursor, 1)
 
 	scrn.Update(
 		state.NewUIState(),
 		screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowUp)},
 	)
-	assert.Equal(t, menu.cursor, uint(0))
+	assert.Equal(t, menu.cursor, 0)
 }
 
 func TestIndexMenu_Action(t *testing.T) {

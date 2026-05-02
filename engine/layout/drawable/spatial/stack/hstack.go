@@ -6,7 +6,6 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
-	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
@@ -26,18 +25,18 @@ type HStackDrawable struct {
 	loaded     bool
 	lazyLoaded bool
 	size       winsize.Winsize
-	items      []layer[uint16]
-	fixed      []layer[uint16]
+	items      []layer[winsize.Cols]
+	fixed      []layer[winsize.Cols]
 }
 
 func NewHStack(items ...drawable.Drawable) *HStackDrawable {
-	layers := layersFromDrawables(chunk.Dynamic[uint16](), 0, items...)
+	layers := layersFromDrawables(chunk.Dynamic[winsize.Cols](), 0, items...)
 	return &HStackDrawable{
 		loaded:     false,
 		lazyLoaded: false,
 		size:       winsize.Winsize{},
 		items:      layers,
-		fixed:      make([]layer[uint16], 0),
+		fixed:      make([]layer[winsize.Cols], 0),
 	}
 }
 
@@ -48,7 +47,7 @@ func HStackDrawableFromDrawables(items ...drawable.Drawable) drawable.Drawable {
 func (d *HStackDrawable) Unshift(items ...drawable.Drawable) *HStackDrawable {
 	assert.False(d.loaded, drawable.MessageNewElement)
 
-	layers := layersFromDrawables(chunk.Dynamic[uint16](), 0, items...)
+	layers := layersFromDrawables(chunk.Dynamic[winsize.Cols](), 0, items...)
 	d.items = append(layers, d.items...)
 
 	return d
@@ -59,24 +58,24 @@ func (d *HStackDrawable) Push(items ...drawable.Drawable) *HStackDrawable {
 
 	for _, item := range items {
 		d.items = append(d.items,
-			layerFromDrawable(item, chunk.Dynamic[uint16](), 0),
+			layerFromDrawable(item, chunk.Dynamic[winsize.Cols](), 0),
 		)
 	}
 
 	return d
 }
 
-func (d *HStackDrawable) UnshiftChunk(item drawable.Drawable, chunk chunk.Chunk[uint16]) *HStackDrawable {
+func (d *HStackDrawable) UnshiftChunk(item drawable.Drawable, chunk chunk.Chunk[winsize.Cols]) *HStackDrawable {
 	assert.False(d.loaded, drawable.MessageNewElement)
 
 	newLayer := layerFromDrawable(item, chunk, 0)
 
-	d.items = append([]layer[uint16]{newLayer}, d.items...)
+	d.items = append([]layer[winsize.Cols]{newLayer}, d.items...)
 
 	return d
 }
 
-func (d *HStackDrawable) PushChunk(item drawable.Drawable, chunk chunk.Chunk[uint16]) *HStackDrawable {
+func (d *HStackDrawable) PushChunk(item drawable.Drawable, chunk chunk.Chunk[winsize.Cols]) *HStackDrawable {
 	assert.False(d.loaded, drawable.MessageNewElement)
 
 	newLayer := layerFromDrawable(item, chunk, 0)
@@ -224,7 +223,7 @@ func (d *HStackDrawable) makeBlocks(size winsize.Winsize) ([]block, bool) {
 
 			wrapped := make([]text.Line, 0)
 			for _, v := range lines {
-				wrapped = append(wrapped, line.WrapLineWords(int(fixedSize.Cols), &v)...)
+				wrapped = append(wrapped, line.WrapLineWords(fixedSize.Cols, &v)...)
 			}
 
 			buffer[i].size = fixedSize
@@ -261,7 +260,7 @@ func (d *HStackDrawable) inheritCols(
 	size winsize.Winsize,
 	buffer []block,
 	bufferIndex int,
-) uint16 {
+) winsize.Cols {
 	if bufferIndex == 0 {
 		return 0
 	}
@@ -274,7 +273,7 @@ func (d *HStackDrawable) inheritCols(
 	}
 
 	line := block.lines[lineIndex]
-	if text.FragmentMeasure(int(size.Cols), line.Text...) != 0 {
+	if text.FragmentMeasure(size.Cols, line.Text...) != 0 {
 		return 0
 	}
 
@@ -291,7 +290,7 @@ func (d *HStackDrawable) makeLines(blocks []block) []text.Line {
 			}
 
 			l := b.lines[i]
-			result := sink.ApplySinks(&l, int(b.size.Cols))
+			result := sink.ApplySinks(&l, b.size.Cols)
 
 			line.CopyMeta(result)
 			line.PushFragments(result.Text...)
@@ -302,8 +301,8 @@ func (d *HStackDrawable) makeLines(blocks []block) []text.Line {
 	return buffer
 }
 
-func (d *HStackDrawable) fixLayout(size winsize.Winsize) []layer[uint16] {
-	layers := make([]layer[uint16], 0, len(d.fixed))
+func (d *HStackDrawable) fixLayout(size winsize.Winsize) []layer[winsize.Cols] {
+	layers := make([]layer[winsize.Cols], 0, len(d.fixed))
 	available, rest := d.calcSpace(size)
 
 	for _, v := range d.fixed {
@@ -313,7 +312,7 @@ func (d *HStackDrawable) fixLayout(size winsize.Winsize) []layer[uint16] {
 
 		chk := v.chunk
 
-		chunk := uint16(0)
+		chunk := winsize.Cols(0)
 		if chk.Sized {
 			chunk = min(size.Cols, chk.Adapter(size.Cols))
 		} else {
@@ -336,7 +335,7 @@ func (d *HStackDrawable) fixLayout(size winsize.Winsize) []layer[uint16] {
 	return layers
 }
 
-func (d *HStackDrawable) calcSpace(size winsize.Winsize) (uint16, uint16) {
+func (d *HStackDrawable) calcSpace(size winsize.Winsize) (winsize.Cols, winsize.Cols) {
 	cols, zeroes := d.countCols(size)
 
 	assert.True(cols <= size.Cols, drawable.MessageNewElement, size.Cols)
@@ -346,10 +345,12 @@ func (d *HStackDrawable) calcSpace(size winsize.Winsize) (uint16, uint16) {
 	}
 
 	cols = min(size.Cols, cols)
-	remaining := math.SubClampZero(size.Cols, cols)
+	remaining := size.Cols.Clamp(cols)
 
-	available := remaining / zeroes
-	rest := remaining % zeroes
+	cZeroes := winsize.Cols(zeroes)
+
+	available := remaining / cZeroes
+	rest := remaining % cZeroes
 
 	return available, rest
 }
@@ -369,8 +370,8 @@ func (d *HStackDrawable) HasNext() bool {
 	return false
 }
 
-func (d *HStackDrawable) countCols(size winsize.Winsize) (uint16, uint16) {
-	cols := uint16(0)
+func (d *HStackDrawable) countCols(size winsize.Winsize) (winsize.Cols, uint16) {
+	cols := winsize.Cols(0)
 	zeroes := uint16(0)
 
 	for _, i := range d.fixed {

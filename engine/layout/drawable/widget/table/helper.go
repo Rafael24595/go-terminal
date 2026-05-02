@@ -17,7 +17,7 @@ import (
 )
 
 // TODO: Use as a argument.
-const min_width = int(3 + marker.DefaultElipsisSize)
+const min_width = 3 + marker.DefaultElipsisSize
 
 type section struct {
 	header drawable.Drawable
@@ -27,13 +27,13 @@ type section struct {
 
 type col struct {
 	name string
-	size int
+	size winsize.Cols
 }
 
 func makeSections(t table.Table, cursor input.MatrixCursor, size winsize.Winsize) []section {
 	sections := make([]section, 0)
 
-	cols := int(size.Cols)
+	cols := size.Cols
 	separator := t.GetSeparator()
 	headers := t.GetHeaders()
 	columns := t.GetColumns()
@@ -42,18 +42,18 @@ func makeSections(t table.Table, cursor input.MatrixCursor, size winsize.Winsize
 	rendSize := renderedRowSize(baseSize, separator)
 	realSize, status := adjustSize(baseSize, headers, cols, rendSize)
 
-	var tables []map[string]int
+	var tables []map[string]winsize.Cols
 	if !status {
 		tables = splitTable(realSize, headers, separator, cols)
 	} else {
-		tables = []map[string]int{realSize}
+		tables = []map[string]winsize.Cols{realSize}
 	}
 
 	for _, table := range tables {
 		headers, fixCursor := headersFromSize(table, headers, cursor)
 
 		capacity := renderedRowSize(table, separator)
-		specCover := style.SpecRepeatRight(uint(capacity))
+		specCover := style.SpecRepeatRight(capacity)
 
 		top := text.LineFromFragments(
 			*text.NewFragment(separator.Top).AddSpec(specCover),
@@ -86,7 +86,7 @@ func makeSections(t table.Table, cursor input.MatrixCursor, size winsize.Winsize
 }
 
 func headersFromSize(
-	size map[string]int,
+	size map[string]winsize.Cols,
 	headers []string,
 	cursor input.MatrixCursor,
 ) ([]string, *input.MatrixCursor) {
@@ -94,7 +94,7 @@ func headersFromSize(
 
 	var fixCursor *input.MatrixCursor
 
-	fixX := 0
+	fixX := uint16(0)
 	for x, header := range headers {
 		if _, ok := size[header]; !ok {
 			continue
@@ -104,7 +104,7 @@ func headersFromSize(
 		if x == int(cursor.Col) {
 			fixCursor = input.NewMatrixCursor(
 				cursor.Row,
-				uint32(fixX),
+				fixX,
 				cursor.Show,
 			)
 		}
@@ -115,7 +115,7 @@ func headersFromSize(
 }
 
 func makeHeaders(
-	size map[string]int,
+	size map[string]winsize.Cols,
 	headers []string,
 	separator marker.TableSeparatorMeta,
 ) *text.Line {
@@ -127,7 +127,7 @@ func makeHeaders(
 	fragments = append(fragments, *text.NewFragment(separator.Left))
 
 	for i, h := range headers {
-		width := uint(size[h])
+		width := size[h]
 		spec := style.MergeSpec(
 			style.SpecPaddingCenter(width),
 			style.SpecTrimTextRight(width, marker.DefaultElipsisText),
@@ -145,7 +145,7 @@ func makeHeaders(
 }
 
 func makeTable(
-	size map[string]int,
+	size map[string]winsize.Cols,
 	headers []string,
 	cols map[string][]string,
 	separator marker.TableSeparatorMeta,
@@ -167,7 +167,7 @@ func makeTable(
 		fragments = append(fragments, lSep)
 
 		for x, h := range headers {
-			frag := makeCell(size, cols, cursor, h, y, x)
+			frag := makeCell(size, cols, cursor, h, y, uint16(x))
 			fragments = append(fragments, *frag)
 
 			if x < headersLen-1 {
@@ -190,24 +190,24 @@ func makeTable(
 }
 
 func makeCell(
-	size map[string]int,
+	size map[string]winsize.Cols,
 	cols map[string][]string,
 	cursor *input.MatrixCursor,
 	header string,
-	y int,
-	x int,
+	y uint16,
+	x uint16,
 ) *text.Fragment {
-	width := uint(size[header])
+	width := size[header]
 	col := cols[header]
 
 	atom := style.AtmWrap
 
 	cursorShow := cursor != nil && cursor.Show
-	if cursorShow && y == int(cursor.Row) && x == int(cursor.Col) {
+	if cursorShow && y == cursor.Row && x == cursor.Col {
 		atom = style.MergeAtom(atom, style.AtmSelect, style.AtmFocus)
 	}
 
-	if y >= 0 && y < len(col) {
+	if y < uint16(len(col)) {
 		spec := style.MergeSpec(
 			style.SpecPaddingRight(width),
 			style.SpecTrimTextRight(width, marker.DefaultElipsisText),
@@ -225,15 +225,16 @@ func makeCell(
 		AddAtom(atom)
 }
 
-func renderedRowSize(size map[string]int, separator marker.TableSeparatorMeta) int {
+func renderedRowSize(size map[string]winsize.Cols, separator marker.TableSeparatorMeta) winsize.Cols {
 	sepCenterLen := runes.Measure(separator.Center)
 	sepLeftLen := runes.Measure(separator.Left)
 	sepRightLen := runes.Measure(separator.Right)
 
-	joinSize := (len(size) - 1) * sepCenterLen
+	mapLen := max(0, len(size)-1)
+	joinSize := winsize.Cols(mapLen) * sepCenterLen
 	borderSize := sepLeftLen + sepRightLen
 
-	total := 0
+	total := winsize.Cols(0)
 	for _, v := range size {
 		total += v
 	}
@@ -242,18 +243,18 @@ func renderedRowSize(size map[string]int, separator marker.TableSeparatorMeta) i
 }
 
 func adjustSize(
-	size map[string]int,
+	size map[string]winsize.Cols,
 	headers []string,
-	cols int,
-	rowSize int,
-) (map[string]int, bool) {
+	cols winsize.Cols,
+	rowSize winsize.Cols,
+) (map[string]winsize.Cols, bool) {
 	if rowSize <= cols {
 		return size, true
 	}
 
-	excess := rowSize - cols
+	excess := rowSize.Clamp(cols)
 
-	h := heap.NewMaxHeapBy(func(c col) int {
+	h := heap.NewMaxHeapBy(func(c col) winsize.Cols {
 		return c.size
 	})
 
@@ -268,12 +269,14 @@ func adjustSize(
 		}
 
 		c, _ = h.Pop()
-		c.size--
-		excess--
+
+		c.size = c.size.Clamp(1)
+		excess = excess.Clamp(1)
+		
 		h.Push(c)
 	}
 
-	newSize := make(map[string]int)
+	newSize := make(map[string]winsize.Cols)
 	for h.Len() > 0 {
 		c, _ := h.Pop()
 		newSize[c.name] = c.size
@@ -283,19 +286,19 @@ func adjustSize(
 }
 
 func splitTable(
-	size map[string]int,
+	size map[string]winsize.Cols,
 	headers []string,
 	splitTable marker.TableSeparatorMeta,
-	cols int,
-) []map[string]int {
-	tables := make([]map[string]int, 0)
+	cols winsize.Cols,
+) []map[string]winsize.Cols {
+	tables := make([]map[string]winsize.Cols, 0)
 
 	leftLen := runes.Measure(splitTable.Left)
 	centerLen := runes.Measure(splitTable.Center)
 	rightLen := runes.Measure(splitTable.Right)
 	headersLen := len(headers)
 
-	table := make(map[string]int)
+	table := make(map[string]winsize.Cols)
 	count := leftLen
 
 	for i, k := range headers {
@@ -311,7 +314,7 @@ func splitTable(
 		if needed > cols && len(table) > 0 {
 			tables = append(tables, table)
 
-			table = make(map[string]int)
+			table = make(map[string]winsize.Cols)
 			count = 0
 		}
 

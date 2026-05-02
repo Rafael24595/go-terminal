@@ -6,7 +6,9 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
+	"github.com/Rafael24595/go-reacterm-core/engine/commons"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
@@ -26,16 +28,16 @@ func renderFragments(frags []text.Fragment) string {
 	for _, f := range frags {
 		s.WriteString(f.Text)
 
-		count := uint(0)
+		count := winsize.Cols(0)
 		ok := false
 		if args, ex := f.Spec.Args()[style.KeyRepeatRightSize]; ex {
 			ok = true
-			count = args.Uintd(0)
+			count = commons.Mapd[winsize.Cols](args, 0)
 		}
 
 		if args, ex := f.Spec.Args()[style.KeyPaddingRightSize]; ex {
 			ok = true
-			count = args.Uintd(0)
+			count = commons.Mapd[winsize.Cols](args, 0)
 		}
 
 		if ok {
@@ -48,7 +50,7 @@ func renderFragments(frags []text.Fragment) string {
 	return s.String()
 }
 
-func renderLine(cols int, mode style.Justify, line text.Line) string {
+func renderLine(cols winsize.Cols, mode style.Justify, line text.Line) string {
 	frags := renderFragments(line.Text)
 
 	switch mode {
@@ -111,8 +113,8 @@ func TestAddGaps_Between(t *testing.T) {
 
 	assert.Len(t, 5, result)
 
-	assert.Equal(t, uint(2), result[1].Spec.Args()[style.KeyPaddingRightSize].Uintd(0))
-	assert.Equal(t, uint(2), result[3].Spec.Args()[style.KeyPaddingRightSize].Uintd(0))
+	assert.Equal(t, 2, commons.Mapd[winsize.Cols](result[1].Spec.Args()[style.KeyPaddingRightSize], 0))
+	assert.Equal(t, 2, commons.Mapd[winsize.Cols](result[3].Spec.Args()[style.KeyPaddingRightSize], 0))
 	assert.Equal(t, style.SpcKindNone, result[2].Spec.Kind())
 
 	assert.Equal(t, "aa  bb  cc", renderFragments(result))
@@ -127,8 +129,8 @@ func TestAddGaps_Around(t *testing.T) {
 
 	assert.Len(t, 5, result)
 
-	assert.Equal(t, uint(2), result[1].Spec.Args()[style.KeyPaddingRightSize].Uintd(0))
-	assert.Equal(t, uint(1), result[3].Spec.Args()[style.KeyPaddingRightSize].Uintd(0))
+	assert.Equal(t, 2, commons.Mapd[winsize.Cols](result[1].Spec.Args()[style.KeyPaddingRightSize], 0))
+	assert.Equal(t, 1, commons.Mapd[winsize.Cols](result[3].Spec.Args()[style.KeyPaddingRightSize], 0))
 	assert.Equal(t, style.SpcKindNone, result[2].Spec.Kind())
 
 	assert.Equal(t, "aa  bb cc", renderFragments(result))

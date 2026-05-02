@@ -1,12 +1,15 @@
 package drawable
 
-import "github.com/Rafael24595/go-reacterm-core/engine/render/text"
+import (
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+)
 
-func MaxLineSize(cols int, lines ...text.Line) uint {
-	size := uint(0)
+func MaxLineSize(cols winsize.Cols, lines ...text.Line) winsize.Cols {
+	size := winsize.Cols(0)
 	for _, l := range lines {
 		measure := text.FragmentMeasure(cols, l.Text...)
-		size = max(size, uint(measure))
+		size = max(size, measure)
 	}
 	return size
 }

@@ -36,7 +36,7 @@ type IndexMenu struct {
 	meta      marker.IndexMeta
 	title     []text.Line
 	options   []input.MenuOption
-	cursor    uint
+	cursor    uint16
 }
 
 func New() *IndexMenu {
@@ -69,9 +69,9 @@ func (c *IndexMenu) AddOptions(options ...input.MenuOption) *IndexMenu {
 	return c
 }
 
-func (c *IndexMenu) SetCursor(cursor uint) *IndexMenu {
+func (c *IndexMenu) SetCursor(cursor uint16) *IndexMenu {
 	maxIdx := math.SubClampZero(len(c.options), 1)
-	c.cursor = math.Clamp(cursor, uint(0), uint(maxIdx))
+	c.cursor = math.Clamp(cursor, 0, uint16(maxIdx))
 	return c
 }
 
@@ -91,7 +91,7 @@ func (c *IndexMenu) definition() screen.Definition {
 }
 
 func (c *IndexMenu) update(stt *state.UIState, evt screen.ScreenEvent) screen.ScreenResult {
-	size := uint(len(c.options))
+	size := uint16(len(c.options))
 	if size == 0 {
 		return screen.EmptyScreenResult()
 	}

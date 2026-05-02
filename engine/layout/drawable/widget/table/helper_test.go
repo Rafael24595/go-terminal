@@ -6,6 +6,7 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -17,7 +18,7 @@ var separator = marker.TableSeparatorMeta{
 	Right:  "|",
 }
 
-func keys(size map[string]int) []string {
+func keys(size map[string]winsize.Cols) []string {
 	keys := make([]string, 0, len(size))
 	for k := range size {
 		keys = append(keys, k)
@@ -26,7 +27,7 @@ func keys(size map[string]int) []string {
 }
 
 func TestHeadersFromSize_FiltersCorrectly(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"id":   5,
 		"name": 10,
 	}
@@ -41,7 +42,7 @@ func TestHeadersFromSize_FiltersCorrectly(t *testing.T) {
 }
 
 func TestMakeHeaders_Basic(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"id":   4,
 		"name": 6,
 	}
@@ -54,7 +55,7 @@ func TestMakeHeaders_Basic(t *testing.T) {
 }
 
 func TestMakeHeaders_Structure(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"id":   4,
 		"name": 6,
 	}
@@ -88,7 +89,7 @@ func TestMakeHeaders_Structure(t *testing.T) {
 }
 
 func TestMakeTable_Basic(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"id":   4,
 		"name": 6,
 	}
@@ -109,12 +110,12 @@ func TestMakeTable_Basic(t *testing.T) {
 }
 
 func TestAdjustSize_NoReductionNeeded(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"A": 5,
 		"B": 5,
 	}
 
-	termWidth := 20
+	termWidth := winsize.Cols(20)
 
 	rendered := renderedRowSize(size, separator)
 	result, status := adjustSize(size, keys(size), termWidth, rendered)
@@ -126,12 +127,12 @@ func TestAdjustSize_NoReductionNeeded(t *testing.T) {
 }
 
 func TestAdjustSize_ReducesLargestColumn(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"A": 10,
 		"B": 5,
 	}
 
-	termWidth := 14
+	termWidth := winsize.Cols(14)
 
 	rendered := renderedRowSize(size, separator)
 	result, status := adjustSize(size, keys(size), termWidth, rendered)
@@ -143,12 +144,12 @@ func TestAdjustSize_ReducesLargestColumn(t *testing.T) {
 }
 
 func TestAdjustSize_RespectsMinWidth(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"A": 4,
 		"B": 4,
 	}
 
-	termWidth := 5
+	termWidth := winsize.Cols(5)
 
 	rendered := renderedRowSize(size, separator)
 	result, status := adjustSize(size, keys(size), termWidth, rendered)
@@ -160,7 +161,7 @@ func TestAdjustSize_RespectsMinWidth(t *testing.T) {
 }
 
 func TestAdjustSize_ExactFit(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"A": 8,
 		"B": 7,
 	}
@@ -177,13 +178,13 @@ func TestAdjustSize_ExactFit(t *testing.T) {
 }
 
 func TestAdjustSize_MultipleColumnsReduction(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"A": 10,
 		"B": 9,
 		"C": 8,
 	}
 
-	termWidth := 22
+	termWidth := winsize.Cols(22)
 
 	rendered := renderedRowSize(size, separator)
 	result, status := adjustSize(size, keys(size), termWidth, rendered)
@@ -198,13 +199,13 @@ func TestAdjustSize_MultipleColumnsReduction(t *testing.T) {
 }
 
 func TestSplitTable_FitsInOne(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"A": 10,
 		"B": 20,
 		"C": 10,
 	}
 
-	termWidth := 50
+	termWidth := winsize.Cols(50)
 
 	result := splitTable(size, keys(size), separator, termWidth)
 
@@ -215,21 +216,21 @@ func TestSplitTable_FitsInOne(t *testing.T) {
 }
 
 func TestSplitTable_MustSplit(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"A": 20,
 		"B": 10,
 		"C": 15,
 		"D": 15,
 	}
 
-	termWidth := 25
+	termWidth := winsize.Cols(25)
 
 	result := splitTable(size, keys(size), separator, termWidth)
 
 	assert.True(t, len(result) > 1)
 
 	for _, table := range result {
-		total := 0
+		total := winsize.Cols(0)
 		for _, v := range table {
 			total += v
 		}
@@ -238,11 +239,11 @@ func TestSplitTable_MustSplit(t *testing.T) {
 }
 
 func TestSplitTable_ColumnWiderThanTerminal(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"XL": 100,
 	}
 
-	termWidth := 80
+	termWidth := winsize.Cols(80)
 
 	result := splitTable(size, keys(size), separator, termWidth)
 
@@ -251,13 +252,13 @@ func TestSplitTable_ColumnWiderThanTerminal(t *testing.T) {
 }
 
 func TestSplitTable_EmptyMap(t *testing.T) {
-	size := map[string]int{}
+	size := map[string]winsize.Cols{}
 	result := splitTable(size, keys(size), separator, 80)
 	assert.Equal(t, 0, len(result))
 }
 
 func TestAdjustSize_Deterministic(t *testing.T) {
-	size := map[string]int{
+	size := map[string]winsize.Cols{
 		"A": 12,
 		"B": 10,
 		"C": 8,
@@ -267,12 +268,12 @@ func TestAdjustSize_Deterministic(t *testing.T) {
 		"G": 12,
 	}
 
-	termWidth := 50
+	termWidth := winsize.Cols(50)
 	keys := keys(size)
 
 	rendered := renderedRowSize(size, separator)
 
-	var firstResult map[string]int
+	var firstResult map[string]winsize.Cols
 
 	for i := range 100 {
 		result, status := adjustSize(size, keys, termWidth, rendered)

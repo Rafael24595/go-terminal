@@ -93,13 +93,13 @@ func (d *ModalDrawable) lazyInit(size winsize.Winsize) {
 		}
 	}
 
-	cols := drawable.MaxLineSize(int(size.Cols), d.text...) + 1
+	cols := drawable.MaxLineSize(size.Cols, d.text...) + 1
 	text := formatLines(d.text...)
 
 	title := block.DrawableFromLines(text...)
 
 	options := justify.New(opts).
-		MaxCols(uint16(cols)).
+		MaxCols(cols).
 		ToDrawable()
 
 	optionsBlock := block.DrawableFromDrawable(options)

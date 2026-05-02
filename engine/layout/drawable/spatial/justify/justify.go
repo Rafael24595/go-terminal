@@ -23,7 +23,7 @@ const Name = "justify_drawable"
 type JustifyDrawable struct {
 	loaded    bool
 	maxOpts   uint16
-	maxCols   uint16
+	maxCols   winsize.Cols
 	justify   style.Justify
 	fragments []text.Fragment
 	cursor    uint16
@@ -48,7 +48,7 @@ func (d *JustifyDrawable) MaxOpts(opts uint16) *JustifyDrawable {
 	return d
 }
 
-func (d *JustifyDrawable) MaxCols(cols uint16) *JustifyDrawable {
+func (d *JustifyDrawable) MaxCols(cols winsize.Cols) *JustifyDrawable {
 	d.maxCols = max(1, cols)
 	return d
 }
@@ -92,39 +92,39 @@ func (d *JustifyDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	}
 
 	maxOpts := int(d.maxOpts)
-	maxCols := int(math.MinNotZero(size.Cols, d.maxCols))
+	maxCols := math.MinNotZero(size.Cols, d.maxCols)
 
-	width := 0
+	remaining := winsize.Cols(0)
 	frags := make([]text.Fragment, 0)
 
 	for i := int(d.cursor); i < len(d.fragments); i++ {
 		frag := d.fragments[i]
 
 		fragsLen := len(frags)
-		fragSize := text.FragmentMeasure(int(size.Cols), frag)
+		fragSize := text.FragmentMeasure(size.Cols, frag)
 
-		spacing := 0
+		spacing := winsize.Cols(0)
 		if fragsLen > 0 {
 			spacing = 1
 		}
 
-		newWidth := width + spacing + fragSize
-		if fragsLen > 0 && fragsLen >= maxOpts || newWidth > maxCols {
-			line := justifyLine(maxCols, frags, width, d.justify)
+		newRemaining := remaining + spacing + fragSize
+		if fragsLen > 0 && fragsLen >= maxOpts || newRemaining > maxCols {
+			line := justifyLine(maxCols, frags, remaining, d.justify)
 			return []text.Line{*line}, true
 		}
 
-		width = newWidth
+		remaining = newRemaining
 		frags = append(frags, frag)
 
 		d.cursor += 1
 	}
 
-	line := justifyLine(maxCols, frags, width, d.justify)
+	line := justifyLine(maxCols, frags, remaining, d.justify)
 	return []text.Line{*line}, d.cursor < uint16(len(d.fragments))
 }
 
-func justifyLine(cols int, frags []text.Fragment, size int, mode style.Justify) *text.Line {
+func justifyLine(cols winsize.Cols, frags []text.Fragment, size winsize.Cols, mode style.Justify) *text.Line {
 	line := text.LineFromFragments(
 		addGaps(cols, frags, size, mode)...,
 	)
@@ -144,7 +144,12 @@ func justifyLine(cols int, frags []text.Fragment, size int, mode style.Justify) 
 	return line
 }
 
-func addGaps(cols int, frags []text.Fragment, size int, mode style.Justify) []text.Fragment {
+func addGaps(
+	cols winsize.Cols,
+	frags []text.Fragment,
+	size winsize.Cols,
+	mode style.Justify,
+) []text.Fragment {
 	if len(frags) == 0 {
 		return frags
 	}
@@ -152,7 +157,7 @@ func addGaps(cols int, frags []text.Fragment, size int, mode style.Justify) []te
 	out := make([]text.Fragment, len(frags))
 	copy(out, frags)
 
-	free := cols - size
+	free := cols.Clamp(size)
 	gaps := len(out) - 1
 
 	if free <= 0 || gaps <= 0 {
@@ -174,8 +179,10 @@ func addGaps(cols int, frags []text.Fragment, size int, mode style.Justify) []te
 	return addSpaceBetween(out)
 }
 
-func distributeSpace(free int, frags []text.Fragment, extraSlots int) []text.Fragment {
-	gaps := len(frags) - 1
+func distributeSpace(free winsize.Cols, frags []text.Fragment, extraSlots winsize.Cols) []text.Fragment {
+	gaps := winsize.Cols(
+		max(0, len(frags)-1),
+	)
 
 	slots := gaps + extraSlots
 	base := free / slots
@@ -184,7 +191,7 @@ func distributeSpace(free int, frags []text.Fragment, extraSlots int) []text.Fra
 	out := make([]text.Fragment, len(frags))
 	copy(out, frags)
 
-	fix := 0
+	fix := winsize.Cols(0)
 	for i := range gaps {
 		gap := base
 		if remainder > 0 {
@@ -197,7 +204,7 @@ func distributeSpace(free int, frags []text.Fragment, extraSlots int) []text.Fra
 		}
 
 		space := text.EmptyFragment().AddSpec(
-			style.SpecPaddingRight(uint(gap), marker.DefaultPaddingText),
+			style.SpecPaddingRight(gap, marker.DefaultPaddingText),
 		)
 
 		at := i + fix + 1

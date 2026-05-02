@@ -5,12 +5,12 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/ascii"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -77,7 +77,7 @@ func (d *TextAreaDrawable) lazyInit(size winsize.Winsize) {
 
 	d.lazyLoaded = true
 
-	start := math.SubClampZero(d.caret.SelectStart(), 1)
+	start := d.caret.SelectStart().Clamp(1)
 	end := d.caret.SelectEnd()
 
 	if len(d.buffer) == 0 {
@@ -111,10 +111,13 @@ func (d *TextAreaDrawable) wipe() {
 	d.drawable.Wipe()
 }
 
-func (d *TextAreaDrawable) resolveFragments(renderBuffer []rune, start uint, end uint) []text.Fragment {
+func (d *TextAreaDrawable) resolveFragments(
+	renderBuffer []rune,
+	start, end offset.Offset,
+) []text.Fragment {
 	frags := make([]text.Fragment, 0, 6)
 
-	if int(start) > 0 {
+	if start > 0 {
 		frags = append(frags, *text.NewFragment(string(renderBuffer[:start])))
 	}
 
@@ -134,7 +137,10 @@ func (d *TextAreaDrawable) resolveFragments(renderBuffer []rune, start uint, end
 	return frags
 }
 
-func (d *TextAreaDrawable) resolveBackwardSelection(renderBuffer []rune, start uint, end uint) ([]text.Fragment, uint, uint) {
+func (d *TextAreaDrawable) resolveBackwardSelection(
+	renderBuffer []rune,
+	start, end offset.Offset,
+) ([]text.Fragment, offset.Offset, offset.Offset) {
 	selection := renderBuffer[start:end]
 	caretAtom := d.blinkStyle()
 
@@ -152,7 +158,7 @@ func (d *TextAreaDrawable) resolveBackwardSelection(renderBuffer []rune, start u
 		return frags, start, end
 	}
 
-	if int(start) > 0 && selection[0] == ascii.ENTER_LF {
+	if start > 0 && selection[0] == ascii.ENTER_LF {
 		focusAtom = style.AtmNone
 
 		headerFrag := text.FragmentFromRunes(marker.PrintableCaretRunes).
@@ -168,7 +174,11 @@ func (d *TextAreaDrawable) resolveBackwardSelection(renderBuffer []rune, start u
 	return frags, start, end
 }
 
-func (d *TextAreaDrawable) resolveForwardSelection(renderBuffer []rune, start uint, end uint) ([]text.Fragment, uint, uint) {
+func (d *TextAreaDrawable) resolveForwardSelection(
+	renderBuffer []rune,
+	start offset.Offset,
+	end offset.Offset,
+) ([]text.Fragment, offset.Offset, offset.Offset) {
 	selection := renderBuffer[start:end]
 	caretAtom := d.blinkStyle()
 
@@ -277,7 +287,7 @@ func (d *TextAreaDrawable) normalizeLinesEnd(txt text.Line) []text.Line {
 
 func (d *TextAreaDrawable) fixEmptyLines(size winsize.Winsize, lines []text.Line) []text.Line {
 	for i, line := range lines {
-		if text.FragmentMeasure(int(size.Cols), line.Text...) != 0 {
+		if text.FragmentMeasure(size.Cols, line.Text...) != 0 {
 			continue
 		}
 

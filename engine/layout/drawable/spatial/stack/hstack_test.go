@@ -45,7 +45,7 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 	d3 := &drawable_test.MockDrawable{}
 
 	stack := NewHStack()
-	stack.PushChunk(d1.ToDrawable(), chunk.Fixed[uint16](20))
+	stack.PushChunk(d1.ToDrawable(), chunk.Fixed[winsize.Cols](20))
 	stack.Push(d2.ToDrawable(), d3.ToDrawable())
 
 	stack.init()
@@ -73,8 +73,8 @@ func TestHStack_RenderOutput(t *testing.T) {
 	}
 
 	stack := NewHStack()
-	stack.PushChunk(dA.ToDrawable(), chunk.Percent[uint16](50))
-	stack.PushChunk(dB.ToDrawable(), chunk.Percent[uint16](50))
+	stack.PushChunk(dA.ToDrawable(), chunk.Percent[winsize.Cols](50))
+	stack.PushChunk(dB.ToDrawable(), chunk.Percent[winsize.Cols](50))
 
 	stack.init()
 
