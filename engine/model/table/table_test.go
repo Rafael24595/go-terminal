@@ -63,7 +63,7 @@ func TestSize_ShouldCalculateMaxWidth(t *testing.T) {
 
 	size := tbl.Size()
 
-	assert.Len(t, size["Name"], []rune("golang"))
+	assert.Len(t, int(size["Name"]), []rune("golang"))
 }
 
 func TestSize_ShouldConsiderHeaderLength(t *testing.T) {
@@ -74,7 +74,7 @@ func TestSize_ShouldConsiderHeaderLength(t *testing.T) {
 
 	size := tbl.Size()
 
-	assert.Len(t, size["VeryLongHeader"], []rune("VeryLongHeader"))
+	assert.Len(t, int(size["VeryLongHeader"]), []rune("VeryLongHeader"))
 }
 
 func TestCols_ShouldReturnHeaderCount(t *testing.T) {

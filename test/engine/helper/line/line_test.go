@@ -6,6 +6,7 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/line"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
 )
 
 func TestFindLineStart_Simple(t *testing.T) {
@@ -20,53 +21,39 @@ func TestFindLineStart_Simple(t *testing.T) {
 func TestFindNextLineStart_Simple(t *testing.T) {
 	buf := []rune("abc\ndef")
 
-	assert.Equal(t, 4, line.FindNextLineStart(buf, 0))
-	assert.Equal(t, 4, line.FindNextLineStart(buf, 2))
-	assert.Equal(t, -1, line.FindNextLineStart(buf, 4))
+	index, _ := line.FindNextLineStart(buf, 0)
+	assert.Equal(t, 4, index)
+
+	index, _ = line.FindNextLineStart(buf, 2)
+	assert.Equal(t, 4, index)
+
+	index, ok := line.FindNextLineStart(buf, 4)
+	assert.False(t, ok)
+	assert.Equal(t, 0, index)
 }
 
 func TestFindPrevLineStart_EmptyLine(t *testing.T) {
 	buf := []rune("abc\n\ndef")
-
-	from := 5
-
-	expected := 4
-
-	got := line.FindPrevLineStart(buf, from)
-
-	assert.Equal(t, expected, got)
+	got, _ := line.FindPrevLineStart(buf, 5)
+	assert.Equal(t, 4, got)
 }
 
 func TestFindPrevLineStart_MultipleEmptyLines(t *testing.T) {
 	buf := []rune("a\n\n\nb")
-
-	from := 4
-
-	expected := 3
-
-	got := line.FindPrevLineStart(buf, from)
-
-	assert.Equal(t, expected, got)
+	got, _ := line.FindPrevLineStart(buf, 4)
+	assert.Equal(t, 3, got)
 }
 
 func TestFindPrevLineStart_Normal(t *testing.T) {
 	buf := []rune("a\nb\nc")
-
-	from := 4
-
-	expected := 2
-	got := line.FindPrevLineStart(buf, from)
-
-	assert.Equal(t, expected, got)
+	got, _ := line.FindPrevLineStart(buf, 4)
+	assert.Equal(t, 2, got)
 }
 
 func TestClampToLine_EmptyLine(t *testing.T) {
 	buf := []rune("abc\n\ndef")
-
-	lineStart := 4
-	col := 10
-
-	assert.Equal(t, 4, line.ClampToLine(buf, lineStart, col))
+	got := line.ClampToLine(buf, 4, 10)
+	assert.Equal(t, 4, got)
 }
 
 func TestFindLineStart(t *testing.T) {
@@ -74,8 +61,8 @@ func TestFindLineStart(t *testing.T) {
 
 	tests := []struct {
 		name string
-		from int
-		want int
+		from offset.Offset
+		want offset.Offset
 	}{
 		{"middle of line2", 8, 6},
 		{"start of line3", 12, 12},
@@ -96,8 +83,8 @@ func TestDistanceFromLF(t *testing.T) {
 
 	tests := []struct {
 		name string
-		from int
-		want int
+		from offset.Offset
+		want offset.Offset
 	}{
 		{"middle of line1", 3, 3},
 		{"end of line1", 5, 5},
@@ -118,8 +105,8 @@ func TestFindLineEnd(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		start int
-		want  int
+		start offset.Offset
+		want  offset.Offset
 	}{
 		{"start of line1", 0, 5},
 		{"start of line2", 6, 11},
@@ -139,19 +126,21 @@ func TestFindNextLineStart(t *testing.T) {
 
 	tests := []struct {
 		name string
-		from int
-		want int
+		from offset.Offset
+		want offset.Offset
+		stat bool
 	}{
-		{"start of buffer", 0, 6},
-		{"middle of line1", 3, 6},
-		{"start of line2", 6, 12},
-		{"end of buffer", 17, -1},
+		{"start of buffer", 0, 6, true},
+		{"middle of line1", 3, 6, true},
+		{"start of line2", 6, 12, true},
+		{"end of buffer", 17, 0, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := line.FindNextLineStart(buf, tt.from)
+			got, ok := line.FindNextLineStart(buf, tt.from)
 			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.stat, ok)
 		})
 	}
 }
@@ -161,9 +150,9 @@ func TestClampToLine(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		lineStart int
-		col       int
-		want      int
+		lineStart offset.Offset
+		col       offset.Offset
+		want      offset.Offset
 	}{
 		{"column within line", 0, 3, 3},
 		{"column at end of line", 0, 5, 5},

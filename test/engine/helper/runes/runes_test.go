@@ -6,6 +6,7 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
 )
 
 func TestAppendAt(t *testing.T) {
@@ -13,7 +14,7 @@ func TestAppendAt(t *testing.T) {
 		name   string
 		slice  []rune
 		insert []rune
-		pos    uint
+		pos    offset.Offset
 		want   string
 	}{
 		{
@@ -74,8 +75,8 @@ func TestAppendRange(t *testing.T) {
 		name   string
 		slice  []rune
 		insert []rune
-		start  uint
-		end    uint
+		start  offset.Offset
+		end    offset.Offset
 		want   string
 	}{
 		{

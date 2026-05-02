@@ -67,12 +67,12 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	assert.Equal(t, expectedInput, txt.String())
 
 	for i := 1; i < len(lines)-1; i++ {
-		width := 0
+		width := winsize.Cols(0)
 		for _, f := range lines[i].Text {
-			width += text.FragmentMeasure(int(size.Cols), f)
+			width += text.FragmentMeasure(size.Cols, f)
 		}
 
-		assert.LessOrEqual(t, int(size.Cols), width)
+		assert.LessOrEqual(t, size.Cols, width)
 	}
 }
 
@@ -126,7 +126,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 }
 
 func TestDrawDynamicLines_WordWrap(t *testing.T) {
-	sizeCols := 5
+	sizeCols := winsize.Cols(5)
 
 	lines := []text.Line{
 		*text.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -144,14 +144,14 @@ func TestDrawDynamicLines_WordWrap(t *testing.T) {
 
 	vm := viewmodel.NewViewModel()
 
-	dynamicSize := winsize.New(2, uint16(sizeCols))
+	dynamicSize := winsize.New(2, sizeCols)
 	drawCtx := draw.NewDrawContext(stt, dynamicSize)
 	drawStt := drawDynamicLines(drawCtx, vm.Pager, layer)
 
 	assert.LessOrEqual(t, 2, len(drawStt.Buffer))
 
 	for _, l := range drawStt.Buffer {
-		width := 0
+		width := winsize.Cols(0)
 		for _, f := range l.Text {
 			width += text.FragmentMeasure(sizeCols, f)
 		}
