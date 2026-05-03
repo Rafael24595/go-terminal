@@ -221,7 +221,7 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 	if c.action.EnableMode && c.action.ActionMode {
 		preficate = pager.PredicateFocus()
 
-		cell, _ := c.table.FindCellByCoords(int(c.cursor.Row), int(c.cursor.Col))
+		cell, _ := c.table.FindCellByCoords(c.cursor.Row, c.cursor.Col)
 		input = viewmodel.NewInputLine(block.DrawableFromString(cell))
 	}
 

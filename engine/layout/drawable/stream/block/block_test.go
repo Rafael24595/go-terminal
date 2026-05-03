@@ -72,7 +72,7 @@ func TestBlockDrawable_Draw_ShouldAccumulateLines(t *testing.T) {
 		Cols: 10,
 	})
 
-	assert.Len(t, int(rows), lines)
-	assert.Equal(t, count, int(rows))
+	assert.Len(t, rows, lines)
+	assert.Equal(t, count, rows)
 	assert.True(t, hasNext)
 }

@@ -21,7 +21,7 @@ type CheckMenuDrawable struct {
 	distribution style.Distribution
 	writeMode    bool
 	options      []input.CheckOption
-	cursor       uint
+	cursor       uint16
 	drawable     drawable.Drawable
 }
 
@@ -58,7 +58,7 @@ func (d *CheckMenuDrawable) WriteMode(writeMode bool) *CheckMenuDrawable {
 	return d
 }
 
-func (d *CheckMenuDrawable) Cursor(cursor uint) *CheckMenuDrawable {
+func (d *CheckMenuDrawable) Cursor(cursor uint16) *CheckMenuDrawable {
 	d.cursor = cursor
 	return d
 }

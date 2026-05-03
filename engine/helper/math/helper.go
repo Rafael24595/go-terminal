@@ -65,6 +65,10 @@ func SubClampZero[T Number](a, b T) T {
 	return a - b
 }
 
+func SubClampZeroAs[T Number, K Number](a, b T) K {
+	return K(SubClampZero(a, b))
+}
+
 func Digits[T Number](val T) uint32 {
 	if val == 0 {
 		return 1

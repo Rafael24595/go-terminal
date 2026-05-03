@@ -100,7 +100,7 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 		rendered, hasNext = drawable.Draw(ctx.Size)
 		state.HasNext = hasNext
 
-		renderedSize := len(rendered)
+		renderedSize := uint(len(rendered))
 		if len(rendered) == 0 {
 			continue
 		}
@@ -112,7 +112,9 @@ func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable
 			fixed := line.WrapLineWords(ctx.Size.Cols, &ln)
 
 			state.Work.Advance()
-			state.Work.Add(len(fixed))
+			state.Work.Add(
+				uint(len(fixed)),
+			)
 
 			for f, fx := range fixed {
 				state.SetAndNext(fx)

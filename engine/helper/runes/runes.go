@@ -48,20 +48,28 @@ func NormalizeLineEnd(text string) string {
 	return strings.ReplaceAll(normalized, "\r", "\n")
 }
 
-func AppendAt(slice []rune, insert []rune, position offset.Offset) []rune {
+func AppendAt(
+	buffer []rune,
+	insert []rune,
+	position offset.Offset,
+) []rune {
 	size := offset.Offset(len(insert))
-	slice = append(slice, make([]rune, size)...)
-	copy(slice[position+size:], slice[position:])
-	copy(slice[position:], insert)
-	return slice
+	buffer = append(buffer, make([]rune, size)...)
+	copy(buffer[position+size:], buffer[position:])
+	copy(buffer[position:], insert)
+	return buffer
 }
 
-func AppendRange(slice []rune, insert []rune, start, end offset.Offset) []rune {
+func AppendRange(
+	buffer []rune,
+	insert []rune,
+	start, end offset.Offset,
+) []rune {
 	if start == end {
-		return AppendAt(slice, insert, start)
+		return AppendAt(buffer, insert, start)
 	}
 
-	sliceLen := offset.Offset(len(slice))
+	sliceLen := offset.Offset(len(buffer))
 	insertLen := offset.Offset(len(insert))
 
 	assert.False(
@@ -75,37 +83,46 @@ func AppendRange(slice []rune, insert []rune, start, end offset.Offset) []rune {
 
 	newSlice := make([]rune, size+insertLen)
 
-	copy(newSlice[0:start], slice[0:start])
+	copy(newSlice[0:start], buffer[0:start])
 	copy(newSlice[start:], insert)
 	if end < sliceLen {
-		copy(newSlice[start+insertLen:], slice[end:])
+		copy(newSlice[start+insertLen:], buffer[end:])
 	}
 
 	return newSlice
 }
 
-func NormalizeBuffer(buf []rune, min uint) []rune {
-	if uint(len(buf)) >= min {
-		return buf
+func NormalizeBuffer(buffer []rune, min uint) []rune {
+	bufferLen := uint(len(buffer))
+	if bufferLen >= min {
+		return buffer
 	}
 
-	needed := int(min) - len(buf)
+	needed := math.SubClampZero(min, bufferLen)
 	padding := make([]rune, needed)
 
-	return append(buf, padding...)
+	return append(buffer, padding...)
 }
 
-func BackwardIndexWithLimit[T math.Number](b []rune, rs []RuneDefinition, i T) T {
-	return BackwardIndex(b, rs, i) + 1
+func BackwardIndexWithLimit[T math.Number](
+	buffer []rune,
+	definition []RuneDefinition,
+	index T,
+) T {
+	return BackwardIndex(buffer, definition, index) + 1
 }
 
-func BackwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) T {
-	s := fixdBackwardIndex(b, rs, i)
+func BackwardIndex[T math.Number](
+	buffer []rune,
+	definition []RuneDefinition,
+	index T,
+) T {
+	newIndex := fixdBackwardIndex(buffer, definition, index)
 
-	for j := s - 1; j >= 0; j-- {
-		for _, v := range rs {
-			if v.Rune == b[j] {
-				return T(j) + 1
+	for j := newIndex - 1; j >= 0; j-- {
+		for _, v := range definition {
+			if v.Rune == buffer[j] {
+				return j + 1
 			}
 		}
 	}
@@ -113,90 +130,105 @@ func BackwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) T {
 	return 0
 }
 
-func fixdBackwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) int {
-	s := max(0, int(i)-1)
+func fixdBackwardIndex[T math.Number](
+	buffer []rune,
+	definition []RuneDefinition,
+	index T,
+) T {
+	newIndex := math.SubClampZero(index, 1)
 
-	for s > 0 {
-		for _, v := range rs {
-			if v.Rune != b[s] || !v.Skip {
-				return s
+	for newIndex > 0 {
+		for _, v := range definition {
+			if v.Rune != buffer[newIndex] || !v.Skip {
+				return newIndex
 			}
 		}
 
-		s--
+		newIndex--
 	}
 
-	return s
+	return newIndex
 }
 
-func ForwardIndexWithLimit[T math.Number](b []rune, rs []RuneDefinition, i T) T {
-	s := i
-
-	if s < T(len(b)) {
-		for _, v := range rs {
-			if b[s] == v.Rune {
-				return s
+func ForwardIndexWithLimit[T math.Number](
+	buffer []rune,
+	definition []RuneDefinition,
+	index T,
+) T {
+	if index < T(len(buffer)) {
+		for _, v := range definition {
+			if buffer[index] == v.Rune {
+				return index
 			}
 		}
 	}
 
-	return ForwardIndex(b, rs, s)
+	return ForwardIndex(buffer, definition, index)
 }
 
-func ForwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) T {
-	s := fixForwardIndex(b, rs, i)
+func ForwardIndex[T math.Number](
+	buffer []rune,
+	definition []RuneDefinition,
+	index T,
+) T {
+	newIndex := fixForwardIndex(buffer, definition, index)
 
-	for s < len(b) {
-		for _, v := range rs {
-			if v.Rune == b[s] {
-				return T(s)
+	for newIndex < T(len(buffer)) {
+		for _, v := range definition {
+			if v.Rune == buffer[newIndex] {
+				return T(newIndex)
 			}
 		}
 
-		s++
+		newIndex++
 	}
 
-	return T(s)
+	return newIndex
 }
 
-func fixForwardIndex[T math.Number](b []rune, rs []RuneDefinition, i T) int {
-	s := min(int(i+1), len(b))
+func fixForwardIndex[T math.Number](
+	buffer []rune,
+	definition []RuneDefinition,
+	index T,
+) T {
+	bufferLen := T(len(buffer))
+	newIndex := min(index+1, bufferLen)
 
-	for s < len(b) {
-		for _, v := range rs {
-			if v.Rune != b[s] || !v.Skip {
-				return s
+	for newIndex < bufferLen {
+		for _, v := range definition {
+			if v.Rune != buffer[newIndex] || !v.Skip {
+				return newIndex
 			}
 		}
 
-		s++
+		newIndex++
 	}
 
-	return s
+	return newIndex
 }
 
-func JoinReverse(ps []string) string {
+func JoinReverse(buffer []string) string {
 	var sb strings.Builder
-	for i := len(ps) - 1; i >= 0; i-- {
-		sb.WriteString(ps[i])
+	for i := len(buffer) - 1; i >= 0; i-- {
+		sb.WriteString(buffer[i])
 	}
 	return sb.String()
 }
 
-func RuneIndexToByteIndex(text string, runeIndex offset.Offset) (offset.Offset, bool) {
-	if runeIndex == 0 {
+func RuneIndexToByteIndex(text string, index offset.Offset) (offset.Offset, bool) {
+	if index == 0 {
 		return 0, true
 	}
 
 	count := offset.Offset(0)
 	for i := range text {
-		if count == runeIndex {
+		if count == index {
 			return offset.Offset(i), true
 		}
 		count++
 	}
 
-	if count == runeIndex {
+	if count == index {
 		return offset.Offset(len(text)), true
 	}
 

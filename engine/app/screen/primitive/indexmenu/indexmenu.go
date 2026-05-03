@@ -70,8 +70,8 @@ func (c *IndexMenu) AddOptions(options ...input.MenuOption) *IndexMenu {
 }
 
 func (c *IndexMenu) SetCursor(cursor uint16) *IndexMenu {
-	maxIdx := math.SubClampZero(len(c.options), 1)
-	c.cursor = math.Clamp(cursor, 0, uint16(maxIdx))
+	maxIdx := math.SubClampZeroAs[int, uint16](len(c.options), 1)
+	c.cursor = math.Clamp(cursor, 0, maxIdx)
 	return c
 }
 
@@ -152,7 +152,8 @@ func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
 		pager.PredicateFocus(),
 	)
 
-	option := min(len(c.options)-1, int(c.cursor))
+	index := math.SubClampZeroAs[int, uint16](len(c.options), 1)
+	option := min(index, c.cursor)
 	text := c.options[option].Label.Text
 	input := viewmodel.NewInputLine(block.DrawableFromString(text))
 	vm.SetInput(input)

@@ -53,15 +53,15 @@ func (t *Table) GetColumns() map[string][]string {
 	return t.cols
 }
 
-func (t *Table) FindCellByCoords(row, col int) (string, bool) {
-	if col >= len(t.headers) {
+func (t *Table) FindCellByCoords(row, col uint16) (string, bool) {
+	if col >= uint16(len(t.headers)) {
 		return "", false
 	}
 
 	header := t.headers[col]
 
 	cols, ok := t.cols[header]
-	if !ok || row > len(cols) {
+	if !ok || row > uint16(len(cols)) {
 		return "", false
 	}
 

@@ -97,7 +97,7 @@ func (d *JustifyDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	remaining := winsize.Cols(0)
 	frags := make([]text.Fragment, 0)
 
-	for i := int(d.cursor); i < len(d.fragments); i++ {
+	for i := d.cursor; i < uint16(len(d.fragments)); i++ {
 		frag := d.fragments[i]
 
 		fragsLen := len(frags)

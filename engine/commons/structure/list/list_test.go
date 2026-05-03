@@ -11,7 +11,7 @@ func TestList_LazyInit(t *testing.T) {
 
 	l.Push(11)
 
-	assert.Equal(t, uint(1), l.Size())
+	assert.Equal(t, 1, l.Size())
 	assert.NotNil(t, l.All())
 }
 
@@ -22,7 +22,7 @@ func TestList_BasicOperations(t *testing.T) {
 	l.Push("B")
 	l.Push("C")
 
-	assert.Equal(t, uint(3), l.Size())
+	assert.Equal(t, 3, l.Size())
 
 	l.Unshift("0")
 
@@ -42,7 +42,7 @@ func TestList_FullCycle(t *testing.T) {
 	l.Push("C")
 	l.Unshift("A")
 
-	assert.Equal(t, uint(3), l.Size())
+	assert.Equal(t, 3, l.Size())
 
 	itA, ok := l.First()
 	assert.True(t, ok)
@@ -72,7 +72,7 @@ func TestList_Delete(t *testing.T) {
 
 	assert.True(t, ok)
 	assert.Equal(t, 20, val)
-	assert.Equal(t, uint(2), l.Size())
+	assert.Equal(t, 2, l.Size())
 
 	next, _ := it1.Next()
 	assert.Equal(t, it3, next)
@@ -94,5 +94,5 @@ func TestList_CrossListDelete(t *testing.T) {
 
 	assert.False(t, ok)
 	assert.Equal(t, 0, val)
-	assert.Equal(t, uint(1), l1.Size())
+	assert.Equal(t, 1, l1.Size())
 }

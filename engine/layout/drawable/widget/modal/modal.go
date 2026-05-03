@@ -22,7 +22,7 @@ type ModalDrawable struct {
 	text       []text.Line
 	options    []text.Fragment
 	limit      uint
-	cursor     uint
+	cursor     uint16
 	drawable   drawable.Drawable
 }
 
@@ -53,7 +53,7 @@ func (d *ModalDrawable) DefineLimit(limit uint) *ModalDrawable {
 	return d
 }
 
-func (d *ModalDrawable) DefineCursor(cursor uint) *ModalDrawable {
+func (d *ModalDrawable) DefineCursor(cursor uint16) *ModalDrawable {
 	d.cursor = cursor
 	return d
 }

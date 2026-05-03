@@ -11,14 +11,14 @@ func NewTracker() *Tracker {
 	return &Tracker{}
 }
 
-func (t *Tracker) Add(tasks int) *Tracker {
+func (t *Tracker) Add(tasks uint) *Tracker {
 	if tasks <= 0 {
 		assert.Unreachable("tasks should be greater than 0")
 
 		return t
 	}
 
-	t.total += uint(tasks)
+	t.total += tasks
 	return t
 }
 

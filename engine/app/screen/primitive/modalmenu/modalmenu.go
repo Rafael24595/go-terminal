@@ -37,7 +37,7 @@ type ModalMenu struct {
 	reference string
 	text      []text.Line
 	options   []input.MenuOption
-	cursor    uint
+	cursor    uint16
 }
 
 func New() *ModalMenu {
@@ -64,9 +64,9 @@ func (c *ModalMenu) AddOptions(options ...input.MenuOption) *ModalMenu {
 	return c
 }
 
-func (c *ModalMenu) SetCursor(cursor uint) *ModalMenu {
-	maxIdx := math.SubClampZero(len(c.options), 1)
-	c.cursor = math.Clamp(cursor, uint(0), uint(maxIdx))
+func (c *ModalMenu) SetCursor(cursor uint16) *ModalMenu {
+	maxIdx := math.SubClampZeroAs[int, uint16](len(c.options), 1)
+	c.cursor = math.Clamp(cursor, 0, maxIdx)
 	return c
 }
 
@@ -92,11 +92,11 @@ func (c *ModalMenu) update(state *state.UIState, evnt screen.ScreenEvent) screen
 	case key.ActionArrowUp:
 		c.cursor = 0
 	case key.ActionArrowDown:
-		c.cursor = uint(max(0, len(c.options)-1))
+		c.cursor = math.SubClampZeroAs[int, uint16](len(c.options), 1)
 	case key.ActionArrowLeft:
 		c.cursor = math.SubClampZero(c.cursor, 1)
 	case key.ActionArrowRight:
-		size := uint(len(c.options))
+		size := uint16(len(c.options))
 		if size > 0 {
 			c.cursor = min(size-1, c.cursor+1)
 		}

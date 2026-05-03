@@ -37,7 +37,7 @@ func TestWorkTracker_Advance(t *testing.T) {
 func TestWorkTracker_ResetSafe(t *testing.T) {
 	wt := NewTracker()
 
-	works := 5
+	works := uint(5)
 
 	wt.Add(works)
 	for range works {
@@ -90,10 +90,6 @@ func TestWorkTracker_AddInvalid(t *testing.T) {
 
 	assert.Panic(t, func() {
 		wt.Add(0)
-	})
-
-	assert.Panic(t, func() {
-		wt.Add(-5)
 	})
 
 	assert.False(t, wt.HasWorks())

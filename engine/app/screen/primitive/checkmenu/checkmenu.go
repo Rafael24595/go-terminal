@@ -60,7 +60,7 @@ type CheckMenu struct {
 	title        []text.Line
 	options      []input.CheckOption
 	limit        uint16
-	cursor       uint
+	cursor       uint16
 }
 
 func New() *CheckMenu {
@@ -101,9 +101,9 @@ func (c *CheckMenu) AddOptions(options ...input.CheckOption) *CheckMenu {
 	return c
 }
 
-func (c *CheckMenu) Cursor(cursor uint) *CheckMenu {
-	maxIdx := math.SubClampZero(len(c.options), 1)
-	c.cursor = math.Clamp(cursor, uint(0), uint(maxIdx))
+func (c *CheckMenu) Cursor(cursor uint16) *CheckMenu {
+	maxIdx := math.SubClampZeroAs[int, uint16](len(c.options), 1)
+	c.cursor = math.Clamp(cursor, 0, maxIdx)
 	return c
 }
 
@@ -150,7 +150,7 @@ func (c *CheckMenu) update(stt *state.UIState, evt screen.ScreenEvent) screen.Sc
 func (c *CheckMenu) updateNavigation(stt *state.UIState, evt screen.ScreenEvent) screen.ScreenResult {
 	ky := evt.Key
 
-	optsLen := len(c.options)
+	optsLen := uint16(len(c.options))
 
 	switch ky.Code {
 	case key.ActionEsc:
@@ -166,11 +166,13 @@ func (c *CheckMenu) updateNavigation(stt *state.UIState, evt screen.ScreenEvent)
 	case key.ActionArrowLeft:
 		c.cursor = math.SubClampZero(c.cursor, 1)
 	case key.ActionArrowRight:
-		c.cursor = min(uint(optsLen-1), c.cursor+1)
+		optsLen = math.SubClampZero(optsLen, 1)
+		c.cursor = min(optsLen, c.cursor+1)
 	case key.ActionArrowUp:
 		c.cursor = 0
 	case key.ActionArrowDown:
-		c.cursor = max(0, uint(optsLen-1))
+		optsLen = math.SubClampZero(optsLen, 1)
+		c.cursor = max(0, optsLen)
 	}
 
 	return screen.ScreenResultFromUIState(stt)
@@ -188,9 +190,9 @@ func (c *CheckMenu) updateRead(state *state.UIState, evnt screen.ScreenEvent) sc
 }
 
 func (c *CheckMenu) switchState() {
-	optsLen := len(c.options)
+	optsLen := uint16(len(c.options))
 
-	if c.cursor < uint(optsLen) {
+	if c.cursor < optsLen {
 		c.options[c.cursor].Status = !c.options[c.cursor].Status
 	}
 
@@ -260,7 +262,8 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 		)...,
 	)
 
-	option := min(len(c.options)-1, int(c.cursor))
+	index := math.SubClampZeroAs[int, uint16](len(c.options), 1)
+	option := min(index, c.cursor)
 	text := c.options[option].Label.Text
 
 	input := viewmodel.NewInputLine(
