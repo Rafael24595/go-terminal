@@ -8,21 +8,16 @@ import (
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
-func TestModalMenu_ToScreen(t *testing.T) {
-	menu := New().
-		SetName("base")
+func TestModalMenu_ToNode(t *testing.T) {
+	node := New().SetName("base").ToNode()
 
-	screen := menu.ToScreen()
+	screen_test.Helper_ToNode(t, node)
 
-	screen_test.Helper_ToScreen(t, screen)
-
-	assert.Equal(t, screen.Name, "base")
+	assert.Equal(t, node.Screen.Name, "base")
 }
 
 func TestModalMenu_Stack(t *testing.T) {
-	stack := New().
-		ToScreen().
-		Stack
+	stack := New().ToNode().Stack
 
 	assert.True(t, stack.Has(Name))
 }

@@ -10,22 +10,19 @@ import (
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
-func TestTable_ToScreen(t *testing.T) {
-	menu := New[int]().
+func TestTable_ToNode(t *testing.T) {
+	node := New[int]().
 		SetName("base").
-		AddTitle(*text.NewLine("Welcome"))
+		AddTitle(*text.NewLine("Welcome")).
+		ToNode()
 
-	screen := menu.ToScreen()
+	screen_test.Helper_ToNode(t, node)
 
-	screen_test.Helper_ToScreen(t, screen)
-
-	assert.Equal(t, screen.Name, "base")
+	assert.Equal(t, node.Screen.Name, "base")
 }
 
 func TestTable_Stack(t *testing.T) {
-	stack := New[int]().
-		ToScreen().
-		Stack
+	stack := New[int]().ToNode().Stack
 
 	assert.True(t, stack.Has(Name))
 }

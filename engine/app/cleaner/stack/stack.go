@@ -12,10 +12,10 @@ func NewCleaner() cleaner.StateCleaner {
 	}
 }
 
-func Cleanup(res screen.Result, stt *state.UIState) *state.UIState {
-	if res.Screen != nil {
+func Cleanup(result screen.Result, stt *state.UIState) *state.UIState {
+	if result.Node != nil {
 		stt.Stack.RetainOnly(
-			res.Screen.Stack,
+			result.Node.Stack,
 		)
 	}
 	return stt

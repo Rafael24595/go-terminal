@@ -22,34 +22,35 @@ var definition = screen.NewDefinitionSources(
 )
 
 type History struct {
-	history *screen.Screen
-	screen  screen.Screen
+	history *screen.Node
+	node  screen.Node
 }
 
-func New(screen screen.Screen) *History {
+func New(node screen.Node) *History {
 	return &History{
-		screen: screen,
+		node: node,
 	}
 }
 
-func (c *History) ToScreen() screen.Screen {
-	return screen.Screen{
-		Name:       c.screen.Name,
-		Definition: c.definition,
-		Update:     c.update,
-		View:       c.view,
-		Stack:      c.screen.Stack,
-	}
+func (c *History) ToNode() screen.Node {
+	return screen.NewBuilder().
+		Name(c.node.Screen.Name).
+		AddStack(c.node.Stack).
+		Definition(c.definition).
+		Update(c.update).
+		View(c.view).
+		Children(c.node).
+		ToNode()
 }
 
 func (c *History) definition() screen.Definition {
-	def := c.screen.Definition()
-	def.RequireKeys = append(def.RequireKeys, definition.Keys...)
-	return def
+	base := c.node.Screen.Definition()
+	base.RequireKeys = append(base.RequireKeys, definition.Keys...)
+	return base
 }
 
 func (c *History) update(state *state.UIState, event screen.ScreenEvent) screen.Result {
-	requiredKey := node.IsKeyRequired(c.screen.Definition(), event.Key)
+	requiredKey := node.IsKeyRequired(c.node.Screen.Definition(), event.Key)
 
 	if !requiredKey {
 		result := c.localUpdate(state, event)
@@ -58,12 +59,12 @@ func (c *History) update(state *state.UIState, event screen.ScreenEvent) screen.
 		}
 	}
 
-	result := c.screen.Update(state, event)
-	if result.Screen != nil {
-		newWrapper := New(*result.Screen)
-		newWrapper.history = &c.screen
-		newScreen := newWrapper.ToScreen()
-		result.Screen = &newScreen
+	result := c.node.Screen.Update(state, event)
+	if result.Node != nil {
+		newWrapper := New(*result.Node)
+		newWrapper.history = &c.node
+		newNode := newWrapper.ToNode()
+		result.Node = &newNode
 	}
 
 	return result
@@ -75,20 +76,20 @@ func (c *History) localUpdate(_ *state.UIState, event screen.ScreenEvent) *scree
 	}
 
 	newBack := New(*c.history)
-	newScreen := newBack.ToScreen()
-	result := screen.ResultFromScreen(&newScreen)
+	newNode := newBack.ToNode()
+	result := screen.ResultFromNode(&newNode)
 
 	return &result
 }
 
 func (c *History) view(state state.UIState) viewmodel.ViewModel {
-	vm := c.screen.View(state)
+	vm := c.node.Screen.View(state)
 
 	if c.history == nil {
 		return vm
 	}
 
-	page := fmt.Sprintf("back: %s", c.history.Name)
+	page := fmt.Sprintf("back: %s", c.history.Screen.Name)
 
 	footer := []text.Line{
 		*text.NewLine(page,
@@ -102,7 +103,7 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 	)
 
 	actions := node.FilterKeyRequired(
-		c.screen.Definition(),
+		c.node.Screen.Definition(),
 		definition.Actions...,
 	)
 

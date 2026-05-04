@@ -16,8 +16,10 @@ import (
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
-func TestIndexMenu_ToScreen(t *testing.T) {
-	menu := New().
+func voidAction() screen.Node { return screen.Node{} }
+
+func TestIndexMenu_ToNode(t *testing.T) {
+	node := New().
 		SetName("base").
 		AddTitle(
 			*text.NewLine("Welcome"),
@@ -26,21 +28,18 @@ func TestIndexMenu_ToScreen(t *testing.T) {
 			input.NewMenuOption(
 				"opt_1",
 				*text.NewFragment("Option 1"),
-				func() screen.Screen { return screen.Screen{} },
+				voidAction,
 			),
-		)
+		).
+		ToNode()
 
-	screen := menu.ToScreen()
+	screen_test.Helper_ToNode(t, node)
 
-	screen_test.Helper_ToScreen(t, screen)
-
-	assert.Equal(t, screen.Name, "base")
+	assert.Equal(t, node.Screen.Name, "base")
 }
 
 func TestIndexMenu_Stack(t *testing.T) {
-	stack := New().
-		ToScreen().
-		Stack
+	stack := New().ToNode().Stack
 
 	assert.True(t, stack.Has(Name))
 }
@@ -63,12 +62,12 @@ func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 			input.NewMenuOption(
 				"opt_1",
 				*text.NewFragment("Option 1"),
-				func() screen.Screen { return screen.Screen{} },
+				voidAction,
 			),
 			input.NewMenuOption(
 				"opt_2",
 				*text.NewFragment("Option 2"),
-				func() screen.Screen { return screen.Screen{} },
+				voidAction,
 			),
 		)
 
@@ -82,12 +81,12 @@ func TestIndexMenu_SetCursor_Clamp(t *testing.T) {
 			input.NewMenuOption(
 				"opt_a",
 				*text.NewFragment("A"),
-				func() screen.Screen { return screen.Screen{} },
+				voidAction,
 			),
 			input.NewMenuOption(
 				"opt_b",
 				*text.NewFragment("B"),
-				func() screen.Screen { return screen.Screen{} },
+				voidAction,
 			),
 		)
 
@@ -111,26 +110,26 @@ func TestIndexMenu_CursorNavigation(t *testing.T) {
 			input.NewMenuOption(
 				"opt_a",
 				*text.NewFragment("A"),
-				func() screen.Screen { return screen.Screen{} },
+				voidAction,
 			),
 			input.NewMenuOption(
 				"opt_b",
 				*text.NewFragment("B"),
-				func() screen.Screen { return screen.Screen{} },
+				voidAction,
 			),
 		)
 
-	scrn := menu.ToScreen()
+	node := menu.ToNode()
 
 	assert.Equal(t, menu.cursor, 0)
 
-	scrn.Update(
+	node.Screen.Update(
 		state.NewUIState(),
 		screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowDown)},
 	)
 	assert.Equal(t, menu.cursor, 1)
 
-	scrn.Update(
+	node.Screen.Update(
 		state.NewUIState(),
 		screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowUp)},
 	)
@@ -138,8 +137,10 @@ func TestIndexMenu_CursorNavigation(t *testing.T) {
 }
 
 func TestIndexMenu_Action(t *testing.T) {
-	expected := screen.Screen{
-		Name: "next",
+	expected := screen.Node{
+		Screen: screen.Screen{
+			Name: "next",
+		},
 	}
 
 	menu := New().
@@ -147,18 +148,18 @@ func TestIndexMenu_Action(t *testing.T) {
 			input.NewMenuOption(
 				"opt_go",
 				*text.NewFragment("Go"),
-				func() screen.Screen { return expected },
+				func() screen.Node { return expected },
 			),
 		)
 
-	scrn := menu.ToScreen()
-	result := scrn.Update(
+	node := menu.ToNode()
+	result := node.Screen.Update(
 		state.NewUIState(),
 		screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionEnter)},
 	)
 
-	assert.NotNil(t, result.Screen)
-	assert.Equal(t, result.Screen.Name, "next")
+	assert.NotNil(t, result.Node)
+	assert.Equal(t, result.Node.Screen.Name, "next")
 }
 
 func TestIndexMenu_ViewCursor(t *testing.T) {
@@ -167,12 +168,12 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 			input.NewMenuOption(
 				"opt_a",
 				*text.NewFragment("A"),
-				func() screen.Screen { return screen.Screen{} },
+				voidAction,
 			),
 			input.NewMenuOption(
 				"opt_b",
 				*text.NewFragment("B"),
-				func() screen.Screen { return screen.Screen{} },
+				voidAction,
 			),
 		)
 

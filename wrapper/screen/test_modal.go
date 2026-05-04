@@ -7,7 +7,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-func NewTestModal() screen.Screen {
+func NewTestModal() screen.Node {
 	return modalmenu.New().
 		SetName("modal - dolor").
 		AddText(
@@ -20,5 +20,5 @@ func NewTestModal() screen.Screen {
 			input.NewMenuOption("3", *text.NewFragment("Option_3"), NewLanding),
 			input.NewMenuOption("4", *text.NewFragment("Option_4"), NewLanding),
 		}...).
-		ToScreen()
+		ToNode()
 }

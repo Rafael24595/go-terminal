@@ -9,14 +9,14 @@ import (
 type Transformer func(viewmodel.ViewModel) viewmodel.ViewModel
 
 type Pipeline struct {
-	screen screen.Screen
-	steps  []Transformer
+	node  screen.Node
+	steps []Transformer
 }
 
-func New(screen screen.Screen, steps ...Transformer) *Pipeline {
+func New(node screen.Node, steps ...Transformer) *Pipeline {
 	return &Pipeline{
-		screen: screen,
-		steps:  steps,
+		node:  node,
+		steps: steps,
 	}
 }
 
@@ -25,29 +25,30 @@ func (c *Pipeline) PushSteps(steps ...Transformer) *Pipeline {
 	return c
 }
 
-func (c *Pipeline) ToScreen() screen.Screen {
+func (c *Pipeline) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.screen.Name).
-		AddStack(c.screen.Stack).
-		Definition(c.screen.Definition).
+		Name(c.node.Screen.Name).
+		AddStack(c.node.Stack).
+		Definition(c.node.Screen.Definition).
 		Update(c.update).
 		View(c.view).
-		ToScreen()
+		Children(c.node).
+		ToNode()
 }
 
 func (c *Pipeline) update(state *state.UIState, event screen.ScreenEvent) screen.Result {
-	result := c.screen.Update(state, event)
-	if result.Screen != nil {
-		newScreen := New(*result.Screen).
+	result := c.node.Screen.Update(state, event)
+	if result.Node != nil {
+		newNode := New(*result.Node).
 			PushSteps(c.steps...).
-			ToScreen()
-		result.Screen = &newScreen
+			ToNode()
+		result.Node = &newNode
 	}
 	return result
 }
 
 func (c *Pipeline) view(state state.UIState) viewmodel.ViewModel {
-	vm := c.screen.View(state)
+	vm := c.node.Screen.View(state)
 	for _, s := range c.steps {
 		vm = s(vm)
 	}

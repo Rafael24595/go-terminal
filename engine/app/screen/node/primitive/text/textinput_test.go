@@ -8,21 +8,15 @@ import (
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
-func TestTextInput_ToScreen(t *testing.T) {
-	menu := NewInput().
-		SetName("base")
+func TestTextInput_ToNode(t *testing.T) {
+	node := NewInput().SetName("base").ToNode()
+	screen_test.Helper_ToNode(t, node)
 
-	screen := menu.ToScreen()
-
-	screen_test.Helper_ToScreen(t, screen)
-
-	assert.Equal(t, screen.Name, "base")
+	assert.Equal(t, node.Screen.Name, "base")
 }
 
 func TestTextInput_Stack(t *testing.T) {
-	stack := NewInput().
-		ToScreen().
-		Stack
+	stack := NewInput().ToNode().Stack
 
 	assert.True(t, stack.Has(NameInput))
 }

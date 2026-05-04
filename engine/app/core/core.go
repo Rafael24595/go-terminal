@@ -29,29 +29,29 @@ type Engine struct {
 	layout   layout.Layout
 	render   render.Render
 	cleaner  cleaner.StateCleaner
-	screen   screen.Screen
-	passes   []screen.ScreenPass
+	node     screen.Node
+	passes   []screen.Pass
 }
 
 // TODO: Disable pulse on proactive terminal
 func NewEngine(
-	trm terminal.Terminal,
-	lyo layout.Layout,
-	rnd render.Render,
-	cls cleaner.StateCleaner,
-	scn screen.Screen,
+	terminal terminal.Terminal,
+	layout layout.Layout,
+	render render.Render,
+	cleaner cleaner.StateCleaner,
+	node screen.Node,
 ) *Engine {
 	pulse := pulse.New(50 * time.Millisecond)
 	return &Engine{
 		context:  nil,
 		doneSgnl: make(chan struct{}),
 		pulse:    pulse,
-		terminal: trm,
-		layout:   lyo,
-		render:   rnd,
-		cleaner:  cls,
-		screen:   scn,
-		passes:   make([]screen.ScreenPass, 0),
+		terminal: terminal,
+		layout:   layout,
+		render:   render,
+		cleaner:  cleaner,
+		node:     node,
+		passes:   make([]screen.Pass, 0),
 	}
 }
 
@@ -65,13 +65,13 @@ func (e *Engine) Context(ctx context.Context) *Engine {
 	return e
 }
 
-func (e *Engine) AddPass(pass ...screen.ScreenPass) *Engine {
+func (e *Engine) AddPass(passes ...screen.Pass) *Engine {
 	if e.running {
 		assert.Unreachable("the engine can be modified after initialization")
 		return e
 	}
 
-	e.passes = append(e.passes, pass...)
+	e.passes = append(e.passes, passes...)
 	return e
 }
 
@@ -90,7 +90,7 @@ func (e *Engine) RunWithContext(ctx context.Context) <-chan struct{} {
 	e.running = true
 
 	e.context = ctx
-	e.compileScreen(e.screen)
+	e.compileNodeScreen(e.node)
 
 	go e.run()
 
@@ -134,7 +134,7 @@ func (e *Engine) run() {
 				return
 			}
 
-			e.updateScreen(state, size, k)
+			e.updateNode(state, size, k)
 
 		case s, ok := <-resizes:
 			if !ok {
@@ -158,27 +158,27 @@ func (e *Engine) Exit() {
 	}
 }
 
-func (e *Engine) compileScreen(screen screen.Screen) *Engine {
-	newScreen, err := screen.Compile(e.passes...)
+func (e *Engine) compileNodeScreen(node screen.Node) *Engine {
+	newNode, err := node.Compile(e.passes...)
 	if err != nil {
 		e.logErr(err)
 	}
 
-	e.screen = newScreen
+	e.node = newNode
 	return e
 }
 
-func (e *Engine) updateScreen(
+func (e *Engine) updateNode(
 	state *state.UIState,
 	size winsize.Winsize,
 	key key.Key,
 ) *state.UIState {
-	result := e.screen.Update(state,
+	result := e.node.Screen.Update(state,
 		screen.NewEvent(key),
 	)
 
 	e.manageResult(state, result)
-	e.manageScreen(result)
+	e.manageNode(result)
 
 	state = e.cleaner.Cleanup(result, state)
 
@@ -192,9 +192,9 @@ func (e *Engine) manageResult(state *state.UIState, result screen.Result) *state
 	return state
 }
 
-func (e *Engine) manageScreen(result screen.Result) screen.Result {
-	if result.Screen != nil {
-		e.compileScreen(*result.Screen)
+func (e *Engine) manageNode(result screen.Result) screen.Result {
+	if result.Node != nil {
+		e.compileNodeScreen(*result.Node)
 	}
 	return result
 }
@@ -210,7 +210,7 @@ func (e *Engine) syncPulse(vm viewmodel.ViewModel) viewmodel.ViewModel {
 }
 
 func (e *Engine) renderFrame(state *state.UIState, size winsize.Winsize) {
-	vm := e.screen.View(*state)
+	vm := e.node.Screen.View(*state)
 
 	lines := e.layout.Apply(state, vm, size)
 	result := e.render.Render(lines, size)

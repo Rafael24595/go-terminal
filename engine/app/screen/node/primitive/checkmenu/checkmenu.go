@@ -67,7 +67,7 @@ func New() *CheckMenu {
 	return &CheckMenu{
 		reference: Name,
 		clock:     clock.UnixMilliClock,
-		action:    input.NewCheckAction(),
+		action:    input.EmptyCheckAction(),
 		meta:      marker.BracketsCheck,
 		title:     make([]text.Line, 0),
 		options:   make([]input.CheckOption, 0),
@@ -117,14 +117,14 @@ func (c *CheckMenu) Limit(limit uint16) *CheckMenu {
 	return c
 }
 
-func (c *CheckMenu) ToScreen() screen.Screen {
+func (c *CheckMenu) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(c.reference).
 		NameToStack().
 		Definition(c.definition).
 		Update(c.update).
 		View(c.view).
-		ToScreen()
+		ToNode()
 }
 
 func (c *CheckMenu) definitionSource() screen.DefinitionSources {

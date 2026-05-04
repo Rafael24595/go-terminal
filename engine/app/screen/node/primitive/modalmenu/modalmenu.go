@@ -68,14 +68,14 @@ func (c *ModalMenu) SetCursor(cursor uint16) *ModalMenu {
 	return c
 }
 
-func (c *ModalMenu) ToScreen() screen.Screen {
+func (c *ModalMenu) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(c.reference).
 		NameToStack().
 		Definition(c.definition).
 		Update(c.update).
 		View(c.view).
-		ToScreen()
+		ToNode()
 }
 
 func (c *ModalMenu) definition() screen.Definition {
@@ -114,8 +114,8 @@ func (c *ModalMenu) actionEnter(stt *state.UIState) screen.Result {
 		option.Id,
 	)
 
-	scrn := c.options[c.cursor].Action()
-	return screen.ResultFromScreen(&scrn)
+	node := c.options[c.cursor].Action()
+	return screen.ResultFromNode(&node)
 }
 
 func (c *ModalMenu) view(_ state.UIState) viewmodel.ViewModel {

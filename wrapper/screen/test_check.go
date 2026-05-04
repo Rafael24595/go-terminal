@@ -9,7 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-func NewTestCheck() screen.Screen {
+func NewTestCheck() screen.Node {
 	textTitle := "Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor"
 	sizeTitle := runes.Measure(textTitle)
 
@@ -37,5 +37,5 @@ func NewTestCheck() screen.Screen {
 		Limit(1).
 		AddTitle(title...).
 		AddOptions(options...).
-		ToScreen()
+		ToNode()
 }

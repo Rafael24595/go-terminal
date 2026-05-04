@@ -17,7 +17,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-func NewTestHStack() screen.Screen {
+func NewTestHStack() screen.Node {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(makeTitle())
@@ -28,7 +28,7 @@ func NewTestHStack() screen.Screen {
 	return template.New().
 		Name("hstack-test").
 		ViewModel(*vm).
-		ToScreen()
+		ToNode()
 }
 
 func makeTitle() drawable.Drawable {

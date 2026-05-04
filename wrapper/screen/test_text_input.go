@@ -7,12 +7,12 @@ import (
 	text_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/text"
 )
 
-func NewTestTextInput() screen.Screen {
+func NewTestTextInput() screen.Node {
 	label := text.FragmentsFromString("Ipsum")
 	return text_screen.NewInput().
 		SetName("textinput - amet").
 		EnableBlinking().
 		SetLabel(label).
 		AddText("AD Lorem ipsum dolor sit amet.").
-		ToScreen()
+		ToNode()
 }

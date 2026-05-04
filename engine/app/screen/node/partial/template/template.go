@@ -38,7 +38,7 @@ func (c *Template) ViewModel(model viewmodel.ViewModel) *Template {
 	return c
 }
 
-func (c *Template) ToScreen() screen.Screen {
+func (c *Template) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(c.reference).
 		NameToStack().
@@ -46,7 +46,7 @@ func (c *Template) ToScreen() screen.Screen {
 		Definition(c.definition).
 		Update(c.update).
 		View(c.view).
-		ToScreen()
+		ToNode()
 }
 
 func (c *Template) definition() screen.Definition {

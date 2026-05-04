@@ -12,7 +12,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-func NewLanding() screen.Screen {
+func NewLanding() screen.Node {
 	textTitle := "Sed facilisis, leo sit amet molestie congue, justo risus bibendum tortor"
 	sizeTitle := runes.Measure(textTitle)
 
@@ -56,5 +56,5 @@ func NewLanding() screen.Screen {
 		AddTitle(title...).
 		AddOptions(options...).
 		SetCursor(0).
-		ToScreen()
+		ToNode()
 }

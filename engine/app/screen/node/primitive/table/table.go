@@ -122,14 +122,14 @@ func (c *Table[T]) AddItems(parser func(T) []table.Field, items ...T) *Table[T] 
 	return c
 }
 
-func (c *Table[T]) ToScreen() screen.Screen {
+func (c *Table[T]) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(c.reference).
 		NameToStack().
 		Definition(c.definition).
 		Update(c.update).
 		View(c.view).
-		ToScreen()
+		ToNode()
 }
 
 func (c *Table[T]) definitionSource() screen.DefinitionSources {

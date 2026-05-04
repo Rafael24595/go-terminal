@@ -29,29 +29,26 @@ func drawSources(vm viewmodel.ViewModel, winsize winsize.Winsize) {
 	lines.Draw(winsize)
 }
 
-func TestPipeline_ToScreen(t *testing.T) {
+func TestPipeline_ToNode(t *testing.T) {
+	name := "base"
 	mock := screen_test.MockScreen{
-		Name: "base",
+		Name: name,
 	}
 
-	scrn := New(mock.ToScreen()).
-		ToScreen()
+	node := New(mock.ToNode()).ToNode()
+	screen_test.Helper_ToNode(t, node)
 
-	screen_test.Helper_ToScreen(t, scrn)
-
-	assert.Equal(t, scrn.Name, "base")
+	assert.Equal(t, node.Screen.Name, name)
 }
 
-func TestPipeline_Stack(t *testing.T) {
+func TestPipeline_Propagate(t *testing.T) {
+	name := "base"
 	mock := screen_test.MockScreen{
-		Name: "base",
+		Name: name,
 	}
 
-	stack := New(mock.ToScreen()).
-		ToScreen().
-		Stack
-
-	assert.True(t, stack.Has("base"))
+	node := New(mock.ToNode()).ToNode()
+	screen_test.Helper_Propagate(t, name, 0, node)
 }
 
 func TestPipeline_WrapsReturnedScreen(t *testing.T) {
@@ -64,24 +61,24 @@ func TestPipeline_WrapsReturnedScreen(t *testing.T) {
 	mockBase := screen_test.MockScreen{
 		Update: func(s *state.UIState, _ screen.ScreenEvent) screen.Result {
 			called = true
-			next := mockNext.ToScreen()
+			next := mockNext.ToNode()
 			return screen.Result{
-				Screen: &next,
+				Node: &next,
 			}
 		},
 	}
 
-	help := New(mockBase.ToScreen()).
-		ToScreen()
+	help := New(mockBase.ToNode()).
+		ToNode()
 
 	stt := &state.UIState{}
 	evt := screen.ScreenEvent{}
 
-	result := help.Update(stt, evt)
+	result := help.Screen.Update(stt, evt)
 
 	assert.True(t, called)
-	assert.NotNil(t, result.Screen)
-	assert.Equal(t, "next", result.Screen.Name)
+	assert.NotNil(t, result.Node.Screen)
+	assert.Equal(t, "next", result.Node.Screen.Name)
 }
 
 func TestPipeline_ActionSingleFocus(t *testing.T) {
@@ -95,7 +92,7 @@ func TestPipeline_ActionSingleFocus(t *testing.T) {
 		Code: "mock_01",
 	}
 
-	mockScreen := screen_test.MockScreen{
+	mockNode := screen_test.MockScreen{
 		View: func(_ state.UIState) viewmodel.ViewModel {
 			vm := viewmodel.NewViewModel()
 			vm.Header.Push(headerBase.ToDrawable())
@@ -105,7 +102,7 @@ func TestPipeline_ActionSingleFocus(t *testing.T) {
 		},
 	}
 
-	w := New(mockScreen.ToScreen())
+	w := New(mockNode.ToNode())
 
 	w.PushSteps(
 		func(vm viewmodel.ViewModel) viewmodel.ViewModel {
@@ -130,11 +127,11 @@ func TestPipeline_ActionSingleFocus(t *testing.T) {
 		},
 	)
 
-	scn := w.ToScreen()
-	vm := scn.View(state.UIState{})
+	node := w.ToNode()
+	vm := node.Screen.View(state.UIState{})
 
 	drawSources(
-		scn.View(state.UIState{}),
+		node.Screen.View(state.UIState{}),
 		winsize.Winsize{},
 	)
 

@@ -46,14 +46,14 @@ var scroll_definition = screen.NewDefinitionSources(
 
 type Pagination struct {
 	engine      pager.EngineCode
-	screen      screen.Screen
+	node        screen.Node
 	forceEngine *pager.Engine
 }
 
-func New(screen screen.Screen) *Pagination {
+func New(screen screen.Node) *Pagination {
 	return &Pagination{
 		engine:      pager.CodeEnginePaged,
-		screen:      screen,
+		node:        screen,
 		forceEngine: nil,
 	}
 }
@@ -64,14 +64,15 @@ func (c *Pagination) ForceEngine(forceEngine pager.Engine) *Pagination {
 	return c
 }
 
-func (c *Pagination) ToScreen() screen.Screen {
-	return screen.Screen{
-		Name:       c.screen.Name,
-		Definition: c.definition,
-		Update:     c.update,
-		View:       c.view,
-		Stack:      c.screen.Stack,
-	}
+func (c *Pagination) ToNode() screen.Node {
+	return screen.NewBuilder().
+		Name(c.node.Screen.Name).
+		AddStack(c.node.Stack).
+		Definition(c.definition).
+		Update(c.update).
+		View(c.view).
+		Children(c.node).
+		ToNode()
 }
 
 func (c *Pagination) definitionSource() screen.DefinitionSources {
@@ -86,13 +87,13 @@ func (c *Pagination) definitionSource() screen.DefinitionSources {
 }
 
 func (c *Pagination) definition() screen.Definition {
-	def := c.screen.Definition()
-	def.RequireKeys = append(def.RequireKeys, c.definitionSource().Keys...)
-	return def
+	base := c.node.Screen.Definition()
+	base.RequireKeys = append(base.RequireKeys, c.definitionSource().Keys...)
+	return base
 }
 
 func (c *Pagination) update(state *state.UIState, event screen.ScreenEvent) screen.Result {
-	requiredKey := node.IsKeyRequired(c.screen.Definition(), event.Key)
+	requiredKey := node.IsKeyRequired(c.node.Screen.Definition(), event.Key)
 
 	if !requiredKey {
 		result := c.localUpdate(state, event)
@@ -101,13 +102,13 @@ func (c *Pagination) update(state *state.UIState, event screen.ScreenEvent) scre
 		}
 	}
 
-	result := c.screen.Update(state, event)
-	if result.Screen != nil {
-		newWrapper := New(*result.Screen)
+	result := c.node.Screen.Update(state, event)
+	if result.Node != nil {
+		newWrapper := New(*result.Node)
 		newWrapper.engine = c.engine
 		newWrapper.forceEngine = c.forceEngine
-		newScreen := newWrapper.ToScreen()
-		result.Screen = &newScreen
+		newNode := newWrapper.ToNode()
+		result.Node = &newNode
 	}
 
 	return result
@@ -137,7 +138,7 @@ func (c *Pagination) localUpdate(state *state.UIState, event screen.ScreenEvent)
 }
 
 func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
-	vm := c.screen.View(stt)
+	vm := c.node.Screen.View(stt)
 
 	if c.forceEngine != nil {
 		vm.Pager.SetEngine(*c.forceEngine)
@@ -165,7 +166,7 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 	}
 
 	actions := node.FilterKeyRequired(
-		c.screen.Definition(),
+		c.node.Screen.Definition(),
 		source.Actions...,
 	)
 

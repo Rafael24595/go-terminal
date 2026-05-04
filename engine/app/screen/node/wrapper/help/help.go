@@ -9,55 +9,56 @@ import (
 )
 
 type Help struct {
-	helpMode bool
-	screen   screen.Screen
+	visible bool
+	node    screen.Node
 }
 
-func New(screen screen.Screen) *Help {
+func New(node screen.Node) *Help {
 	return &Help{
-		helpMode: false,
-		screen:   screen,
+		visible: false,
+		node:    node,
 	}
 }
 
-func (c *Help) ToScreen() screen.Screen {
-	return screen.Screen{
-		Name:       c.screen.Name,
-		Definition: c.screen.Definition,
-		Update:     c.update,
-		View:       c.view,
-		Stack:      c.screen.Stack,
-	}
+func (c *Help) ToNode() screen.Node {
+	return screen.NewBuilder().
+		Name(c.node.Screen.Name).
+		AddStack(c.node.Stack).
+		Definition(c.node.Screen.Definition).
+		Update(c.update).
+		View(c.view).
+		Children(c.node).
+		ToNode()
 }
 
 func (c *Help) update(state *state.UIState, event screen.ScreenEvent) screen.Result {
-	requiredKey := node.IsKeyRequired(c.screen.Definition(), event.Key)
+	requiredKey := node.IsKeyRequired(c.node.Screen.Definition(), event.Key)
 
 	if requiredKey {
-		result := c.screen.Update(state, event)
-		if result.Screen != nil {
-			newWrapper := New(*result.Screen)
-			newWrapper.helpMode = c.helpMode
-			newScreen := newWrapper.ToScreen()
-			result.Screen = &newScreen
+		result := c.node.Screen.Update(state, event)
+		if result.Node != nil {
+			newWrapper := New(*result.Node)
+			newWrapper.visible = c.visible
+			newScreen := newWrapper.ToNode()
+			result.Node = &newScreen
 		}
 
-		c.helpMode = state.Helper.ShowHelp
+		c.visible = state.Helper.ShowHelp
 		return result
 	}
 
 	if event.Key.Code == key.CustomActionHelp {
-		c.helpMode = !c.helpMode
+		c.visible = !c.visible
 	}
 
-	state.Helper.ShowHelp = c.helpMode
+	state.Helper.ShowHelp = c.visible
 	return screen.ResultFromUIState(state)
 }
 
 func (c *Help) view(state state.UIState) viewmodel.ViewModel {
-	vm := c.screen.View(state)
+	vm := c.node.Screen.View(state)
 
-	vm.Helper.Show = c.helpMode
+	vm.Helper.Show = c.visible
 
 	return vm
 }

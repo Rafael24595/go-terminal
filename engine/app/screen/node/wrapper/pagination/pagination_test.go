@@ -16,29 +16,26 @@ import (
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
-func TestPagination_ToScreen(t *testing.T) {
-	base := screen_test.MockScreen{
-		Name: "base",
+func TestPagination_ToNode(t *testing.T) {
+	name := "base"
+	mock := screen_test.MockScreen{
+		Name: name,
 	}
 
-	p := New(base.ToScreen())
-	screen := p.ToScreen()
+	node := New(mock.ToNode()).ToNode()
+	screen_test.Helper_ToNode(t, node)
 
-	screen_test.Helper_ToScreen(t, screen)
-
-	assert.Equal(t, screen.Name, "base")
+	assert.Equal(t, node.Screen.Name, name)
 }
 
-func TestPagination_Stack(t *testing.T) {
+func TestPagination_Propagate(t *testing.T) {
+	name := "base"
 	mock := screen_test.MockScreen{
-		Name: "base",
+		Name: name,
 	}
 
-	stack := New(mock.ToScreen()).
-		ToScreen().
-		Stack
-
-	assert.True(t, stack.Has("base"))
+	node := New(mock.ToNode()).ToNode()
+	screen_test.Helper_Propagate(t, name, 0, node)
 }
 
 func TestPagination_LocalUpdate(t *testing.T) {
@@ -47,15 +44,14 @@ func TestPagination_LocalUpdate(t *testing.T) {
 		Name: "base",
 	}
 
-	p := New(base.ToScreen())
-
-	scrn := p.ToScreen()
+	page := New(base.ToNode())
+	node := page.ToNode()
 
 	stt.Pager.TargetPage = 0
-	result := scrn.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})
+	result := node.Screen.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})
 	assert.Equal(t, result.Pager.TargetPage, 0)
 
-	result = scrn.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowRight)})
+	result = node.Screen.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowRight)})
 	assert.Equal(t, result.Pager.TargetPage, 1)
 }
 
@@ -72,8 +68,8 @@ func TestPagination_ViewFooter(t *testing.T) {
 		},
 	}
 
-	p := New(base.ToScreen())
-	vm := p.view(*stt)
+	page := New(base.ToNode())
+	vm := page.view(*stt)
 
 	footer := vm.Footer.ToDrawable()
 	footer.Init()
@@ -98,10 +94,10 @@ func TestPagination_UpdateDelegates(t *testing.T) {
 		},
 	}
 
-	p := New(base.ToScreen())
-	scrn := p.ToScreen()
+	page := New(base.ToNode())
+	node := page.ToNode()
 
-	scrn.Update(state.NewUIState(), screen.ScreenEvent{Key: *key.NewKeyRune('x')})
+	node.Screen.Update(state.NewUIState(), screen.ScreenEvent{Key: *key.NewKeyRune('x')})
 
 	assert.True(t, called, "screen.Update should be called")
 }
@@ -114,9 +110,9 @@ func TestPagination_PageNeverNegative(t *testing.T) {
 		Name: "base",
 	}
 
-	p := New(base.ToScreen())
-	scrn := p.ToScreen()
+	page := New(base.ToNode())
+	node := page.ToNode()
 
-	scrn.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})
+	node.Screen.Update(stt, screen.ScreenEvent{Key: *key.NewKeyCode(key.ActionArrowLeft)})
 	assert.Equal(t, stt.Pager.TargetPage, 0)
 }

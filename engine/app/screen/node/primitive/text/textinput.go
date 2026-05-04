@@ -91,14 +91,14 @@ func (c *TextInput) AddText(text string) *TextInput {
 	return c
 }
 
-func (c *TextInput) ToScreen() screen.Screen {
+func (c *TextInput) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(c.textarea.reference).
 		NameToStack().
 		Definition(c.textarea.definition).
 		Update(c.textarea.update).
 		View(c.view).
-		ToScreen()
+		ToNode()
 }
 
 func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {

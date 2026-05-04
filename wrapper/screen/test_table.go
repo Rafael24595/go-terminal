@@ -67,7 +67,7 @@ func parser(lang Language) []table.Field {
 	return table.StructFieds(lang)
 }
 
-func NewTestTable() screen.Screen {
+func NewTestTable() screen.Node {
 	return table_screen.New[Language]().
 		SetName("article - ipsum").
 		SetPositionY(style.Top).
@@ -80,5 +80,5 @@ func NewTestTable() screen.Screen {
 		).
 		DefineHeaders(headers...).
 		AddItems(parser, rows...).
-		ToScreen()
+		ToNode()
 }

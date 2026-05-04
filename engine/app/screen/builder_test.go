@@ -11,7 +11,7 @@ import (
 func TestBuilder_BasicScreen(t *testing.T) {
 	name := "home"
 
-	screen := NewBuilder().
+	node := NewBuilder().
 		Name(name).
 		Update(func(*state.UIState, ScreenEvent) Result {
 			return Result{}
@@ -19,42 +19,40 @@ func TestBuilder_BasicScreen(t *testing.T) {
 		View(func(state.UIState) viewmodel.ViewModel {
 			return viewmodel.ViewModel{}
 		}).
-		ToScreen()
+		ToNode()
 
-	assert.Equal(t, name, screen.Name)
-	assert.Len(t, 0, screen.Stack)
-	assert.Nil(t, screen.Definition)
-	assert.NotNil(t, screen.Update)
-	assert.NotNil(t, screen.View)
+	assert.Equal(t, name, node.Screen.Name)
+	assert.Len(t, 0, node.Stack)
+	assert.Nil(t, node.Screen.Definition)
+	assert.NotNil(t, node.Screen.Update)
+	assert.NotNil(t, node.Screen.View)
 }
 
 func TestBuilder_WithoutDefinition(t *testing.T) {
-	screen := NewBuilder().
+	node := NewBuilder().
 		Name("home").
 		WithoutDefinition().
-		ToScreen()
+		ToNode()
 
-	assert.NotNil(t, screen.Definition)
-	assert.Len(t, 0, screen.Definition().RequireKeys)
+	assert.NotNil(t, node.Screen.Definition)
+	assert.Len(t, 0, node.Screen.Definition().RequireKeys)
 }
 
 func TestBuilder_NameToStack(t *testing.T) {
 	name := "home"
 
-	screen := NewBuilder().
+	node := NewBuilder().
 		Name(name).
 		NameToStack().
-		ToScreen()
+		ToNode()
 
-	assert.Contains(t, screen.Stack, name)
+	assert.Contains(t, node.Stack, name)
 }
 
 func TestBuilder_IncompleteScreen(t *testing.T) {
-	screen := NewBuilder().
-		Name("home").
-		ToScreen()
+	node := NewBuilder().Name("home").ToNode()
 
-	assert.Nil(t, screen.Definition)
-	assert.Nil(t, screen.Update)
-	assert.Nil(t, screen.View)
+	assert.Nil(t, node.Screen.Definition)
+	assert.Nil(t, node.Screen.Update)
+	assert.Nil(t, node.Screen.View)
 }

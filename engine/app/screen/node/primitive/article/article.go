@@ -40,14 +40,14 @@ func (c *Article) AddArticle(article ...text.Line) *Article {
 	return c
 }
 
-func (c *Article) ToScreen() screen.Screen {
+func (c *Article) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(c.reference).
 		NameToStack().
 		WithoutDefinition().
 		Update(c.update).
 		View(c.view).
-		ToScreen()
+		ToNode()
 }
 
 func (c *Article) update(stt *state.UIState, _ screen.ScreenEvent) screen.Result {

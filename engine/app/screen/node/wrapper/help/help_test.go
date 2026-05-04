@@ -12,29 +12,26 @@ import (
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
-func TestHelp_ToScreen(t *testing.T) {
+func TestHelp_ToNode(t *testing.T) {
+	name := "base"
 	mock := screen_test.MockScreen{
-		Name: "base",
+		Name: name,
 	}
 
-	scrn := New(mock.ToScreen()).
-		ToScreen()
+	node := New(mock.ToNode()).ToNode()
+	screen_test.Helper_ToNode(t, node)
 
-	screen_test.Helper_ToScreen(t, scrn)
-
-	assert.Equal(t, scrn.Name, "base")
+	assert.Equal(t, node.Screen.Name, name)
 }
 
-func TestHelp_Stack(t *testing.T) {
+func TestHelp_Propagate(t *testing.T) {
+	name := "base"
 	mock := screen_test.MockScreen{
-		Name: "base",
+		Name: name,
 	}
 
-	stack := New(mock.ToScreen()).
-		ToScreen().
-		Stack
-
-	assert.True(t, stack.Has("base"))
+	node := New(mock.ToNode()).ToNode()
+	screen_test.Helper_Propagate(t, name, 0, node)
 }
 
 func TestHelp_ToggleHelpKey(t *testing.T) {
@@ -42,14 +39,14 @@ func TestHelp_ToggleHelpKey(t *testing.T) {
 
 	mock := screen_test.MockScreen{}
 
-	scrn := New(mock.ToScreen()).ToScreen()
+	node := New(mock.ToNode()).ToNode()
 
 	state := &state.UIState{}
 	event := screen.ScreenEvent{
 		Key: *key.NewKeyCode(key.CustomActionHelp),
 	}
 
-	scrn.Update(state, event)
+	node.Screen.Update(state, event)
 
 	assert.True(t, state.Helper.ShowHelp)
 	assert.False(t, called)
@@ -69,14 +66,14 @@ func TestHelp_DelegatesUpdateWhenKeyRequired(t *testing.T) {
 		},
 	}
 
-	scrn := New(mock.ToScreen()).ToScreen()
+	node := New(mock.ToNode()).ToNode()
 
 	state := &state.UIState{}
 	event := screen.ScreenEvent{
 		Key: ky,
 	}
 
-	scrn.Update(state, event)
+	node.Screen.Update(state, event)
 
 	assert.False(t, state.Helper.ShowHelp)
 	assert.True(t, called)
@@ -96,34 +93,34 @@ func TestHelp_WrapsReturnedScreen(t *testing.T) {
 		Definition: &definition,
 		Update: func(s *state.UIState, _ screen.ScreenEvent) screen.Result {
 			called = true
-			next := mockNext.ToScreen()
+			next := mockNext.ToNode()
 			return screen.Result{
-				Screen: &next,
+				Node: &next,
 			}
 		},
 	}
 
-	help := New(mockBase.ToScreen())
-	wrapped := help.ToScreen()
+	help := New(mockBase.ToNode())
+	wrapped := help.ToNode()
 
 	stt := &state.UIState{}
 	evt := screen.ScreenEvent{
 		Key: ky,
 	}
 
-	wrapped.Update(stt, screen.ScreenEvent{
+	wrapped.Screen.Update(stt, screen.ScreenEvent{
 		Key: *key.NewKeyCode(key.CustomActionHelp),
 	})
 
 	assert.True(t, stt.Helper.ShowHelp)
 
-	result := wrapped.Update(stt, evt)
+	result := wrapped.Screen.Update(stt, evt)
 
 	assert.True(t, called)
-	assert.NotNil(t, result.Screen)
-	assert.Equal(t, "next", result.Screen.Name)
+	assert.NotNil(t, result.Node)
+	assert.Equal(t, "next", result.Node.Screen.Name)
 
-	vm := result.Screen.View(state.UIState{})
+	vm := result.Node.Screen.View(state.UIState{})
 
 	assert.True(t, vm.Helper.Show)
 }

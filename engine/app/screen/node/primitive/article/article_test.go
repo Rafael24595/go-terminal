@@ -13,17 +13,14 @@ import (
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
-func TestArticle_ToScreen(t *testing.T) {
-	article := New().Name("MyScreen")
-	screen := article.ToScreen()
+func TestArticle_ToNode(t *testing.T) {
+	node := New().Name("base").ToNode()
 
-	screen_test.Helper_ToScreen(t, screen)
+	screen_test.Helper_ToNode(t, node)
 }
 
 func TestArticle_Stack(t *testing.T) {
-	stack := New().
-		ToScreen().
-		Stack
+	stack := New().ToNode().Stack
 
 	assert.True(t, stack.Has(Name))
 }
@@ -31,7 +28,7 @@ func TestArticle_Stack(t *testing.T) {
 func TestNewArticle_DefaultValues(t *testing.T) {
 	article := New()
 
-	assert.Equal(t, Name, article.ToScreen().Name)
+	assert.Equal(t, Name, article.ToNode().Screen.Name)
 	assert.Len(t, 0, article.title)
 	assert.Len(t, 0, article.article)
 }
@@ -40,7 +37,7 @@ func TestArticle_SetName(t *testing.T) {
 	article := New()
 	result := article.Name("CustomName")
 
-	assert.Equal(t, "CustomName", article.ToScreen().Name)
+	assert.Equal(t, "CustomName", article.ToNode().Screen.Name)
 	assert.Equal(t, result, article)
 }
 

@@ -73,14 +73,14 @@ func (c *IndexMenu) SetCursor(cursor uint16) *IndexMenu {
 	return c
 }
 
-func (c *IndexMenu) ToScreen() screen.Screen {
+func (c *IndexMenu) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(c.reference).
 		NameToStack().
 		Definition(c.definition).
 		Update(c.update).
 		View(c.view).
-		ToScreen()
+		ToNode()
 }
 
 func (c *IndexMenu) definition() screen.Definition {
@@ -115,8 +115,8 @@ func (c *IndexMenu) actionEnter(stt *state.UIState) screen.Result {
 		option.Id,
 	)
 
-	scrn := c.options[c.cursor].Action()
-	return screen.ResultFromScreen(&scrn)
+	node := c.options[c.cursor].Action()
+	return screen.ResultFromNode(&node)
 }
 
 func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {

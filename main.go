@@ -61,7 +61,7 @@ func main() {
 		stack.Cleanup,
 	)
 
-	screen := makeScreen()
+	screen := makeNode()
 
 	<-core.NewEngine(
 		terminal,
@@ -94,19 +94,19 @@ func makeTerminal(ctx context.Context) terminal.Terminal {
 		ToTerminal()
 }
 
-func makeScreen() screen.Screen {
+func makeNode() screen.Node {
 	landing := wrapper_screen.NewLanding()
 
-	history := history.New(landing).ToScreen()
+	history := history.New(landing).ToNode()
 	pagination := pagination.New(history).
 		ForceEngine(pager.EnginePage()).
-		ToScreen()
-	helper := help.New(pagination).ToScreen()
+		ToNode()
+	helper := help.New(pagination).ToNode()
 
 	return makePipeline(helper)
 }
 
-func makePipeline(scrn screen.Screen) screen.Screen {
+func makePipeline(node screen.Node) screen.Node {
 	headerStep := wrapper_screen.NewBaseHeader()
 
 	inlineStep := inline.InlineTransformer(
@@ -125,9 +125,9 @@ func makePipeline(scrn screen.Screen) screen.Screen {
 		pipeline.Footer,
 	)
 
-	return pipeline.New(scrn,
+	return pipeline.New(node,
 		headerStep, inlineStep, spacerHeader, spacerFooter,
-	).ToScreen()
+	).ToNode()
 }
 
 func makeLayout(transformer winsize.Transformer) layout.Layout {

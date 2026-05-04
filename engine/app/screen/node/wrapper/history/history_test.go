@@ -13,31 +13,27 @@ import (
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
-func TestHistory_ToScreen(t *testing.T) {
-	base := screen_test.MockScreen{
-		Name: "base",
-	}
-
-	scrn := New(base.ToScreen()).
-		ToScreen()
-
-	screen_test.Helper_ToScreen(t, scrn)
-
-	assert.Equal(t, scrn.Name, "base")
-}
-
-func TestHistory_Stack(t *testing.T) {
+func TestHistory_ToNode(t *testing.T) {
+	name := "base"
 	mock := screen_test.MockScreen{
-		Name: "base",
+		Name: name,
 	}
 
-	stack := New(mock.ToScreen()).
-		ToScreen().
-		Stack
+	node := New(mock.ToNode()).ToNode()
+	screen_test.Helper_ToNode(t, node)
 
-	assert.True(t, stack.Has("base"))
+	assert.Equal(t, node.Screen.Name, name)
 }
 
+func TestHistory_Propagate(t *testing.T) {
+	name := "base"
+	mock := screen_test.MockScreen{
+		Name: name,
+	}
+
+	node := New(mock.ToNode()).ToNode()
+	screen_test.Helper_Propagate(t, name, 0, node)
+}
 func TestHistory_BackNavigation(t *testing.T) {
 	stt := &state.UIState{}
 
@@ -48,33 +44,33 @@ func TestHistory_BackNavigation(t *testing.T) {
 	mockNext := screen_test.MockScreen{
 		Name: "next",
 		Update: func(s *state.UIState, e screen.ScreenEvent) screen.Result {
-			base := mockBase.ToScreen()
-			return screen.ResultFromScreen(&base)
+			base := mockBase.ToNode()
+			return screen.ResultFromNode(&base)
 		},
 	}
 
-	scrn := New(mockNext.ToScreen()).
-		ToScreen()
+	node := New(mockNext.ToNode()).
+		ToNode()
 
-	assert.Equal(t, scrn.Name, "next")
+	assert.Equal(t, node.Screen.Name, "next")
 
-	result := scrn.Update(stt, screen.ScreenEvent{})
-	assert.NotNil(t, result.Screen)
-	assert.Equal(t, result.Screen.Name, "base")
+	result := node.Screen.Update(stt, screen.ScreenEvent{})
+	assert.NotNil(t, result.Node)
+	assert.Equal(t, result.Node.Screen.Name, "base")
 
-	backResult := result.Screen.Update(stt, screen.ScreenEvent{
+	backResult := result.Node.Screen.Update(stt, screen.ScreenEvent{
 		Key: *key.NewKeyCode(key.CustomActionBack),
 	})
 
-	assert.NotNil(t, backResult.Screen)
-	assert.Equal(t, backResult.Screen.Name, "next")
+	assert.NotNil(t, backResult.Node.Screen)
+	assert.Equal(t, backResult.Node.Screen.Name, "next")
 }
 
 func TestHistory_ViewFooter(t *testing.T) {
 	mock := screen_test.MockScreen{}
-	scrn := mock.ToScreen()
+	node := mock.ToNode()
 
-	h := New(scrn)
+	h := New(node)
 
 	vm := h.view(*state.NewUIState())
 
@@ -85,7 +81,7 @@ func TestHistory_ViewFooter(t *testing.T) {
 
 	assert.Len(t, 0, lines)
 
-	h.history = &scrn
+	h.history = &node
 	vm = h.view(*state.NewUIState())
 
 	footer = vm.Footer.ToDrawable()
