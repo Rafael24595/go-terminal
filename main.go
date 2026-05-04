@@ -21,6 +21,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/wrapper/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/wrapper/history"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/wrapper/pagination"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/pass"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize/transformer"
@@ -61,6 +62,10 @@ func main() {
 		stack.Cleanup,
 	)
 
+	passes := []screen.Pass{
+		pass.ValidateStructure(),
+	}
+
 	screen := makeNode()
 
 	<-core.NewEngine(
@@ -69,7 +74,8 @@ func main() {
 		render,
 		cleaner,
 		screen,
-	).RunWithContext(ctx)
+	).AddPass(passes...).
+		RunWithContext(ctx)
 }
 
 func configLog(ctx context.Context) {
