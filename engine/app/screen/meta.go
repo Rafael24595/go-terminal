@@ -6,14 +6,14 @@ const (
 	SystemMetaTag = "system_meta"
 )
 
-type ScreenMeta struct {
-	code set.Set[string]
-	tags set.Set[string]
+type Meta struct {
+	Code set.Set[string]
+	Tags set.Set[string]
 }
 
-func newMeta() ScreenMeta {
-	return ScreenMeta{
-		code: set.NewSet[string](),
-		tags: set.NewSet[string](),
+func NewMeta() Meta {
+	return Meta{
+		Code: set.NewSet[string](),
+		Tags: set.NewSet[string](),
 	}
 }
