@@ -5,6 +5,16 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 )
 
+type Definition struct {
+	RequireKeys []key.Key
+}
+
+func DefinitionFromKeys(keys ...key.Key) Definition {
+	return Definition{
+		RequireKeys: keys,
+	}
+}
+
 type DefinitionSources struct {
 	Overrides  map[key.KeyAction]help.HelpField
 	Actions    []key.KeyAction
