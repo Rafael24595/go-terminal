@@ -30,26 +30,28 @@ type Engine struct {
 	render   render.Render
 	cleaner  cleaner.StateCleaner
 	screen   screen.Screen
+	passes   []screen.ScreenPass
 }
 
 // TODO: Disable pulse on proactive terminal
 func NewEngine(
-	terminal terminal.Terminal,
-	layout layout.Layout,
-	render render.Render,
-	cleaner cleaner.StateCleaner,
-	screen screen.Screen,
+	trm terminal.Terminal,
+	lyo layout.Layout,
+	rnd render.Render,
+	cls cleaner.StateCleaner,
+	scn screen.Screen,
 ) *Engine {
 	pulse := pulse.New(50 * time.Millisecond)
 	return &Engine{
 		context:  nil,
 		doneSgnl: make(chan struct{}),
 		pulse:    pulse,
-		terminal: terminal,
-		layout:   layout,
-		render:   render,
-		cleaner:  cleaner,
-		screen:   screen,
+		terminal: trm,
+		layout:   lyo,
+		render:   rnd,
+		cleaner:  cls,
+		screen:   scn,
+		passes:   make([]screen.ScreenPass, 0),
 	}
 }
 
@@ -60,7 +62,16 @@ func (e *Engine) Context(ctx context.Context) *Engine {
 	}
 
 	e.context = ctx
+	return e
+}
 
+func (e *Engine) AddPass(pass ...screen.ScreenPass) *Engine {
+	if e.running {
+		assert.Unreachable("the engine can be modified after initialization")
+		return e
+	}
+
+	e.passes = append(e.passes, pass...)
 	return e
 }
 
@@ -79,6 +90,8 @@ func (e *Engine) RunWithContext(ctx context.Context) <-chan struct{} {
 	e.running = true
 
 	e.context = ctx
+	e.compileScreen(e.screen)
+
 	go e.run()
 
 	return e.doneSgnl
@@ -90,7 +103,7 @@ func (e *Engine) run() {
 
 	err := e.terminal.OnStart()
 	if err != nil {
-		log.Error(err)
+		e.logErr(err)
 		return
 	}
 
@@ -98,7 +111,7 @@ func (e *Engine) run() {
 
 	size, err := e.terminal.Size()
 	if err != nil {
-		log.Error(err)
+		e.logErr(err)
 		return
 	}
 
@@ -145,6 +158,16 @@ func (e *Engine) Exit() {
 	}
 }
 
+func (e *Engine) compileScreen(screen screen.Screen) *Engine {
+	newScreen, err := screen.Compile(e.passes...)
+	if err != nil {
+		e.logErr(err)
+	}
+
+	e.screen = newScreen
+	return e
+}
+
 func (e *Engine) updateScreen(
 	state *state.UIState,
 	size winsize.Winsize,
@@ -164,14 +187,14 @@ func (e *Engine) updateScreen(
 	return state
 }
 
-func (e *Engine) manageResult(state *state.UIState, result screen.ScreenResult) *state.UIState {
+func (e *Engine) manageResult(state *state.UIState, result screen.Result) *state.UIState {
 	state.Pager = result.Pager
 	return state
 }
 
-func (e *Engine) manageScreen(result screen.ScreenResult) screen.ScreenResult {
+func (e *Engine) manageScreen(result screen.Result) screen.Result {
 	if result.Screen != nil {
-		e.screen = *result.Screen
+		e.compileScreen(*result.Screen)
 	}
 	return result
 }
@@ -197,17 +220,17 @@ func (e *Engine) renderFrame(state *state.UIState, size winsize.Winsize) {
 
 	err := e.terminal.WriteAll(result)
 	if err != nil {
-		log.Error(err)
+		e.logErr(err)
 	}
 
 	err = e.terminal.Flush()
 	if err != nil {
-		log.Error(err)
+		e.logErr(err)
 	}
 
 	err = e.terminal.Clear()
 	if err != nil {
-		log.Error(err)
+		e.logErr(err)
 	}
 }
 
@@ -219,4 +242,9 @@ func (e *Engine) syncPager(state *state.UIState, vm *viewmodel.ViewModel) (*stat
 	vm.Behavior.NeedsPulse = true
 	state.Pager.Syncronyzed = true
 	return state, vm
+}
+
+func (e *Engine) logErr(err error) {
+	log.Error(err)
+	assert.Unreachable("error: %s", err)
 }
