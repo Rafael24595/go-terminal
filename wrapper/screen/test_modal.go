@@ -2,7 +2,7 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive/modalmenu"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/modalmenu"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )

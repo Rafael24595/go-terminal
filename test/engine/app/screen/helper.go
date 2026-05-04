@@ -14,16 +14,20 @@ import (
 type MockScreen struct {
 	Name       string
 	Definition *screen.Definition
-	Update     func(*state.UIState, screen.ScreenEvent) screen.ScreenResult
+	Update     func(*state.UIState, screen.ScreenEvent) screen.Result
 	View       func(state.UIState) viewmodel.ViewModel
 	Stack      set.Set[string]
 }
 
 func (t MockScreen) ToScreen() screen.Screen {
+	stack := t.Stack
+	if t.Stack == nil {
+		stack = set.SetFrom(t.Name)
+	}
+
 	return screen.Screen{
-		Name: func() string {
-			return t.Name
-		},
+		Name:  t.Name,
+		Stack: stack,
 		Definition: func() screen.Definition {
 			if t.Definition != nil {
 				return *t.Definition
@@ -31,12 +35,12 @@ func (t MockScreen) ToScreen() screen.Screen {
 
 			return screen.DefinitionFromKeys()
 		},
-		Update: func(s *state.UIState, e screen.ScreenEvent) screen.ScreenResult {
+		Update: func(s *state.UIState, e screen.ScreenEvent) screen.Result {
 			if t.Update != nil {
 				return t.Update(s, e)
 			}
 
-			return screen.ScreenResultFromUIState(s)
+			return screen.ResultFromUIState(s)
 		},
 		View: func(s state.UIState) viewmodel.ViewModel {
 			if t.View != nil {
@@ -44,13 +48,6 @@ func (t MockScreen) ToScreen() screen.Screen {
 			}
 
 			return *viewmodel.NewViewModel()
-		},
-		Stack: func() set.Set[string] {
-			if t.Stack != nil {
-				return t.Stack
-			}
-
-			return set.SetFrom(t.Name)
 		},
 	}
 }

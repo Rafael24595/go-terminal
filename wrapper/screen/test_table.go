@@ -5,8 +5,8 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
-	
-	table_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive/table"
+
+	table_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/table"
 )
 
 type Language struct {

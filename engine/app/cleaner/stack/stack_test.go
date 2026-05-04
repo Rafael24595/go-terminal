@@ -7,7 +7,6 @@ import (
 
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
-	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 
 	cleaner_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/cleaner"
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
@@ -25,21 +24,20 @@ func TestStack_PreservesActiveState(t *testing.T) {
 
 	screenBase := screen_test.MockScreen{
 		Name: "base",
-	}.ToScreen().StackFromName()
+	}.ToScreen()
 
-	stt.Stack.Push(screenBase.Name(), "lang-1", "golang")
+	stt.Stack.Push(screenBase.Name, "lang-1", "golang")
 
-	screenWrapper := screen_test.MockScreen{}.ToScreen()
-	screenWrapper.Stack = func() set.Set[string] {
-		return screenBase.Stack()
-	}
+	screenWrapper := screen_test.MockScreen{
+		Stack: screenBase.Stack,
+	}.ToScreen()
 
-	result := screen.ScreenResultFromUIState(stt)
+	result := screen.ResultFromUIState(stt)
 	result.Screen = &screenWrapper
 
 	cleaner.Cleanup(result, stt)
 
-	value, exists := stt.Stack.Find(screenBase.Name(), "lang-1")
+	value, exists := stt.Stack.Find(screenBase.Name, "lang-1")
 
 	assert.True(t, exists)
 	assert.Equal(t, "golang", value.Stringf())
@@ -51,30 +49,28 @@ func TestStack_RemovesInactiveState(t *testing.T) {
 
 	screenBase := screen_test.MockScreen{
 		Name: "base",
-	}.ToScreen().StackFromName()
+	}.ToScreen()
 
-	stt.Stack.Push(screenBase.Name(), "lang-1", "golang")
+	stt.Stack.Push(screenBase.Name, "lang-1", "golang")
 
 	screenNext := screen_test.MockScreen{
 		Name: "next",
-	}.ToScreen().StackFromName()
+	}.ToScreen()
 
 	screenWrapper := screen_test.MockScreen{}.ToScreen()
-	screenWrapper.Stack = func() set.Set[string] {
-		return screenNext.Stack()
-	}
+	screenWrapper.Stack = screenNext.Stack
 
-	result := screen.ScreenResultFromUIState(stt)
+	result := screen.ResultFromUIState(stt)
 	result.Screen = &screenWrapper
 
 	cleaner.Cleanup(result, stt)
 
-	_, exists := stt.Stack.Find(screenBase.Name(), "lang-1")
+	_, exists := stt.Stack.Find(screenBase.Name, "lang-1")
 	assert.False(t, exists)
 
-	stt.Stack.Push(screenNext.Name(), "lang-2", "ziglang")
+	stt.Stack.Push(screenNext.Name, "lang-2", "ziglang")
 
-	value, exists := stt.Stack.Find(screenNext.Name(), "lang-2")
+	value, exists := stt.Stack.Find(screenNext.Name, "lang-2")
 	assert.True(t, exists)
 	assert.Equal(t, "ziglang", value.Stringf())
 }
@@ -85,34 +81,30 @@ func TestStack_TransitionBetweenScreens(t *testing.T) {
 
 	screenBase := screen_test.MockScreen{
 		Name: "base",
-	}.ToScreen().StackFromName()
+	}.ToScreen()
 
 	screenNext := screen_test.MockScreen{
 		Name: "next",
-	}.ToScreen().StackFromName()
+	}.ToScreen()
 
-	stt.Stack.Push(screenBase.Name(), "lang-1", "golang")
+	stt.Stack.Push(screenBase.Name, "lang-1", "golang")
 
 	screenWrapper := screen_test.MockScreen{}.ToScreen()
-	screenWrapper.Stack = func() set.Set[string] {
-		return screenBase.Stack()
-	}
+	screenWrapper.Stack = screenBase.Stack
 
-	result := screen.ScreenResultFromUIState(stt)
+	result := screen.ResultFromUIState(stt)
 	result.Screen = &screenWrapper
 	cleaner.Cleanup(result, stt)
 
-	_, exists := stt.Stack.Find(screenBase.Name(), "lang-1")
+	_, exists := stt.Stack.Find(screenBase.Name, "lang-1")
 	assert.True(t, exists)
 
-	screenWrapper.Stack = func() set.Set[string] {
-		return screenNext.Stack()
-	}
+	screenWrapper.Stack = screenNext.Stack
 
-	result = screen.ScreenResultFromUIState(stt)
+	result = screen.ResultFromUIState(stt)
 	result.Screen = &screenWrapper
 	cleaner.Cleanup(result, stt)
 
-	_, exists = stt.Stack.Find(screenBase.Name(), "lang-1")
+	_, exists = stt.Stack.Find(screenBase.Name, "lang-1")
 	assert.False(t, exists)
 }

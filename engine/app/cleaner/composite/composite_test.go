@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 
@@ -20,15 +20,15 @@ func TestComposite_ToStateCleaner(t *testing.T) {
 func TestCompositeCleanup(t *testing.T) {
 
 	c := NewCleaner(
-		func(r screen.ScreenResult, s *state.UIState) *state.UIState {
+		func(r screen.Result, s *state.UIState) *state.UIState {
 			s.Pager.ActualPage = 0
 			return s
 		},
-		func(r screen.ScreenResult, s *state.UIState) *state.UIState {
+		func(r screen.Result, s *state.UIState) *state.UIState {
 			s.Pager.ForceShow = true
 			return s
 		},
-		func(r screen.ScreenResult, s *state.UIState) *state.UIState {
+		func(r screen.Result, s *state.UIState) *state.UIState {
 			s.Helper.ShowHelp = false
 			return s
 		},
@@ -39,7 +39,7 @@ func TestCompositeCleanup(t *testing.T) {
 	stt.Pager.ForceShow = false
 	stt.Helper.ShowHelp = true
 
-	res := screen.ScreenResult{}
+	res := screen.Result{}
 
 	stt = c.Cleanup(res, stt)
 

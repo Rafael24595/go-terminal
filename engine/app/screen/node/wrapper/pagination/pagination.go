@@ -1,0 +1,194 @@
+package pagination
+
+import (
+	"fmt"
+
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
+
+	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+)
+
+var sources = map[pager.EngineCode]screen.DefinitionSources{
+	pager.CodeEnginePaged:  pager_definition,
+	pager.CodeEngineScroll: scroll_definition,
+}
+
+var pager_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{
+		key.ActionArrowLeft:  {Code: []string{"←"}, Detail: "Prev page"},
+		key.ActionArrowRight: {Code: []string{"→"}, Detail: "Next page"},
+	},
+	[]key.KeyAction{
+		key.ActionArrowLeft,
+		key.ActionArrowRight,
+	},
+)
+
+var scroll_definition = screen.NewDefinitionSources(
+	map[key.KeyAction]help.HelpField{
+		key.ActionArrowUp:   {Code: []string{"↑"}, Detail: "Scroll up"},
+		key.ActionArrowDown: {Code: []string{"↓"}, Detail: "Scroll down"},
+	},
+	[]key.KeyAction{
+		key.ActionArrowUp,
+		key.ActionArrowDown,
+	},
+)
+
+type Pagination struct {
+	engine      pager.EngineCode
+	screen      screen.Screen
+	forceEngine *pager.Engine
+}
+
+func New(screen screen.Screen) *Pagination {
+	return &Pagination{
+		engine:      pager.CodeEnginePaged,
+		screen:      screen,
+		forceEngine: nil,
+	}
+}
+
+func (c *Pagination) ForceEngine(forceEngine pager.Engine) *Pagination {
+	c.forceEngine = &forceEngine
+	c.engine = forceEngine.Code
+	return c
+}
+
+func (c *Pagination) ToScreen() screen.Screen {
+	return screen.Screen{
+		Name:       c.screen.Name,
+		Definition: c.definition,
+		Update:     c.update,
+		View:       c.view,
+		Stack:      c.screen.Stack,
+	}
+}
+
+func (c *Pagination) definitionSource() screen.DefinitionSources {
+	source, ok := sources[c.engine]
+	if ok {
+		return source
+	}
+
+	assert.Unreachable("unhandled engine definition %d", c.engine)
+
+	return pager_definition
+}
+
+func (c *Pagination) definition() screen.Definition {
+	def := c.screen.Definition()
+	def.RequireKeys = append(def.RequireKeys, c.definitionSource().Keys...)
+	return def
+}
+
+func (c *Pagination) update(state *state.UIState, event screen.ScreenEvent) screen.Result {
+	requiredKey := node.IsKeyRequired(c.screen.Definition(), event.Key)
+
+	if !requiredKey {
+		result := c.localUpdate(state, event)
+		if result != nil {
+			return *result
+		}
+	}
+
+	result := c.screen.Update(state, event)
+	if result.Screen != nil {
+		newWrapper := New(*result.Screen)
+		newWrapper.engine = c.engine
+		newWrapper.forceEngine = c.forceEngine
+		newScreen := newWrapper.ToScreen()
+		result.Screen = &newScreen
+	}
+
+	return result
+}
+
+func (c *Pagination) localUpdate(state *state.UIState, event screen.ScreenEvent) *screen.Result {
+	keyback := key.ActionArrowLeft
+	keyNext := key.ActionArrowRight
+	if c.engine == pager.CodeEngineScroll {
+		keyback = key.ActionArrowUp
+		keyNext = key.ActionArrowDown
+	}
+
+	if event.Key.Code == keyback {
+		state.Pager.DecTarget()
+		result := screen.ResultFromUIState(state)
+		return &result
+	}
+
+	if event.Key.Code == keyNext {
+		state.Pager.IncTarget()
+		result := screen.ResultFromUIState(state)
+		return &result
+	}
+
+	return nil
+}
+
+func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
+	vm := c.screen.View(stt)
+
+	if c.forceEngine != nil {
+		vm.Pager.SetEngine(*c.forceEngine)
+	}
+
+	source := c.definitionSource()
+
+	if c.shouldShowPage(stt, vm) {
+		label := "page"
+		if vm.Pager.Engine.Code == pager.CodeEngineScroll {
+			label = "scroll"
+		}
+
+		footer := []text.Line{
+			*text.NewLine(
+				fmt.Sprintf("%s: %d", label, stt.Pager.ActualPage),
+				style.SpecFromKind(style.SpcKindPaddingRight),
+			),
+		}
+
+		vm.Footer.Unshift(
+			block.DrawableFromLines(footer...).
+				AddTag(screen.SystemMetaTag),
+		)
+	}
+
+	actions := node.FilterKeyRequired(
+		c.screen.Definition(),
+		source.Actions...,
+	)
+
+	vm.Helper.Unshift(
+		key.ActionsToHelpWithOverride(
+			source.Overrides,
+			actions...,
+		)...,
+	)
+
+	return vm
+}
+
+func (c *Pagination) shouldShowPage(stt state.UIState, vm viewmodel.ViewModel) bool {
+	predicate := vm.Pager.Predicate.Code
+
+	if predicate != pager.CodePredicatePage {
+		return false
+	}
+
+	if stt.Pager.ForceShow {
+		return true
+	}
+
+	return stt.Pager.HasMore || stt.Pager.ActualPage > 0
+}

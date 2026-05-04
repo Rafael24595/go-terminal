@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive/indexmenu"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/indexmenu"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"

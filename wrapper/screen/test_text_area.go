@@ -7,7 +7,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
-	text_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/primitive/text"
+	text_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/text"
 	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
 
