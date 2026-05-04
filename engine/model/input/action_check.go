@@ -9,14 +9,13 @@ type CheckAction struct {
 	Handler    CheckActionHandler
 }
 
-func NewCheckAction(handler ...CheckActionHandler) *CheckAction {
-	hdl := voidCheckHandler
-	if len(handler) > 0 {
-		hdl = handler[0]
-	}
-
+func NewCheckAction(handler CheckActionHandler) *CheckAction {
 	return &CheckAction{
 		ActionMode: false,
-		Handler:    hdl,
+		Handler:    handler,
 	}
+}
+
+func EmptyCheckAction() *CheckAction {
+	return NewCheckAction(voidCheckHandler)
 }
