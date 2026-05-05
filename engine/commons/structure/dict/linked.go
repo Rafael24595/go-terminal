@@ -43,6 +43,11 @@ func (m *LinkedMap[K, V]) Init() *LinkedMap[K, V] {
 	return m
 }
 
+func (m *LinkedMap[K, V]) Size() uint {
+	m.lazyInit()
+	return uint(len(m.data))
+}
+
 func (m *LinkedMap[K, V]) Exists(k K) bool {
 	_, exists := m.Get(k)
 	return exists
@@ -204,14 +209,14 @@ func (m *LinkedMap[K, V]) Values() iter.Seq[V] {
 }
 
 func (m *LinkedMap[K, V]) Clone() *LinkedMap[K, V] {
-    m.lazyInit()
-    
-    cloned := NewLinkedMap[K, V]()
+	m.lazyInit()
+
+	cloned := NewLinkedMap[K, V]()
 	cloned.inmu = m.inmu
 
-    for p := range m.Pairs() {
-        cloned.set(p)
-    }
-    
-    return cloned
+	for p := range m.Pairs() {
+		cloned.set(p)
+	}
+
+	return cloned
 }
