@@ -35,7 +35,7 @@ func TestBuilder_WithoutDefinition(t *testing.T) {
 		ToNode()
 
 	assert.NotNil(t, node.Screen.Definition)
-	assert.Len(t, 0, node.Screen.Definition().RequireKeys)
+	assert.Equal(t, 0, node.Screen.Definition().RequireKeys.Size())
 }
 
 func TestBuilder_NameToStack(t *testing.T) {

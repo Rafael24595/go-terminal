@@ -1,17 +1,32 @@
 package screen
 
 import (
+	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/dict"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 )
 
 type Definition struct {
-	RequireKeys []key.Key
+	RequireKeys *dict.LinkedMap[key.KeyAction, key.Key]
+}
+
+func (d Definition) Merge(other Definition) Definition {
+    required := d.RequireKeys.Clone()
+    required.Merge(other.RequireKeys)
+	
+    return Definition{
+        RequireKeys: required,
+    }
 }
 
 func DefinitionFromKeys(keys ...key.Key) Definition {
+	required := dict.NewLinkedMap[key.KeyAction, key.Key]()
+	for _, v := range keys {
+		required.Set(v.Code, v)
+	}
+
 	return Definition{
-		RequireKeys: keys,
+		RequireKeys: required,
 	}
 }
 

@@ -88,8 +88,8 @@ func (c *Pagination) definitionSource() screen.DefinitionSources {
 
 func (c *Pagination) definition() screen.Definition {
 	base := c.node.Screen.Definition()
-	base.RequireKeys = append(base.RequireKeys, c.definitionSource().Keys...)
-	return base
+	return c.definitionSource().
+		Definition.Merge(base)
 }
 
 func (c *Pagination) update(state *state.UIState, event screen.ScreenEvent) screen.Result {

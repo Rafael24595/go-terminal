@@ -6,21 +6,16 @@ import (
 )
 
 func IsKeyRequired(def screen.Definition, ky key.Key) bool {
-	for _, v := range def.RequireKeys {
-		if v.Code == key.ActionAll || v.Code == ky.Code {
-			return true
-		}
-	}
-	return false
+	return IsActionRequired(def, ky.Code)
 }
 
 func IsActionRequired(def screen.Definition, ky key.KeyAction) bool {
-	for _, v := range def.RequireKeys {
-		if v.Code == key.ActionAll || v.Code == ky {
-			return true
-		}
+	exists := def.RequireKeys.Exists(key.ActionAll)
+	if exists {
+		return true
 	}
-	return false
+
+	return def.RequireKeys.Exists(ky)
 }
 
 func FilterKeyRequired(def screen.Definition, kys ...key.KeyAction) []key.KeyAction {

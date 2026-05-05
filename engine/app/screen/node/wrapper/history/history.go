@@ -45,8 +45,7 @@ func (c *History) ToNode() screen.Node {
 
 func (c *History) definition() screen.Definition {
 	base := c.node.Screen.Definition()
-	base.RequireKeys = append(base.RequireKeys, definition.Keys...)
-	return base
+	return definition.Definition.Merge(base)
 }
 
 func (c *History) update(state *state.UIState, event screen.ScreenEvent) screen.Result {
