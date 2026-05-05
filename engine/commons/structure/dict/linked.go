@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/list"
 )
 
@@ -70,8 +70,29 @@ func (m *LinkedMap[K, V]) Set(k K, v V) (V, bool) {
 	m.lazyInit()
 
 	pair := NewPair(k, v)
-
 	return m.set(pair)
+}
+
+func (m *LinkedMap[K, V]) SetPairs(pairs ...Pair[K, V]) (uint, bool) {
+	if m.inmu {
+		assert.Unreachable("cannot modify an inmutable souce")
+		return 0, false
+	}
+
+	if len(pairs) == 0 {
+		return 0, true
+	}
+
+	m.lazyInit()
+
+	var added uint
+	for _, p := range pairs {
+		if _, exists := m.set(p); !exists {
+			added += 1
+		}
+	}
+
+	return added, true
 }
 
 func (m *LinkedMap[K, V]) set(pair Pair[K, V]) (V, bool) {
@@ -87,6 +108,28 @@ func (m *LinkedMap[K, V]) set(pair Pair[K, V]) (V, bool) {
 	item.Data = pair
 
 	return old, true
+}
+
+func (m *LinkedMap[K, V]) Merge(other *LinkedMap[K, V]) (uint, bool) {
+	if m.inmu {
+		assert.Unreachable("cannot modify an inmutable souce")
+		return 0, false
+	}
+
+	if other == nil {
+		return 0, true
+	}
+
+	m.lazyInit()
+
+	var added uint
+	for p := range other.Pairs() {
+		if _, exists := m.set(p); !exists {
+			added += 1
+		}
+	}
+
+	return added, true
 }
 
 func (m *LinkedMap[K, V]) Delete(k K) (V, bool) {
@@ -124,6 +167,18 @@ func (m *LinkedMap[K, V]) All() iter.Seq2[K, V] {
 	}
 }
 
+func (m *LinkedMap[K, V]) Pairs() iter.Seq[Pair[K, V]] {
+	m.lazyInit()
+
+	return func(yield func(Pair[K, V]) bool) {
+		for item := range m.list.All() {
+			if !yield(item.Data) {
+				return
+			}
+		}
+	}
+}
+
 func (m *LinkedMap[K, V]) Keys() iter.Seq[K] {
 	m.lazyInit()
 
@@ -146,4 +201,17 @@ func (m *LinkedMap[K, V]) Values() iter.Seq[V] {
 			}
 		}
 	}
+}
+
+func (m *LinkedMap[K, V]) Clone() *LinkedMap[K, V] {
+    m.lazyInit()
+    
+    cloned := NewLinkedMap[K, V]()
+	cloned.inmu = m.inmu
+
+    for p := range m.Pairs() {
+        cloned.set(p)
+    }
+    
+    return cloned
 }
