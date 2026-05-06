@@ -119,6 +119,7 @@ func makePipeline(node screen.Node) screen.Node {
 		inline.DefaultInlineSeparator,
 		pipeline.NewFilter(pipeline.Tags, screen.SystemMetaTag),
 		pipeline.Footer,
+		pipeline.After,
 	)
 
 	spacerHeader := spacer.SpacerTransformer(

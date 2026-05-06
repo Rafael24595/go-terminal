@@ -26,7 +26,12 @@ var inlinePredicates = map[pipeline.Criterion]inlinePredicate{
 	},
 }
 
-func InlineTransformer(separator string, filter pipeline.Filter, section pipeline.Section) pipeline.Transformer {
+func InlineTransformer(
+	separator string,
+	filter pipeline.Filter,
+	section pipeline.Section,
+	placement pipeline.Placement,
+) pipeline.Transformer {
 	return func(vm viewmodel.ViewModel) viewmodel.ViewModel {
 		accessor, ok := pipeline.FindViewModelAccessor(section)
 		if !ok {
@@ -59,9 +64,16 @@ func InlineTransformer(separator string, filter pipeline.Filter, section pipelin
 
 		inlineDrawable.Name = Name
 
-		newVStack := stack.NewVStack(
-			append(remaining, inlineDrawable)...,
-		)
+		newVStack := stack.NewVStack(remaining...)
+
+		switch placement {
+		case pipeline.After:
+			newVStack.Unshift(inlineDrawable)
+		case pipeline.Before:
+			newVStack.Push(inlineDrawable)
+		default:
+			assert.Unreachable("unhandled placement %d", placement)
+		}
 
 		return accessor.Set(vm, newVStack)
 	}
