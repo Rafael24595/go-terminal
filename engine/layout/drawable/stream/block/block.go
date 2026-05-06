@@ -60,15 +60,5 @@ func (d *BlockDrawable) init() {
 func (d *BlockDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
-	lines := make([]text.Line, 0)
-	for range size.Rows {
-		lns, hasNext := d.drawable.Draw(size)
-		lines = append(lines, lns...)
-
-		if !hasNext {
-			return lines, hasNext
-		}
-	}
-
-	return lines, true
+	return drawable.DrainDrawable(size, d.drawable, true)
 }
