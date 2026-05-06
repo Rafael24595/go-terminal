@@ -35,7 +35,7 @@ func TestFocusInitTransformer_FocusAtStart(t *testing.T) {
 	}, mock.ToDrawable())
 
 	assert.Len(t, 2, lines)
-	
+
 	assert.False(t, status)
 	assert.Equal(t, "base_01", text.LineToString(&lines[0]))
 	assert.Equal(t, "base_02", text.LineToString(&lines[1]))
@@ -52,7 +52,7 @@ func TestFocusInitTransformer_FocusAtEnd(t *testing.T) {
 				*text.NewFragment("03"),
 			),
 		},
-		Chunk: 1,
+		Batch: 1,
 	}
 
 	transformer := FocusInitTransformer(
@@ -65,7 +65,7 @@ func TestFocusInitTransformer_FocusAtEnd(t *testing.T) {
 	}, mock.ToDrawable())
 
 	assert.Len(t, 2, lines)
-	
+
 	assert.False(t, status)
 	assert.Equal(t, "base_02", text.LineToString(&lines[0]))
 	assert.Equal(t, "base_03", text.LineToString(&lines[1]))

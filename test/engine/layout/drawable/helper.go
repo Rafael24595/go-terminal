@@ -11,7 +11,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameMockDrawable = "MockDrawable"
+const NameMockDrawable = "mock_drawable"
 
 type MockDrawable struct {
 	Order      int
@@ -23,7 +23,7 @@ type MockDrawable struct {
 	DrawCalls  int
 	Lines      []text.Line
 	queue      []text.Line
-	Chunk      uint
+	Batch      uint
 	Status     bool
 	Size       winsize.Winsize
 }
@@ -40,7 +40,7 @@ func (m *MockDrawable) Draw(size winsize.Winsize) ([]text.Line, bool) {
 	m.DrawCalls++
 	m.Size = size
 
-	if m.Chunk == 0 {
+	if m.Batch == 0 {
 		return m.Lines, m.Status
 	}
 
@@ -48,8 +48,8 @@ func (m *MockDrawable) Draw(size winsize.Winsize) ([]text.Line, bool) {
 		m.queue = m.Lines
 	}
 
-	limit := min(int(m.Chunk), len(m.queue))
-	
+	limit := min(int(m.Batch), len(m.queue))
+
 	data := m.queue[:limit]
 	m.queue = m.queue[limit:]
 
