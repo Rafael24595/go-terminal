@@ -12,7 +12,7 @@ import (
 )
 
 // TODO: Add flag to manage non focus drawable?
-func FocusInitTransformer(engine pager.Engine) pipeline.InitTransformer {
+func DrawTransformer(engine pager.Engine) pipeline.DrawTransformer {
 	return func(size winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
 		ctx := draw.NewDrawContext(state.NewUIState(), size)
 		state := draw.NewDrawStatus(ctx)

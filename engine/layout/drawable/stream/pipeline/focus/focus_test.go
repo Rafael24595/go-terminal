@@ -25,7 +25,7 @@ func TestFocusInitTransformer_FocusAtStart(t *testing.T) {
 		Status: true,
 	}
 
-	transformer := FocusInitTransformer(
+	transformer := DrawTransformer(
 		pager.EnginePage(),
 	)
 
@@ -55,7 +55,7 @@ func TestFocusInitTransformer_FocusAtEnd(t *testing.T) {
 		Batch: 1,
 	}
 
-	transformer := FocusInitTransformer(
+	transformer := DrawTransformer(
 		pager.EngineScroll(),
 	)
 

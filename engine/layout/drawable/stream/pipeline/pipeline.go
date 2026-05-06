@@ -10,13 +10,15 @@ import (
 
 const Name = "pipeline_drawable"
 
-type InitTransformer func(winsize.Winsize, drawable.Drawable) ([]text.Line, bool)
+type InitTransformer func(winsize.Winsize, drawable.Drawable) drawable.Drawable
+type DrawTransformer func(winsize.Winsize, drawable.Drawable) ([]text.Line, bool)
 type DataTransformer func(winsize.Winsize, []text.Line, bool) ([]text.Line, bool)
 
 type PipelineDrawable struct {
 	loaded    bool
 	drawable  drawable.Drawable
-	initStep  InitTransformer
+	initSteps []InitTransformer
+	drawStep  DrawTransformer
 	dataSteps []DataTransformer
 }
 
@@ -24,18 +26,29 @@ func New(drawable drawable.Drawable) *PipelineDrawable {
 	return &PipelineDrawable{
 		loaded:    false,
 		drawable:  drawable,
-		initStep:  nil,
+		initSteps: make([]InitTransformer, 0),
+		drawStep:  nil,
 		dataSteps: make([]DataTransformer, 0),
 	}
 }
 
-func (d *PipelineDrawable) InitStep(step InitTransformer) *PipelineDrawable {
+func (d *PipelineDrawable) PushInitSteps(steps ...InitTransformer) *PipelineDrawable {
 	if d.loaded {
 		assert.Unreachable(drawable.MessageNewElement)
 		return d
 	}
 
-	d.initStep = step
+	d.initSteps = append(d.initSteps, steps...)
+	return d
+}
+
+func (d *PipelineDrawable) SetDrawStep(step DrawTransformer) *PipelineDrawable {
+	if d.loaded {
+		assert.Unreachable(drawable.MessageNewElement)
+		return d
+	}
+
+	d.drawStep = step
 	return d
 }
 
@@ -50,7 +63,9 @@ func (d *PipelineDrawable) PushDataSteps(steps ...DataTransformer) *PipelineDraw
 }
 
 func (d *PipelineDrawable) ToDrawable() drawable.Drawable {
-	if d.initStep == nil && len(d.dataSteps) == 0 {
+	if len(d.initSteps) == 0 &&
+		d.drawStep == nil &&
+		len(d.dataSteps) == 0 {
 		return d.drawable
 	}
 
@@ -80,10 +95,14 @@ func (d *PipelineDrawable) wipe() {
 func (d *PipelineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
+	for _, s := range d.initSteps {
+		d.drawable = s(size, d.drawable)
+	}
+
 	draw := d.drawable.Draw
-	if d.initStep != nil {
+	if d.drawStep != nil {
 		draw = func(size winsize.Winsize) ([]text.Line, bool) {
-			return d.initStep(size, d.drawable)
+			return d.drawStep(size, d.drawable)
 		}
 	}
 
