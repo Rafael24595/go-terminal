@@ -10,11 +10,11 @@ import (
 	drawable_help "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/help"
 )
 
+//TODO: Use Screen and Drawable sources to manage Header, Footer and Helper.
 type ViewModel struct {
 	Header   *stack.VStackDrawable
 	Kernel   *stack.VStackDrawable
 	Footer   *stack.VStackDrawable
-	Input    *InputLine
 	Pager    pager.PagerStrategy
 	Helper   *help.HelpMeta
 	Behavior BehaviorContext
@@ -25,16 +25,10 @@ func NewViewModel() *ViewModel {
 		Header:   stack.NewVStack(),
 		Kernel:   stack.NewVStack(),
 		Footer:   stack.NewVStack(),
-		Input:    nil,
 		Pager:    pager.NewStrategy(),
 		Helper:   help.NewHelpMeta(),
 		Behavior: BehaviorContext{},
 	}
-}
-
-func (v *ViewModel) SetInput(input *InputLine) *ViewModel {
-	v.Input = input
-	return v
 }
 
 func (v *ViewModel) InitStaticLayers() (drawable.Drawable, drawable.Drawable) {
@@ -54,17 +48,6 @@ func (v *ViewModel) InitDynamicLayers(size winsize.Winsize) drawable.Drawable {
 	return kernel
 }
 
-func (v *ViewModel) InitInputLine(size winsize.Winsize) (drawable.Drawable, bool) {
-	if v.Input == nil {
-		return drawable.Drawable{}, false
-	}
-
-	drawable := v.Input.ToDrawable()
-	drawable.Init()
-
-	return drawable, true
-}
-
 func (v *ViewModel) InitHelper(size winsize.Winsize) (drawable.Drawable, bool) {
 	if !v.Helper.Show {
 		return drawable.Drawable{}, false
@@ -82,7 +65,6 @@ func (v *ViewModel) Clone() *ViewModel {
 	vm.Header.Push(v.Header.Items()...)
 	vm.Kernel.Push(v.Kernel.Items()...)
 	vm.Footer.Push(v.Footer.Items()...)
-	vm.Input = v.Input
 	vm.Pager = v.Pager
 	vm.Helper.Push(v.Helper.Fields...)
 

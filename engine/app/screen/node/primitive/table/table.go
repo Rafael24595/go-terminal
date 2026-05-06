@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
@@ -215,16 +216,18 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 			ToDrawable(),
 	)
 
-	var input *viewmodel.InputLine
 	preficate := pager.PredicatePage()
 	if c.action.EnableMode && c.action.ActionMode {
 		preficate = pager.PredicateFocus()
 
 		cell, _ := c.table.FindCellByCoords(c.cursor.Row, c.cursor.Col)
-		input = viewmodel.NewInputLine(block.DrawableFromString(cell))
-	}
 
-	vm.SetInput(input)
+		vm.Footer.Push(
+			inputline.DrawableFromDrawable(
+				block.DrawableFromString(cell),
+			),
+		)
+	}
 
 	vm.Pager.SetPredicate(preficate)
 

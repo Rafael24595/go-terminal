@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/checkmenu"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
@@ -255,21 +256,21 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 		pager.PredicateFocus(),
 	)
 
+	index := math.SubClampZeroAs[int, uint16](len(c.options), 1)
+	option := min(index, c.cursor)
+	text := c.options[option].Label.Text
+
+	vm.Footer.Push(
+		inputline.DrawableFromDrawable(
+			block.DrawableFromString(text),
+		),
+	)
+
 	vm.Helper.Push(
 		key.ActionsToHelpWithOverride(
 			source.Overrides, source.Actions...,
 		)...,
 	)
-
-	index := math.SubClampZeroAs[int, uint16](len(c.options), 1)
-	option := min(index, c.cursor)
-	text := c.options[option].Label.Text
-
-	input := viewmodel.NewInputLine(
-		block.DrawableFromString(text),
-	)
-
-	vm.SetInput(input)
 
 	return *vm
 }

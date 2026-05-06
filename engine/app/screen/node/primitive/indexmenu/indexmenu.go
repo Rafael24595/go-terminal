@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/indexmenu"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
@@ -135,15 +136,19 @@ func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
 		indexmenu.ToDrawable(),
 	)
 
-	vm.Pager.SetPredicate(
-		pager.PredicateFocus(),
-	)
-
 	index := math.SubClampZeroAs[int, uint16](len(c.options), 1)
 	option := min(index, c.cursor)
 	text := c.options[option].Label.Text
-	input := viewmodel.NewInputLine(block.DrawableFromString(text))
-	vm.SetInput(input)
+
+	vm.Footer.Push(
+		inputline.DrawableFromDrawable(
+			block.DrawableFromString(text),
+		),
+	)
+
+	vm.Pager.SetPredicate(
+		pager.PredicateFocus(),
+	)
 
 	return *vm
 }

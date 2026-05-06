@@ -19,18 +19,13 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size winsize.Wi
 	headerLines := drawStaticLines(header, size)
 	footerLines := drawStaticLines(footer, size)
 
-	inputLines := make([]text.Line, 0)
-	if input, ok := vm.InitInputLine(size); ok {
-		inputLines = drawStaticLines(input, size)
-	}
-
 	helperLines := make([]text.Line, 0)
 	if helper, ok := vm.InitHelper(size); ok {
 		helperLines = drawStaticLines(helper, size)
 	}
 
 	static := winsize.Rows(
-		len(headerLines) + len(footerLines) + len(inputLines) + len(helperLines),
+		len(headerLines) + len(footerLines) + len(helperLines),
 	)
 
 	if static > size.Rows {
@@ -53,7 +48,6 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size winsize.Wi
 	allLines := headerLines
 	allLines = append(allLines, drawStt.Buffer...)
 	allLines = append(allLines, footerLines...)
-	allLines = append(allLines, inputLines...)
 	allLines = append(allLines, helperLines...)
 
 	return allLines

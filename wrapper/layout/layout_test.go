@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/draw"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
@@ -47,7 +48,11 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 		},
 	}
 
-	vm.SetInput(viewmodel.NewInputLine(mock.ToDrawable()))
+	vm.Footer.Unshift(
+		inputline.DrawableFromDrawable(
+			mock.ToDrawable(),
+		),
+	)
 
 	state := &state.UIState{}
 
@@ -106,7 +111,11 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		},
 	}
 
-	vm.SetInput(viewmodel.NewInputLine(mock.ToDrawable()))
+	vm.Footer.Unshift(
+		inputline.DrawableFromDrawable(
+			mock.ToDrawable(),
+		),
+	)
 
 	lines0 := TerminalApply(stt, *vm, size)
 
@@ -239,7 +248,11 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 		},
 	}
 
-	vm.SetInput(viewmodel.NewInputLine(mock.ToDrawable()))
+	vm.Footer.Unshift(
+		inputline.DrawableFromDrawable(
+			mock.ToDrawable(),
+		),
+	)
 
 	assert.True(t, vm.Header.HasNext())
 	assert.True(t, vm.Kernel.HasNext())
