@@ -11,34 +11,33 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-var sources = map[pager.EngineCode]screen.DefinitionSources{
+var definitions = map[pager.EngineCode]screen.Definition{
 	pager.CodeEnginePaged:  pager_definition,
 	pager.CodeEngineScroll: scroll_definition,
 }
 
-var pager_definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{
+var pager_definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
 		key.ActionArrowLeft:  {Code: []string{"←"}, Detail: "Prev page"},
 		key.ActionArrowRight: {Code: []string{"→"}, Detail: "Next page"},
 	},
-	[]key.KeyAction{
+	[]key.Action{
 		key.ActionArrowLeft,
 		key.ActionArrowRight,
 	},
 )
 
-var scroll_definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{
+var scroll_definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
 		key.ActionArrowUp:   {Code: []string{"↑"}, Detail: "Scroll up"},
 		key.ActionArrowDown: {Code: []string{"↓"}, Detail: "Scroll down"},
 	},
-	[]key.KeyAction{
+	[]key.Action{
 		key.ActionArrowUp,
 		key.ActionArrowDown,
 	},
@@ -75,21 +74,18 @@ func (c *Pagination) ToNode() screen.Node {
 		ToNode()
 }
 
-func (c *Pagination) definitionSource() screen.DefinitionSources {
-	source, ok := sources[c.engine]
-	if ok {
+func (c *Pagination) definition() screen.Definition {
+	base := c.node.Screen.Definition()
+	return c.findDefinition().Merge(base)
+}
+
+func (c *Pagination) findDefinition() screen.Definition {
+	if source, ok := definitions[c.engine]; ok {
 		return source
 	}
 
 	assert.Unreachable("unhandled engine definition %d", c.engine)
-
 	return pager_definition
-}
-
-func (c *Pagination) definition() screen.Definition {
-	base := c.node.Screen.Definition()
-	return c.definitionSource().
-		Definition.Merge(base)
 }
 
 func (c *Pagination) update(state *state.UIState, event screen.Event) screen.Result {
@@ -144,8 +140,6 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 		vm.Pager.SetEngine(*c.forceEngine)
 	}
 
-	source := c.definitionSource()
-
 	if c.shouldShowPage(stt, vm) {
 		label := "page"
 		if vm.Pager.Engine.Code == pager.CodeEngineScroll {
@@ -164,18 +158,6 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 				AddTag(screen.SystemMetaTag),
 		)
 	}
-
-	actions := node.FilterKeyRequired(
-		c.node.Screen.Definition(),
-		source.Actions...,
-	)
-
-	vm.Helper.Unshift(
-		key.ActionsToHelpWithOverride(
-			source.Overrides,
-			actions...,
-		)...,
-	)
 
 	return vm
 }

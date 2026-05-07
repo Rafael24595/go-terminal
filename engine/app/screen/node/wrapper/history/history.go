@@ -8,17 +8,15 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-var definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{},
-	[]key.KeyAction{
+var definition = screen.DefinitionFromActions(
+	[]key.Action{
 		key.CustomActionBack,
-	},
+	}...,
 )
 
 type History struct {
@@ -45,7 +43,7 @@ func (c *History) ToNode() screen.Node {
 
 func (c *History) definition() screen.Definition {
 	base := c.node.Screen.Definition()
-	return definition.Definition.Merge(base)
+	return definition.Merge(base)
 }
 
 func (c *History) update(state *state.UIState, event screen.Event) screen.Result {
@@ -99,17 +97,6 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 	vm.Footer.Unshift(
 		builder.DrainFromLines(footer...).
 			AddTag(screen.SystemMetaTag),
-	)
-
-	actions := node.FilterKeyRequired(
-		c.node.Screen.Definition(),
-		definition.Actions...,
-	)
-
-	vm.Helper.Unshift(
-		key.ActionsToHelp(
-			actions...,
-		)...,
 	)
 
 	return vm

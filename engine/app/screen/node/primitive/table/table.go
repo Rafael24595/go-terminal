@@ -9,7 +9,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
@@ -21,26 +20,21 @@ import (
 
 const Name = "table"
 
-var disabled_definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{},
-	[]key.KeyAction{},
-)
-
-var read_definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{
+var read_definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit mode"},
 	},
-	[]key.KeyAction{
+	[]key.Action{
 		key.ActionEnter,
 	},
 )
 
-var write_definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{
+var write_definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
 		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Write Mode"},
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Active selected"},
 	},
-	[]key.KeyAction{
+	[]key.Action{
 		key.ActionEsc,
 		key.ActionArrowLeft,
 		key.ActionArrowRight,
@@ -133,9 +127,9 @@ func (c *Table[T]) ToNode() screen.Node {
 		ToNode()
 }
 
-func (c *Table[T]) definitionSource() screen.DefinitionSources {
+func (c *Table[T]) definition() screen.Definition {
 	if !c.action.EnableMode {
-		return disabled_definition
+		return screen.EmptyDefinition()
 	}
 
 	if c.action.ActionMode {
@@ -143,10 +137,6 @@ func (c *Table[T]) definitionSource() screen.DefinitionSources {
 	}
 
 	return read_definition
-}
-
-func (c *Table[T]) definition() screen.Definition {
-	return c.definitionSource().Definition
 }
 
 func (c *Table[T]) update(stt *state.UIState, evnt screen.Event) screen.Result {
@@ -201,8 +191,6 @@ func (c *Table[T]) updateRead(state *state.UIState, evnt screen.Event) screen.Re
 func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
-	source := c.definitionSource()
-
 	vm.Header.Push(
 		builder.DrainFromLines(c.title...),
 	)
@@ -228,14 +216,8 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 			),
 		)
 	}
-	
-	vm.Pager.SetPredicate(preficate)
 
-	vm.Helper.Push(
-		key.ActionsToHelpWithOverride(
-			source.Overrides, source.Actions...,
-		)...,
-	)
+	vm.Pager.SetPredicate(preficate)
 
 	return *vm
 }

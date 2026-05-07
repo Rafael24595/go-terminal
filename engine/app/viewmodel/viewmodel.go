@@ -4,19 +4,15 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
-
-	drawable_help "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/help"
 )
 
-//TODO: Use Screen and Drawable sources to manage Header, Footer and Helper.
+// TODO: Use Screen and Drawable sources to manage Header and Footer.
 type ViewModel struct {
 	Header   *stack.VStackDrawable
 	Kernel   *stack.VStackDrawable
 	Footer   *stack.VStackDrawable
 	Pager    pager.PagerStrategy
-	Helper   *help.HelpMeta
 	Behavior BehaviorContext
 }
 
@@ -26,7 +22,6 @@ func NewViewModel() *ViewModel {
 		Kernel:   stack.NewVStack(),
 		Footer:   stack.NewVStack(),
 		Pager:    pager.NewStrategy(),
-		Helper:   help.NewHelpMeta(),
 		Behavior: BehaviorContext{},
 	}
 }
@@ -48,17 +43,6 @@ func (v *ViewModel) InitDynamicLayers(size winsize.Winsize) drawable.Drawable {
 	return kernel
 }
 
-func (v *ViewModel) InitHelper(size winsize.Winsize) (drawable.Drawable, bool) {
-	if !v.Helper.Show {
-		return drawable.Drawable{}, false
-	}
-
-	drawable := drawable_help.DrawableFromMeta(v.Helper)
-	drawable.Init()
-
-	return drawable, true
-}
-
 func (v *ViewModel) Clone() *ViewModel {
 	vm := NewViewModel()
 
@@ -66,7 +50,6 @@ func (v *ViewModel) Clone() *ViewModel {
 	vm.Kernel.Push(v.Kernel.Items()...)
 	vm.Footer.Push(v.Footer.Items()...)
 	vm.Pager = v.Pager
-	vm.Helper.Push(v.Helper.Fields...)
 
 	return vm
 }

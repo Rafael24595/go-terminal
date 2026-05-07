@@ -5,6 +5,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 )
 
@@ -58,7 +59,13 @@ func (c *Help) update(state *state.UIState, event screen.Event) screen.Result {
 func (c *Help) view(state state.UIState) viewmodel.ViewModel {
 	vm := c.node.Screen.View(state)
 
-	vm.Helper.Show = c.visible
+	if c.visible {
+		definition := c.node.Screen.Definition()
+
+		vm.Footer.Push(
+			help.DrawableFromFields(definition.Descriptor.ToValuesSlice()),
+		)
+	}
 
 	return vm
 }

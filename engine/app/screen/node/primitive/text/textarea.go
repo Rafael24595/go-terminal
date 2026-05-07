@@ -15,7 +15,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/delta"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/event"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
@@ -29,22 +28,22 @@ const NameArea = "text_area"
 
 const ArgAreaBuffer param.Typed[[]rune] = "text_area_buffer"
 
-var area_read_definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{
+var area_read_definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
 		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Exit/Back"},
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit text"},
 	},
-	[]key.KeyAction{
+	[]key.Action{
 		key.ActionEnter,
 	},
 )
 
-var area_write_definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{
+var area_write_definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
 		key.ActionEsc:   {Code: []string{"ESC"}, Detail: "Save & Quit"},
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "New line"},
 	},
-	[]key.KeyAction{
+	[]key.Action{
 		key.ActionEsc,
 		key.ActionHome,
 		key.ActionEnd,
@@ -156,15 +155,11 @@ func (c *TextArea) ToNode() screen.Node {
 		ToNode()
 }
 
-func (c *TextArea) definitionSource() screen.DefinitionSources {
+func (c *TextArea) definition() screen.Definition {
 	if c.writeMode {
 		return area_write_definition
 	}
 	return area_read_definition
-}
-
-func (c *TextArea) definition() screen.Definition {
-	return c.definitionSource().Definition
 }
 
 func (c *TextArea) update(stt *state.UIState, evnt screen.Event) screen.Result {
@@ -536,8 +531,6 @@ func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.Result 
 }
 
 func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
-	source := c.definitionSource()
-
 	predicate := pager.PredicatePage()
 	if c.writeMode {
 		predicate = pager.PredicateFocus()
@@ -559,12 +552,6 @@ func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 	)
 
 	vm.Pager.SetPredicate(predicate)
-
-	vm.Helper.Push(
-		key.ActionsToHelpWithOverride(
-			source.Overrides, source.Actions...,
-		)...,
-	)
 
 	vm.Behavior.NeedsPulse = c.needsPulse()
 

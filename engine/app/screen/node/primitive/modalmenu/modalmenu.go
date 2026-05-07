@@ -6,7 +6,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/modal"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/param"
@@ -17,11 +16,11 @@ const Name = "modal_menu"
 
 const ArgActiveOption param.Typed[string] = "id_modal_menu"
 
-var definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{
+var definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Active selected"},
 	},
-	[]key.KeyAction{
+	[]key.Action{
 		key.ActionEnter,
 		key.ActionArrowLeft,
 		key.ActionArrowRight,
@@ -79,7 +78,7 @@ func (c *ModalMenu) ToNode() screen.Node {
 }
 
 func (c *ModalMenu) definition() screen.Definition {
-	return definition.Definition
+	return definition
 }
 
 func (c *ModalMenu) update(state *state.UIState, evnt screen.Event) screen.Result {
@@ -128,12 +127,6 @@ func (c *ModalMenu) view(_ state.UIState) viewmodel.ViewModel {
 		ToDrawable()
 
 	vm.Kernel.Push(modal)
-
-	vm.Helper.Push(
-		key.ActionsToHelpWithOverride(
-			definition.Overrides, definition.Actions...,
-		)...,
-	)
 
 	return *vm
 }

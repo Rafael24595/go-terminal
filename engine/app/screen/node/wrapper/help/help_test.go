@@ -55,8 +55,8 @@ func TestHelp_ToggleHelpKey(t *testing.T) {
 func TestHelp_DelegatesUpdateWhenKeyRequired(t *testing.T) {
 	called := false
 
-	ky := *key.NewKeyCode(key.CustomActionHelp)
-	definition := screen.DefinitionFromKeys(ky)
+	action := key.CustomActionHelp
+	definition := screen.DefinitionFromActions(action)
 
 	mock := screen_test.MockScreen{
 		Definition: &definition,
@@ -70,7 +70,7 @@ func TestHelp_DelegatesUpdateWhenKeyRequired(t *testing.T) {
 
 	state := &state.UIState{}
 	event := screen.Event{
-		Key: ky,
+		Key: *key.NewKeyCode(key.CustomActionHelp),
 	}
 
 	node.Screen.Update(state, event)
@@ -82,8 +82,8 @@ func TestHelp_DelegatesUpdateWhenKeyRequired(t *testing.T) {
 func TestHelp_WrapsReturnedScreen(t *testing.T) {
 	called := false
 
-	ky := *key.NewKeyCode(key.ActionEnter)
-	definition := screen.DefinitionFromKeys(ky)
+	action := key.ActionEnter
+	definition := screen.DefinitionFromActions(action)
 
 	mockNext := screen_test.MockScreen{
 		Name: "next",
@@ -105,7 +105,7 @@ func TestHelp_WrapsReturnedScreen(t *testing.T) {
 
 	stt := &state.UIState{}
 	evt := screen.Event{
-		Key: ky,
+		Key: *key.NewKeyCode(key.ActionEnter),
 	}
 
 	wrapped.Screen.Update(stt, screen.Event{
@@ -119,8 +119,4 @@ func TestHelp_WrapsReturnedScreen(t *testing.T) {
 	assert.True(t, called)
 	assert.NotNil(t, result.Node)
 	assert.Equal(t, "next", result.Node.Screen.Name)
-
-	vm := result.Node.Screen.View(state.UIState{})
-
-	assert.True(t, vm.Helper.Show)
 }

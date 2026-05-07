@@ -8,7 +8,7 @@ import (
 
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -18,19 +18,19 @@ const Name = "help_drawable"
 
 type HelpDrawable struct {
 	loaded   bool
-	meta     *help.HelpMeta
+	fields   []key.Descriptor
 	drawable drawable.Drawable
 }
 
-func New(meta *help.HelpMeta) *HelpDrawable {
+func New(fields []key.Descriptor) *HelpDrawable {
 	return &HelpDrawable{
 		loaded: false,
-		meta:   meta,
+		fields: fields,
 	}
 }
 
-func DrawableFromMeta(meta *help.HelpMeta) drawable.Drawable {
-	return New(meta).ToDrawable()
+func DrawableFromFields(fields []key.Descriptor) drawable.Drawable {
+	return New(fields).ToDrawable()
 }
 
 func (d *HelpDrawable) ToDrawable() drawable.Drawable {
@@ -47,7 +47,7 @@ func (d *HelpDrawable) ToDrawable() drawable.Drawable {
 func (d *HelpDrawable) init() {
 	d.loaded = true
 
-	d.drawable = makeDrawable(d.meta)
+	d.drawable = makeDrawable(d.fields)
 
 	d.drawable.Init()
 }
@@ -65,18 +65,19 @@ func (d *HelpDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	return d.drawable.Draw(size)
 }
 
-func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
-	if len(meta.Fields) == 0 {
-		return block.DrawableFromLines()
+func makeDrawable(fields []key.Descriptor) drawable.Drawable {
+	fieldsLen := len(fields)
+	if fieldsLen == 0 {
+		return builder.DrainFromLines()
 	}
 
-	frags := make([]text.Fragment, len(meta.Fields))
+	frags := make([]text.Fragment, fieldsLen)
 
-	for i, field := range meta.Fields {
+	for i, field := range fields {
 		code := strings.Join(field.Code, ", ")
 
 		separator := ""
-		if i < len(meta.Fields)-1 {
+		if i < fieldsLen-1 {
 			separator = " | "
 		}
 
@@ -88,7 +89,6 @@ func makeDrawable(meta *help.HelpMeta) drawable.Drawable {
 	}
 
 	return builder.DrainFromLines(
-		*text.EmptyLine(),
 		*text.LineFromFragments(
 			*text.NewFragment("--Help--"),
 			*text.NewFragment("-").

@@ -12,7 +12,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/checkmenu"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/help"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/param"
@@ -26,23 +25,23 @@ const Name = "check_menu"
 
 const ArgActiveChecks param.Typed[set.Set[string]] = "check_menu_active"
 
-var read_definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{
+var read_definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
 		key.ActionEnter: {Code: []string{"RET"}, Detail: "Edit mode"},
 	},
-	[]key.KeyAction{
+	[]key.Action{
 		key.ActionEnter,
 	},
 )
 
-var write_definition = screen.NewDefinitionSources(
-	map[key.KeyAction]help.HelpField{
+var write_definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
 		key.ActionEsc:       {Code: []string{"ESC"}, Detail: "Write Mode"},
 		key.ActionEnter:     {Code: []string{"RET"}, Detail: "Active selected"},
 		key.ActionArrowUp:   {Code: []string{"↑"}, Detail: "Move first"},
 		key.ActionArrowDown: {Code: []string{"↓"}, Detail: "Move last"},
 	},
-	[]key.KeyAction{
+	[]key.Action{
 		key.ActionEsc,
 		key.ActionEnter,
 		key.ActionArrowLeft,
@@ -128,15 +127,11 @@ func (c *CheckMenu) ToNode() screen.Node {
 		ToNode()
 }
 
-func (c *CheckMenu) definitionSource() screen.DefinitionSources {
+func (c *CheckMenu) definition() screen.Definition {
 	if c.action.ActionMode {
 		return write_definition
 	}
 	return read_definition
-}
-
-func (c *CheckMenu) definition() screen.Definition {
-	return c.definitionSource().Definition
 }
 
 func (c *CheckMenu) update(stt *state.UIState, evt screen.Event) screen.Result {
@@ -236,8 +231,6 @@ func (c *CheckMenu) activeIds() set.Set[string] {
 }
 
 func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
-	source := c.definitionSource()
-
 	indexmenu := checkmenu.New(c.options).
 		WriteMode(c.action.ActionMode).
 		Meta(c.meta).
@@ -264,12 +257,6 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 		inputline.DrawableFromDrawable(
 			builder.DrainFromString(text),
 		),
-	)
-
-	vm.Helper.Push(
-		key.ActionsToHelpWithOverride(
-			source.Overrides, source.Actions...,
-		)...,
 	)
 
 	return *vm
