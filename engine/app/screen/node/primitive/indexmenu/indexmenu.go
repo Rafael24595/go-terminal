@@ -20,14 +20,14 @@ const Name = "index_menu"
 
 const ArgActiveIndex param.Typed[string] = "id_index_menu"
 
-var index_menu_definition = screen.DefinitionFromKeys(
-	key.NewKeysCode(
+var index_menu_definition = screen.DefinitionFromActions(
+	[]key.Action{
 		key.ActionEnter,
 		key.ActionArrowLeft,
 		key.ActionArrowRight,
 		key.ActionArrowUp,
 		key.ActionArrowDown,
-	)...,
+	}...,
 )
 
 type IndexMenu struct {

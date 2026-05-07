@@ -50,7 +50,7 @@ func (c *Template) ToNode() screen.Node {
 }
 
 func (c *Template) definition() screen.Definition {
-	return screen.DefinitionFromKeys()
+	return screen.EmptyDefinition()
 }
 
 func (c *Template) update(stt *state.UIState, _ screen.Event) screen.Result {

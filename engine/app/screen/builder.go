@@ -17,7 +17,7 @@ const (
 )
 
 func withoutDefinition() Definition {
-	return DefinitionFromKeys()
+	return EmptyDefinition()
 }
 
 type Builder struct {

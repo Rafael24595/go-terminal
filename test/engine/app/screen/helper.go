@@ -34,7 +34,7 @@ func (t MockScreen) ToNode() screen.Node {
 					return *t.Definition
 				}
 
-				return screen.DefinitionFromKeys()
+				return screen.EmptyDefinition()
 			}).
 		Update(
 			func(s *state.UIState, e screen.Event) screen.Result {
