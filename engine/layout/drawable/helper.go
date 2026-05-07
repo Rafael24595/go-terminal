@@ -41,7 +41,8 @@ func DrainDrawable(
 
 		shouldExit := lazy && remaining == 0
 		if !hasNext || shouldExit {
-			return result, hasNext
+			hasRest := limit < linesLen
+			return result, hasNext || hasRest
 		}
 	}
 }

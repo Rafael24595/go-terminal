@@ -27,7 +27,9 @@ func TestBlockDrawable_Init_ShouldPropagateToChild(t *testing.T) {
 }
 
 func TestBlockDrawable_Draw_ShouldReturnEmptyIfRowsIsZero(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
+	mock := &drawable_test.MockDrawable{
+		Lines: make([]text.Line, 3),
+	}
 	bd := New(mock.ToDrawable())
 
 	bd.init()
