@@ -71,12 +71,12 @@ func makeSections(t table.Table, cursor input.MatrixCursor, size winsize.Winsize
 		headerRow := makeHeaders(table, headers, separator)
 
 		sections = append(sections, section{
-			header: builder.WipeFromDrawable(
-				builder.DrainFromLines(*top, *headerRow, *top),
+			header: builder.IsolatedFromLines(
+				*top, *headerRow, *top,
 			),
 			rows: drawable_line.DrawableFromLines(rows...),
-			footer: builder.WipeFromDrawable(
-				builder.DrainFromLines(*bottom),
+			footer: builder.IsolatedFromLines(
+				*bottom,
 			),
 		})
 	}
@@ -271,7 +271,7 @@ func adjustSize(
 
 		c.size = c.size.Clamp(1)
 		excess = excess.Clamp(1)
-		
+
 		h.Push(c)
 	}
 
