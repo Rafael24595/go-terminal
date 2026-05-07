@@ -6,9 +6,13 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/block"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/wipe"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+
+	drawable_pipeline "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
 )
 
 const Name = "spacer_transformer"
@@ -18,9 +22,12 @@ type spacerPlacement func(Meta, drawable.Drawable, *stack.VStackDrawable) *stack
 func SpacerTransformer(meta Meta, sections ...pipeline.Section) pipeline.Transformer {
 	placeSpacer := resolvePlacement(meta)
 
-	drawable := block.DrawableFromLines(
-		buildSpacerLines(meta.Size)...,
-	)
+	spacer := makeSpacerDrawable(meta.Size)
+	
+	drawable := drawable_pipeline.New(spacer).
+		PushInitSteps(wipe.InitTransformer()).
+		SetDrawStep(drain.DrawTransformer(true)).
+		ToDrawable()
 
 	drawable.Name = Name
 
@@ -87,10 +94,10 @@ func appendSpacer(
 	return newVStack
 }
 
-func buildSpacerLines(size uint8) []text.Line {
+func makeSpacerDrawable(size uint8) drawable.Drawable {
 	spaces := make([]text.Line, size)
 	for i := range spaces {
 		spaces[i] = *text.LineJump()
 	}
-	return spaces
+	return line.New(spaces...).ToDrawable()
 }
