@@ -137,6 +137,29 @@ func (m *LinkedMap[K, V]) Merge(other *LinkedMap[K, V]) (uint, bool) {
 	return added, true
 }
 
+func (m *LinkedMap[K, V]) Supplement(other *LinkedMap[K, V]) (uint, bool) {
+	if m.inmu {
+		assert.Unreachable("cannot modify an inmutable source")
+		return 0, false
+	}
+
+	if other == nil {
+		return 0, true
+	}
+
+	m.lazyInit()
+	var added uint
+
+	for p := range other.Pairs() {
+		if !m.Exists(p.Key) {
+			m.set(p)
+			added++
+		}
+	}
+
+	return added, true
+}
+
 func (m *LinkedMap[K, V]) Delete(k K) (V, bool) {
 	var old V
 
@@ -184,6 +207,15 @@ func (m *LinkedMap[K, V]) Pairs() iter.Seq[Pair[K, V]] {
 	}
 }
 
+func (m *LinkedMap[K, V]) ToPairsSlice() []Pair[K, V] {
+	m.lazyInit()
+	pairs := make([]Pair[K, V], 0, len(m.data))
+	for p := range m.Pairs() {
+		pairs = append(pairs, p)
+	}
+	return pairs
+}
+
 func (m *LinkedMap[K, V]) Keys() iter.Seq[K] {
 	m.lazyInit()
 
@@ -196,6 +228,15 @@ func (m *LinkedMap[K, V]) Keys() iter.Seq[K] {
 	}
 }
 
+func (m *LinkedMap[K, V]) ToKeysSlice() []K {
+	m.lazyInit()
+	keys := make([]K, 0, len(m.data))
+	for k := range m.Keys() {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func (m *LinkedMap[K, V]) Values() iter.Seq[V] {
 	m.lazyInit()
 
@@ -206,6 +247,15 @@ func (m *LinkedMap[K, V]) Values() iter.Seq[V] {
 			}
 		}
 	}
+}
+
+func (m *LinkedMap[K, V]) ToValuesSlice() []V {
+	m.lazyInit()
+	values := make([]V, 0, len(m.data))
+	for v := range m.Values() {
+		values = append(values, v)
+	}
+	return values
 }
 
 func (m *LinkedMap[K, V]) Clone() *LinkedMap[K, V] {

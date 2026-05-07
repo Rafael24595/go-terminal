@@ -232,3 +232,55 @@ func TestLinkedMap_CloneOrder(t *testing.T) {
 		i += 1
 	}
 }
+
+func TestLinkedMap_Supplement(t *testing.T) {
+	m1 := NewLinkedMap[int, string]()
+	m1.Set(1, "A")
+	m1.Set(2, "B")
+
+	m2 := NewLinkedMap[int, string]()
+	m2.Set(1, "C")
+	m2.Set(3, "D")
+
+	added, ok := m1.Supplement(m2)
+
+	assert.True(t, ok)
+	assert.Equal(t, 1, added)
+
+	v1, _ := m1.Get(1)
+	assert.Equal(t, "A", v1)
+
+	v3, _ := m1.Get(3)
+	assert.Equal(t, "D", v3)
+}
+
+func TestLinkedMap_ToSlices(t *testing.T) {
+	m := NewLinkedMap[string, int]()
+	m.Set("A", 10)
+	m.Set("B", 20)
+
+	t.Run("KeysSlice", func(t *testing.T) {
+		keys := m.ToKeysSlice()
+		assert.Len(t, 2, keys)
+		assert.Equal(t, "A", keys[0])
+		assert.Equal(t, "B", keys[1])
+	})
+
+	t.Run("ValuesSlice", func(t *testing.T) {
+		values := m.ToValuesSlice()
+		assert.Len(t, 2, values)
+		assert.Equal(t, 10, values[0])
+		assert.Equal(t, 20, values[1])
+	})
+
+	t.Run("PairsSlice", func(t *testing.T) {
+		values := m.ToPairsSlice()
+		assert.Len(t, 2, values)
+
+		assert.Equal(t, "A", values[0].Key)
+		assert.Equal(t, 10, values[0].Value)
+
+		assert.Equal(t, "B", values[1].Key)
+		assert.Equal(t, 20, values[1].Value)
+	})
+}
