@@ -49,3 +49,7 @@ func (t *Tracker) HasWorks() bool {
 func (t *Tracker) Finished() bool {
 	return t.cursor >= t.total
 }
+
+func (t *Tracker) Unfinished() bool {
+	return !t.Finished()
+}
