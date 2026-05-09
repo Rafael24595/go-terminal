@@ -6,12 +6,12 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/wrap"
 )
 
 const Name = "box_drawable"
@@ -143,7 +143,7 @@ func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []tex
 
 	minSize := d.minSize + vertical
 	maxSize := size.Cols
-	maxLine := drawable.MaxLineSize(size.Cols, lines...)
+	maxLine := text.MaxLineMeasure(size.Cols, lines...)
 
 	padding := math.Clamp(maxLine, minSize, maxSize)
 

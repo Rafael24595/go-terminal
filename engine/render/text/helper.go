@@ -1,6 +1,18 @@
 package text
 
-import "github.com/Rafael24595/go-reacterm-core/engine/render/style"
+import (
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+)
+
+func MaxLineMeasure(cols winsize.Cols, lines ...Line) winsize.Cols {
+	size := winsize.Cols(0)
+	for _, l := range lines {
+		measure := FragmentMeasure(cols, l.Text...)
+		size = max(size, measure)
+	}
+	return size
+}
 
 func FragmentsFromString(text ...string) []Fragment {
 	fragments := make([]Fragment, len(text))

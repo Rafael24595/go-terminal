@@ -93,7 +93,7 @@ func (d *ModalDrawable) lazyInit(size winsize.Winsize) {
 		}
 	}
 
-	cols := drawable.MaxLineSize(size.Cols, d.text...) + 1
+	cols := text.MaxLineMeasure(size.Cols, d.text...) + 1
 	text := formatLines(d.text...)
 
 	title := builder.DrainFromLines(text...)
