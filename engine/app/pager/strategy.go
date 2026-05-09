@@ -8,8 +8,8 @@ type PagerStrategy struct {
 	Predicate Predicate
 }
 
-func NewStrategy() PagerStrategy {
-	return PagerStrategy{
+func NewStrategy() *PagerStrategy {
+	return &PagerStrategy{
 		Engine:    default_engine,
 		Predicate: default_predicate,
 	}

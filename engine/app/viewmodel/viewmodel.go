@@ -12,7 +12,7 @@ type ViewModel struct {
 	Header   *stack.VStackDrawable
 	Kernel   *stack.VStackDrawable
 	Footer   *stack.VStackDrawable
-	Pager    pager.PagerStrategy
+	Pager    *pager.PagerStrategy
 	Behavior BehaviorContext
 }
 
