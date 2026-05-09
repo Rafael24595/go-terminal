@@ -14,7 +14,7 @@ type PredicateContext struct {
 	HasFocus bool
 }
 
-type PredicateFunc func(state state.UIState, ctx PredicateContext) bool
+type PredicateFunc func(state.UIState, PredicateContext) bool
 
 type Predicate struct {
 	Code PredicateCode
