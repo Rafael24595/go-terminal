@@ -2,13 +2,11 @@ package wrapper_layout
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/draw"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/page"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
@@ -16,8 +14,8 @@ import (
 func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size winsize.Winsize) []text.Line {
 	header, footer := vm.InitStaticLayers()
 
-	headerLines := drawStaticLines(header, size)
-	footerLines := drawStaticLines(footer, size)
+	headerLines := drain.DrawableEager(size, header)
+	footerLines := drain.DrawableEager(size, footer)
 
 	static := winsize.Rows(
 		len(headerLines) + len(footerLines),
@@ -33,9 +31,9 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size winsize.Wi
 	remSize := winsize.New(rest, size.Cols)
 	lines := vm.InitDynamicLayers(remSize)
 
+	renderer := page.NewPageRenderer(*vm.Pager)
 	dynamicSize := winsize.New(rest, size.Cols)
-	drawCtx := draw.NewDrawContext(state, dynamicSize)
-	drawStt := drawDynamicLines(drawCtx, vm.Pager, lines)
+	drawStt := renderer(state, dynamicSize, lines)
 
 	state.Pager.ConfirmPage(drawStt.Page)
 	state.Pager.HasMore = showPagination(drawStt)
@@ -45,98 +43,6 @@ func TerminalApply(state *state.UIState, vm viewmodel.ViewModel, size winsize.Wi
 	allLines = append(allLines, footerLines...)
 
 	return allLines
-}
-
-func drawStaticLines(drawable drawable.Drawable, size winsize.Winsize) []text.Line {
-	rows := int(size.Rows)
-
-	buffer := make([]text.Line, 0)
-
-	content := true
-	for content {
-		lines, status := drawable.Draw(size)
-		content = status
-
-		if len(lines) == 0 {
-			break
-		}
-
-		for _, lin := range lines {
-			buffer = append(buffer,
-				line.WrapLineWords(size.Cols, &lin)...,
-			)
-
-			if len(buffer) >= rows {
-				return buffer
-			}
-		}
-	}
-
-	return buffer
-}
-
-func drawDynamicLines(ctx *draw.DrawContext, pager pager.PagerStrategy, drawable drawable.Drawable) *draw.DrawState {
-	state := draw.NewDrawStatus(ctx)
-	if ctx.Size.Rows == 0 {
-		return state
-	}
-
-	var rendered []text.Line
-	hasNext := true
-
-	for hasNext {
-		rendered, hasNext = drawable.Draw(ctx.Size)
-		state.HasNext = hasNext
-
-		renderedSize := uint(len(rendered))
-		if len(rendered) == 0 {
-			continue
-		}
-
-		state.Work.Reset()
-		state.Work.Add(renderedSize)
-
-		for l, ln := range rendered {
-			fixed := line.WrapLineWords(ctx.Size.Cols, &ln)
-
-			state.Work.Advance()
-			state.Work.Add(
-				uint(len(fixed)),
-			)
-
-			for f, fx := range fixed {
-				state.SetAndNext(fx)
-				state.Work.Advance()
-
-				state.MarkFocus(
-					text.HasAtom(style.AtmFocus, fx),
-				)
-
-				if winsize.Rows(state.Cursor) < ctx.Size.Rows {
-					continue
-				}
-
-				if shouldStop(ctx, pager, state) {
-					return state
-				}
-
-				isLastFixed := f == len(fixed)-1
-				isLastRendered := l == len(rendered)-1
-				if !isLastFixed || !isLastRendered || hasNext {
-					state = pager.Engine.Func(ctx, state)
-				}
-			}
-		}
-	}
-
-	return state
-}
-
-func shouldStop(ctx *draw.DrawContext, pgr pager.PagerStrategy, stt *draw.DrawState) bool {
-	return pgr.Predicate.Func(*ctx.State, pager.PredicateContext{
-		Page:     stt.Page,
-		HasFocus: stt.Focus,
-	})
 }
 
 func showPagination(stt *draw.DrawState) bool {

@@ -6,12 +6,10 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/app/draw"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -132,89 +130,6 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	assert.Len(t, int(size.Rows), lines1)
 	assert.Equal(t, "H", lines1[0].Text[0].Text)
 	assert.Equal(t, "> X", text.LineToString(&lines0[len(lines0)-1]))
-}
-
-func TestDrawDynamicLines_WordWrap(t *testing.T) {
-	sizeCols := winsize.Cols(5)
-
-	lines := []text.Line{
-		*text.NewLine("HELLO WORLD", style.SpecFromKind(style.SpcKindPaddingLeft)),
-	}
-
-	dw := builder.DrainFromLines(lines...)
-
-	layer := stack.NewVStack().
-		Push(dw).
-		ToDrawable()
-
-	layer.Init()
-
-	stt := state.NewUIState()
-
-	vm := viewmodel.NewViewModel()
-
-	dynamicSize := winsize.New(2, sizeCols)
-	drawCtx := draw.NewDrawContext(stt, dynamicSize)
-	drawStt := drawDynamicLines(drawCtx, vm.Pager, layer)
-
-	assert.LessOrEqual(t, 2, len(drawStt.Buffer))
-
-	for _, l := range drawStt.Buffer {
-		width := winsize.Cols(0)
-		for _, f := range l.Text {
-			width += text.FragmentMeasure(sizeCols, f)
-		}
-		assert.LessOrEqual(t, sizeCols, width)
-	}
-}
-
-func TestDrawStaticLines_DoesNotExceedRows(t *testing.T) {
-	lines := []text.Line{
-		*text.NewLine("golang"),
-		*text.NewLine("rust"),
-		*text.NewLine("ziglang"),
-	}
-
-	dw := builder.DrainFromLines(lines...)
-
-	layer := stack.NewVStack().
-		Push(dw).
-		ToDrawable()
-
-	layer.Init()
-
-	result := drawStaticLines(layer, winsize.Winsize{
-		Rows: 2,
-		Cols: 80,
-	})
-
-	assert.LessOrEqual(t, 2, len(result))
-}
-
-func TestDrawStaticLines_WrapThenTruncate(t *testing.T) {
-	lines := []text.Line{
-		*text.NewLine("golang ziglang"),
-	}
-
-	dw := builder.DrainFromLines(lines...)
-
-	layer := stack.NewVStack().
-		Push(dw).
-		ToDrawable()
-
-	layer.Init()
-
-	result := drawStaticLines(layer, winsize.Winsize{
-		Rows: 3,
-		Cols: 7,
-	})
-
-	assert.Len(t, 2, result)
-
-	assert.Equal(t, "golang", result[0].Text[0].Text)
-	assert.Equal(t, " ", result[0].Text[1].Text)
-
-	assert.Equal(t, "ziglang", result[1].Text[0].Text)
 }
 
 func TestTerminalApply_InitializeLayers(t *testing.T) {

@@ -1,56 +1,26 @@
 package focus
 
 import (
-	"github.com/Rafael24595/go-reacterm-core/engine/app/draw"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/page"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 // TODO: Add flag to manage non focus drawable?
 func DrawTransformer(engine pager.Engine) pipeline.DrawTransformer {
+	predicate := pager.PredicateFocus()
+	strategy := *pager.NewStrategy().
+		SetEngine(engine).
+		SetPredicate(predicate)
+
 	return func(size winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
-		ctx := draw.NewDrawContext(state.NewUIState(), size)
-		state := draw.NewDrawStatus(ctx)
-
-		for {
-			lines, status := drawable.Draw(size)
-
-			for len(lines) > 0 {
-				remaining := size.Rows.Clamp(
-					winsize.Rows(state.Cursor),
-				)
-
-				limit := min(len(lines), int(remaining))
-
-				chunk := lines[:limit]
-				lines = lines[limit:]
-
-				for _, l := range chunk {
-					state.SetAndNext(l)
-				}
-
-				//TODO: Remove focus atom to prevent conflicts?
-				state.MarkFocus(
-					text.HasAtom(style.AtmFocus, chunk...),
-				)
-
-				if state.Cursor == uint16(size.Rows) {
-					if state.Focus {
-						return state.Buffer, false
-					}
-
-					state = engine.Func(ctx, state)
-				}
-			}
-
-			if !status {
-				return state.Buffer, false
-			}
-		}
+		uiState := state.NewUIState()
+		renderer := page.NewPageRenderer(strategy)
+		status := renderer(uiState, size, drawable)
+		return status.Buffer, false
 	}
 }
