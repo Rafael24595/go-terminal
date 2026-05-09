@@ -1,6 +1,8 @@
 package draw
 
 import (
+	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/work"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
@@ -31,9 +33,18 @@ func (s *DrawState) MarkFocus(focus bool) *DrawState {
 }
 
 func (s *DrawState) SetAndNext(line text.Line) *DrawState {
+	if s.IsFull() {
+		assert.Unreachable("buffer overflow")
+		return s
+	}
+
 	s.Buffer[s.Cursor] = line
 	s.Cursor += 1
 	return s
+}
+
+func (s *DrawState) IsFull() bool {
+	return s.Cursor == uint16(len(s.Buffer))
 }
 
 func (s *DrawState) Reset() {
