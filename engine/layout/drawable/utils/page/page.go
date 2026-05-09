@@ -32,7 +32,7 @@ func NewPageRenderer(strategy pager.PagerStrategy) draw.PageRenderer {
 
 			linesLen := uint(len(lines))
 			if linesLen == 0 {
-				continue
+				return status
 			}
 
 			status.Work.Add(linesLen)
