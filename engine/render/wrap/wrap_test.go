@@ -11,6 +11,28 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
+func assembleLines(t *testing.T, lines ...text.Line) string {
+	t.Helper()
+
+	var sb strings.Builder
+
+	for i, l := range lines {
+		_, err := sb.WriteString(
+			text.LineToString(&l),
+		)
+
+		assert.NotError(t, err)
+
+		if i < len(lines)-1 {
+			_, err := sb.WriteString("\n")
+
+			assert.NotError(t, err)
+		}
+	}
+
+	return sb.String()
+}
+
 func TestNormalizeLines_Integrity(t *testing.T) {
 	line := text.NewLine("golang ziglang 10.50 rust")
 
@@ -173,4 +195,80 @@ func TesNextWrappedLine_BreakLongWordMultipleFragments(t *testing.T) {
 	assert.Equal(t, "golang ", text.LineToString(got))
 
 	assert.Equal(t, "zigrust", text.LineToString(&remain[0]))
+}
+
+func TestSplitLineFeeds(t *testing.T) {
+	tests := []struct {
+		name         string
+		input        *text.Line
+		expectedSize int
+		expectedText string
+	}{
+		{
+			name: "WithoutLineFeed",
+			input: text.EmptyLine().PushFragments(
+				*text.NewFragment("Hello Golang"),
+			),
+			expectedSize: 1,
+			expectedText: "Hello Golang",
+		},
+		{
+			name: "SingleLineFeed",
+			input: text.EmptyLine().PushFragments(
+				*text.NewFragment("Golang\nZiglang"),
+			),
+			expectedSize: 2,
+			expectedText: "Golang\nZiglang",
+		},
+		{
+			name: "LineFeedBetweenFragments",
+			input: text.EmptyLine().PushFragments(
+				*text.NewFragment("Rust"),
+				*text.NewFragment("\nZig"),
+			),
+			expectedSize: 2,
+			expectedText: "Rust\nZig",
+		},
+		{
+			name: "MultipleLineFeedWithEmptyLine",
+			input: text.EmptyLine().PushFragments(
+				*text.NewFragment("Go\n\nC++"),
+			),
+			expectedSize: 3,
+			expectedText: "Go\n\nC++",
+		},
+		{
+			name: "LineFeedAtEnd",
+			input: text.EmptyLine().PushFragments(
+				*text.NewFragment("Rust\n"),
+			),
+			expectedSize: 2,
+			expectedText: "Rust\n",
+		},
+		{
+			name: "LineFeedWithCarriageReturn",
+			input: text.EmptyLine().PushFragments(
+				*text.NewFragment("Zig\r\nGolang"),
+			),
+			expectedSize: 2,
+			expectedText: "Zig\nGolang",
+		},
+		{
+			name: "CarriageReturn",
+			input: text.EmptyLine().PushFragments(
+				*text.NewFragment("Java\rElixir"),
+			),
+			expectedSize: 2,
+			expectedText: "Java\nElixir",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := splitLineFeeds(tt.input)
+
+			assert.Len(t, tt.expectedSize, got)
+			assert.Equal(t, tt.expectedText, assembleLines(t, got...))
+		})
+	}
 }

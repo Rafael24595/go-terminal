@@ -116,7 +116,7 @@ func splitLongWord(
 			continue
 		}
 
-		taken, rest := SplitFragmentAt(&frag, remaining)
+		taken, rest := splitFragmentAt(&frag, remaining)
 
 		current.Text = append(current.Text, *taken)
 		width += text.FragmentMeasure(cols, *taken)

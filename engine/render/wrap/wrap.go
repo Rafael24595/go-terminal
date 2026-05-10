@@ -1,6 +1,8 @@
 package wrap
 
 import (
+	"strings"
+
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
@@ -8,14 +10,21 @@ import (
 )
 
 func NormalizeLines(lines ...text.Line) []text.Line {
-	buffer := make([]text.Line, len(lines))
+	buffer := make([]text.Line, 0, len(lines))
 
-	for i, l := range lines {
-		newLine := text.EmptyLine().CopyMeta(&l)
-		for _, w := range splitLineWords(&l) {
-			newLine.PushFragments(w.Text...)
+	for _, l := range lines {
+		normalizedLF := splitLineFeeds(&l)
+
+		for _, n := range normalizedLF {
+			newLine := text.EmptyLine().
+				CopyMeta(&n)
+
+			for _, w := range splitLineWords(&n) {
+				newLine.PushFragments(w.Text...)
+			}
+
+			buffer = append(buffer, *newLine)
 		}
-		buffer[i] = *newLine
 	}
 
 	return buffer
@@ -92,7 +101,7 @@ func NextLine(cols winsize.Cols, lines []text.Line) (*text.Line, []text.Line) {
 		}
 
 		if len(cursor.Text) == 0 && remaining > 0 {
-			taken, restFrag := SplitFragmentAt(&frag, remaining)
+			taken, restFrag := splitFragmentAt(&frag, remaining)
 			cursor.PushFragments(*taken)
 			target.Text[0] = *restFrag
 		}
@@ -104,7 +113,44 @@ func NextLine(cols winsize.Cols, lines []text.Line) (*text.Line, []text.Line) {
 	return cursor, remain
 }
 
-func SplitFragmentAt(frag *text.Fragment, cols winsize.Cols) (*text.Fragment, *text.Fragment) {
+func splitLineFeeds(line *text.Line) []text.Line {
+	result := make([]text.Line, 0)
+
+	current := text.EmptyLine().
+		CopyMeta(line)
+
+	for _, frag := range line.Text {
+		if !strings.Contains(frag.Text, "\n") && !strings.Contains(frag.Text, "\r") {
+			current.PushFragments(frag)
+			continue
+		}
+
+		normalizedText := runes.NormalizeLineFeed(frag.Text)
+
+		parts := strings.Split(normalizedText, "\n")
+		for i, part := range parts {
+			newFrag := text.NewFragment(part).
+				CopyMeta(&frag)
+
+			current.PushFragments(*newFrag)
+
+			if i < len(parts)-1 {
+				result = append(result, *current)
+
+				current = text.EmptyLine().
+					CopyMeta(line)
+			}
+		}
+	}
+
+	if len(current.Text) > 0 {
+		result = append(result, *current)
+	}
+
+	return result
+}
+
+func splitFragmentAt(frag *text.Fragment, cols winsize.Cols) (*text.Fragment, *text.Fragment) {
 	if cols <= 0 {
 		return text.EmptyFragment().
 			CopyMeta(frag), frag
