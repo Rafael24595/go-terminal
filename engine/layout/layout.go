@@ -7,20 +7,20 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-type Build func(*state.UIState, viewmodel.ViewModel, winsize.Winsize) []text.Line
+type Composer func(*state.UIState, viewmodel.ViewModel, winsize.Winsize) (*state.UIState, []text.Line)
 
 type Layout struct {
-	Apply Build
+	Compose Composer
 }
 
 type LayoutBuilder struct {
 	transformer *winsize.Transformer
-	apply       Build
+	compose       Composer
 }
 
-func NewBuilder(apply Build) *LayoutBuilder {
+func NewBuilder(apply Composer) *LayoutBuilder {
 	return &LayoutBuilder{
-		apply: apply,
+		compose: apply,
 	}
 }
 
@@ -30,19 +30,19 @@ func (b *LayoutBuilder) Transformer(transformer winsize.Transformer) *LayoutBuil
 }
 
 func (b *LayoutBuilder) ToLayout() Layout {
-	apply := b.apply
+	apply := b.compose
 	if b.transformer != nil {
 		apply = wrapTransformer(apply, *b.transformer)
 	}
 
 	return Layout{
-		Apply: apply,
+		Compose: apply,
 	}
 }
 
-func wrapTransformer(apply Build, transformer winsize.Transformer) Build {
-	return func(state *state.UIState, vm viewmodel.ViewModel, size winsize.Winsize) []text.Line {
+func wrapTransformer(compose Composer, transformer winsize.Transformer) Composer {
+	return func(state *state.UIState, vm viewmodel.ViewModel, size winsize.Winsize) (*state.UIState, []text.Line) {
 		newSize := transformer(size)
-		return apply(state, vm, newSize)
+		return compose(state, vm, newSize)
 	}
 }

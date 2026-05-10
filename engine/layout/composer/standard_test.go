@@ -1,4 +1,4 @@
-package wrapper_layout
+package composer
 
 import (
 	"strings"
@@ -18,7 +18,7 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestTerminalApply_FixedAndPaged(t *testing.T) {
+func TestStandard_FixedAndPaged(t *testing.T) {
 	size := winsize.Winsize{Rows: 6, Cols: 10}
 
 	vm := viewmodel.NewViewModel()
@@ -54,7 +54,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 
 	state := &state.UIState{}
 
-	lines := TerminalApply(state, *vm, size)
+	_, lines := Standard(state, *vm, size)
 
 	assert.Len(t, int(size.Rows), lines)
 	assert.Equal(t, "HEADER", lines[0].Text[0].Text)
@@ -79,7 +79,7 @@ func TestTerminalApply_FixedAndPaged(t *testing.T) {
 	}
 }
 
-func TestTerminalApply_MultiplePages(t *testing.T) {
+func TestStandard_MultiplePages(t *testing.T) {
 	size := winsize.Winsize{Rows: 4, Cols: 8}
 
 	stt := state.NewUIState()
@@ -115,7 +115,7 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 		),
 	)
 
-	lines0 := TerminalApply(stt, *vm, size)
+	_, lines0 := Standard(stt, *vm, size)
 
 	assert.Len(t, int(size.Rows), lines0)
 	assert.Equal(t, "H", lines0[0].Text[0].Text)
@@ -125,14 +125,14 @@ func TestTerminalApply_MultiplePages(t *testing.T) {
 	header.Init()
 
 	stt.Pager.TargetPage = 1
-	lines1 := TerminalApply(stt, *vm, size)
+	_, lines1 := Standard(stt, *vm, size)
 
 	assert.Len(t, int(size.Rows), lines1)
 	assert.Equal(t, "H", lines1[0].Text[0].Text)
 	assert.Equal(t, "> X", text.LineToString(&lines0[len(lines0)-1]))
 }
 
-func TestTerminalApply_InitializeLayers(t *testing.T) {
+func TestStandard_InitializeLayers(t *testing.T) {
 	size := winsize.Winsize{Rows: 5, Cols: 8}
 
 	stt := state.NewUIState()
@@ -173,7 +173,7 @@ func TestTerminalApply_InitializeLayers(t *testing.T) {
 	assert.True(t, vm.Kernel.HasNext())
 	assert.True(t, vm.Footer.HasNext())
 
-	TerminalApply(stt, *vm, size)
+	Standard(stt, *vm, size)
 
 	assert.False(t, vm.Header.HasNext())
 	assert.False(t, vm.Kernel.HasNext())

@@ -23,6 +23,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/wrapper/pagination"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/pass"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/composer"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize/transformer"
 	"github.com/Rafael24595/go-reacterm-core/engine/render"
@@ -34,7 +35,6 @@ import (
 
 	local "github.com/Rafael24595/go-reacterm-core/engine/commons/log"
 
-	wrapper_layout "github.com/Rafael24595/go-reacterm-core/wrapper/layout"
 	wrapper_render "github.com/Rafael24595/go-reacterm-core/wrapper/render"
 	wrapper_console "github.com/Rafael24595/go-reacterm-core/wrapper/terminal/console"
 
@@ -138,7 +138,7 @@ func makePipeline(node screen.Node) screen.Node {
 }
 
 func makeLayout(transformer winsize.Transformer) layout.Layout {
-	return layout.NewBuilder(wrapper_layout.TerminalApply).
+	return layout.NewBuilder(composer.Standard).
 		Transformer(transformer).
 		ToLayout()
 }
