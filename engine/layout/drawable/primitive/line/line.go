@@ -75,7 +75,7 @@ func (d *LineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 
 func (d *LineDrawable) nextIndexedWrappedLine(size winsize.Winsize) (*text.Line, []text.Line) {
 	if d.index == nil {
-		return wrap.NextWrappedLine(size.Cols, d.source)
+		return wrap.NextLine(size.Cols, d.source)
 	}
 	return NextIndexedWrappedLine(size.Cols, d.source, *d.index)
 }

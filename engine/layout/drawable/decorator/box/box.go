@@ -159,7 +159,7 @@ func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []tex
 	available := size.Cols.Clamp(vertical)
 
 	for _, lin := range lines {
-		for _, v := range wrap.WrapLine(available, &lin) {
+		for _, v := range wrap.Line(available, &lin) {
 			line := d.styleLine(padding, v)
 			result = append(result, line)
 		}

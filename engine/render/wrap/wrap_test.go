@@ -28,7 +28,7 @@ func TestWrapLine_Simple(t *testing.T) {
 		style.SpecFromKind(style.SpcKindPaddingLeft),
 	)
 
-	lines := WrapLine(5, line)
+	lines := Line(5, line)
 
 	expected := []string{"HELLO", " ", "WORLD"}
 
@@ -51,7 +51,7 @@ func TestWrapLine_Styles(t *testing.T) {
 		*text.NewFragment("WORLD"),
 	).SetSpec(style.SpecFromKind(style.SpcKindPaddingLeft))
 
-	lines := WrapLine(7, line)
+	lines := Line(7, line)
 
 	assert.Equal(t, 2, len(lines))
 
@@ -71,7 +71,7 @@ func TestWrapLine_LongWord(t *testing.T) {
 	)
 
 	maxWidth := winsize.Cols(10)
-	lines := WrapLine(maxWidth, line)
+	lines := Line(maxWidth, line)
 
 	for i, l := range lines {
 		text := ""
@@ -102,7 +102,7 @@ func TestWrapLine_MultipleFragments(t *testing.T) {
 	).SetSpec(style.SpecFromKind(style.SpcKindPaddingLeft))
 
 	maxWidth := winsize.Cols(8)
-	lines := WrapLine(maxWidth, line)
+	lines := Line(maxWidth, line)
 
 	for _, l := range lines {
 		width := winsize.Cols(0)
@@ -118,7 +118,7 @@ func TestWrapLine_MultipleFragments(t *testing.T) {
 func TestNextWrappedLine_Fit(t *testing.T) {
 	line := text.NewLine("golang")
 
-	got, remain := NextWrappedLine(10, []text.Line{*line})
+	got, remain := NextLine(10, []text.Line{*line})
 
 	assert.Equal(t, "golang", text.LineToString(got))
 
@@ -128,7 +128,7 @@ func TestNextWrappedLine_Fit(t *testing.T) {
 func TesNextWrappedLine_Split(t *testing.T) {
 	line := text.NewLine("golang")
 
-	got, remain := NextWrappedLine(2, []text.Line{*line})
+	got, remain := NextLine(2, []text.Line{*line})
 
 	assert.Equal(t, "go", text.LineToString(got))
 
@@ -145,7 +145,7 @@ func TesNextWrappedLine_MultiFragment(t *testing.T) {
 		*text.NewFragment("c++"),
 	)
 
-	got, remain := NextWrappedLine(6, []text.Line{*line})
+	got, remain := NextLine(6, []text.Line{*line})
 
 	assert.Equal(t, "go zig", text.LineToString(got))
 	assert.Len(t, 1, remain)
@@ -156,7 +156,7 @@ func TesNextWrappedLine_MultiFragment(t *testing.T) {
 func TesNextWrappedLine_BreakLongWordSingleFragment(t *testing.T) {
 	line := text.NewLine("golangziglangrustlang")
 
-	got, remain := NextWrappedLine(6, []text.Line{*line})
+	got, remain := NextLine(6, []text.Line{*line})
 	assert.Equal(t, "golang", text.LineToString(got))
 
 	assert.Equal(t, "ziglangrustlang", text.LineToString(&remain[0]))
@@ -169,7 +169,7 @@ func TesNextWrappedLine_BreakLongWordMultipleFragments(t *testing.T) {
 		*text.NewFragment("zigrust"),
 	)
 
-	got, remain := NextWrappedLine(10, []text.Line{*line})
+	got, remain := NextLine(10, []text.Line{*line})
 	assert.Equal(t, "golang ", text.LineToString(got))
 
 	assert.Equal(t, "zigrust", text.LineToString(&remain[0]))

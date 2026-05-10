@@ -224,7 +224,7 @@ func (d *HStackDrawable) makeBlocks(size winsize.Winsize) ([]block, bool) {
 			wrapped := make([]text.Line, 0)
 			for _, v := range lines {
 				wrapped = append(wrapped,
-					wrap.WrapLine(fixedSize.Cols, &v)...,
+					wrap.Line(fixedSize.Cols, &v)...,
 				)
 			}
 

@@ -49,7 +49,7 @@ func Drawable(
 		tracker.Add(linesLen)
 
 		for _, lne := range lines {
-			fixed := wrap.WrapLine(size.Cols, &lne)
+			fixed := wrap.Line(size.Cols, &lne)
 
 			fixedLen := uint(len(fixed))
 			if fixedLen == 0 {

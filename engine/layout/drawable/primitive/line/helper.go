@@ -32,7 +32,7 @@ func NextIndexedWrappedLine(cols winsize.Cols, lines []text.Line, meta indexMeta
 
 	assert.True(fixedCols > 0, "index prefix should be lesser than line size")
 
-	cursor, rest := wrap.NextWrappedLine(fixedCols, lines)
+	cursor, rest := wrap.NextLine(fixedCols, lines)
 	if cursor != nil {
 		cursor.UnshiftFragments(
 			*text.NewFragment(prefix),

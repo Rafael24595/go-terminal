@@ -21,7 +21,7 @@ func NormalizeLines(lines ...text.Line) []text.Line {
 	return buffer
 }
 
-func WrapLine(cols winsize.Cols, line *text.Line) []text.Line {
+func Line(cols winsize.Cols, line *text.Line) []text.Line {
 	if cols >= text.FragmentMeasure(cols, line.Text...) {
 		return []text.Line{*line}
 	}
@@ -67,7 +67,7 @@ func WrapLine(cols winsize.Cols, line *text.Line) []text.Line {
 	return result
 }
 
-func NextWrappedLine(cols winsize.Cols, lines []text.Line) (*text.Line, []text.Line) {
+func NextLine(cols winsize.Cols, lines []text.Line) (*text.Line, []text.Line) {
 	if cols == 0 || len(lines) == 0 {
 		return nil, make([]text.Line, 0)
 	}

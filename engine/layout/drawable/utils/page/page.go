@@ -38,7 +38,7 @@ func NewPageRenderer(strategy pager.PagerStrategy) draw.PageRenderer {
 			status.Work.Add(linesLen)
 
 			for _, lne := range lines {
-				fixed := wrap.WrapLine(ctx.Size.Cols, &lne)
+				fixed := wrap.Line(ctx.Size.Cols, &lne)
 
 				fixedLen := uint(len(fixed))
 				if fixedLen == 0 {
