@@ -60,6 +60,7 @@ func TestNewInputLine_WithSingleLine_AddsPrompt(t *testing.T) {
 
 	drawable.Init()
 	lines, _ := drawable.Draw(winsize.Winsize{
+		Cols: 10,
 		Rows: 5,
 	})
 
@@ -84,6 +85,7 @@ func TestNewInputLine_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
 
 	drawable.Init()
 	lines, _ := drawable.Draw(winsize.Winsize{
+		Cols: 10,
 		Rows: 5,
 	})
 
