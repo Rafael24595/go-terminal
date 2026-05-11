@@ -138,11 +138,12 @@ func (d *BoxDrawable) drawChild(size winsize.Winsize) ([]text.Line, bool) {
 	return lines, remaining <= 0
 }
 
+//TODO: investigate spec overflow.
 func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []text.Line {
 	vertical := horizontalStaticSize(d.separator)
 
-	minSize := d.minSize + vertical
-	maxSize := size.Cols
+	maxSize := size.Cols.Clamp(vertical)
+	minSize := min(d.minSize+vertical, maxSize)
 	maxLine := text.MaxLineMeasure(size.Cols, lines...)
 
 	padding := math.Clamp(maxLine, minSize, maxSize)
