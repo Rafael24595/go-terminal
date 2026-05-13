@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	
+
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -26,7 +26,6 @@ func assembleLines(t *testing.T, lines ...text.Line) string {
 
 		if i < len(lines)-1 {
 			_, err := sb.WriteString("\n")
-
 			assert.NotError(t, err)
 		}
 	}
@@ -317,7 +316,6 @@ func TestNextLine_Fit(t *testing.T) {
 	got, remain := NextLine(10, NormalizeLines(*line))
 
 	assert.Equal(t, "golang", text.LineToString(got))
-
 	assert.Len(t, 0, remain)
 }
 
@@ -377,6 +375,7 @@ func TestSplitLineFeeds(t *testing.T) {
 		input        *text.Line
 		expectedSize int
 		expectedText string
+		expecteFrags []int
 	}{
 		{
 			name: "WithoutLineFeed",
@@ -385,6 +384,7 @@ func TestSplitLineFeeds(t *testing.T) {
 			),
 			expectedSize: 1,
 			expectedText: "Hello Golang",
+			expecteFrags: []int{1},
 		},
 		{
 			name: "SingleLineFeed",
@@ -393,6 +393,7 @@ func TestSplitLineFeeds(t *testing.T) {
 			),
 			expectedSize: 2,
 			expectedText: "Golang\nZiglang",
+			expecteFrags: []int{1, 1},
 		},
 		{
 			name: "LineFeedBetweenFragments",
@@ -402,6 +403,7 @@ func TestSplitLineFeeds(t *testing.T) {
 			),
 			expectedSize: 2,
 			expectedText: "Rust\nZig",
+			expecteFrags: []int{1, 1},
 		},
 		{
 			name: "MultipleLineFeedWithEmptyLine",
@@ -410,6 +412,7 @@ func TestSplitLineFeeds(t *testing.T) {
 			),
 			expectedSize: 3,
 			expectedText: "Go\n\nC++",
+			expecteFrags: []int{1, 0, 1},
 		},
 		{
 			name: "LineFeedAtEnd",
@@ -418,6 +421,7 @@ func TestSplitLineFeeds(t *testing.T) {
 			),
 			expectedSize: 2,
 			expectedText: "Rust\n",
+			expecteFrags: []int{1, 0},
 		},
 		{
 			name: "LineFeedWithCarriageReturn",
@@ -426,6 +430,7 @@ func TestSplitLineFeeds(t *testing.T) {
 			),
 			expectedSize: 2,
 			expectedText: "Zig\nGolang",
+			expecteFrags: []int{1, 1},
 		},
 		{
 			name: "CarriageReturn",
@@ -434,6 +439,7 @@ func TestSplitLineFeeds(t *testing.T) {
 			),
 			expectedSize: 2,
 			expectedText: "Java\nElixir",
+			expecteFrags: []int{1, 1},
 		},
 	}
 
@@ -443,6 +449,10 @@ func TestSplitLineFeeds(t *testing.T) {
 
 			assert.Len(t, tt.expectedSize, got)
 			assert.Equal(t, tt.expectedText, assembleLines(t, got...))
+
+			for i, v := range got {
+				assert.Len(t, int(tt.expecteFrags[i]), v.Text)
+			}
 		})
 	}
 }

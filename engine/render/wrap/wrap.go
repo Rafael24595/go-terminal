@@ -159,7 +159,7 @@ func splitLineFeeds(line *text.Line, order bool) []text.Line {
 	}
 
 	for _, frag := range line.Text {
-		if !strings.Contains(frag.Text, "\n") && !strings.Contains(frag.Text, "\r") {
+		if !strings.ContainsAny(frag.Text, "\n\r") {
 			current.PushFragments(frag)
 			continue
 		}
@@ -168,9 +168,11 @@ func splitLineFeeds(line *text.Line, order bool) []text.Line {
 
 		parts := strings.Split(normalizedText, "\n")
 		for i, part := range parts {
-			current.PushFragments(
-				*text.NewFragment(part).CopyMeta(&frag),
-			)
+			if part != "" {
+				current.PushFragments(
+					*text.NewFragment(part).CopyMeta(&frag),
+				)
+			}
 
 			if i >= len(parts)-1 {
 				continue
@@ -186,9 +188,7 @@ func splitLineFeeds(line *text.Line, order bool) []text.Line {
 		}
 	}
 
-	if len(current.Text) > 0 {
-		result = append(result, *current)
-	}
+	result = append(result, *current)
 
 	return result
 }
