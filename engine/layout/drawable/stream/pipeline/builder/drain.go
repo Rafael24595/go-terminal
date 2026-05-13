@@ -21,7 +21,7 @@ func DrainFromDrawable(drawable drawable.Drawable) drawable.Drawable {
 
 func DrainFromLines(lines ...text.Line) drawable.Drawable {
 	return DrainFromDrawable(
-		line.New(lines...).ToDrawable(),
+		line.FromLines(lines...).ToDrawable(),
 	)
 }
 

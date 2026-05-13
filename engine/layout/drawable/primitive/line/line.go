@@ -13,22 +13,35 @@ import (
 const Name = "line_drawable"
 
 type LineDrawable struct {
-	loaded bool
-	index  *indexMeta
-	lines  []text.Line
-	source []text.Line
+	loaded     bool
+	index      *indexMeta
+	normalizer linesNormalizer
+	lines      []wrap.LayoutLine
+	source     []wrap.LayoutLine
 }
 
-func New(lines ...text.Line) *LineDrawable {
+func New(lines ...wrap.LayoutLine) *LineDrawable {
 	return &LineDrawable{
-		loaded: false,
-		index:  &indexMeta{},
-		lines:  lines,
+		loaded:     false,
+		index:      &indexMeta{},
+		normalizer: eagerNormalizer(lines...),
 	}
 }
 
-func DrawableFromLines(lines ...text.Line) drawable.Drawable {
+func FromLines(lines ...text.Line) *LineDrawable {
+	return &LineDrawable{
+		loaded:     false,
+		index:      &indexMeta{},
+		normalizer: lazyNormalizer(lines...),
+	}
+}
+
+func DrawableFromLayout(lines ...wrap.LayoutLine) drawable.Drawable {
 	return New(lines...).ToDrawable()
+}
+
+func DrawableFromLines(lines ...text.Line) drawable.Drawable {
+	return FromLines(lines...).ToDrawable()
 }
 
 func (d *LineDrawable) ToDrawable() drawable.Drawable {
@@ -45,8 +58,8 @@ func (d *LineDrawable) ToDrawable() drawable.Drawable {
 func (d *LineDrawable) init() {
 	d.loaded = true
 
-	d.lines = wrap.NormalizeLines(d.lines...)
-	d.source = text.CloneLines(d.lines...)
+	d.lines = d.normalizer()
+	d.source = wrap.CloneLayoutLines(d.lines...)
 
 	d.index = computeIndexMeta(d.lines)
 }
@@ -73,9 +86,9 @@ func (d *LineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	return result, len(d.source) > 0
 }
 
-func (d *LineDrawable) nextIndexedWrappedLine(size winsize.Winsize) (*text.Line, []text.Line) {
+func (d *LineDrawable) nextIndexedWrappedLine(size winsize.Winsize) (*text.Line, []wrap.LayoutLine) {
 	if d.index == nil {
 		return wrap.NextLine(size.Cols, d.source)
 	}
-	return NextIndexedWrappedLine(size.Cols, d.source, *d.index)
+	return NextIndexedLine(size.Cols, d.source, *d.index)
 }

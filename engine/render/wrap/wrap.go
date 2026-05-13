@@ -35,7 +35,7 @@ func Line(cols winsize.Cols, line *text.Line) []text.Line {
 	current := line
 
 	for current != nil {
-		head, rest := wrapOnce(cols, *current)
+		head, rest := wrapOnceFromLine(cols, *current)
 		result = append(result, *head)
 		current = rest
 	}
@@ -43,9 +43,9 @@ func Line(cols winsize.Cols, line *text.Line) []text.Line {
 	return result
 }
 
-func NextLine(cols winsize.Cols, lines []text.Line) (*text.Line, []text.Line) {
+func NextLine(cols winsize.Cols, lines []LayoutLine) (*text.Line, []LayoutLine) {
 	if cols == 0 || len(lines) == 0 {
-		return nil, make([]text.Line, 0)
+		return nil, make([]LayoutLine, 0)
 	}
 
 	current := lines[0]
@@ -53,19 +53,31 @@ func NextLine(cols winsize.Cols, lines []text.Line) (*text.Line, []text.Line) {
 
 	result, rest := wrapOnce(cols, current)
 	if rest != nil {
-		remain = append([]text.Line{*rest}, remain...)
+		remain = append([]LayoutLine{*rest}, remain...)
 	}
 
 	return result, remain
 }
 
-func wrapOnce(cols winsize.Cols, line text.Line) (*text.Line, *text.Line) {
-	cursor := text.EmptyLine().
-		CopyMeta(&line)
+func wrapOnceFromLine(cols winsize.Cols, line text.Line) (*text.Line, *text.Line) {
+	words := splitLineWords(&line)
+
+	layout := NewLayoutLine(&line, words...)
+
+	result, rest := wrapOnce(cols, *layout)
+	if rest == nil {
+		return result, nil
+	}
+
+	return result, rest.toLine()
+}
+
+func wrapOnce(cols winsize.Cols, line LayoutLine) (*text.Line, *LayoutLine) {
+	cursor := text.LineFromMeta(line.Source)
 
 	remaining := cols
 
-	words := splitLineWords(&line)
+	words := line.Words
 
 	for len(words) > 0 {
 		word := words[0]
@@ -79,7 +91,7 @@ func wrapOnce(cols winsize.Cols, line text.Line) (*text.Line, *text.Line) {
 			continue
 		}
 
-		if len(cursor.Text) > 0 {
+		if text.FragmentMeasure(cols, cursor.Text...) > 0 {
 			break
 		}
 
@@ -88,9 +100,9 @@ func wrapOnce(cols winsize.Cols, line text.Line) (*text.Line, *text.Line) {
 			cursor.PushFragments(newWord.Text...)
 		}
 
-		var rest *text.Line
+		var rest *LayoutLine
 		if restWord != nil {
-			rest = wordsToLine(line, *restWord)
+			rest = NewLayoutLine(line.Source, *restWord)
 		}
 
 		return cursor, rest
@@ -100,7 +112,7 @@ func wrapOnce(cols winsize.Cols, line text.Line) (*text.Line, *text.Line) {
 		return cursor, nil
 	}
 
-	rest := wordsToLine(line, words...)
+	rest := NewLayoutLine(line.Source, words...)
 
 	return cursor, rest
 }

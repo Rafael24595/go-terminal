@@ -25,7 +25,7 @@ func (w *word) addText(text ...text.Fragment) *word {
 }
 
 func splitLineWords(line *text.Line) []word {
-	tokens := make([]word, 0, len(line.Text))
+	words := make([]word, 0, len(line.Text))
 	frags := make([]text.Fragment, 0, 4)
 
 	var sb strings.Builder
@@ -53,7 +53,7 @@ func splitLineWords(line *text.Line) []word {
 		tokenFrags := make([]text.Fragment, len(frags))
 		copy(tokenFrags, frags)
 
-		tokens = append(tokens, word{
+		words = append(words, word{
 			Text: tokenFrags,
 		})
 
@@ -65,7 +65,7 @@ func splitLineWords(line *text.Line) []word {
 			flushFrag(frag)
 			flushWord()
 
-			tokens = append(tokens, word{
+			words = append(words, word{
 				Text: []text.Fragment{frag},
 			})
 
@@ -92,7 +92,7 @@ func splitLineWords(line *text.Line) []word {
 
 	flushWord()
 
-	return tokens
+	return words
 }
 
 func splitLongWord(
@@ -132,13 +132,14 @@ func splitLongWord(
 	return current, nil
 }
 
-func wordsToLine(base text.Line, words ...word) *text.Line {
-	line := text.EmptyLine().
-		CopyMeta(&base)
+func wordsToString(words ...word) string {
+	var sb strings.Builder
 
 	for _, w := range words {
-		line.PushFragments(w.Text...)
+		for _, f := range w.Text {
+			sb.WriteString(f.Text)
+		}
 	}
 
-	return line
+	return sb.String()
 }

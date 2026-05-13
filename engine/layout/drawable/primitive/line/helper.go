@@ -14,16 +14,16 @@ import (
 
 const separator = " | "
 
-func NextIndexedWrappedLine(cols winsize.Cols, lines []text.Line, meta indexMeta) (*text.Line, []text.Line) {
+func NextIndexedLine(cols winsize.Cols, lines []wrap.LayoutLine, meta indexMeta) (*text.Line, []wrap.LayoutLine) {
 	if cols == 0 || len(lines) == 0 {
-		return nil, make([]text.Line, 0)
+		return nil, make([]wrap.LayoutLine, 0)
 	}
 
 	var prefix string
-	if lines[0].Order != 0 {
-		order := int(lines[0].Order)
+	if lines[0].Source.Order != 0 {
+		order := int(lines[0].Source.Order)
 		prefix = meta.header(order)
-		lines[0].Order = 0
+		lines[0].Source.Order = 0
 	} else {
 		prefix = meta.body()
 	}
@@ -42,15 +42,15 @@ func NextIndexedWrappedLine(cols winsize.Cols, lines []text.Line, meta indexMeta
 	return cursor, rest
 }
 
-func computeIndexMeta(lines []text.Line) *indexMeta {
+func computeIndexMeta(lines []wrap.LayoutLine) *indexMeta {
 	size := winsize.Cols(0)
 
 	for _, line := range lines {
-		if line.Order == 0 {
+		if line.Source.Order == 0 {
 			continue
 		}
 
-		digits := math.Digits(line.Order)
+		digits := math.Digits(line.Source.Order)
 		size = max(size, winsize.Cols(digits))
 	}
 

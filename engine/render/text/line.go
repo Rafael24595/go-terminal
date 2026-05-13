@@ -26,6 +26,10 @@ func EmptyLine() *Line {
 	return LineFromFragments()
 }
 
+func LineFromMeta(other *Line) *Line {
+	return EmptyLine().CopyMeta(other)
+}
+
 func LineFromFragments(frags ...Fragment) *Line {
 	return &Line{
 		Text: frags,

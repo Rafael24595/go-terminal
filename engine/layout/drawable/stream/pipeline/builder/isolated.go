@@ -23,6 +23,6 @@ func IsolatedFromDrawable(drawable drawable.Drawable) drawable.Drawable {
 
 func IsolatedFromLines(lines ...text.Line) drawable.Drawable {
 	return IsolatedFromDrawable(
-		line.New(lines...).ToDrawable(),
+		line.FromLines(lines...).ToDrawable(),
 	)
 }

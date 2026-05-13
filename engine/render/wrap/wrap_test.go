@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
+	
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -112,23 +113,20 @@ func TestWrapOnce(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			head, rest := wrapOnce(tt.cols, *tt.line)
+			words := splitLineWords(tt.line)
+			layout := NewLayoutLine(tt.line, words...)
+
+			head, rest := wrapOnce(tt.cols, *layout)
 
 			assert.NotNil(t, head)
 
 			headText := text.LineToString(head)
 			assert.Equal(t, tt.expectedHead, headText)
 
-			if tt.expectedRest == "" {
-				assert.Nil(t, rest)
-				return
+			if tt.expectedRest != "" {
+				assert.NotNil(t, rest)
+				assert.Equal(t, tt.expectedRest, wordsToString(rest.Words...))
 			}
-
-			assert.NotNil(t, rest)
-
-			restText := text.LineToString(rest)
-
-			assert.Equal(t, tt.expectedRest, restText)
 		})
 	}
 }
@@ -141,7 +139,7 @@ func TestNormalizeLines_Integrity(t *testing.T) {
 	tokenized := NormalizeLines(*line)
 
 	assert.Len(t, 1, tokenized)
-	assert.Len(t, 7, tokenized[0].Text)
+	assert.Len(t, 7, tokenized[0].Words)
 }
 
 func TestWrapLine_Simple(t *testing.T) {
@@ -240,7 +238,7 @@ func TestWrapLine_MultipleFragments(t *testing.T) {
 func TestNextLine_Fit(t *testing.T) {
 	line := text.NewLine("golang")
 
-	got, remain := NextLine(10, []text.Line{*line})
+	got, remain := NextLine(10, NormalizeLines(*line))
 
 	assert.Equal(t, "golang", text.LineToString(got))
 
@@ -250,12 +248,12 @@ func TestNextLine_Fit(t *testing.T) {
 func TesNextLine_Split(t *testing.T) {
 	line := text.NewLine("golang")
 
-	got, remain := NextLine(2, []text.Line{*line})
+	got, remain := NextLine(2, NormalizeLines(*line))
 
 	assert.Equal(t, "go", text.LineToString(got))
 
 	assert.Len(t, 1, remain)
-	assert.Equal(t, "lang", text.LineToString(&remain[0]))
+	assert.Equal(t, "lang", wordsToString(remain[0].Words...))
 }
 
 func TesNextLine_MultiFragment(t *testing.T) {
@@ -267,21 +265,21 @@ func TesNextLine_MultiFragment(t *testing.T) {
 		*text.NewFragment("c++"),
 	)
 
-	got, remain := NextLine(6, []text.Line{*line})
+	got, remain := NextLine(6, NormalizeLines(*line))
 
 	assert.Equal(t, "go zig", text.LineToString(got))
 	assert.Len(t, 1, remain)
 
-	assert.Equal(t, " c++", text.LineToString(&remain[0]))
+	assert.Equal(t, " c++", wordsToString(remain[0].Words...))
 }
 
 func TesNextLine_BreakLongWordSingleFragment(t *testing.T) {
 	line := text.NewLine("golangziglangrustlang")
 
-	got, remain := NextLine(6, []text.Line{*line})
+	got, remain := NextLine(6, NormalizeLines(*line))
 	assert.Equal(t, "golang", text.LineToString(got))
 
-	assert.Equal(t, "ziglangrustlang", text.LineToString(&remain[0]))
+	assert.Equal(t, "ziglangrustlang", wordsToString(remain[0].Words...))
 }
 
 func TesNextLine_BreakLongWordMultipleFragments(t *testing.T) {
@@ -291,10 +289,10 @@ func TesNextLine_BreakLongWordMultipleFragments(t *testing.T) {
 		*text.NewFragment("zigrust"),
 	)
 
-	got, remain := NextLine(10, []text.Line{*line})
+	got, remain := NextLine(10, NormalizeLines(*line))
 	assert.Equal(t, "golang ", text.LineToString(got))
 
-	assert.Equal(t, "zigrust", text.LineToString(&remain[0]))
+	assert.Equal(t, "zigrust", wordsToString(remain[0].Words...))
 }
 
 func TestSplitLineFeeds(t *testing.T) {
