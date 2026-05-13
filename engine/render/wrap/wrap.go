@@ -30,6 +30,31 @@ func NormalizeLines(lines ...text.Line) []text.Line {
 	return buffer
 }
 
+func MaterializeEmpty(
+	size winsize.Winsize,
+	placeholder string,
+	lines ...LayoutLine,
+) []LayoutLine {
+	for i, line := range lines {
+		if text.FragmentMeasure(size.Cols, line.Source.Text...) != 0 {
+			continue
+		}
+
+		lastFrag := text.Fragment{}
+		if len(line.Source.Text) > 0 {
+			lastFrag = line.Source.Text[len(line.Source.Text)-1]
+		}
+
+		fragment := *text.NewFragment(placeholder).
+			CopyMeta(&lastFrag)
+
+		lines[i].Source.PushFragments(fragment)
+		lines[i].Words = append(line.Words, *newWord(fragment))
+	}
+
+	return lines
+}
+
 func Line(cols winsize.Cols, line *text.Line) []text.Line {
 	result := make([]text.Line, 0)
 	current := line

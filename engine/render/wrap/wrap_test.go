@@ -142,6 +142,82 @@ func TestNormalizeLines_Integrity(t *testing.T) {
 	assert.Len(t, 7, tokenized[0].Words)
 }
 
+func TestMaterializeEmpty(t *testing.T) {
+	size := winsize.Winsize{
+		Cols: 10,
+	}
+
+	placeholder := " "
+
+	tests := []struct {
+		name          string
+		input         []LayoutLine
+		expectedCount int
+		expectedText  string
+		expectedAtom  style.Atom
+	}{
+		{
+			name: "ShouldMaterializeTotallyEmptyLine",
+			input: []LayoutLine{
+				*NewLayoutLine(text.EmptyLine()),
+			},
+			expectedCount: 1,
+			expectedText:  " ",
+			expectedAtom:  style.AtmNone,
+		},
+		{
+			name: "ShouldNotMaterializeLineWithContent",
+			input: []LayoutLine{
+				*NewLayoutLine(
+					text.LineFromFragments(*text.NewFragment("Content")),
+					*newWord(*text.NewFragment("Content")),
+				),
+			},
+			expectedCount: 1,
+			expectedText:  "Content",
+			expectedAtom:  style.AtmNone,
+		},
+		{
+			name: "ShouldMaterializeLineWithOnlyZeroWidthFragments",
+			input: []LayoutLine{
+				*NewLayoutLine(text.NewLine("")),
+			},
+			expectedCount: 2,
+			expectedText:  " ",
+			expectedAtom:  style.AtmNone,
+		},
+		{
+			name: "ShouldInheritStyleFromLastZeroWidthFragment",
+			input: []LayoutLine{
+				*NewLayoutLine(
+					text.LineFromFragments(
+						*text.NewFragment("").AddAtom(style.AtmBold),
+					),
+				),
+			},
+			expectedCount: 2,
+			expectedText:  " ",
+			expectedAtom:  style.AtmBold,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := MaterializeEmpty(size, placeholder, tt.input...)
+
+			assert.Len(t, tt.expectedCount, got[0].Source.Text)
+			assert.Greater(t, 0, len(got[0].Words))
+			assert.Equal(t, tt.expectedText, text.LineToString(got[0].Source))
+
+			layout := got[len(got)-1]
+			word := layout.Words[len(layout.Words)-1]
+			text := word.Text[len(word.Text)-1]
+
+			assert.Equal(t, tt.expectedAtom, text.Atom)
+		})
+	}
+}
+
 func TestWrapLine_Simple(t *testing.T) {
 	line := text.NewLine(
 		"HELLO WORLD",
