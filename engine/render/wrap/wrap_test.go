@@ -439,10 +439,71 @@ func TestSplitLineFeeds(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := splitLineFeeds(tt.input)
+			got := splitLineFeeds(tt.input, false)
 
 			assert.Len(t, tt.expectedSize, got)
 			assert.Equal(t, tt.expectedText, assembleLines(t, got...))
+		})
+	}
+}
+
+func TestSplitLineFeeds_Ordering(t *testing.T) {
+	tests := []struct {
+		name           string
+		input          *text.Line
+		orderFlag      bool
+		expectedOrders []uint16
+	}{
+		{
+			name:           "ShouldNotSetOrderIfFlagIsFalse",
+			input:          text.NewLine("Line1\nLine2"),
+			orderFlag:      false,
+			expectedOrders: []uint16{0, 0},
+		},
+		{
+			name:           "ShouldStartFromOneIfOrderIsZero",
+			input:          text.NewLine("Line1\nLine2\nLine3"),
+			orderFlag:      true,
+			expectedOrders: []uint16{1, 2, 3},
+		},
+		{
+			name: "ShouldResumeFromExistingOrder",
+			input: text.NewLine("PartA\nPartB").
+				SetOrder(10),
+			orderFlag:      true,
+			expectedOrders: []uint16{10, 11},
+		},
+		{
+			name: "ShouldHandleMultipleFragmentsWithOrder",
+			input: text.LineFromFragments(
+				*text.NewFragment("A"),
+				*text.NewFragment("\nB\n"),
+				*text.NewFragment("C"),
+			),
+			orderFlag:      true,
+			expectedOrders: []uint16{1, 2, 3},
+		},
+		{
+			name: "ShouldHandleMultipleFragmentsWithOrder",
+			input: text.LineFromFragments(
+				*text.NewFragment("A"),
+				*text.NewFragment("\nB\n"),
+				*text.NewFragment("C"),
+			),
+			orderFlag:      true,
+			expectedOrders: []uint16{1, 2, 3},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := splitLineFeeds(tt.input, tt.orderFlag)
+
+			assert.Equal(t, len(tt.expectedOrders), len(got), "Result size mismatch")
+
+			for i, line := range got {
+				assert.Equal(t, tt.expectedOrders[i], line.Order, "Order mismatch at index %d", i)
+			}
 		})
 	}
 }

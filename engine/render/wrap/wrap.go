@@ -9,21 +9,24 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-func NormalizeLines(lines ...text.Line) []text.Line {
-	buffer := make([]text.Line, 0, len(lines))
+func NormalizeLines(lines ...text.Line) []LayoutLine {
+	return normalizeLines(false, lines...)
+}
 
-	for _, l := range lines {
-		normalizedLF := splitLineFeeds(&l)
+func NormalizeLinesWithOrder(lines ...text.Line) []LayoutLine {
+	return normalizeLines(true, lines...)
+}
+
+func normalizeLines(order bool, lines ...text.Line) []LayoutLine {
+	buffer := make([]LayoutLine, 0, len(lines))
+
+	for _, line := range lines {
+		normalizedLF := splitLineFeeds(&line, order)
 
 		for _, n := range normalizedLF {
-			newLine := text.EmptyLine().
-				CopyMeta(&n)
-
-			for _, w := range splitLineWords(&n) {
-				newLine.PushFragments(w.Text...)
-			}
-
-			buffer = append(buffer, *newLine)
+			words := splitLineWords(&n)
+			newLayoutLine := NewLayoutLine(&n, words...)
+			buffer = append(buffer, *newLayoutLine)
 		}
 	}
 
@@ -142,11 +145,18 @@ func wrapOnce(cols winsize.Cols, line LayoutLine) (*text.Line, *LayoutLine) {
 	return cursor, rest
 }
 
-func splitLineFeeds(line *text.Line) []text.Line {
+func splitLineFeeds(line *text.Line, order bool) []text.Line {
 	result := make([]text.Line, 0)
 
-	current := text.EmptyLine().
-		CopyMeta(line)
+	index := uint16(1)
+	if line.Order != 0 {
+		index = line.Order
+	}
+
+	current := text.LineFromMeta(line)
+	if order {
+		current.SetOrder(index)
+	}
 
 	for _, frag := range line.Text {
 		if !strings.Contains(frag.Text, "\n") && !strings.Contains(frag.Text, "\r") {
@@ -158,16 +168,20 @@ func splitLineFeeds(line *text.Line) []text.Line {
 
 		parts := strings.Split(normalizedText, "\n")
 		for i, part := range parts {
-			newFrag := text.NewFragment(part).
-				CopyMeta(&frag)
+			current.PushFragments(
+				*text.NewFragment(part).CopyMeta(&frag),
+			)
 
-			current.PushFragments(*newFrag)
+			if i >= len(parts)-1 {
+				continue
+			}
 
-			if i < len(parts)-1 {
-				result = append(result, *current)
+			result = append(result, *current)
+			index += 1
 
-				current = text.EmptyLine().
-					CopyMeta(line)
+			current = text.LineFromMeta(line)
+			if order {
+				current.SetOrder(index)
 			}
 		}
 	}
