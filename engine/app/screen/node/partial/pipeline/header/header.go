@@ -1,6 +1,7 @@
 package header
 
 import (
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
@@ -9,7 +10,7 @@ import (
 
 const Name = "header_transformer"
 
-func HeaderTransformer(placement pipeline.Placement, lines ...text.Line) pipeline.Transformer {
+func Transformer(placement pipeline.Placement, lines ...text.Line) pipeline.Transformer {
 	drawable := builder.DrainFromLines(lines...)
 	drawable.Name = Name
 
@@ -22,4 +23,9 @@ func HeaderTransformer(placement pipeline.Placement, lines ...text.Line) pipelin
 		}
 		return vm
 	}
+}
+
+func Node(node screen.Node, placement pipeline.Placement, lines ...text.Line) screen.Node {
+	transformer := Transformer(placement, lines...)
+	return pipeline.New(node, transformer).ToNode()
 }

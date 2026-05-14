@@ -115,19 +115,19 @@ func makeNode() screen.Node {
 func makePipeline(node screen.Node) screen.Node {
 	headerStep := wrapper_screen.NewBaseHeader()
 
-	inlineStep := inline.InlineTransformer(
-		inline.DefaultInlineSeparator,
+	inlineStep := inline.Transformer(
+		inline.DefaultSeparator,
 		pipeline.NewFilter(pipeline.Tags, screen.SystemMetaTag),
 		pipeline.Footer,
 		pipeline.After,
 	)
 
-	spacerHeader := spacer.SpacerTransformer(
+	spacerHeader := spacer.Transformer(
 		spacer.NewMeta(1, spacer.Between, pipeline.After),
 		pipeline.Header,
 	)
 
-	spacerFooter := spacer.SpacerTransformer(
+	spacerFooter := spacer.Transformer(
 		spacer.NewMeta(1, spacer.Between, pipeline.Before),
 		pipeline.Footer,
 	)

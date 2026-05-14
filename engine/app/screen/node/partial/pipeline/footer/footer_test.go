@@ -26,7 +26,7 @@ func TestFooter_InsertsBefore(t *testing.T) {
 	assert.Len(t, 1, items)
 
 	line := text.NewLine("line_02")
-	transformer := FooterTransformer(pipeline.Before, *line)
+	transformer := Transformer(pipeline.Before, *line)
 	vm = transformer(vm)
 
 	items = vm.Footer.Items()
@@ -55,7 +55,7 @@ func TestFooter_InsertsAfter(t *testing.T) {
 	assert.Len(t, 1, items)
 
 	line := text.NewLine("line_02")
-	transformer := FooterTransformer(pipeline.After, *line)
+	transformer := Transformer(pipeline.After, *line)
 	vm = transformer(vm)
 
 	items = vm.Footer.Items()

@@ -13,13 +13,13 @@ import (
 
 const Name = "spacer_transformer"
 
-type spacerPlacement func(Meta, drawable.Drawable, *stack.VStackDrawable) *stack.VStackDrawable
+type placement func(Meta, drawable.Drawable, *stack.VStackDrawable) *stack.VStackDrawable
 
-func SpacerTransformer(meta Meta, sections ...pipeline.Section) pipeline.Transformer {
-	placeSpacer := resolvePlacement(meta)
+func Transformer(meta Meta, sections ...pipeline.Section) pipeline.Transformer {
+	spacer := resolvePlacement(meta)
 
 	drawable := builder.IsolatedFromLines(
-		makeSpacerLines(meta.Size)...,
+		makeLines(meta.Size)...,
 	)
 
 	drawable.Name = Name
@@ -37,14 +37,14 @@ func SpacerTransformer(meta Meta, sections ...pipeline.Section) pipeline.Transfo
 				continue
 			}
 
-			stack = placeSpacer(meta, drawable, stack)
+			stack = spacer(meta, drawable, stack)
 			vm = accessor.Set(vm, stack)
 		}
 		return vm
 	}
 }
 
-func resolvePlacement(meta Meta) spacerPlacement {
+func resolvePlacement(meta Meta) placement {
 	if meta.Position == pipeline.Before {
 		return prependSpacer
 	}
@@ -87,7 +87,7 @@ func appendSpacer(
 	return newVStack
 }
 
-func makeSpacerLines(size uint8) []text.Line {
+func makeLines(size uint8) []text.Line {
 	spaces := make([]text.Line, size)
 	for i := range spaces {
 		spaces[i] = *text.LineJump()

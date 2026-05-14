@@ -21,5 +21,5 @@ func NewBaseHeader() pipeline.Transformer {
 		),
 	)
 
-	return header.HeaderTransformer(pipeline.Before, lines...)
+	return header.Transformer(pipeline.Before, lines...)
 }

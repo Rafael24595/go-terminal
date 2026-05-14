@@ -47,7 +47,7 @@ func TestInline_GroupDrawables_NoMatches(t *testing.T) {
 			mc2.ToDrawable(),
 		)
 
-		transformer := InlineTransformer("|", meta, v, pipeline.After)
+		transformer := Transformer("|", meta, v, pipeline.After)
 		vm = transformer(vm)
 
 		items := acc.Get(vm).Items()
@@ -79,7 +79,7 @@ func TestInline_GroupDrawables_ByCode(t *testing.T) {
 			mc2.ToDrawable(),
 		)
 
-		transformer := InlineTransformer("|", meta, v, pipeline.Before)
+		transformer := Transformer("|", meta, v, pipeline.Before)
 		vm = transformer(vm)
 
 		items := acc.Get(vm).Items()
@@ -111,7 +111,7 @@ func TestInline_GroupDrawables_ByTags(t *testing.T) {
 			mc2.ToDrawable(),
 		)
 
-		transformer := InlineTransformer("|", meta, v, pipeline.Before)
+		transformer := Transformer("|", meta, v, pipeline.Before)
 		vm = transformer(vm)
 
 		items := acc.Get(vm).Items()
@@ -146,7 +146,7 @@ func TestInline_GroupDrawables_MultipleMatches(t *testing.T) {
 			mc3.ToDrawable(),
 		)
 
-		transformer := InlineTransformer("|", meta, v, pipeline.After)
+		transformer := Transformer("|", meta, v, pipeline.After)
 		vm = transformer(vm)
 
 		items := acc.Get(vm).Items()

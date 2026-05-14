@@ -11,13 +11,13 @@ import (
 	drawable_inline "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/inline"
 )
 
-const DefaultInlineSeparator = " | "
+const DefaultSeparator = " | "
 
 const Name = "inline_transformer"
 
-type inlinePredicate func(pipeline.Filter, drawable.Drawable) bool
+type predicate func(pipeline.Filter, drawable.Drawable) bool
 
-var inlinePredicates = map[pipeline.Criterion]inlinePredicate{
+var predicates = map[pipeline.Criterion]predicate{
 	pipeline.Code: func(f pipeline.Filter, d drawable.Drawable) bool {
 		return f.Values.Has(d.Code)
 	},
@@ -26,7 +26,7 @@ var inlinePredicates = map[pipeline.Criterion]inlinePredicate{
 	},
 }
 
-func InlineTransformer(
+func Transformer(
 	separator string,
 	filter pipeline.Filter,
 	section pipeline.Section,
@@ -80,7 +80,7 @@ func InlineTransformer(
 }
 
 func matchesFilter(filter pipeline.Filter, drawable drawable.Drawable) bool {
-	predicate, ok := inlinePredicates[filter.Criterion]
+	predicate, ok := predicates[filter.Criterion]
 	if !ok {
 		return false
 	}
