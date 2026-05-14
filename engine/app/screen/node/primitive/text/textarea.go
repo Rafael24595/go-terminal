@@ -9,7 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/textarea"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/ascii"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
@@ -543,7 +543,7 @@ func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		builder.DrainFromLines(c.title...),
+		drain.DrawableFromLines(c.title...),
 	)
 
 	code := c.mainDrawableCode()

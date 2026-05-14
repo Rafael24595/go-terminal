@@ -7,7 +7,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/isolated"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
@@ -18,7 +18,7 @@ type placement func(Meta, drawable.Drawable, *stack.VStackDrawable) *stack.VStac
 func Transformer(meta Meta, sections ...pipeline.Section) pipeline.Transformer {
 	spacer := resolvePlacement(meta)
 
-	drawable := builder.IsolatedFromLines(
+	drawable := isolated.DrawableFromLines(
 		makeLines(meta.Size)...,
 	)
 

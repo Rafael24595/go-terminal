@@ -6,7 +6,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -95,7 +95,7 @@ func (c *History) view(state state.UIState) viewmodel.ViewModel {
 	}
 
 	vm.Footer.Unshift(
-		builder.DrainFromLines(footer...).
+		drain.DrawableFromLines(footer...).
 			AddTag(screen.SystemMetaTag),
 	)
 

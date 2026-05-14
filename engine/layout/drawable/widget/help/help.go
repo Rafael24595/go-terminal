@@ -7,7 +7,7 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -68,7 +68,7 @@ func (d *HelpDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 func makeDrawable(fields []key.Descriptor) drawable.Drawable {
 	fieldsLen := len(fields)
 	if fieldsLen == 0 {
-		return builder.DrainFromLines()
+		return drain.DrawableFromLines()
 	}
 
 	frags := make([]text.Fragment, fieldsLen)
@@ -88,7 +88,7 @@ func makeDrawable(fields []key.Descriptor) drawable.Drawable {
 		)
 	}
 
-	return builder.DrainFromLines(
+	return drain.DrawableFromLines(
 		*text.LineFromFragments(
 			*text.NewFragment("--Help--"),
 			*text.NewFragment("-").

@@ -8,7 +8,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/justify"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -96,13 +96,13 @@ func (d *ModalDrawable) lazyInit(size winsize.Winsize) {
 	cols := text.MaxLineMeasure(size.Cols, d.text...) + 1
 	text := formatLines(d.text...)
 
-	title := builder.DrainFromLines(text...)
+	title := drain.DrawableFromLines(text...)
 
 	options := justify.New(opts).
 		MaxCols(cols).
 		ToDrawable()
 
-	optionsBlock := builder.DrainFromDrawable(options)
+	optionsBlock := drain.Drawable(options)
 
 	title.Init()
 	optionsBlock.Init()

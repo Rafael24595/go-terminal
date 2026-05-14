@@ -4,7 +4,7 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
@@ -72,7 +72,7 @@ func (d *InlineDrawable) lazyInit(size winsize.Winsize) {
 	lines := d.drawChildren()
 	join := d.joinChildren(lines)
 
-	d.drawable = builder.DrainFromLines(join...)
+	d.drawable = drain.DrawableFromLines(join...)
 
 	d.drawable.Init()
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
+const NameWipe = "wipe_pipeline"
+
 func InitTransformer() pipeline.InitTransformer {
 	return func(size winsize.Winsize, drw drawable.Drawable) drawable.Drawable {
 		drw.Wipe()
@@ -23,3 +25,13 @@ func DrawTransformer() pipeline.DrawTransformer {
 		return lines, true
 	}
 }
+
+func Drawable(drawable drawable.Drawable) drawable.Drawable {
+	drw := pipeline.New(drawable).
+		SetDrawStep(DrawTransformer()).
+		ToDrawable()
+
+	drw.Name = NameWipe
+	return drw
+}
+

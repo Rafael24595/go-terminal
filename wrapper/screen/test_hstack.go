@@ -10,7 +10,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -32,7 +32,7 @@ func NewTestHStack() screen.Node {
 }
 
 func makeTitle() drawable.Drawable {
-	return builder.DrainFromLines(
+	return drain.DrawableFromLines(
 		*text.NewLine("Etiam dictum gravida"),
 		*text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
 		*text.EmptyLine(),

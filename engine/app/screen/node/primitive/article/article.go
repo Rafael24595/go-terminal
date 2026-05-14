@@ -5,7 +5,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
@@ -58,7 +58,7 @@ func (c *Article) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		builder.DrainFromLines(c.title...),
+		drain.DrawableFromLines(c.title...),
 	)
 	vm.Kernel.Push(
 		line.DrawableFromLines(c.article...),

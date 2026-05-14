@@ -9,7 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -20,7 +20,7 @@ import (
 
 const NameInput = "text_input"
 
-const input_limit = 20
+const input_limit = 200
 const input_max_limit = 30
 
 type TextInput struct {
@@ -139,7 +139,7 @@ func (c *TextInput) makeDrawables(vm viewmodel.ViewModel) []drawable.Drawable {
 	frags := append(c.label, *text.NewFragment(": "))
 	
 	drawables = append(drawables, 
-		builder.DrainFromFragments(frags...),
+		drain.DrawableFromFragments(frags...),
 	)
 	
 	//TODO: Parametrize.

@@ -10,7 +10,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/builder"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -24,7 +24,7 @@ func TestStandard_FixedAndPaged(t *testing.T) {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		builder.DrainFromLines(
+		drain.DrawableFromLines(
 			*text.NewLine("HEADER", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
@@ -87,7 +87,7 @@ func TestStandard_MultiplePages(t *testing.T) {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		builder.DrainFromLines(
+		drain.DrawableFromLines(
 			*text.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
@@ -140,7 +140,7 @@ func TestStandard_InitializeLayers(t *testing.T) {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		builder.DrainFromLines(
+		drain.DrawableFromLines(
 			*text.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
@@ -150,7 +150,7 @@ func TestStandard_InitializeLayers(t *testing.T) {
 		),
 	)
 	vm.Footer.Push(
-		builder.DrainFromLines(
+		drain.DrawableFromLines(
 			*text.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
