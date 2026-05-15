@@ -25,7 +25,7 @@ func Transformer(placement pipeline.Placement, lines ...text.Line) pipeline.Tran
 	}
 }
 
-func Node(node screen.Node, placement pipeline.Placement, lines ...text.Line) screen.Node {
-	transformer := Transformer(placement, lines...)
+func Node(node screen.Node, lines ...text.Line) screen.Node {
+	transformer := Transformer(pipeline.Before, lines...)
 	return pipeline.New(node, transformer).ToNode()
 }
