@@ -5,7 +5,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
@@ -13,25 +12,18 @@ const Name = "article"
 
 type Article struct {
 	reference string
-	title     []text.Line
 	article   []text.Line
 }
 
 func New() *Article {
 	return &Article{
 		reference: Name,
-		title:     make([]text.Line, 0),
 		article:   make([]text.Line, 0),
 	}
 }
 
 func (c *Article) Name(name string) *Article {
 	c.reference = name
-	return c
-}
-
-func (c *Article) AddTitle(title ...text.Line) *Article {
-	c.title = append(c.title, title...)
 	return c
 }
 
@@ -57,9 +49,6 @@ func (c *Article) update(stt *state.UIState, _ screen.Event) screen.Result {
 func (c *Article) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
-	vm.Header.Push(
-		drain.DrawableFromLines(c.title...),
-	)
 	vm.Kernel.Push(
 		line.DrawableFromLines(c.article...),
 	)

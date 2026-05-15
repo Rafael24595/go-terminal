@@ -35,7 +35,6 @@ func makeTitle() drawable.Drawable {
 	return drain.DrawableFromLines(
 		*text.NewLine("Etiam dictum gravida"),
 		*text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
-		*text.EmptyLine(),
 	)
 }
 
@@ -72,5 +71,6 @@ func makeKernel() drawable.Drawable {
 	hstack.Push(
 		article,
 	)
+
 	return hstack.ToDrawable()
 }

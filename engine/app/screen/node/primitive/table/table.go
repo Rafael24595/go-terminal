@@ -13,7 +13,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
 	drawable_table "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/table"
 )
@@ -46,7 +45,6 @@ var write_definition = screen.NewDefinition(
 type Table[T any] struct {
 	reference string
 	action    *input.TableAction
-	title     []text.Line
 	table     *table.Table
 	cursor    *input.MatrixCursor
 	positionY style.VerticalPosition
@@ -57,7 +55,6 @@ func New[T any]() *Table[T] {
 	return &Table[T]{
 		reference: Name,
 		action:    input.NewTableAction(),
-		title:     make([]text.Line, 0),
 		table:     table.NewTable(),
 		cursor:    input.NewMatrixCursor(0, 0, false),
 		positionY: style.Middle,
@@ -92,11 +89,6 @@ func (c *Table[T]) SetPositionY(position style.VerticalPosition) *Table[T] {
 
 func (c *Table[T]) SetPositionX(position style.HorizontalPosition) *Table[T] {
 	c.positionX = position
-	return c
-}
-
-func (c *Table[T]) AddTitle(title ...text.Line) *Table[T] {
-	c.title = append(c.title, title...)
 	return c
 }
 
@@ -190,10 +182,6 @@ func (c *Table[T]) updateRead(state *state.UIState, evnt screen.Event) screen.Re
 
 func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
-
-	vm.Header.Push(
-		drain.DrawableFromLines(c.title...),
-	)
 
 	table := drawable_table.DrawableFromTable(*c.table, *c.cursor)
 

@@ -5,7 +5,8 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
-
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline/header"
+	
 	table_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/table"
 )
 
@@ -68,17 +69,19 @@ func parser(lang Language) []table.Field {
 }
 
 func NewTestTable() screen.Node {
-	return table_screen.New[Language]().
+	title := []text.Line{
+		*text.NewLine("Donec massa sem"),
+		*text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
+	}
+
+	node := table_screen.New[Language]().
 		SetName("article - ipsum").
 		SetPositionY(style.Top).
 		SetPositionX(style.Center).
 		EnableAction().
-		AddTitle(
-			*text.NewLine("Donec massa sem"),
-			*text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
-			*text.EmptyLine(),
-		).
 		DefineHeaders(headers...).
 		AddItems(parser, rows...).
 		ToNode()
+
+	return header.Node(node, title...)
 }

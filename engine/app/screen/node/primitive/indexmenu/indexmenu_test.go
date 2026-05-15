@@ -21,9 +21,6 @@ func voidAction() screen.Node { return screen.Node{} }
 func TestIndexMenu_ToNode(t *testing.T) {
 	node := New().
 		SetName("base").
-		AddTitle(
-			*text.NewLine("Welcome"),
-		).
 		AddOptions(
 			input.NewMenuOption(
 				"opt_1",
@@ -48,16 +45,12 @@ func TestIndexMenu_DefaultValues(t *testing.T) {
 	menu := New()
 
 	assert.Equal(t, menu.reference, Name)
-	assert.Len(t, 0, menu.title)
 	assert.Len(t, 0, menu.options)
 	assert.Equal(t, menu.cursor, 0)
 }
 
 func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 	menu := New().
-		AddTitle(
-			*text.NewLine("Title 1"),
-		).
 		AddOptions(
 			input.NewMenuOption(
 				"opt_1",
@@ -71,7 +64,6 @@ func TestIndexMenu_AddTitleAndOptions(t *testing.T) {
 			),
 		)
 
-	assert.Len(t, 1, menu.title)
 	assert.Len(t, 2, menu.options)
 }
 

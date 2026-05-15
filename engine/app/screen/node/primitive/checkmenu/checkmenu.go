@@ -18,7 +18,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/platform/clock"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 const Name = "check_menu"
@@ -57,7 +56,6 @@ type CheckMenu struct {
 	action       *input.CheckAction
 	meta         marker.CheckMeta
 	distribution style.Distribution
-	title        []text.Line
 	options      []input.CheckOption
 	limit        uint16
 	cursor       uint16
@@ -69,7 +67,6 @@ func New() *CheckMenu {
 		clock:     clock.UnixMilliClock,
 		action:    input.EmptyCheckAction(),
 		meta:      marker.BracketsCheck,
-		title:     make([]text.Line, 0),
 		options:   make([]input.CheckOption, 0),
 		limit:     0,
 		cursor:    0,
@@ -88,11 +85,6 @@ func (c *CheckMenu) Meta(meta marker.CheckMeta) *CheckMenu {
 
 func (c *CheckMenu) ActionHandler(handler input.CheckActionHandler) *CheckMenu {
 	c.action.Handler = handler
-	return c
-}
-
-func (c *CheckMenu) AddTitle(title ...text.Line) *CheckMenu {
-	c.title = append(c.title, title...)
 	return c
 }
 
@@ -238,9 +230,6 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 
 	vm := viewmodel.NewViewModel()
 
-	vm.Header.Push(
-		drain.DrawableFromLines(c.title...),
-	)
 	vm.Kernel.Push(
 		indexmenu.ToDrawable(),
 	)

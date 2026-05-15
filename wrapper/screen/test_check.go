@@ -2,6 +2,7 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline/header"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/checkmenu"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
@@ -14,15 +15,8 @@ func NewTestCheck() screen.Node {
 	sizeTitle := runes.Measure(textTitle)
 
 	title := []text.Line{
-		*text.NewLine(
-			textTitle,
-			style.SpecFromKind(style.SpcKindPaddingRight),
-		),
-		*text.NewLine(
-			"-",
-			style.SpecFill(sizeTitle),
-		),
-		*text.EmptyLine(),
+		*text.NewLine(textTitle, style.SpecFromKind(style.SpcKindPaddingRight)),
+		*text.NewLine("-", style.SpecFill(sizeTitle)),
 	}
 
 	options := []input.CheckOption{
@@ -32,10 +26,11 @@ func NewTestCheck() screen.Node {
 		input.NewCheckOption("4", *text.NewFragment("Check 4")),
 	}
 
-	return checkmenu.New().
-		Name("menu - tortor").
+	node := checkmenu.New().
+		Name("checkmenu - tortor").
 		Limit(1).
-		AddTitle(title...).
 		AddOptions(options...).
 		ToNode()
+
+	return header.Node(node, title...)
 }

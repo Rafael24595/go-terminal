@@ -29,7 +29,6 @@ func TestNewArticle_DefaultValues(t *testing.T) {
 	article := New()
 
 	assert.Equal(t, Name, article.ToNode().Screen.Name)
-	assert.Len(t, 0, article.title)
 	assert.Len(t, 0, article.article)
 }
 
@@ -42,26 +41,19 @@ func TestArticle_SetName(t *testing.T) {
 }
 
 func TestArticle_AddTitleAndArticle(t *testing.T) {
-	title := text.NewLine("Title")
 	body := text.NewLine("Body")
 
 	article := New().
-		AddTitle(*title).
 		AddArticle(*body)
-
-	assert.Len(t, 1, article.title)
-	assert.Equal(t, text.LineToString(title), text.LineToString(&article.title[0]))
 
 	assert.Len(t, 1, article.article)
 	assert.Equal(t, text.LineToString(body), text.LineToString(&article.article[0]))
 }
 
 func TestArticle_View(t *testing.T) {
-	title := text.NewLine("Title")
 	body := text.NewLine("Body")
 
 	article := New().
-		AddTitle(*title).
 		AddArticle(*body)
 
 	state := state.NewUIState()
@@ -76,15 +68,11 @@ func TestArticle_View(t *testing.T) {
 	header := vm.Header.ToDrawable()
 
 	header.Init()
-	headers, _ := header.Draw(size)
 
 	kernel := vm.Kernel.ToDrawable()
 
 	kernel.Init()
 	lines, _ := kernel.Draw(size)
-
-	assert.Len(t, 1, headers)
-	assert.Equal(t, text.LineToString(title), text.LineToString(&headers[0]))
 
 	assert.Len(t, 1, lines)
 	assert.Equal(t, text.LineToString(body), text.LineToString(&lines[0]))

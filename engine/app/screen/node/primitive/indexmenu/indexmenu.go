@@ -13,7 +13,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/param"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 const Name = "index_menu"
@@ -33,7 +32,6 @@ var index_menu_definition = screen.DefinitionFromActions(
 type IndexMenu struct {
 	reference string
 	meta      marker.IndexMeta
-	title     []text.Line
 	options   []input.MenuOption
 	cursor    uint16
 }
@@ -42,7 +40,6 @@ func New() *IndexMenu {
 	return &IndexMenu{
 		reference: Name,
 		meta:      marker.HyphenIndex,
-		title:     make([]text.Line, 0),
 		options:   make([]input.MenuOption, 0),
 		cursor:    0,
 	}
@@ -55,11 +52,6 @@ func (c *IndexMenu) SetName(name string) *IndexMenu {
 
 func (c *IndexMenu) SetMeta(meta marker.IndexMeta) *IndexMenu {
 	c.meta = meta
-	return c
-}
-
-func (c *IndexMenu) AddTitle(title ...text.Line) *IndexMenu {
-	c.title = append(c.title, title...)
 	return c
 }
 
@@ -129,9 +121,6 @@ func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
 
 	vm := viewmodel.NewViewModel()
 
-	vm.Header.Push(
-		drain.DrawableFromLines(c.title...),
-	)
 	vm.Kernel.Push(
 		indexmenu.ToDrawable(),
 	)

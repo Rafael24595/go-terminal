@@ -9,7 +9,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/textarea"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/ascii"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
@@ -19,7 +18,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/param"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
 	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
@@ -70,7 +68,6 @@ type TextArea struct {
 	history   *event.TextEventService
 	writeMode bool
 	indexMode bool
-	title     []text.Line
 	buffer    *buffer.RuneBuffer
 	clipboard *buffer.Clipboard
 	caret     *input.TextCursor
@@ -85,7 +82,6 @@ func NewArea() *TextArea {
 		history:   event.NewTextEventService(),
 		writeMode: false,
 		indexMode: false,
-		title:     make([]text.Line, 0),
 		buffer:    runeBuffer,
 		clipboard: buffer.NewClipboard(),
 		caret:     input.NewTextCursor(false),
@@ -121,11 +117,6 @@ func (c *TextArea) EnableBlinking() *TextArea {
 
 func (c *TextArea) DisableBlinking() *TextArea {
 	c.caret.DisableBlinking()
-	return c
-}
-
-func (c *TextArea) AddTitle(title ...text.Line) *TextArea {
-	c.title = append(c.title, title...)
 	return c
 }
 
@@ -541,10 +532,6 @@ func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 		IndexMode(c.indexMode)
 
 	vm := viewmodel.NewViewModel()
-
-	vm.Header.Push(
-		drain.DrawableFromLines(c.title...),
-	)
 
 	code := c.mainDrawableCode()
 	vm.Kernel.Push(

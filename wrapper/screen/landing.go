@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline/header"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/indexmenu"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
@@ -17,15 +18,8 @@ func NewLanding() screen.Node {
 	sizeTitle := runes.Measure(textTitle)
 
 	title := []text.Line{
-		*text.NewLine(
-			textTitle,
-			style.SpecFromKind(style.SpcKindPaddingRight),
-		),
-		*text.NewLine(
-			"-",
-			style.SpecFill(sizeTitle),
-		),
-		*text.EmptyLine(),
+		*text.NewLine(textTitle, style.SpecFromKind(style.SpcKindPaddingRight)),
+		*text.NewLine("-", style.SpecFill(sizeTitle)),
 	}
 
 	options := input.NewMenuOptions(
@@ -50,11 +44,12 @@ func NewLanding() screen.Node {
 		)
 	}
 
-	return indexmenu.New().
-		SetName("menu - tortor").
+	node := indexmenu.New().
+		SetName("indexmenu - tortor").
 		SetMeta(marker.NumericIndex).
-		AddTitle(title...).
 		AddOptions(options...).
 		SetCursor(0).
 		ToNode()
+
+	return header.Node(node, title...)
 }

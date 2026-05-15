@@ -5,19 +5,13 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
-
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
 func TestTextArea_ToNode(t *testing.T) {
-	node := NewArea().
-		SetName("base").
-		AddTitle(*text.NewLine("Welcome")).
-		ToNode()
+	node := NewArea().SetName("base").ToNode()
 
 	screen_test.Helper_ToNode(t, node)
-
 	assert.Equal(t, node.Screen.Name, "base")
 }
 

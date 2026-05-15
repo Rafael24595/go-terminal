@@ -13,10 +13,7 @@ import (
 )
 
 func TestCheckMenu_ToNode(t *testing.T) {
-	node := New().
-		Name("base").
-		AddTitle(*text.NewLine("Welcome")).
-		ToNode()
+	node := New().Name("base").ToNode()
 
 	screen_test.Helper_ToNode(t, node)
 
