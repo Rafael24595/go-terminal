@@ -33,39 +33,42 @@ func (c *Help) ToNode() screen.Node {
 
 func (c *Help) update(state *state.UIState, event screen.Event) screen.Result {
 	definition := c.node.Screen.Definition()
-	requiredKey := definition.IsRequired(event.Key)
 
-	if requiredKey {
-		result := c.node.Screen.Update(state, event)
-		if result.Node != nil {
-			newWrapper := New(*result.Node)
-			newWrapper.visible = c.visible
-			newScreen := newWrapper.ToNode()
-			result.Node = &newScreen
+	if !definition.IsRequired(event.Key) {
+		if event.Key.Code == key.CustomActionHelp {
+			c.visible = !c.visible
 		}
 
-		c.visible = state.Helper.ShowHelp
+		state.Helper.ShowHelp = c.visible
+		return screen.ResultFromUIState(state)
+	}
+
+	c.visible = state.Helper.ShowHelp
+
+	result := c.node.Screen.Update(state, event)
+	if result.Node == nil {
 		return result
 	}
 
-	if event.Key.Code == key.CustomActionHelp {
-		c.visible = !c.visible
-	}
+	newWrapper := New(*result.Node)
+	newWrapper.visible = c.visible
+	newScreen := newWrapper.ToNode()
+	result.Node = &newScreen
 
-	state.Helper.ShowHelp = c.visible
-	return screen.ResultFromUIState(state)
+	return result
 }
 
 func (c *Help) view(state state.UIState) viewmodel.ViewModel {
 	vm := c.node.Screen.View(state)
-
-	if c.visible {
-		definition := c.node.Screen.Definition()
-
-		vm.Footer.Push(
-			help.DrawableFromFields(definition.Descriptor.ToValuesSlice()),
-		)
+	if !c.visible {
+		return vm
 	}
+
+	definition := c.node.Screen.Definition()
+
+	vm.Footer.Push(
+		help.DrawableFromFields(definition.Descriptor.ToValuesSlice()),
+	)
 
 	return vm
 }

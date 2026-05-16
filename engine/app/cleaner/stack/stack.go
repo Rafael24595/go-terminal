@@ -13,10 +13,13 @@ func NewCleaner() cleaner.StateCleaner {
 }
 
 func Cleanup(result screen.Result, stt *state.UIState) *state.UIState {
-	if result.Node != nil {
-		stt.Stack.RetainOnly(
-			result.Node.Stack,
-		)
+	if result.Node == nil {
+		return stt
 	}
+
+	stt.Stack.RetainOnly(
+		result.Node.Stack,
+	)
+
 	return stt
 }

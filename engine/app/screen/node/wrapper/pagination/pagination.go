@@ -15,9 +15,24 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
+const errf_unhandled = "unhandled pager type '%d'"
+
 var definitions = map[pager.EngineCode]screen.Definition{
 	pager.CodeEnginePaged:  pager_definition,
 	pager.CodeEngineScroll: scroll_definition,
+}
+
+var keys = map[pager.EngineCode]struct {
+	back key.Action
+	next key.Action
+}{
+	pager.CodeEnginePaged:  {key.ActionArrowLeft, key.ActionArrowRight},
+	pager.CodeEngineScroll: {key.ActionArrowUp, key.ActionArrowDown},
+}
+
+var labels = map[pager.EngineCode]string{
+	pager.CodeEnginePaged:  "page",
+	pager.CodeEngineScroll: "scroll",
 }
 
 var pager_definition = screen.NewDefinition(
@@ -89,9 +104,8 @@ func (c *Pagination) findDefinition() screen.Definition {
 
 func (c *Pagination) update(state *state.UIState, event screen.Event) screen.Result {
 	definition := c.node.Screen.Definition()
-	requiredKey := definition.IsRequired(event.Key)
 
-	if !requiredKey {
+	if !definition.IsRequired(event.Key) {
 		result := c.localUpdate(state, event)
 		if result != nil {
 			return *result
@@ -99,32 +113,31 @@ func (c *Pagination) update(state *state.UIState, event screen.Event) screen.Res
 	}
 
 	result := c.node.Screen.Update(state, event)
-	if result.Node != nil {
-		newWrapper := New(*result.Node)
-		newWrapper.engine = c.engine
-		newWrapper.forceEngine = c.forceEngine
-		newNode := newWrapper.ToNode()
-		result.Node = &newNode
+	if result.Node == nil {
+		return result
 	}
+
+	newWrapper := New(*result.Node)
+	newWrapper.engine = c.engine
+	newWrapper.forceEngine = c.forceEngine
+	newNode := newWrapper.ToNode()
+	result.Node = &newNode
 
 	return result
 }
 
 func (c *Pagination) localUpdate(state *state.UIState, event screen.Event) *screen.Result {
-	keyback := key.ActionArrowLeft
-	keyNext := key.ActionArrowRight
-	if c.engine == pager.CodeEngineScroll {
-		keyback = key.ActionArrowUp
-		keyNext = key.ActionArrowDown
-	}
+	keys, ok := keys[pager.CodeEnginePaged]
 
-	if event.Key.Code == keyback {
+	assert.True(ok, errf_unhandled, pager.CodeEnginePaged)
+
+	if event.Key.Code == keys.back {
 		state.Pager.DecTarget()
 		result := screen.ResultFromUIState(state)
 		return &result
 	}
 
-	if event.Key.Code == keyNext {
+	if event.Key.Code == keys.next {
 		state.Pager.IncTarget()
 		result := screen.ResultFromUIState(state)
 		return &result
@@ -135,29 +148,29 @@ func (c *Pagination) localUpdate(state *state.UIState, event screen.Event) *scre
 
 func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 	vm := c.node.Screen.View(stt)
-
 	if c.forceEngine != nil {
 		vm.Pager.SetEngine(*c.forceEngine)
 	}
 
-	if c.shouldShowPage(stt, vm) {
-		label := "page"
-		if vm.Pager.Engine.Code == pager.CodeEngineScroll {
-			label = "scroll"
-		}
-
-		footer := []text.Line{
-			*text.NewLine(
-				fmt.Sprintf("%s: %d", label, stt.Pager.ActualPage),
-				style.SpecFromKind(style.SpcKindPaddingRight),
-			),
-		}
-
-		vm.Footer.Unshift(
-			drain.DrawableFromLines(footer...).
-				AddTag(screen.SystemMetaTag),
-		)
+	if !c.shouldShowPage(stt, vm) {
+		return vm
 	}
+
+	label, ok := labels[pager.CodeEnginePaged]
+
+	assert.True(ok, errf_unhandled, pager.CodeEnginePaged)
+
+	footer := []text.Line{
+		*text.NewLine(
+			fmt.Sprintf("%s: %d", label, stt.Pager.ActualPage),
+			style.SpecFromKind(style.SpcKindPaddingRight),
+		),
+	}
+
+	vm.Footer.Unshift(
+		drain.DrawableFromLines(footer...).
+			AddTag(screen.SystemMetaTag),
+	)
 
 	return vm
 }

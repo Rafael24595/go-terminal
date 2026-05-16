@@ -47,9 +47,8 @@ func (c *History) definition() screen.Definition {
 
 func (c *History) update(state *state.UIState, event screen.Event) screen.Result {
 	definition := c.node.Screen.Definition()
-	requiredKey := definition.IsRequired(event.Key)
 
-	if !requiredKey {
+	if !definition.IsRequired(event.Key) {
 		result := c.localUpdate(state, event)
 		if result != nil {
 			return *result
@@ -57,12 +56,14 @@ func (c *History) update(state *state.UIState, event screen.Event) screen.Result
 	}
 
 	result := c.node.Screen.Update(state, event)
-	if result.Node != nil {
-		newWrapper := New(*result.Node)
-		newWrapper.history = &c.node
-		newNode := newWrapper.ToNode()
-		result.Node = &newNode
+	if result.Node == nil {
+		return result
 	}
+
+	newWrapper := New(*result.Node)
+	newWrapper.history = &c.node
+	newNode := newWrapper.ToNode()
+	result.Node = &newNode
 
 	return result
 }
