@@ -2,11 +2,11 @@ package wrapper_screen
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline/header"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline/header"
-	
+
 	table_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/table"
 )
 
@@ -64,7 +64,7 @@ var rows = []Language{
 	},
 }
 
-func parser(lang Language) []table.Field {
+func marshal(lang Language) []table.Field {
 	return table.StructFieds(lang)
 }
 
@@ -79,8 +79,8 @@ func NewTestTable() screen.Node {
 		SetPositionY(style.Top).
 		SetPositionX(style.Center).
 		EnableAction().
-		DefineHeaders(headers...).
-		AddItems(parser, rows...).
+		SetHeaders(headers...).
+		AddItems(marshal, rows...).
 		ToNode()
 
 	return header.Node(node, title...)

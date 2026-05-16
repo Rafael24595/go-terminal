@@ -42,6 +42,8 @@ var write_definition = screen.NewDefinition(
 	},
 )
 
+type MarshalFunc[T any] func(T) []table.Field
+
 type Table[T any] struct {
 	reference string
 	action    *input.TableAction
@@ -92,17 +94,17 @@ func (c *Table[T]) SetPositionX(position style.HorizontalPosition) *Table[T] {
 	return c
 }
 
-func (c *Table[T]) DefineHeaders(headers ...string) *Table[T] {
+func (c *Table[T]) SetHeaders(headers ...string) *Table[T] {
 	c.table = table.NewTable()
 	c.table.SetHeaders(headers...)
 	return c
 }
 
-func (c *Table[T]) AddItems(parser func(T) []table.Field, items ...T) *Table[T] {
+func (c *Table[T]) AddItems(marshal MarshalFunc[T], items ...T) *Table[T] {
 	rows := c.table.Rows()
 	for i, item := range items {
 		index := rows + uint16(i)
-		for _, field := range parser(item) {
+		for _, field := range marshal(item) {
 			c.table.SetCell(field.Header, index, field.Value)
 		}
 	}
