@@ -109,42 +109,63 @@ func TestWrapOnce(t *testing.T) {
 			expectedRest: "expialidocious",
 		},
 		{
-            name: "split long word preserves trailing words",
-            cols: 5,
-            line: text.LineFromFragments(
-                *text.NewFragment("golang"),
-                *text.NewFragment(" "),
-                *text.NewFragment("zig"),
-                *text.NewFragment(" "),
-                *text.NewFragment("rust"),
-            ),
-            expectedHead: "golan",
-            expectedRest: "g zig rust",
-        },
-        {
-            name: "word triggers break preserves all trailing words",
-            cols: 6,
-            line: text.LineFromFragments(
-                *text.NewFragment("rust"),
-                *text.NewFragment(" "),
-                *text.NewFragment("java"),
-                *text.NewFragment(" "),
-                *text.NewFragment("golang"),
-            ),
-            expectedHead: "rust ",
-            expectedRest: "java golang",
-        },
-        {
-            name: "split long word that fits exactly in next lines",
-            cols: 3,
-            line: text.LineFromFragments(
-                *text.NewFragment("ziglang"),
-                *text.NewFragment(" "),
-                *text.NewFragment("rust"),
-            ),
-            expectedHead: "zig",
-            expectedRest: "lang rust",
-        },
+			name: "split long word preserves trailing words",
+			cols: 5,
+			line: text.LineFromFragments(
+				*text.NewFragment("golang"),
+				*text.NewFragment(" "),
+				*text.NewFragment("zig"),
+				*text.NewFragment(" "),
+				*text.NewFragment("rust"),
+			),
+			expectedHead: "golan",
+			expectedRest: "g zig rust",
+		},
+		{
+			name: "word triggers break preserves all trailing words",
+			cols: 6,
+			line: text.LineFromFragments(
+				*text.NewFragment("rust"),
+				*text.NewFragment(" "),
+				*text.NewFragment("java"),
+				*text.NewFragment(" "),
+				*text.NewFragment("golang"),
+			),
+			expectedHead: "rust ",
+			expectedRest: "java golang",
+		},
+		{
+			name: "split long word that fits exactly in next lines",
+			cols: 3,
+			line: text.LineFromFragments(
+				*text.NewFragment("ziglang"),
+				*text.NewFragment(" "),
+				*text.NewFragment("rust"),
+			),
+			expectedHead: "zig",
+			expectedRest: "lang rust",
+		},
+		{
+			name: "Without AtmBreak: moves whole word to next line if it doesn't fit",
+			cols: 6,
+			line: text.LineFromFragments(
+				*text.NewFragment("zig "),
+				*text.NewFragment("golang"),
+			),
+			expectedHead: "zig ",
+			expectedRest: "golang",
+		},
+		{
+			name: "With AtmBreak: splits word inline to fill remaining space",
+			cols: 6,
+			line: text.LineFromFragments(
+				*text.NewFragment("zig "),
+				*text.NewFragment("golang").
+					AddAtom(style.AtmBreak),
+			),
+			expectedHead: "zig go",
+			expectedRest: "lang",
+		},
 	}
 
 	for _, tt := range tests {

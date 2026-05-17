@@ -6,6 +6,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
@@ -120,7 +121,7 @@ func wrapOnce(cols winsize.Cols, line LayoutLine) (*text.Line, *LayoutLine) {
 			continue
 		}
 
-		if text.FragmentMeasure(cols, cursor.Text...) > 0 {
+		if shouldWrap(cols, cursor, focus) {
 			break
 		}
 
@@ -145,6 +146,14 @@ func wrapOnce(cols winsize.Cols, line LayoutLine) (*text.Line, *LayoutLine) {
 	rest := NewLayoutLine(line.Source, words...)
 
 	return cursor, rest
+}
+
+func shouldWrap(cols winsize.Cols, line *text.Line, word word) bool {
+	if text.FragsHasAtom(style.AtmBreak, word.Text...) {
+		return false
+	}
+
+	return text.FragmentMeasure(cols, line.Text...) > 0
 }
 
 func splitLineFeeds(line *text.Line, order bool) []text.Line {
