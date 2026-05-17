@@ -36,12 +36,19 @@ func ApplyLineSpec(style style.Spec, lines ...Line) []Line {
 	return lines
 }
 
-func HasAtom(atom style.Atom, lines ...Line) bool {
+func LinesHasAtom(atom style.Atom, lines ...Line) bool {
 	for _, line := range lines {
-		for _, v := range line.Text {
-			if v.Atom.HasAny(atom) {
-				return true
-			}
+		if FragsHasAtom(atom, line.Text...) {
+			return true
+		}
+	}
+	return false
+}
+
+func FragsHasAtom(atom style.Atom, frags ...Fragment) bool {
+	for _, v := range frags {
+		if v.Atom.HasAny(atom) {
+			return true
 		}
 	}
 	return false
