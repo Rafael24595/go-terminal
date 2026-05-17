@@ -24,6 +24,7 @@ type TextAreaDrawable struct {
 	indexMode  bool
 	buffer     []rune
 	caret      *input.TextCursor
+	steps      []Transformer
 	drawable   drawable.Drawable
 }
 
@@ -38,6 +39,7 @@ func New(buffer []rune, caret *input.TextCursor) *TextAreaDrawable {
 		indexMode:  false,
 		buffer:     clone,
 		caret:      caret,
+		steps:      make([]Transformer, 0),
 		drawable:   drawable.Drawable{},
 	}
 }
@@ -49,6 +51,11 @@ func (d *TextAreaDrawable) WriteMode(writeMode bool) *TextAreaDrawable {
 
 func (d *TextAreaDrawable) IndexMode(indexMode bool) *TextAreaDrawable {
 	d.indexMode = indexMode
+	return d
+}
+
+func (d *TextAreaDrawable) PushStep(step Transformer) *TextAreaDrawable {
+	d.steps = append(d.steps, step)
 	return d
 }
 
@@ -84,17 +91,28 @@ func (d *TextAreaDrawable) lazyInit(size winsize.Winsize) {
 		end = 1
 	}
 
-	base := text.LineFromFragments(
-		d.resolveFragments(d.buffer, start, end)...,
-	)
+	frags := d.resolveFragments(d.buffer, start, end)
+	for _, step := range d.steps {
+		frags = step(frags)
+	}
 
-	lines := wrap.NormalizeLinesWithOrder(*base)
+	base := text.LineFromFragments(frags...)
+
+	lines := d.makeLines(base)
 	lines = wrap.MaterializeEmpty(size, marker.DefaultPaddingText, lines...)
 
 	drawable := line.DrawableFromLayout(lines...)
 	drawable.Init()
 
 	d.drawable = drawable
+}
+
+func (d *TextAreaDrawable) makeLines(base *text.Line) []wrap.LayoutLine {
+	if d.indexMode {
+		return wrap.NormalizeLinesWithOrder(*base)
+	}
+	return wrap.NormalizeLines(*base)
+
 }
 
 func (d *TextAreaDrawable) wipe() {
