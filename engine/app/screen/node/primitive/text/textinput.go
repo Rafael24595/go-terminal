@@ -3,13 +3,17 @@ package text
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
+	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/focus"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/textarea/transformer"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/processor"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -18,7 +22,7 @@ import (
 
 const NameInput = "text_input"
 
-const input_limit = 200
+const input_limit = 20
 const input_max_limit = 30
 
 type TextInput struct {
@@ -30,7 +34,7 @@ type TextInput struct {
 func NewInput() *TextInput {
 	processor := processor.Limit(
 		input_limit,
-		processor.Identity,
+		processor.Inline,
 	)
 
 	area := NewArea().SetName(NameInput)
@@ -103,50 +107,59 @@ func (c *TextInput) ToNode() screen.Node {
 }
 
 func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
-	vm := c.textarea.view(stt)
+	vm := viewmodel.NewViewModel()
 
-	vm.Kernel.Unshift(
-		c.makeDrawables(vm)...,
+	_, textarea, needsPulse := c.textarea.viewSources()
+
+	textarea.PushStep(
+		transformer.BreakWord,
 	)
 
-	return vm
-}
+	pipeline := pipeline.New(textarea.ToDrawable()).
+		SetDrawStep(pageDrawable()).
+		ToDrawable()
 
-func (c *TextInput) makeDrawables(vm viewmodel.ViewModel) []drawable.Drawable {
-	drawables := make([]drawable.Drawable, 0, 2)
-
-	code := c.textarea.mainDrawableCode()
-	drawable, ok := vm.Kernel.Take(code)
-	if !ok {
-		return drawables
-	}
-
-	input := box.New(drawable).
+	box := box.New(pipeline).
 		PaddingY(0).
 		PaddingX(1).
 		TextAlign(style.Left).
 		MinSize(c.limit).
 		ToDrawable()
 
-	position := position.New(input).
+	position := position.New(box).
 		PositionY(style.Top).
 		PositionX(style.Left)
 
-	if len(c.label) == 0 {
-		drawables = append(drawables, position.ToDrawable())
-		return drawables
+	if len(c.label) != 0 {
+		frags := append(c.label, *text.NewFragment(": "))
+		vm.Kernel.Push(
+			drain.DrawableFromFragments(frags...),
+		)
 	}
 
-	frags := append(c.label, *text.NewFragment(": "))
-	
-	drawables = append(drawables, 
-		drain.DrawableFromFragments(frags...),
-	)
-	
-	//TODO: Parametrize.
-	drawables = append(drawables, 
+	vm.Kernel.Push(
 		position.MarginX(0).ToDrawable(),
 	)
 
-	return drawables
+	vm.Behavior.NeedsPulse = needsPulse
+
+	return *vm
+}
+
+func limitRows(size winsize.Winsize) winsize.Winsize {
+	return winsize.New(
+		min(1, size.Rows),
+		size.Cols,
+	)
+}
+
+func pageDrawable() pipeline.DrawTransformer {
+	engine := pager.EngineScroll()
+	return func(winsize winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
+		transformer := focus.DrawTransformer(engine)
+		return transformer(
+			limitRows(winsize),
+			drawable,
+		)
+	}
 }
