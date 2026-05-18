@@ -521,6 +521,25 @@ func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.Result 
 }
 
 func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
+	vm := viewmodel.NewViewModel()
+
+	predicate, textarea, needsPulse := c.viewSources()
+
+	vm.Kernel.Push(
+		textarea.ToDrawable(),
+	)
+
+	vm.Pager.SetPredicate(predicate)
+	vm.Behavior.NeedsPulse = needsPulse
+
+	return *vm
+}
+
+func (c *TextArea) viewSources() (
+	pager.Predicate,
+	*textarea.TextAreaDrawable,
+	bool,
+) {
 	predicate := pager.PredicatePage()
 	if c.writeMode {
 		predicate = pager.PredicateFocus()
@@ -530,26 +549,13 @@ func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 		WriteMode(c.writeMode).
 		IndexMode(c.indexMode)
 
-	vm := viewmodel.NewViewModel()
+	needsPulse := c.needsPulse()
 
-	code := c.mainDrawableCode()
-	vm.Kernel.Push(
-		textarea.ToDrawable().SetCode(code),
-	)
-
-	vm.Pager.SetPredicate(predicate)
-
-	vm.Behavior.NeedsPulse = c.needsPulse()
-
-	return *vm
+	return predicate, textarea, needsPulse
 }
 
 func (c *TextArea) needsPulse() bool {
 	return c.writeMode && c.caret.IsBlinking()
-}
-
-func (c *TextArea) mainDrawableCode() string {
-	return "main_" + c.reference
 }
 
 func (c *TextArea) insertSelection() (offset.Offset, offset.Offset, offset.Offset) {
