@@ -10,12 +10,10 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/processor"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
-
-	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
 
 const NameInput = "text_input"
@@ -30,11 +28,13 @@ type TextInput struct {
 }
 
 func NewInput() *TextInput {
-	handler := buffer.NewLimitedRuneHandler(input_limit, buffer.String)
+	processor := processor.Limit(
+		input_limit,
+		processor.Identity,
+	)
 
 	area := NewArea().SetName(NameInput)
-	area.buffer.Handler(handler)
-	area.buffer.Transformer(text_transformer.VoidTextTransformer)
+	area.buffer.Processor(processor)
 
 	return &TextInput{
 		limit:    input_limit,
@@ -47,7 +47,7 @@ func (c *TextInput) SetName(name string) *TextInput {
 	return c
 }
 
-func (c *TextInput) SetType(limit winsize.Cols, input buffer.InputType) *TextInput {
+func (c *TextInput) SetProcessor(limit winsize.Cols, process processor.Processor) *TextInput {
 	assert.True(
 		limit <= input_max_limit,
 		"longer text fields should use the text area screen instead of the input one.",
@@ -55,8 +55,9 @@ func (c *TextInput) SetType(limit winsize.Cols, input buffer.InputType) *TextInp
 
 	c.limit = limit
 
-	handler := buffer.NewLimitedRuneHandler(limit, input)
-	c.textarea.buffer.Handler(handler)
+	c.textarea.buffer.Processor(
+		processor.Limit(limit, process),
+	)
 
 	return c
 }

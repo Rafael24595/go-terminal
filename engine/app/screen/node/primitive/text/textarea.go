@@ -12,14 +12,13 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/textarea"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/ascii"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/rule"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/delta"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/event"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/param"
-
-	text_transformer "github.com/Rafael24595/go-reacterm-core/engine/helper/text"
 )
 
 const NameArea = "text_area"
@@ -75,7 +74,7 @@ type TextArea struct {
 
 func NewArea() *TextArea {
 	runeBuffer := buffer.NewRuneBuffer().
-		Transformer(text_transformer.FullTextTransformer)
+		PushRules(rule.Full...)
 
 	return &TextArea{
 		reference: NameArea,
@@ -241,7 +240,7 @@ func (c *TextArea) updateBuffer(state *state.UIState, ky key.Key) screen.Result 
 func (c *TextArea) pushRune(state *state.UIState, ky key.Key) screen.Result {
 	start, end, fixEnd := c.insertSelection()
 
-	insert, delete := c.buffer.TransformAndReplace([]rune{ky.Rune}, start, end)
+	insert, delete := c.buffer.ReplaceWithRules([]rune{ky.Rune}, start, end)
 	c.history.PushEvent(event.Insert, start, fixEnd, string(delete), string(insert))
 
 	position := start + offset.Offset(len(insert))

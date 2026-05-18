@@ -2,34 +2,35 @@ package buffer
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
-	"github.com/Rafael24595/go-reacterm-core/engine/helper/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/processor"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/rule"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/delta"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/offset"
 )
 
 type RuneBuffer struct {
-	buffer      []rune
-	facade      []rune
-	transformer text.TextTransformer
-	handler     RuneHandler
+	buffer    []rune
+	facade    []rune
+	rules     []rule.Rule
+	processor processor.Processor
 }
 
 func NewRuneBuffer() *RuneBuffer {
 	return &RuneBuffer{
-		buffer:      make([]rune, 0),
-		facade:      make([]rune, 0),
-		transformer: text.VoidTextTransformer,
-		handler:     voidRuneHandler,
+		buffer:    make([]rune, 0),
+		facade:    make([]rune, 0),
+		rules:     make([]rule.Rule, 0),
+		processor: processor.Identity,
 	}
 }
 
-func (b *RuneBuffer) Transformer(transformer text.TextTransformer) *RuneBuffer {
-	b.transformer = transformer
+func (b *RuneBuffer) PushRules(rules ...rule.Rule) *RuneBuffer {
+	b.rules = append(b.rules, rules...)
 	return b
 }
 
-func (b *RuneBuffer) Handler(handler RuneHandler) *RuneBuffer {
-	b.handler = handler
+func (b *RuneBuffer) Processor(processor processor.Processor) *RuneBuffer {
+	b.processor = processor
 	return b
 }
 
@@ -62,23 +63,32 @@ func (b *RuneBuffer) Append(rns []rune) *RuneBuffer {
 	return b
 }
 
-func (b *RuneBuffer) TransformAndReplace(buffer []rune, start offset.Offset, end offset.Offset) ([]rune, []rune) {
-	if end < start {
-		zero := make([]rune, 0)
-		return zero, zero
-	}
-
-	insert := b.transformer.Apply(buffer, start, end, b.buffer)
-	return b.applyChange(insert, start, end)
-}
-
 func (b *RuneBuffer) Replace(rns []rune, start offset.Offset, end offset.Offset) ([]rune, []rune) {
 	if end < start {
 		zero := make([]rune, 0)
 		return zero, zero
 	}
 
-	return b.applyChange(rns, start, end)
+	return b.commitReplace(rns, start, end)
+}
+
+func (b *RuneBuffer) ReplaceWithRules(buffer []rune, start offset.Offset, end offset.Offset) ([]rune, []rune) {
+	if end < start {
+		zero := make([]rune, 0)
+		return zero, zero
+	}
+
+	insert := b.applyRules(buffer, start, end, b.buffer)
+	return b.commitReplace(insert, start, end)
+}
+
+func (b *RuneBuffer) applyRules(text []rune, start, end offset.Offset, buff []rune) []rune {
+	for _, rule := range b.rules {
+		if text, ok := rule(text, start, end, buff); ok {
+			return text
+		}
+	}
+	return text
 }
 
 func (b *RuneBuffer) Delete(start offset.Offset, end offset.Offset) []rune {
@@ -91,13 +101,13 @@ func (b *RuneBuffer) Delete(start offset.Offset, end offset.Offset) []rune {
 	return deleted
 }
 
-func (b *RuneBuffer) applyChange(insert []rune, start, end offset.Offset) ([]rune, []rune) {
+func (b *RuneBuffer) commitReplace(insert []rune, start, end offset.Offset) ([]rune, []rune) {
 	end = min(end, offset.Offset(len(b.buffer)))
 
 	deleted := b.Range(start, end)
 
 	rawBuffer := runes.AppendRange(b.buffer, insert, start, end)
-	newBuffer, newFacade := b.handler(rawBuffer)
+	newBuffer, newFacade := b.processor(rawBuffer)
 
 	newBufferLen := offset.Offset(len(newBuffer))
 
@@ -119,7 +129,7 @@ func (b *RuneBuffer) applyChange(insert []rune, start, end offset.Offset) ([]run
 
 func (b *RuneBuffer) ApplyDelta(d *delta.Delta) *RuneBuffer {
 	newBuffer := delta.Apply(b.buffer, d)
-	buffer, facade := b.handler(newBuffer)
+	buffer, facade := b.processor(newBuffer)
 
 	b.buffer = buffer
 	b.facade = facade

@@ -4,13 +4,12 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/processor"
 )
 
 func TestRuneBuffer_NumberFilter(t *testing.T) {
-	handler := NewRuneHandler(Number)
-
 	rb := NewRuneBuffer().
-		Handler(handler)
+		Processor(processor.Number)
 
 	inserted, deleted := rb.Replace([]rune("1A2"), 0, 0)
 
@@ -21,9 +20,9 @@ func TestRuneBuffer_NumberFilter(t *testing.T) {
 }
 
 func TestRuneBuffer_Limit(t *testing.T) {
-	handler := NewLimitedRuneHandler(5, String)
+	handler := processor.Limit(5, processor.Identity)
 	rb := NewRuneBuffer().
-		Handler(handler)
+		Processor(handler)
 
 	rb.Replace([]rune("123"), 0, 0)
 
