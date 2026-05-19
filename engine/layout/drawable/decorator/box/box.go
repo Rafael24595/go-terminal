@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -107,35 +108,12 @@ func (d *BoxDrawable) makeDrawable() drawable.Drawable {
 func (d *BoxDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
-	lines, hasNext := d.drawChild(size)
+	innerSize := d.computeInnerSize(size)
+	lines, hasNext := drain.DrawableLazy(innerSize, d.drawable)
 
 	styled := d.styleLines(size, lines...)
 
 	return styled, hasNext
-}
-
-func (d *BoxDrawable) drawChild(size winsize.Winsize) ([]text.Line, bool) {
-	lines := make([]text.Line, 0)
-
-	clampSize := d.clampSize(size)
-
-	remaining := size.Rows
-	for remaining > 0 {
-		line, status := d.drawable.Draw(clampSize)
-
-		lineLen := winsize.Rows(len(line))
-		if lineLen > 0 {
-			lines = append(lines, line...)
-		}
-
-		if !status || lineLen == 0 {
-			break
-		}
-
-		remaining = remaining.Sub(lineLen)
-	}
-
-	return lines, remaining <= 0
 }
 
 // TODO: investigate spec overflow.
@@ -233,7 +211,7 @@ func (d *BoxDrawable) calcPadding(cols winsize.Cols, line text.Line) (winsize.Co
 	return 0, 0
 }
 
-func (d *BoxDrawable) clampSize(size winsize.Winsize) winsize.Winsize {
+func (d *BoxDrawable) computeInnerSize(size winsize.Winsize) winsize.Winsize {
 	vertical := winsize.Rows(2)
 	rows := size.Rows.Sub(vertical)
 

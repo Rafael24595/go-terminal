@@ -7,6 +7,7 @@ import (
 
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -196,7 +197,7 @@ func (d *VStackDrawable) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 
 		fixedSize := winsize.New(rows, size.Cols)
 
-		lines, status := d.fixed[i].drawable.Draw(fixedSize)
+		lines, status := drain.Drawable(fixedSize, d.fixed[i].drawable, true)
 		if !status {
 			d.fixed[i].status = false
 			recalcule = true
