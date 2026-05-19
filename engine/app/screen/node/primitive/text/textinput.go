@@ -13,6 +13,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/focus"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/textarea/transformer"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/processor"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
@@ -123,7 +124,9 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 		PaddingY(0).
 		PaddingX(1).
 		TextAlign(style.Left).
-		MinSize(c.limit).
+		MinSize(
+			padding.Fixed(c.limit),
+		).
 		ToDrawable()
 
 	position := position.New(box).

@@ -8,6 +8,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -26,7 +27,7 @@ type BoxDrawable struct {
 	loaded    bool
 	paddingY  winsize.Rows
 	paddingX  winsize.Cols
-	minSize   winsize.Cols
+	hint      padding.SizeHint[winsize.Cols]
 	textAlign style.HorizontalPosition
 	separator marker.BoxSeparatorMeta
 	drawable  drawable.Drawable
@@ -35,7 +36,7 @@ type BoxDrawable struct {
 func New(drawable drawable.Drawable) *BoxDrawable {
 	return &BoxDrawable{
 		loaded:    false,
-		minSize:   default_min_size,
+		hint:      padding.Fixed(default_min_size),
 		paddingY:  winsize.Rows(default_padding),
 		paddingX:  default_padding,
 		textAlign: style.Center,
@@ -48,8 +49,8 @@ func DrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
 	return New(drawable).ToDrawable()
 }
 
-func (d *BoxDrawable) MinSize(size winsize.Cols) *BoxDrawable {
-	d.minSize = size
+func (d *BoxDrawable) MinSize(hint padding.SizeHint[winsize.Cols]) *BoxDrawable {
+	d.hint = hint
 	return d
 }
 
@@ -121,7 +122,7 @@ func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []tex
 	vertical := horizontalStaticSize(d.separator)
 
 	maxSize := size.Cols.Sub(vertical)
-	minSize := min(d.minSize+vertical, maxSize)
+	minSize := d.hint.Min(maxSize) + vertical
 	maxLine := text.MaxLineMeasure(size.Cols, lines...)
 
 	padding := math.Clamp(maxLine, minSize, maxSize)
