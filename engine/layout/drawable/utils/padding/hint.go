@@ -19,7 +19,7 @@ func Maximize[T math.Number]() SizeHint[T] {
 	}
 }
 
-func (h SizeHint[T]) min(maxSize T) T {
+func (h SizeHint[T]) Min(maxSize T) T {
 	if h.fill {
 		return maxSize
 	}

@@ -38,7 +38,7 @@ func Cols(cols SizeHint[winsize.Cols], position ...style.HorizontalPosition) tra
 
 	return func(size winsize.Winsize, lines []text.Line) []text.Line {
 		newLines := make([]text.Line, len(lines))
-		fixedMin := cols.min(size.Cols)
+		fixedMin := cols.Min(size.Cols)
 
 		for i := range lines {
 			remaining := fixedMin.Sub(

@@ -51,7 +51,7 @@ func Rows(rows SizeHint[winsize.Rows], position ...style.VerticalPosition) trans
 	}
 
 	return func(size winsize.Winsize, lines []text.Line) []text.Line {
-		padding := rows.min(size.Rows)
+		padding := rows.Min(size.Rows)
 		if winsize.Rows(len(lines)) >= padding {
 			return lines
 		}
