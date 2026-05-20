@@ -60,11 +60,15 @@ func (t MockScreen) ToNode() screen.Node {
 func Helper_ToNode(t *testing.T, node screen.Node) {
 	t.Helper()
 
-	assert.NotNil(t, node.Name, "Screen.Name")
+	assert.NotNil(t, node.Id(), "Node.Stack should be set")
+	assert.NotNil(t, node.Name, "Node.Name should be set")
+	assert.NotNil(t, node.Stack, "Node.Stack should be set")
+	assert.NotNil(t, node.Tags, "Node.Stack should be set")
+	assert.NotNil(t, node.Children(), "Node.Stack should be set")
+	
+	assert.NotNil(t, node.Screen.Definition, "Screen.Definition should be set")
 	assert.NotNil(t, node.Screen.View, "Screen.View should be set")
 	assert.NotNil(t, node.Screen.Update, "Screen.Update should be set")
-
-	assert.NotNil(t, node.Stack, "Screen.Stack should be set")
 }
 
 func Helper_Propagate(t *testing.T, name string, child uint, node screen.Node) {
