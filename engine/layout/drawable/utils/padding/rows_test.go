@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -69,32 +70,32 @@ func TestRowsTransformer(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		hint        SizeHint[winsize.Rows]
-		pos         style.VerticalPosition
-		canvasSize  winsize.Winsize
-		wantRows    int
+		name       string
+		hint       hint.Size[winsize.Rows]
+		pos        style.VerticalPosition
+		canvasSize winsize.Winsize
+		wantRows   int
 	}{
 		{
-			name:        "Fixed size expands rows if input is shorter",
-			hint:        Fixed(winsize.Rows(4)),
-			pos:         style.Top,
-			canvasSize:  winsize.New(10, 20),
-			wantRows:    4,
+			name:       "Fixed size expands rows if input is shorter",
+			hint:       hint.Fixed(winsize.Rows(4)),
+			pos:        style.Top,
+			canvasSize: winsize.New(10, 20),
+			wantRows:   4,
 		},
 		{
-			name:        "Guard clause keeps lines intact if already larger than min",
-			hint:        Fixed(winsize.Rows(1)),
-			pos:         style.Top,
-			canvasSize:  winsize.New(10, 20),
-			wantRows:    1,
+			name:       "Guard clause keeps lines intact if already larger than min",
+			hint:       hint.Fixed(winsize.Rows(1)),
+			pos:        style.Top,
+			canvasSize: winsize.New(10, 20),
+			wantRows:   1,
 		},
 		{
-			name:        "Maximize hint takes all available height from canvas",
-			hint:        Maximize[winsize.Rows](),
-			pos:         style.Bottom,
-			canvasSize:  winsize.New(7, 20),
-			wantRows:    7,
+			name:       "Maximize hint takes all available height from canvas",
+			hint:       hint.Maximize[winsize.Rows](),
+			pos:        style.Bottom,
+			canvasSize: winsize.New(7, 20),
+			wantRows:   7,
 		},
 	}
 

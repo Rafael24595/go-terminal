@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/styler"
@@ -89,7 +90,7 @@ func TestColsTransformer(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		hint       SizeHint[winsize.Cols]
+		hint       hint.Size[winsize.Cols]
 		pos        style.HorizontalPosition
 		size       winsize.Winsize
 		wantLength winsize.Cols
@@ -97,7 +98,7 @@ func TestColsTransformer(t *testing.T) {
 	}{
 		{
 			name:       "Fixed size adds padding left",
-			hint:       Fixed(winsize.Cols(10)),
+			hint:       hint.Fixed(winsize.Cols(10)),
 			pos:        style.Left,
 			size:       winsize.New(10, 20),
 			wantLength: 10,
@@ -105,7 +106,7 @@ func TestColsTransformer(t *testing.T) {
 		},
 		{
 			name:       "Fixed size adds padding right",
-			hint:       Fixed(winsize.Cols(10)),
+			hint:       hint.Fixed(winsize.Cols(10)),
 			pos:        style.Right,
 			size:       winsize.New(10, 20),
 			wantLength: 10,
@@ -113,7 +114,7 @@ func TestColsTransformer(t *testing.T) {
 		},
 		{
 			name:       "Fixed size adds padding center",
-			hint:       Fixed(winsize.Cols(10)),
+			hint:       hint.Fixed(winsize.Cols(10)),
 			pos:        style.Center,
 			size:       winsize.New(10, 20),
 			wantLength: 10,
@@ -121,7 +122,7 @@ func TestColsTransformer(t *testing.T) {
 		},
 		{
 			name:       "Maximize size adds padding center",
-			hint:       Maximize[winsize.Cols](),
+			hint:       hint.Maximize[winsize.Cols](),
 			pos:        style.Center,
 			size:       winsize.New(10, 12),
 			wantLength: 12,
@@ -129,7 +130,7 @@ func TestColsTransformer(t *testing.T) {
 		},
 		{
 			name:       "Clamp zero ensures no panic if line is wider than min",
-			hint:       Fixed(winsize.Cols(4)),
+			hint:       hint.Fixed(winsize.Cols(4)),
 			pos:        style.Left,
 			size:       winsize.New(10, 20),
 			wantLength: 6,

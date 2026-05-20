@@ -2,6 +2,7 @@ package padding
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -30,7 +31,7 @@ func colToCenter(remaining winsize.Cols) (winsize.Cols, winsize.Cols) {
 	return paddingL, paddingR
 }
 
-func Cols(cols SizeHint[winsize.Cols], position ...style.HorizontalPosition) transformer {
+func Cols(cols hint.Size[winsize.Cols], position ...style.HorizontalPosition) transformer {
 	horizontal := style.Left
 	if len(position) > 0 {
 		horizontal = position[0]

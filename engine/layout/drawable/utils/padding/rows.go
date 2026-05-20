@@ -2,6 +2,7 @@ package padding
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -44,7 +45,7 @@ func rowsToMiddle(lines []text.Line, padding winsize.Rows) []text.Line {
 	return append(newLines, bottom...)
 }
 
-func Rows(rows SizeHint[winsize.Rows], position ...style.VerticalPosition) transformer {
+func Rows(rows hint.Size[winsize.Rows], position ...style.VerticalPosition) transformer {
 	vertical := style.Top
 	if len(position) > 0 {
 		vertical = position[0]
