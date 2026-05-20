@@ -13,9 +13,10 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/focus"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/padding"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/textarea/transformer"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/processor"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -116,22 +117,13 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 		transformer.BreakWord,
 	)
 
-	pipeline := pipeline.New(textarea.ToDrawable()).
-		SetDrawStep(pageDrawable()).
-		ToDrawable()
+	pipeline := c.makePipeline(
+		textarea.ToDrawable(),
+	)
 
-	box := box.New(pipeline).
-		PaddingY(0).
-		PaddingX(1).
-		TextAlign(style.Left).
-		MinSize(
-			padding.Fixed(c.limit),
-		).
-		ToDrawable()
-
-	position := position.New(box).
-		PositionY(style.Top).
-		PositionX(style.Left)
+	position := c.makePosition(
+		pipeline,
+	)
 
 	if len(c.label) != 0 {
 		frags := append(c.label, *text.NewFragment(": "))
@@ -140,13 +132,38 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 		)
 	}
 
-	vm.Kernel.Push(
-		position.MarginX(0).ToDrawable(),
-	)
+	vm.Kernel.Push(position)
 
 	vm.Behavior.NeedsPulse = needsPulse
 
 	return *vm
+}
+
+func (c *TextInput) makePipeline(drawable drawable.Drawable) drawable.Drawable {
+	pageStep := pageDrawable()
+
+	paddingStep := padding.ColsDrawTransformer(
+		hint.Fixed(c.limit),
+		style.Left,
+	)
+
+	return pipeline.New(drawable).
+		SetDrawStep(pageStep).
+		PushDataSteps(paddingStep).
+		ToDrawable()
+}
+
+func (c *TextInput) makePosition(drawable drawable.Drawable) drawable.Drawable {
+	box := box.New(drawable).
+		PaddingY(0).
+		PaddingX(1).
+		ToDrawable()
+
+	return position.New(box).
+		PositionY(style.Top).
+		PositionX(style.Left).
+		MarginX(0).
+		ToDrawable()
 }
 
 func limitRows(size winsize.Winsize) winsize.Winsize {

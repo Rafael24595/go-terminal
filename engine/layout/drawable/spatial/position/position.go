@@ -16,6 +16,7 @@ const (
 	default_margin = winsize.Cols(0)
 )
 
+//TODO: Remove and use padding resources?
 type PositionDrawable struct {
 	loaded    bool
 	marginY   winsize.Rows

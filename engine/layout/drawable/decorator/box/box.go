@@ -3,12 +3,10 @@ package box
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -20,15 +18,12 @@ const Name = "box_drawable"
 
 const (
 	default_padding  = winsize.Cols(0)
-	default_min_size = winsize.Cols(0)
 )
 
 type BoxDrawable struct {
 	loaded    bool
 	paddingY  winsize.Rows
 	paddingX  winsize.Cols
-	hint      padding.SizeHint[winsize.Cols]
-	textAlign style.HorizontalPosition
 	separator marker.BoxSeparatorMeta
 	drawable  drawable.Drawable
 }
@@ -36,10 +31,8 @@ type BoxDrawable struct {
 func New(drawable drawable.Drawable) *BoxDrawable {
 	return &BoxDrawable{
 		loaded:    false,
-		hint:      padding.Fixed(default_min_size),
 		paddingY:  winsize.Rows(default_padding),
 		paddingX:  default_padding,
-		textAlign: style.Center,
 		separator: marker.DefaultBoxSeparator,
 		drawable:  drawable,
 	}
@@ -47,11 +40,6 @@ func New(drawable drawable.Drawable) *BoxDrawable {
 
 func DrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
 	return New(drawable).ToDrawable()
-}
-
-func (d *BoxDrawable) MinSize(hint padding.SizeHint[winsize.Cols]) *BoxDrawable {
-	d.hint = hint
-	return d
 }
 
 func (d *BoxDrawable) Separator(separator marker.BoxSeparatorMeta) *BoxDrawable {
@@ -66,11 +54,6 @@ func (d *BoxDrawable) PaddingY(padding winsize.Rows) *BoxDrawable {
 
 func (d *BoxDrawable) PaddingX(padding winsize.Cols) *BoxDrawable {
 	d.paddingX = padding
-	return d
-}
-
-func (d *BoxDrawable) TextAlign(textAlign style.HorizontalPosition) *BoxDrawable {
-	d.textAlign = textAlign
 	return d
 }
 
@@ -121,13 +104,10 @@ func (d *BoxDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []text.Line {
 	vertical := horizontalStaticSize(d.separator)
 
-	maxSize := size.Cols.Sub(vertical)
-	minSize := d.hint.Min(maxSize) + vertical
 	maxLine := text.MaxLineMeasure(size.Cols, lines...)
+	padding := min(maxLine+vertical, size.Cols)
 
-	padding := math.Clamp(maxLine, minSize, maxSize)
-
-	specCover := style.SpecRepeatLeft(padding + vertical)
+	specCover := style.SpecRepeatLeft(padding)
 	cover := text.LineFromFragments(
 		*text.NewFragment(d.separator.Top).AddSpec(specCover),
 	)
@@ -140,7 +120,7 @@ func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []tex
 
 	for _, lin := range lines {
 		for _, v := range wrap.Line(available, &lin) {
-			line := d.styleLine(padding, v)
+			line := d.wrapLine(v)
 			result = append(result, line)
 		}
 	}
@@ -150,66 +130,16 @@ func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []tex
 	return result
 }
 
-func (d *BoxDrawable) styleLine(cols winsize.Cols, line text.Line) text.Line {
-	paddingL, paddingR := d.calcPadding(cols, line)
-
-	left := []text.Fragment{
-		*text.NewFragment(d.separator.Left),
-	}
-
-	if paddingL > 0 {
-		specLeft := style.SpecRepeatRight(paddingL)
-		left = append(left,
-			*text.NewFragment(d.separator.Space).AddSpec(specLeft),
-		)
-	}
-
-	right := []text.Fragment{}
-
-	if paddingR > 0 {
-		specRight := style.SpecRepeatRight(paddingR)
-		right = append(right,
-			*text.NewFragment(d.separator.Space).AddSpec(specRight),
-		)
-	}
-
-	right = append(right,
-		*text.NewFragment(d.separator.Right),
-	)
-
+func (d *BoxDrawable) wrapLine(line text.Line) text.Line {
 	frags := make([]text.Fragment, 0)
 
-	frags = append(frags, left...)
+	frags = append(frags, *text.NewFragment(d.separator.Left))
 	frags = append(frags, line.Text...)
-	frags = append(frags, right...)
+	frags = append(frags, *text.NewFragment(d.separator.Right))
 
 	line.Text = frags
 
 	return line
-}
-
-func (d *BoxDrawable) calcPadding(cols winsize.Cols, line text.Line) (winsize.Cols, winsize.Cols) {
-	totalWidth := text.FragmentMeasure(cols, line.Text...)
-
-	remaining := cols.Sub(totalWidth)
-
-	switch d.textAlign {
-	case style.Left:
-		return 0, remaining
-
-	case style.Center:
-		paddingL := remaining / 2
-		paddingR := remaining.Sub(paddingL)
-		return paddingL, paddingR
-
-	case style.Right:
-		return remaining, 0
-
-	}
-
-	assert.Unreachable("undefined justify value: %d", d.textAlign)
-
-	return 0, 0
 }
 
 func (d *BoxDrawable) computeInnerSize(size winsize.Winsize) winsize.Winsize {
