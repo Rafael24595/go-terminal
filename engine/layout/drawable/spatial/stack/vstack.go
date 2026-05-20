@@ -150,8 +150,11 @@ func (d *VStackDrawable) lazyInit(size winsize.Winsize) {
 }
 
 func (d *VStackDrawable) wipe() {
-	for i := range d.items {
-		d.items[i].drawable.Wipe()
+	d.lazyLoaded = false
+
+	d.fixed = d.items
+	for i := range d.fixed {
+		d.fixed[i].drawable.Wipe()
 	}
 }
 
