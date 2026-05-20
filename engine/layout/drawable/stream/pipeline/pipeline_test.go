@@ -20,7 +20,7 @@ func mockDrawStep(s winsize.Winsize, d drawable.Drawable) ([]text.Line, bool) {
 	return d.Draw(s)
 }
 
-func mockDataStep(_ winsize.Winsize, l []text.Line, s bool) ([]text.Line, bool) {
+func mockDataStep(_ winsize.Winsize, _ drawable.Drawable, l []text.Line, s bool) ([]text.Line, bool) {
 	return l, s
 }
 
@@ -83,7 +83,7 @@ func TestPipeline_InitStepTransformation(t *testing.T) {
 			return mock2.ToDrawable()
 		}).
 		ToDrawable()
-	
+
 	dw.Init()
 
 	lines, status := dw.Draw(winsize.Winsize{})
@@ -132,10 +132,10 @@ func TestPipeline_DataStepsChain(t *testing.T) {
 	mockLine2 := text.NewLine("mock_line_02")
 	bd := New(mock.ToDrawable()).
 		PushDataSteps(
-			func(_ winsize.Winsize, l []text.Line, s bool) ([]text.Line, bool) {
+			func(_ winsize.Winsize, _ drawable.Drawable, l []text.Line, s bool) ([]text.Line, bool) {
 				return append(l, *mockLine1), s
 			},
-			func(_ winsize.Winsize, l []text.Line, s bool) ([]text.Line, bool) {
+			func(_ winsize.Winsize, _ drawable.Drawable, l []text.Line, s bool) ([]text.Line, bool) {
 				return append(l, *mockLine2), !s
 			},
 		)

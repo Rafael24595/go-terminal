@@ -12,7 +12,7 @@ const Name = "pipeline_drawable"
 
 type InitTransformer func(winsize.Winsize, drawable.Drawable) drawable.Drawable
 type DrawTransformer func(winsize.Winsize, drawable.Drawable) ([]text.Line, bool)
-type DataTransformer func(winsize.Winsize, []text.Line, bool) ([]text.Line, bool)
+type DataTransformer func(winsize.Winsize, drawable.Drawable, []text.Line, bool) ([]text.Line, bool)
 
 type PipelineDrawable struct {
 	loaded    bool
@@ -30,6 +30,12 @@ func New(drawable drawable.Drawable) *PipelineDrawable {
 		drawStep:  nil,
 		dataSteps: make([]DataTransformer, 0),
 	}
+}
+
+func DrawToDrawable(drawable drawable.Drawable, step DrawTransformer) drawable.Drawable {
+	return New(drawable).
+		SetDrawStep(step).
+		ToDrawable()
 }
 
 func (d *PipelineDrawable) PushInitSteps(steps ...InitTransformer) *PipelineDrawable {
@@ -108,7 +114,7 @@ func (d *PipelineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 
 	lines, status := draw(size)
 	for _, s := range d.dataSteps {
-		lines, status = s(size, lines, status)
+		lines, status = s(size, d.drawable, lines, status)
 	}
 
 	return lines, status
