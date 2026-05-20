@@ -28,6 +28,9 @@ const (
 	ActionEnd
 	ActionDelete
 
+	ActionPageUp
+	ActionPageDown
+
 	CustomActionHelp
 	CustomActionBack
 
@@ -80,4 +83,6 @@ var CsiTildeMap = map[string]Action{
 	"7": ActionHome,
 	"4": ActionEnd,
 	"8": ActionEnd,
+	"5": ActionPageUp,
+	"6": ActionPageDown,
 }
