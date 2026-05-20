@@ -10,18 +10,30 @@ import (
 const NameWipe = "wipe_pipeline"
 
 func InitTransformer() pipeline.InitTransformer {
-	return func(size winsize.Winsize, drw drawable.Drawable) drawable.Drawable {
-		drw.Wipe()
-		return drw
+	return func(size winsize.Winsize, drawable drawable.Drawable) drawable.Drawable {
+		drawable.Wipe()
+		return drawable
 	}
 }
 
 func DrawTransformer() pipeline.DrawTransformer {
-	return func(size winsize.Winsize, drw drawable.Drawable) ([]text.Line, bool) {
-		lines, status := drw.Draw(size)
-		if !status {
-			drw.Wipe()
+	transformer := DataTransformer()
+	return func(size winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
+		lines, hasNext := drawable.Draw(size)
+		return transformer(size, drawable, lines, hasNext)
+	}
+}
+
+func DataTransformer() pipeline.DataTransformer {
+	return func(_ winsize.Winsize, drawable drawable.Drawable, lines []text.Line, hasNext bool) ([]text.Line, bool) {
+		if len(lines) == 0 {
+			return lines, hasNext
 		}
+
+		if !hasNext {
+			drawable.Wipe()
+		}
+
 		return lines, true
 	}
 }
