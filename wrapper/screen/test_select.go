@@ -30,6 +30,7 @@ func NewTestSelect() screen.Node {
 		input.NewMenuOption("opt_chk", *text.NewFragment("Option Check"), NewTestCheck),
 		input.NewMenuOption("opt_chk", *text.NewFragment("Option TextInput"), NewTestTextInput),
 		input.NewMenuOption("opt_hsk", *text.NewFragment("Option HStack"), NewTestHStack),
+		input.NewMenuOption("opt_frm", *text.NewFragment("Option Form"), NewTestForm),
 	)
 
 	optsSize := len(options)
