@@ -102,6 +102,11 @@ func (d *VStackDrawable) Items() []drawable.Drawable {
 }
 
 func (d *VStackDrawable) ToDrawable() drawable.Drawable {
+	if len(d.items) == 1 && d.items[0].chunk.IsAnemic() {
+		drawable := d.items[0].drawable
+		return drawable.AddTag(AnemicStack)
+	}
+
 	return drawable.Drawable{
 		Name: NameVStack,
 		Code: d.code(),

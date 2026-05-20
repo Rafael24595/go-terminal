@@ -333,3 +333,47 @@ func TestVStack_ExactFit_NoExtraNoMissing(t *testing.T) {
 
 	assert.Len(t, 15, lines)
 }
+
+func TestVStack_ToDrawable_AnemicStack(t *testing.T) {
+    dw1 := &drawable_test.MockDrawable{
+		Name: "mock_drawable",
+	}
+
+	stack := NewVStack().
+		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
+		ToDrawable()
+
+    assert.True(t, stack.Tags.Has(AnemicStack))
+    assert.Equal(t, dw1.Name, stack.Name) 
+}
+
+func TestVStack_ToDrawable_SingleElement_NotAnemic(t *testing.T) {
+    dw1 := &drawable_test.MockDrawable{
+		Name: "mock_drawable",
+	}
+
+	stack := NewVStack().
+		PushChunk(dw1.ToDrawable(), chunk.Fixed[winsize.Rows](10)).
+		ToDrawable()
+
+    assert.False(t, stack.Tags.Has(AnemicStack))
+    assert.Equal(t, NameVStack, stack.Name) 
+}
+
+func TestVStack_ToDrawable_MultipleElements(t *testing.T) {
+    dw1 := &drawable_test.MockDrawable{
+		Name: "mock_drawable_001",
+	}
+
+	dw2 := &drawable_test.MockDrawable{
+		Name: "mock_drawable_002",
+	}
+
+	stack := NewVStack().
+		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
+		PushChunk(dw2.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
+		ToDrawable()
+
+    assert.False(t, stack.Tags.Has(AnemicStack))
+    assert.Equal(t, NameVStack, stack.Name) 
+}

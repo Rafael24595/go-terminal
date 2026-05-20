@@ -91,3 +91,47 @@ func TestHStack_RenderOutput(t *testing.T) {
 	assert.Equal(t, "lanlan", text.LineToString(&lines[1]))
 	assert.Equal(t, "gg", text.LineToString(&lines[2]))
 }
+
+func TestHStack_ToDrawable_AnemicStack(t *testing.T) {
+    dw1 := &drawable_test.MockDrawable{
+		Name: "mock_drawable",
+	}
+
+	stack := NewHStack().
+		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Cols]()).
+		ToDrawable()
+
+    assert.True(t, stack.Tags.Has(AnemicStack))
+    assert.Equal(t, dw1.Name, stack.Name) 
+}
+
+func TestHStack_ToDrawable_SingleElement_NotAnemic(t *testing.T) {
+    dw1 := &drawable_test.MockDrawable{
+		Name: "mock_drawable",
+	}
+
+	stack := NewHStack().
+		PushChunk(dw1.ToDrawable(), chunk.Fixed[winsize.Cols](10)).
+		ToDrawable()
+
+    assert.False(t, stack.Tags.Has(AnemicStack))
+    assert.Equal(t, NameHStack, stack.Name) 
+}
+
+func TestHStack_ToDrawable_MultipleElements(t *testing.T) {
+    dw1 := &drawable_test.MockDrawable{
+		Name: "mock_drawable_001",
+	}
+
+	dw2 := &drawable_test.MockDrawable{
+		Name: "mock_drawable_002",
+	}
+
+	stack := NewHStack().
+		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Cols]()).
+		PushChunk(dw2.ToDrawable(), chunk.Dynamic[winsize.Cols]()).
+		ToDrawable()
+
+    assert.False(t, stack.Tags.Has(AnemicStack))
+    assert.Equal(t, NameHStack, stack.Name) 
+}

@@ -73,14 +73,7 @@ func makeTextArea() screen.Node {
 }
 
 func wrapStep(vm viewmodel.ViewModel) viewmodel.ViewModel {
-	items := vm.Kernel.Items()
-
-	var kernel drawable.Drawable
-	if len(items) != 1 {
-		kernel = vm.Kernel.ToDrawable()
-	} else {
-		kernel = items[0]
-	}
+	kernel := vm.Kernel.ToDrawable()
 
 	pageStep := pageDrawable()
 
