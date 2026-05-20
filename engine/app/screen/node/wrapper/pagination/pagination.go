@@ -17,6 +17,17 @@ import (
 
 const errf_unhandled = "unhandled pager type '%d'"
 
+var base_definition = screen.NewDefinition(
+	map[key.Action]key.Descriptor{
+		key.ActionPageUp:   {Code: []string{"⇞"}, Detail: "Prev page"},
+		key.ActionPageDown: {Code: []string{"⇟"}, Detail: "Next page"},
+	},
+	[]key.Action{
+		key.ActionPageUp,
+		key.ActionPageDown,
+	},
+)
+
 var definitions = map[pager.EngineCode]screen.Definition{
 	pager.CodeEnginePaged:  pager_definition,
 	pager.CodeEngineScroll: scroll_definition,
@@ -89,8 +100,10 @@ func (c *Pagination) ToNode() screen.Node {
 }
 
 func (c *Pagination) definition() screen.Definition {
-	base := c.node.Screen.Definition()
-	return c.findDefinition().Merge(base)
+	node := c.node.Screen.Definition()
+	return base_definition.Merge(
+		c.findDefinition().Merge(node),
+	)
 }
 
 func (c *Pagination) findDefinition() screen.Definition {
@@ -131,13 +144,13 @@ func (c *Pagination) localUpdate(state *state.UIState, event screen.Event) *scre
 
 	assert.True(ok, errf_unhandled, pager.CodeEnginePaged)
 
-	if event.Key.Code == keys.back {
+	if event.Key.Code == key.ActionPageUp || event.Key.Code == keys.back {
 		state.Pager.DecTarget()
 		result := screen.ResultFromUIState(state)
 		return &result
 	}
 
-	if event.Key.Code == keys.next {
+	if event.Key.Code == key.ActionPageDown || event.Key.Code == keys.next {
 		state.Pager.IncTarget()
 		result := screen.ResultFromUIState(state)
 		return &result
