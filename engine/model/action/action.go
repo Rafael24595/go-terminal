@@ -1,7 +1,5 @@
 package action
 
-import "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
-
 type ActionKind uint8
 
 const (
@@ -37,35 +35,4 @@ func (s Focus) HasAny(focus ...Focus) bool {
 
 func (s Focus) HasNone(focus ...Focus) bool {
 	return !s.HasAny(focus...)
-}
-
-type ActionFunc func(...drawable.Drawable) []drawable.Drawable
-
-type Action struct {
-	Kind     ActionKind
-	Focus    Focus
-	function ActionFunc
-}
-
-func NewAction(kind ActionKind, focus Focus, function ActionFunc) Action {
-	return Action{
-		Kind:     kind,
-		Focus:    focus,
-		function: function,
-	}
-}
-
-func ApplyAction(action Action, items ...drawable.Drawable) []drawable.Drawable {
-	if action.Kind == ActionMapGroup {
-		return action.function(items...)
-	}
-
-	newItems := make([]drawable.Drawable, 0)
-	for _, i := range items {
-		newItems = append(newItems,
-			action.function(i)...,
-		)
-	}
-
-	return newItems
 }
