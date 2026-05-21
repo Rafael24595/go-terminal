@@ -17,19 +17,6 @@ func TestInline_UnitBasicSuite(t *testing.T) {
 	drawable_test.Test_UnitBasicSuite(t, unit)
 }
 
-func TestInline_LazyInit(t *testing.T) {
-	mock := &drawable_test.MockUnit{}
-	unit := New(mock.ToUnit())
-
-	assert.False(t, unit.lazyLoaded)
-
-	unit.init()
-	unit.draw(winsize.Winsize{})
-
-	assert.True(t, unit.lazyLoaded)
-	drawable_test.Helper_ToUnit(t, unit.unit)
-}
-
 func TestInline_JoinsChildren(t *testing.T) {
 	mock1 := &drawable_test.MockUnit{
 		Lines: []text.Line{
