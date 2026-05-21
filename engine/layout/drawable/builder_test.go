@@ -35,7 +35,7 @@ func TestBuilder_AddTags(t *testing.T) {
 		AddTags("lang", "google").
 		ToUnit()
 
-	assert.GreaterOrEqual(t, 2, len(unit.Tags))
+	assert.GreaterOrEqual(t, 2, unit.Tags)
 	assert.Contains(t, unit.Tags, "lang")
 	assert.Contains(t, unit.Tags, "google")
 }
@@ -49,7 +49,7 @@ func TestBuilder_MergeTags(t *testing.T) {
 		MergeTags(baseTags).
 		ToUnit()
 
-	assert.GreaterOrEqual(t, 3, len(unit.Tags))
+	assert.GreaterOrEqual(t, 3, unit.Tags)
 	assert.Contains(t, unit.Tags, "zig")
 	assert.Contains(t, unit.Tags, "c++")
 	assert.Contains(t, unit.Tags, "golang")

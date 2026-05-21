@@ -72,7 +72,7 @@ func Helper_ToNode(t *testing.T, node screen.Node) {
 }
 
 func Helper_Propagate(t *testing.T, name string, child uint, node screen.Node) {
-	assert.GreaterOrEqual(t, child+1, uint(len(node.Children())))
+	assert.GreaterOrEqual(t, child+1, node.Children())
 	assert.True(t, node.Stack.Has(name))
 	assert.Equal(t, name, node.Children()[child].Name)
 }
