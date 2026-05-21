@@ -10,17 +10,17 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-// TODO: Add flag to manage non focus drawable?
+// TODO: Add flag to manage non focus unit?
 func DrawTransformer(engine pager.Engine) pipeline.DrawTransformer {
 	predicate := pager.PredicateFocus()
 	strategy := *pager.NewStrategy().
 		SetEngine(engine).
 		SetPredicate(predicate)
 
-	return func(size winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
+	return func(size winsize.Winsize, unit drawable.Unit) ([]text.Line, bool) {
 		uiState := state.NewUIState()
 		renderer := page.NewPageRenderer(strategy)
-		status := renderer(uiState, size, drawable)
+		status := renderer(uiState, size, unit)
 		return status.Buffer, false
 	}
 }

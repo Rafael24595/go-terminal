@@ -13,109 +13,107 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const Name = "check_menu_drawable"
+const Name = "check_menu_unit"
 
-type CheckMenuDrawable struct {
+type CheckMenuUnit struct {
 	initialized  bool
 	meta         marker.CheckMeta
 	distribution style.Distribution
 	writeMode    bool
 	options      []input.CheckOption
 	cursor       uint16
-	drawable     drawable.Drawable
+	unit         drawable.Unit
 }
 
-func New(options []input.CheckOption) *CheckMenuDrawable {
+func New(options []input.CheckOption) *CheckMenuUnit {
 	clone := make([]input.CheckOption, len(options))
 	copy(clone, options)
 
-	return &CheckMenuDrawable{
+	return &CheckMenuUnit{
 		initialized:  false,
 		meta:         marker.BracketsCheck,
 		distribution: style.DefaultDistribution,
 		options:      clone,
 		cursor:       0,
-		drawable:     drawable.Drawable{},
+		unit:         drawable.Unit{},
 	}
 }
 
-func DrawableFromOptions(options []input.CheckOption) drawable.Drawable {
-	return New(options).ToDrawable()
+func UnitFromOptions(options []input.CheckOption) drawable.Unit {
+	return New(options).ToUnit()
 }
 
-func (d *CheckMenuDrawable) Meta(meta marker.CheckMeta) *CheckMenuDrawable {
+func (d *CheckMenuUnit) Meta(meta marker.CheckMeta) *CheckMenuUnit {
 	d.meta = meta
 	return d
 }
 
-func (d *CheckMenuDrawable) Distribution(distribution style.Distribution) *CheckMenuDrawable {
+func (d *CheckMenuUnit) Distribution(distribution style.Distribution) *CheckMenuUnit {
 	d.distribution = distribution
 	return d
 }
 
-func (d *CheckMenuDrawable) WriteMode(writeMode bool) *CheckMenuDrawable {
+func (d *CheckMenuUnit) WriteMode(writeMode bool) *CheckMenuUnit {
 	d.writeMode = writeMode
 	return d
 }
 
-func (d *CheckMenuDrawable) Cursor(cursor uint16) *CheckMenuDrawable {
+func (d *CheckMenuUnit) Cursor(cursor uint16) *CheckMenuUnit {
 	d.cursor = cursor
 	return d
 }
 
-func (d *CheckMenuDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: d.drawable.Code,
-		Tags: d.drawable.Tags,
-		Init: d.init,
-		Wipe: d.wipe,
-		Draw: d.draw,
-	}
+func (d *CheckMenuUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		Init(d.init).
+		Wipe(d.wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *CheckMenuDrawable) init() {
+func (d *CheckMenuUnit) init() {
 	d.initialized = true
 
 	opts := d.addStyles()
 
 	switch d.distribution.Direction {
 	case style.Vertical:
-		d.drawable = d.makeVertical(opts)
+		d.unit = d.makeVertical(opts)
 	case style.Horizontal:
-		d.drawable = d.makeHorizontal(opts)
+		d.unit = d.makeHorizontal(opts)
 	default:
 		assert.Unreachable("undefined direction %d", d.distribution.Direction)
 
-		d.drawable = d.makeVertical(opts)
+		d.unit = d.makeVertical(opts)
 	}
 
-	d.drawable.Init()
+	d.unit.Drawable.Init()
 }
 
-func (d *CheckMenuDrawable) wipe() {
-	if d.drawable.Wipe == nil {
+func (d *CheckMenuUnit) wipe() {
+	if d.unit.Drawable.Wipe == nil {
 		return
 	}
-	d.drawable.Wipe()
+	d.unit.Drawable.Wipe()
 }
 
-func (d *CheckMenuDrawable) makeVertical(opts []text.Fragment) drawable.Drawable {
+func (d *CheckMenuUnit) makeVertical(opts []text.Fragment) drawable.Unit {
 	lines := make([]text.Line, len(opts))
 	for i := range opts {
 		lines[i] = *text.LineFromFragments(opts[i])
 	}
-	return line.DrawableFromLines(lines...)
+	return line.UnitFromLines(lines...)
 }
 
-func (d *CheckMenuDrawable) makeHorizontal(opts []text.Fragment) drawable.Drawable {
+func (d *CheckMenuUnit) makeHorizontal(opts []text.Fragment) drawable.Unit {
 	return justify.New(opts).
 		Justify(d.distribution.Justify).
 		MaxOpts(d.distribution.Limit).
-		ToDrawable()
+		ToUnit()
 }
 
-func (d *CheckMenuDrawable) addStyles() []text.Fragment {
+func (d *CheckMenuUnit) addStyles() []text.Fragment {
 	frags := make([]text.Fragment, len(d.options))
 
 	for i := range frags {
@@ -140,8 +138,8 @@ func (d *CheckMenuDrawable) addStyles() []text.Fragment {
 	return frags
 }
 
-func (d *CheckMenuDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *CheckMenuUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.initialized, drawable.MessageInitialized)
 
-	return d.drawable.Draw(size)
+	return d.unit.Drawable.Draw(size)
 }

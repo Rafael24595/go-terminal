@@ -11,15 +11,15 @@ import (
 const Name = "footer_transformer"
 
 func Transformer(placement pipeline.Placement, lines ...text.Line) pipeline.Transformer {
-	drawable := drain.DrawableFromLines(lines...)
-	drawable.Name = Name
+	unit := drain.UnitFromLines(lines...)
+	unit.Name = Name
 
 	return func(vm viewmodel.ViewModel) viewmodel.ViewModel {
 		switch placement {
 		case pipeline.Before:
-			vm.Footer.Unshift(drawable)
+			vm.Footer.Unshift(unit)
 		case pipeline.After:
-			vm.Footer.Push(drawable)
+			vm.Footer.Push(unit)
 		}
 		return vm
 	}

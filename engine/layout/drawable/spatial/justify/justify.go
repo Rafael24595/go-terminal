@@ -3,7 +3,6 @@ package justify
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
@@ -18,9 +17,9 @@ const (
 	SlotsAround  = 2
 )
 
-const Name = "justify_drawable"
+const Name = "justify_unit"
 
-type JustifyDrawable struct {
+type JustifyUnit struct {
 	loaded    bool
 	maxOpts   uint16
 	maxCols   winsize.Cols
@@ -29,8 +28,8 @@ type JustifyDrawable struct {
 	cursor    uint16
 }
 
-func New(frags []text.Fragment) *JustifyDrawable {
-	return &JustifyDrawable{
+func New(frags []text.Fragment) *JustifyUnit {
+	return &JustifyUnit{
 		loaded:    false,
 		maxOpts:   style.DefaultMaxOpts,
 		justify:   style.JustifyAround,
@@ -39,52 +38,50 @@ func New(frags []text.Fragment) *JustifyDrawable {
 	}
 }
 
-func DrawableFromFragments(frags []text.Fragment) drawable.Drawable {
-	return New(frags).ToDrawable()
+func UnitFromFragments(frags []text.Fragment) drawable.Unit {
+	return New(frags).ToUnit()
 }
 
-func (d *JustifyDrawable) MaxOpts(opts uint16) *JustifyDrawable {
+func (d *JustifyUnit) MaxOpts(opts uint16) *JustifyUnit {
 	d.maxOpts = max(1, opts)
 	return d
 }
 
-func (d *JustifyDrawable) MaxCols(cols winsize.Cols) *JustifyDrawable {
+func (d *JustifyUnit) MaxCols(cols winsize.Cols) *JustifyUnit {
 	d.maxCols = max(1, cols)
 	return d
 }
 
-func (d *JustifyDrawable) Justify(justify style.Justify) *JustifyDrawable {
+func (d *JustifyUnit) Justify(justify style.Justify) *JustifyUnit {
 	d.justify = justify
 	return d
 }
 
-func (d *JustifyDrawable) AddFragments(frags []text.Fragment) *JustifyDrawable {
+func (d *JustifyUnit) AddFragments(frags []text.Fragment) *JustifyUnit {
 	d.fragments = append(d.fragments, frags...)
 	return d
 }
 
-func (d *JustifyDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: "",
-		Tags: make(set.Set[string]),
-		Init: d.init,
-		Draw: d.draw,
-		Wipe: d.wipe,
-	}
+func (d *JustifyUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		Init(d.init).
+		Wipe(d.wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *JustifyDrawable) init() {
+func (d *JustifyUnit) init() {
 	d.loaded = true
 
 	d.cursor = 0
 }
 
-func (d *JustifyDrawable) wipe() {
+func (d *JustifyUnit) wipe() {
 	d.cursor = 0
 }
 
-func (d *JustifyDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *JustifyUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	if d.cursor >= uint16(len(d.fragments)) {

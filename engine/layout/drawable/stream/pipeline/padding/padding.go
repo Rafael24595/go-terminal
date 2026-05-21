@@ -12,14 +12,14 @@ import (
 
 func RowsDataTransformer(rows hint.Size[winsize.Rows], position ...style.VerticalPosition) pipeline.DataTransformer {
 	transformer := padding.Rows(rows, position...)
-	return func(size winsize.Winsize, _ drawable.Drawable, lines []text.Line, hasNext bool) ([]text.Line, bool) {
+	return func(size winsize.Winsize, _ drawable.Unit, lines []text.Line, hasNext bool) ([]text.Line, bool) {
 		return transformer(size, lines), hasNext
 	}
 }
 
 func ColsDrawTransformer(cols hint.Size[winsize.Cols], position ...style.HorizontalPosition) pipeline.DataTransformer {
 	transformer := padding.Cols(cols, position...)
-	return func(size winsize.Winsize, _ drawable.Drawable, lines []text.Line, hasNext bool) ([]text.Line, bool) {
+	return func(size winsize.Winsize, _ drawable.Unit, lines []text.Line, hasNext bool) ([]text.Line, bool) {
 		return transformer(size, lines), hasNext
 	}
 }

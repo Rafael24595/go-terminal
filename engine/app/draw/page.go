@@ -6,4 +6,4 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
 
-type PageRenderer func(*state.UIState, winsize.Winsize, drawable.Drawable) *DrawState
+type PageRenderer func(*state.UIState, winsize.Winsize, drawable.Unit) *DrawState

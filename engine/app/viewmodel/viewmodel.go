@@ -6,11 +6,11 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 )
 
-// TODO: Use Screen and Drawable sources to manage Header and Footer.
+// TODO: Use Screen and Units sources to manage Header and Footer.
 type ViewModel struct {
-	Header   *stack.VStackDrawable
-	Kernel   *stack.VStackDrawable
-	Footer   *stack.VStackDrawable
+	Header   *stack.VStackUnit
+	Kernel   *stack.VStackUnit
+	Footer   *stack.VStackUnit
 	Pager    *pager.PagerStrategy
 	Behavior BehaviorContext
 }
@@ -25,19 +25,19 @@ func NewViewModel() *ViewModel {
 	}
 }
 
-func (v *ViewModel) InitStaticLayers() (drawable.Drawable, drawable.Drawable) {
-	header := v.Header.ToDrawable()
-	header.Init()
+func (v *ViewModel) InitStaticLayers() (drawable.Unit, drawable.Unit) {
+	header := v.Header.ToUnit()
+	header.Drawable.Init()
 
-	footer := v.Footer.ToDrawable()
-	footer.Init()
+	footer := v.Footer.ToUnit()
+	footer.Drawable.Init()
 
 	return header, footer
 }
 
-func (v *ViewModel) InitDynamicLayers() drawable.Drawable {
-	kernel := v.Kernel.ToDrawable()
-	kernel.Init()
+func (v *ViewModel) InitDynamicLayers() drawable.Unit {
+	kernel := v.Kernel.ToUnit()
+	kernel.Drawable.Init()
 
 	return kernel
 }
@@ -45,9 +45,9 @@ func (v *ViewModel) InitDynamicLayers() drawable.Drawable {
 func (v *ViewModel) Clone() *ViewModel {
 	vm := NewViewModel()
 
-	vm.Header.Push(v.Header.Items()...)
-	vm.Kernel.Push(v.Kernel.Items()...)
-	vm.Footer.Push(v.Footer.Items()...)
+	vm.Header.Push(v.Header.Units()...)
+	vm.Kernel.Push(v.Kernel.Units()...)
+	vm.Footer.Push(v.Footer.Units()...)
 	vm.Pager = v.Pager
 
 	return vm

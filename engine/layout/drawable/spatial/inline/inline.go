@@ -9,58 +9,57 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const Name = "inline_drawable"
+const Name = "inline_unit"
 
-type InlineDrawable struct {
+//TODO: Remove lazy init.
+type InlineUnit struct {
 	loaded     bool
 	lazyLoaded bool
 	size       winsize.Winsize
 	separator  string
-	drawables  []drawable.Drawable
-	drawable   drawable.Drawable
+	units      []drawable.Unit
+	unit       drawable.Unit
 }
 
-func New(drawables ...drawable.Drawable) *InlineDrawable {
-	return &InlineDrawable{
+func New(units ...drawable.Unit) *InlineUnit {
+	return &InlineUnit{
 		loaded:     false,
 		lazyLoaded: false,
 		size:       winsize.Winsize{},
 		separator:  "",
-		drawables:  drawables,
-		drawable:   drawable.Drawable{},
+		units:      units,
+		unit:       drawable.Unit{},
 	}
 }
 
-func DrawableFromDrawables(drawables ...drawable.Drawable) drawable.Drawable {
-	return New(drawables...).ToDrawable()
+func UnitFromUnits(units ...drawable.Unit) drawable.Unit {
+	return New(units...).ToUnit()
 }
 
-func (d *InlineDrawable) Separator(separator string) *InlineDrawable {
+func (d *InlineUnit) Separator(separator string) *InlineUnit {
 	d.separator = separator
 	return d
 }
 
-func (d *InlineDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: d.drawable.Code,
-		Tags: d.drawable.Tags,
-		Init: d.init,
-		Draw: d.draw,
-		Wipe: d.wipe,
-	}
+func (d *InlineUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		Init(d.init).
+		Wipe(d.wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *InlineDrawable) init() {
+func (d *InlineUnit) init() {
 	d.loaded = true
 	d.lazyLoaded = false
 }
 
-func (d *InlineDrawable) wipe() {
+func (d *InlineUnit) wipe() {
 	d.lazyLoaded = false
 }
 
-func (d *InlineDrawable) lazyInit(size winsize.Winsize) {
+func (d *InlineUnit) lazyInit(size winsize.Winsize) {
 	if d.lazyLoaded {
 		return
 	}
@@ -72,33 +71,33 @@ func (d *InlineDrawable) lazyInit(size winsize.Winsize) {
 	lines := d.drawChildren()
 	join := d.joinChildren(lines)
 
-	d.drawable = drain.DrawableFromLines(join...)
+	d.unit = drain.UnitFromLines(join...)
 
-	d.drawable.Init()
+	d.unit.Drawable.Init()
 }
 
-func (d *InlineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *InlineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	d.lazyInit(size)
 
-	return d.drawable.Draw(size)
+	return d.unit.Drawable.Draw(size)
 }
 
-func (d *InlineDrawable) drawChildren() []text.Line {
+func (d *InlineUnit) drawChildren() []text.Line {
 	lines := make([]text.Line, 0)
 
-	if len(d.drawables) == 0 {
+	if len(d.units) == 0 {
 		return lines
 	}
 
 	index := 0
 
-	focus := d.drawables[index]
-	focus.Init()
+	focus := d.units[index]
+	focus.Drawable.Init()
 
 	for {
-		result, status := focus.Draw(d.size)
+		result, status := focus.Drawable.Draw(d.size)
 		if len(result) > 0 {
 			lines = append(lines, result...)
 		}
@@ -108,18 +107,18 @@ func (d *InlineDrawable) drawChildren() []text.Line {
 		}
 
 		index += 1
-		if index >= len(d.drawables) {
+		if index >= len(d.units) {
 			break
 		}
 
-		focus = d.drawables[index]
-		focus.Init()
+		focus = d.units[index]
+		focus.Drawable.Init()
 	}
 
 	return lines
 }
 
-func (d *InlineDrawable) joinChildren(lines []text.Line) []text.Line {
+func (d *InlineUnit) joinChildren(lines []text.Line) []text.Line {
 	if len(lines) == 0 {
 		return []text.Line{}
 	}

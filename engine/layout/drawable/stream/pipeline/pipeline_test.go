@@ -12,65 +12,64 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func mockInitStep(s winsize.Winsize, d drawable.Drawable) drawable.Drawable {
+func mockInitStep(s winsize.Winsize, d drawable.Unit) drawable.Unit {
 	return d
 }
 
-func mockDrawStep(s winsize.Winsize, d drawable.Drawable) ([]text.Line, bool) {
-	return d.Draw(s)
+func mockDrawStep(s winsize.Winsize, d drawable.Unit) ([]text.Line, bool) {
+	return d.Drawable.Draw(s)
 }
 
-func mockDataStep(_ winsize.Winsize, _ drawable.Drawable, l []text.Line, s bool) ([]text.Line, bool) {
+func mockDataStep(_ winsize.Winsize, _ drawable.Unit, l []text.Line, s bool) ([]text.Line, bool) {
 	return l, s
 }
 
-func TestPipeline_DrawableBasicSuite(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	dw := New(mock.ToDrawable()).
+func TestPipeline_UnitBasicSuite(t *testing.T) {
+	mock := &drawable_test.MockUnit{}
+	unit := New(mock.ToUnit()).
 		SetDrawStep(mockDrawStep).
-		ToDrawable()
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+		ToUnit()
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }
 
 func TestPipeline_ShouldPanicIfNewElementsAddedAfterInitialization(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	bd := New(mock.ToDrawable()).
+	mock := &drawable_test.MockUnit{}
+	unit := New(mock.ToUnit()).
 		SetDrawStep(mockDrawStep)
 
-	dw := bd.ToDrawable()
-	dw.Init()
+	unit.ToUnit().Drawable.Init()
 
 	assert.Panic(t, func() {
-		bd.PushInitSteps(mockInitStep)
+		unit.PushInitSteps(mockInitStep)
 	})
 
 	assert.Panic(t, func() {
-		bd.SetDrawStep(mockDrawStep)
+		unit.SetDrawStep(mockDrawStep)
 	})
 
 	assert.Panic(t, func() {
-		bd.PushDataSteps(mockDataStep)
+		unit.PushDataSteps(mockDataStep)
 	})
 }
 
 func TestPipeline_ReturnBaseIfNils(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	dw := New(mock.ToDrawable()).
-		ToDrawable()
+	mock := &drawable_test.MockUnit{}
+	unit := New(mock.ToUnit()).
+		ToUnit()
 
-	assert.Equal(t, drawable_test.NameMockDrawable, dw.Name)
+	assert.Equal(t, drawable_test.NameMockUnit, unit.Name)
 
-	dw = New(mock.ToDrawable()).
+	unit = New(mock.ToUnit()).
 		SetDrawStep(mockDrawStep).
-		ToDrawable()
+		ToUnit()
 
-	assert.Equal(t, Name, dw.Name)
+	assert.Equal(t, Name, unit.Name)
 }
 
 func TestPipeline_InitStepTransformation(t *testing.T) {
-	mock1 := &drawable_test.MockDrawable{}
+	mock1 := &drawable_test.MockUnit{}
 
-	mock2 := &drawable_test.MockDrawable{
+	mock2 := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("base_01"),
 			*text.NewLine("base_02"),
@@ -78,15 +77,15 @@ func TestPipeline_InitStepTransformation(t *testing.T) {
 		Status: true,
 	}
 
-	dw := New(mock1.ToDrawable()).
-		PushInitSteps(func(_ winsize.Winsize, _ drawable.Drawable) drawable.Drawable {
-			return mock2.ToDrawable()
+	unit := New(mock1.ToUnit()).
+		PushInitSteps(func(_ winsize.Winsize, _ drawable.Unit) drawable.Unit {
+			return mock2.ToUnit()
 		}).
-		ToDrawable()
+		ToUnit()
 
-	dw.Init()
+	unit.Drawable.Init()
 
-	lines, status := dw.Draw(winsize.Winsize{})
+	lines, status := unit.Drawable.Draw(winsize.Winsize{})
 
 	assert.Len(t, 2, lines)
 	assert.True(t, status)
@@ -94,7 +93,7 @@ func TestPipeline_InitStepTransformation(t *testing.T) {
 }
 
 func TestPipeline_DrawStepTransformation(t *testing.T) {
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("base_01"),
 			*text.NewLine("base_02"),
@@ -104,15 +103,15 @@ func TestPipeline_DrawStepTransformation(t *testing.T) {
 	}
 
 	mockLine := text.NewLine("mock_line_01")
-	bd := New(mock.ToDrawable()).
-		SetDrawStep(func(_ winsize.Winsize, _ drawable.Drawable) ([]text.Line, bool) {
+	unit := New(mock.ToUnit()).
+		SetDrawStep(func(_ winsize.Winsize, _ drawable.Unit) ([]text.Line, bool) {
 			return []text.Line{*mockLine}, false
-		})
+		}).
+		ToUnit()
 
-	dw := bd.ToDrawable()
-	dw.Init()
+	unit.Drawable.Init()
 
-	lines, status := dw.Draw(winsize.Winsize{})
+	lines, status := unit.Drawable.Draw(winsize.Winsize{})
 
 	assert.Len(t, 1, lines)
 	assert.False(t, status)
@@ -121,7 +120,7 @@ func TestPipeline_DrawStepTransformation(t *testing.T) {
 
 func TestPipeline_DataStepsChain(t *testing.T) {
 	baseLine := text.NewLine("base_01")
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*baseLine,
 		},
@@ -130,20 +129,20 @@ func TestPipeline_DataStepsChain(t *testing.T) {
 
 	mockLine1 := text.NewLine("mock_line_01")
 	mockLine2 := text.NewLine("mock_line_02")
-	bd := New(mock.ToDrawable()).
+	
+	unit := New(mock.ToUnit()).
 		PushDataSteps(
-			func(_ winsize.Winsize, _ drawable.Drawable, l []text.Line, s bool) ([]text.Line, bool) {
+			func(_ winsize.Winsize, _ drawable.Unit, l []text.Line, s bool) ([]text.Line, bool) {
 				return append(l, *mockLine1), s
 			},
-			func(_ winsize.Winsize, _ drawable.Drawable, l []text.Line, s bool) ([]text.Line, bool) {
+			func(_ winsize.Winsize, _ drawable.Unit, l []text.Line, s bool) ([]text.Line, bool) {
 				return append(l, *mockLine2), !s
 			},
-		)
+		).ToUnit()
 
-	dw := bd.ToDrawable()
-	dw.Init()
+	unit.Drawable.Init()
 
-	lines, status := dw.Draw(winsize.Winsize{})
+	lines, status := unit.Drawable.Draw(winsize.Winsize{})
 
 	assert.Len(t, 3, lines)
 	assert.False(t, status)

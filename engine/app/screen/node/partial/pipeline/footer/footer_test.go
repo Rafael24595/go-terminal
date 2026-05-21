@@ -16,57 +16,59 @@ import (
 func TestFooter_InsertsBefore(t *testing.T) {
 	vm := viewmodel.ViewModel{
 		Footer: stack.NewVStack(
-			line.DrawableFromLines(
+			line.UnitFromLines(
 				*text.NewLine("line_01"),
 			),
 		),
 	}
 
-	items := vm.Footer.Items()
-	assert.Len(t, 1, items)
+	units := vm.Footer.Units()
+	assert.Len(t, 1, units)
 
 	line := text.NewLine("line_02")
 	transformer := Transformer(pipeline.Before, *line)
 	vm = transformer(vm)
 
-	items = vm.Footer.Items()
-	assert.Len(t, 2, items)
+	units = vm.Footer.Units()
+	assert.Len(t, 2, units)
 
-	drw := items[0]
-	drw.Init()
-	lns, _ := drw.Draw(winsize.Winsize{
+	unit := units[0]
+
+	unit.Drawable.Init()
+	lines, _ := unit.Drawable.Draw(winsize.Winsize{
 		Rows: 1,
 		Cols: 10,
 	})
 
-	assert.Equal(t, "line_02", text.LineToString(&lns[0]))
+	assert.Equal(t, "line_02", text.LineToString(&lines[0]))
 }
 
 func TestFooter_InsertsAfter(t *testing.T) {
 	vm := viewmodel.ViewModel{
 		Footer: stack.NewVStack(
-			line.DrawableFromLines(
+			line.UnitFromLines(
 				*text.NewLine("line_01"),
 			),
 		),
 	}
 
-	items := vm.Footer.Items()
-	assert.Len(t, 1, items)
+	units := vm.Footer.Units()
+	assert.Len(t, 1, units)
 
 	line := text.NewLine("line_02")
 	transformer := Transformer(pipeline.After, *line)
 	vm = transformer(vm)
 
-	items = vm.Footer.Items()
-	assert.Len(t, 2, items)
+	units = vm.Footer.Units()
+	assert.Len(t, 2, units)
 
-	drw := items[1]
-	drw.Init()
-	lns, _ := drw.Draw(winsize.Winsize{
+	unit := units[1]
+
+	unit.Drawable.Init()
+	lines, _ := unit.Drawable.Draw(winsize.Winsize{
 		Rows: 1,
 		Cols: 10,
 	})
 
-	assert.Equal(t, "line_02", text.LineToString(&lns[0]))
+	assert.Equal(t, "line_02", text.LineToString(&lines[0]))
 }

@@ -40,9 +40,9 @@ func TestApplyAction_Map(t *testing.T) {
 		},
 	)
 
-	drw := drawable.Drawable{}
+	unit := drawable.Drawable{}
 
-	action.ApplyAction(act, drw, drw)
+	action.ApplyAction(act, unit, unit)
 
 	assert.Equal(t, 2, count)
 }
@@ -59,9 +59,9 @@ func TestApplyAction_Group(t *testing.T) {
 		},
 	)
 
-	drw := drawable.Drawable{}
+	drawable := drawable.Drawable{}
 
-	action.ApplyAction(act, drw, drw, drw)
+	action.ApplyAction(act, drawable, drawable, drawable)
 
 	assert.Equal(t, 1, count)
 	assert.Equal(t, 3, size)

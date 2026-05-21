@@ -13,16 +13,16 @@ import (
 
 const Name = "spacer_transformer"
 
-type placement func(Meta, drawable.Drawable, *stack.VStackDrawable) *stack.VStackDrawable
+type placement func(Meta, drawable.Unit, *stack.VStackUnit) *stack.VStackUnit
 
 func Transformer(meta Meta, sections ...pipeline.Section) pipeline.Transformer {
 	spacer := resolvePlacement(meta)
 
-	drawable := isolated.DrawableFromLines(
+	unit := isolated.UnitFromLines(
 		makeLines(meta.Size)...,
 	)
 
-	drawable.Name = Name
+	unit.Name = Name
 
 	return func(vm viewmodel.ViewModel) viewmodel.ViewModel {
 		for _, section := range sections {
@@ -37,7 +37,7 @@ func Transformer(meta Meta, sections ...pipeline.Section) pipeline.Transformer {
 				continue
 			}
 
-			stack = spacer(meta, drawable, stack)
+			stack = spacer(meta, unit, stack)
 			vm = accessor.Set(vm, stack)
 		}
 		return vm
@@ -53,17 +53,17 @@ func resolvePlacement(meta Meta) placement {
 
 func prependSpacer(
 	meta Meta,
-	drawable drawable.Drawable,
-	vStack *stack.VStackDrawable,
-) *stack.VStackDrawable {
+	unit drawable.Unit,
+	vStack *stack.VStackUnit,
+) *stack.VStackUnit {
 	if meta.Insertion == Once {
-		vStack.Unshift(drawable)
+		vStack.Unshift(unit)
 		return vStack
 	}
 
 	newVStack := stack.NewVStack()
-	for _, h := range vStack.Items() {
-		newVStack.Push(drawable, h)
+	for _, h := range vStack.Units() {
+		newVStack.Push(unit, h)
 	}
 
 	return newVStack
@@ -71,17 +71,17 @@ func prependSpacer(
 
 func appendSpacer(
 	meta Meta,
-	drawable drawable.Drawable,
-	vStack *stack.VStackDrawable,
-) *stack.VStackDrawable {
+	unit drawable.Unit,
+	vStack *stack.VStackUnit,
+) *stack.VStackUnit {
 	if meta.Insertion == Once {
-		vStack.Push(drawable)
+		vStack.Push(unit)
 		return vStack
 	}
 
 	newVStack := stack.NewVStack()
-	for _, h := range vStack.Items() {
-		newVStack.Push(h, drawable)
+	for _, h := range vStack.Units() {
+		newVStack.Push(h, unit)
 	}
 
 	return newVStack

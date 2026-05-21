@@ -5,7 +5,7 @@ import "github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 type Criterion uint8
 
 const (
-	Code Criterion = iota
+	Name Criterion = iota
 	Tags
 )
 

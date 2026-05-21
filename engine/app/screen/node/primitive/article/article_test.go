@@ -65,14 +65,14 @@ func TestArticle_View(t *testing.T) {
 		Cols: 10,
 	}
 
-	header := vm.Header.ToDrawable()
+	header := vm.Header.ToUnit()
 
-	header.Init()
+	header.Drawable.Init()
 
-	kernel := vm.Kernel.ToDrawable()
+	kernel := vm.Kernel.ToUnit()
 
-	kernel.Init()
-	lines, _ := kernel.Draw(size)
+	kernel.Drawable.Init()
+	lines, _ := kernel.Drawable.Draw(size)
 
 	assert.Len(t, 1, lines)
 	assert.Equal(t, text.LineToString(body), text.LineToString(&lines[0]))

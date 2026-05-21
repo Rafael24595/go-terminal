@@ -8,7 +8,7 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestIndexMenu_DrawableBasicSuite(t *testing.T) {
-	dw := DrawableFromOptions([]text.Fragment{})
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestIndexMenu_UnitBasicSuite(t *testing.T) {
+	unit := UnitFromOptions([]text.Fragment{})
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }

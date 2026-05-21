@@ -17,8 +17,8 @@ func Standard(
 ) (*state.UIState, []text.Line) {
 	header, footer := vm.InitStaticLayers()
 
-	headerLines := drain.DrawableEager(size, header)
-	footerLines := drain.DrawableEager(size, footer)
+	headerLines := drain.UnitEager(size, header)
+	footerLines := drain.UnitEager(size, footer)
 
 	staticRows := winsize.Rows(
 		len(headerLines) + len(footerLines),

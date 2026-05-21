@@ -7,35 +7,43 @@ import (
 )
 
 type layer[T math.Number] struct {
-	drawable drawable.Drawable
-	chunk    chunk.Chunk[T]
-	value    T
-	status   bool
+	unit   drawable.Unit
+	chunk  chunk.Chunk[T]
+	value  T
+	status bool
 }
 
 func layerFromLayer[T math.Number](other layer[T], value T) layer[T] {
 	return layer[T]{
-		drawable: other.drawable,
-		chunk:    other.chunk,
-		value:    value,
-		status:   true,
+		unit:   other.unit,
+		chunk:  other.chunk,
+		value:  value,
+		status: true,
 	}
 }
 
-func layerFromDrawable[T math.Number](item drawable.Drawable, value chunk.Chunk[T], cols T) layer[T] {
+func layerFromUnit[T math.Number](
+	chunk chunk.Chunk[T],
+	value T,
+	unit drawable.Unit,
+) layer[T] {
 	return layer[T]{
-		drawable: item,
-		chunk:    value,
-		value:    cols,
-		status:   true,
+		unit:   unit,
+		chunk:  chunk,
+		value:  value,
+		status: true,
 	}
 }
 
-func layersFromDrawables[T math.Number](chk chunk.Chunk[T], value T, items ...drawable.Drawable) []layer[T] {
-	layers := make([]layer[T], len(items))
-	for i, item := range items {
-		layers[i] = layerFromDrawable(
-			item, chk, value,
+func layersFromUnits[T math.Number](
+	chunk chunk.Chunk[T],
+	value T,
+	units ...drawable.Unit,
+) []layer[T] {
+	layers := make([]layer[T], len(units))
+	for i := range units {
+		layers[i] = layerFromUnit(
+			chunk, value, units[i],
 		)
 	}
 	return layers

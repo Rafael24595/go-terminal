@@ -11,20 +11,20 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestHStack_DrawableBasicSuite(t *testing.T) {
-	dw := HStackDrawableFromDrawables()
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestHStack_UnitBasicSuite(t *testing.T) {
+	unit := HStackFromUnits()
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }
 
 func TestHStack_Distribution(t *testing.T) {
-	d1 := &drawable_test.MockDrawable{}
-	d2 := &drawable_test.MockDrawable{}
-	d3 := &drawable_test.MockDrawable{}
+	mock1 := &drawable_test.MockUnit{}
+	mock2 := &drawable_test.MockUnit{}
+	mock3 := &drawable_test.MockUnit{}
 
 	stack := NewHStack(
-		d1.ToDrawable(),
-		d2.ToDrawable(),
-		d3.ToDrawable(),
+		mock1.ToUnit(),
+		mock2.ToUnit(),
+		mock3.ToUnit(),
 	)
 
 	stack.init()
@@ -40,13 +40,13 @@ func TestHStack_Distribution(t *testing.T) {
 }
 
 func TestHStack_MixedFixedAndDynamic(t *testing.T) {
-	d1 := &drawable_test.MockDrawable{}
-	d2 := &drawable_test.MockDrawable{}
-	d3 := &drawable_test.MockDrawable{}
+	mock1 := &drawable_test.MockUnit{}
+	mock2 := &drawable_test.MockUnit{}
+	mock3 := &drawable_test.MockUnit{}
 
 	stack := NewHStack()
-	stack.PushChunk(d1.ToDrawable(), chunk.Fixed[winsize.Cols](20))
-	stack.Push(d2.ToDrawable(), d3.ToDrawable())
+	stack.PushChunk(mock1.ToUnit(), chunk.Fixed[winsize.Cols](20))
+	stack.Push(mock2.ToUnit(), mock3.ToUnit())
 
 	stack.init()
 	stack.lazyInit(winsize.Winsize{
@@ -61,20 +61,20 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 func TestHStack_RenderOutput(t *testing.T) {
 	size := winsize.Winsize{Rows: 1, Cols: 6}
 
-	dA := &drawable_test.MockDrawable{
+	mock1 := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("go-lang"),
 		},
 	}
-	dB := &drawable_test.MockDrawable{
+	mock2 := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("ziglang"),
 		},
 	}
 
 	stack := NewHStack()
-	stack.PushChunk(dA.ToDrawable(), chunk.Percent[winsize.Cols](50))
-	stack.PushChunk(dB.ToDrawable(), chunk.Percent[winsize.Cols](50))
+	stack.PushChunk(mock1.ToUnit(), chunk.Percent[winsize.Cols](50))
+	stack.PushChunk(mock2.ToUnit(), chunk.Percent[winsize.Cols](50))
 
 	stack.init()
 
@@ -92,46 +92,45 @@ func TestHStack_RenderOutput(t *testing.T) {
 	assert.Equal(t, "gg", text.LineToString(&lines[2]))
 }
 
-func TestHStack_ToDrawable_AnemicStack(t *testing.T) {
-    dw1 := &drawable_test.MockDrawable{
-		Name: "mock_drawable",
+func TestHStack_ToUnit_AnemicStack(t *testing.T) {
+	mock := &drawable_test.MockUnit{
+		Name: "mock_unit",
 	}
 
 	stack := NewHStack().
-		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Cols]()).
-		ToDrawable()
+		PushChunk(mock.ToUnit(), chunk.Dynamic[winsize.Cols]()).
+		ToUnit()
 
-    assert.True(t, stack.Tags.Has(AnemicStack))
-    assert.Equal(t, dw1.Name, stack.Name) 
+	assert.True(t, stack.Tags.Has(AnemicStack))
+	assert.Equal(t, mock.Name, stack.Name)
 }
 
-func TestHStack_ToDrawable_SingleElement_NotAnemic(t *testing.T) {
-    dw1 := &drawable_test.MockDrawable{
-		Name: "mock_drawable",
+func TestHStack_ToUnit_SingleElement_NotAnemic(t *testing.T) {
+	mock := &drawable_test.MockUnit{
+		Name: "mock_unit",
 	}
 
 	stack := NewHStack().
-		PushChunk(dw1.ToDrawable(), chunk.Fixed[winsize.Cols](10)).
-		ToDrawable()
+		PushChunk(mock.ToUnit(), chunk.Fixed[winsize.Cols](10)).
+		ToUnit()
 
-    assert.False(t, stack.Tags.Has(AnemicStack))
-    assert.Equal(t, NameHStack, stack.Name) 
+	assert.False(t, stack.Tags.Has(AnemicStack))
+	assert.Equal(t, NameHStack, stack.Name)
 }
 
-func TestHStack_ToDrawable_MultipleElements(t *testing.T) {
-    dw1 := &drawable_test.MockDrawable{
-		Name: "mock_drawable_001",
+func TestHStack_ToUnit_MultipleElements(t *testing.T) {
+	mock1 := &drawable_test.MockUnit{
+		Name: "mock_unit_001",
 	}
-
-	dw2 := &drawable_test.MockDrawable{
-		Name: "mock_drawable_002",
+	mock2 := &drawable_test.MockUnit{
+		Name: "mock_unit_002",
 	}
 
 	stack := NewHStack().
-		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Cols]()).
-		PushChunk(dw2.ToDrawable(), chunk.Dynamic[winsize.Cols]()).
-		ToDrawable()
+		PushChunk(mock1.ToUnit(), chunk.Dynamic[winsize.Cols]()).
+		PushChunk(mock2.ToUnit(), chunk.Dynamic[winsize.Cols]()).
+		ToUnit()
 
-    assert.False(t, stack.Tags.Has(AnemicStack))
-    assert.Equal(t, NameHStack, stack.Name) 
+	assert.False(t, stack.Tags.Has(AnemicStack))
+	assert.Equal(t, NameHStack, stack.Name)
 }

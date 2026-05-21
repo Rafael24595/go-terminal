@@ -14,86 +14,85 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/wrap"
 )
 
-const Name = "box_drawable"
+const Name = "box_unit"
 
 const (
-	default_padding  = winsize.Cols(0)
+	default_padding = winsize.Cols(0)
 )
 
-type BoxDrawable struct {
+type BoxUnit struct {
 	loaded    bool
 	paddingY  winsize.Rows
 	paddingX  winsize.Cols
 	separator marker.BoxSeparatorMeta
-	drawable  drawable.Drawable
+	unit      drawable.Unit
 }
 
-func New(drawable drawable.Drawable) *BoxDrawable {
-	return &BoxDrawable{
+func New(unit drawable.Unit) *BoxUnit {
+	return &BoxUnit{
 		loaded:    false,
 		paddingY:  winsize.Rows(default_padding),
 		paddingX:  default_padding,
 		separator: marker.DefaultBoxSeparator,
-		drawable:  drawable,
+		unit:      unit,
 	}
 }
 
-func DrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
-	return New(drawable).ToDrawable()
+func UnitFromUnit(unit drawable.Unit) drawable.Unit {
+	return New(unit).ToUnit()
 }
 
-func (d *BoxDrawable) Separator(separator marker.BoxSeparatorMeta) *BoxDrawable {
+func (d *BoxUnit) Separator(separator marker.BoxSeparatorMeta) *BoxUnit {
 	d.separator = separator
 	return d
 }
 
-func (d *BoxDrawable) PaddingY(padding winsize.Rows) *BoxDrawable {
+func (d *BoxUnit) PaddingY(padding winsize.Rows) *BoxUnit {
 	d.paddingY = padding
 	return d
 }
 
-func (d *BoxDrawable) PaddingX(padding winsize.Cols) *BoxDrawable {
+func (d *BoxUnit) PaddingX(padding winsize.Cols) *BoxUnit {
 	d.paddingX = padding
 	return d
 }
 
-func (d *BoxDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: d.drawable.Code,
-		Tags: d.drawable.Tags,
-		Init: d.init,
-		Wipe: d.drawable.Wipe,
-		Draw: d.draw,
-	}
+func (d *BoxUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		MergeTags(d.unit.Tags).
+		Init(d.init).
+		Wipe(d.unit.Drawable.Wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *BoxDrawable) init() {
+func (d *BoxUnit) init() {
 	d.loaded = true
 
-	d.drawable = d.makeDrawable()
+	d.unit = d.makeUnit()
 
-	d.drawable.Init()
+	d.unit.Drawable.Init()
 }
 
-func (d *BoxDrawable) makeDrawable() drawable.Drawable {
+func (d *BoxUnit) makeUnit() drawable.Unit {
 	if d.paddingY == 0 && d.paddingX == 0 {
-		return d.drawable
+		return d.unit
 	}
 
-	return position.New(d.drawable).
+	return position.New(d.unit).
 		MarginY(d.paddingY).
 		MarginX(d.paddingX).
 		PositionY(style.Top).
 		PositionX(style.Left).
-		ToDrawable()
+		ToUnit()
 }
 
-func (d *BoxDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *BoxUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	innerSize := d.computeInnerSize(size)
-	lines, hasNext := drain.DrawableLazy(innerSize, d.drawable)
+	lines, hasNext := drain.UnitLazy(innerSize, d.unit)
 
 	styled := d.styleLines(size, lines...)
 
@@ -101,7 +100,7 @@ func (d *BoxDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 }
 
 // TODO: investigate spec overflow.
-func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []text.Line {
+func (d *BoxUnit) styleLines(size winsize.Winsize, lines ...text.Line) []text.Line {
 	vertical := horizontalStaticSize(d.separator)
 
 	maxLine := text.MaxLineMeasure(size.Cols, lines...)
@@ -130,7 +129,7 @@ func (d *BoxDrawable) styleLines(size winsize.Winsize, lines ...text.Line) []tex
 	return result
 }
 
-func (d *BoxDrawable) wrapLine(line text.Line) text.Line {
+func (d *BoxUnit) wrapLine(line text.Line) text.Line {
 	frags := make([]text.Fragment, 0)
 
 	frags = append(frags, *text.NewFragment(d.separator.Left))
@@ -142,7 +141,7 @@ func (d *BoxDrawable) wrapLine(line text.Line) text.Line {
 	return line
 }
 
-func (d *BoxDrawable) computeInnerSize(size winsize.Winsize) winsize.Winsize {
+func (d *BoxUnit) computeInnerSize(size winsize.Winsize) winsize.Winsize {
 	vertical := winsize.Rows(2)
 	rows := size.Rows.Sub(vertical)
 

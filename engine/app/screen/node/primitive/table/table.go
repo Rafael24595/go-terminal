@@ -185,13 +185,13 @@ func (c *Table[T]) updateRead(state *state.UIState, evnt screen.Event) screen.Re
 func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
-	table := drawable_table.DrawableFromTable(*c.table, *c.cursor)
+	table := drawable_table.UnitFromTable(*c.table, *c.cursor)
 
 	vm.Kernel.Push(
 		position.New(table).
 			PositionY(c.positionY).
 			PositionX(c.positionX).
-			ToDrawable(),
+			ToUnit(),
 	)
 
 	preficate := pager.PredicatePage()
@@ -201,8 +201,8 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 		cell, _ := c.table.FindCellByCoords(c.cursor.Row, c.cursor.Col)
 
 		vm.Footer.Push(
-			inputline.DrawableFromDrawable(
-				drain.DrawableFromString(cell),
+			inputline.UnitFromUnit(
+				drain.UnitFromString(cell),
 			),
 		)
 	}

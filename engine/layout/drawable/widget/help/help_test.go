@@ -8,7 +8,7 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestHelp_DrawableBasicSuite(t *testing.T) {
-	dw := DrawableFromFields([]key.Descriptor{})
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestHelp_UnitBasicSuite(t *testing.T) {
+	unit := UnitFromFields([]key.Descriptor{})
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }

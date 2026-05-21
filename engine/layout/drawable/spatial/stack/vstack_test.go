@@ -12,34 +12,35 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestVStack_DrawableBasicSuite(t *testing.T) {
-	dw := VStackDrawableFromDrawables()
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestVStack_UnitBasicSuite(t *testing.T) {
+	unit := VStackFromUnits()
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }
 
 func TestVStack_ShouldPanicIfNewElementsAddedAfterInitialization(t *testing.T) {
-	bd := NewVStack()
+	mock1 := &drawable_test.MockUnit{}
 
-	m1 := &drawable_test.MockDrawable{}
-	bd.Push(m1.ToDrawable())
+	unit := NewVStack().Push(
+		mock1.ToUnit(),
+	)
 
-	bd.init()
+	unit.init()
 
 	assert.Panic(t, func() {
-		m2 := &drawable_test.MockDrawable{}
-		bd.Push(m2.ToDrawable())
+		m2 := &drawable_test.MockUnit{}
+		unit.Push(m2.ToUnit())
 	})
 }
 
 func TestVStack_Init(t *testing.T) {
-	stack := &VStackDrawable{}
+	stack := &VStackUnit{}
 
-	d1 := &drawable_test.MockDrawable{}
-	d2 := &drawable_test.MockDrawable{}
+	mock1 := &drawable_test.MockUnit{}
+	mock2 := &drawable_test.MockUnit{}
 
 	stack.Push(
-		d1.ToDrawable(),
-		d2.ToDrawable(),
+		mock1.ToUnit(),
+		mock2.ToUnit(),
 	)
 
 	stack.init()
@@ -48,35 +49,35 @@ func TestVStack_Init(t *testing.T) {
 		Cols: 10,
 	})
 
-	assert.True(t, d1.InitCalled)
-	assert.True(t, d2.InitCalled)
+	assert.True(t, mock1.InitCalled)
+	assert.True(t, mock2.InitCalled)
 }
 
 func TestVStack_Shift_Order(t *testing.T) {
-	stack := &VStackDrawable{}
+	stack := &VStackUnit{}
 
 	count := 0
 
-	m1 := &drawable_test.MockDrawable{Status: false}
-	m2 := &drawable_test.MockDrawable{Status: false}
+	mock1 := &drawable_test.MockUnit{Status: false}
+	mock2 := &drawable_test.MockUnit{Status: false}
 
-	d1 := m1.ToDrawable()
-	d2 := m2.ToDrawable()
+	unit1 := mock1.ToUnit()
+	unit2 := mock2.ToUnit()
 
-	d1.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
-		m1.Order = count
+	unit1.Drawable.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
+		mock1.Order = count
 		count++
-		return m1.Draw(winsize.Winsize{})
+		return mock1.Draw(winsize.Winsize{})
 	}
 
-	d2.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
-		m2.Order = count
+	unit2.Drawable.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
+		mock2.Order = count
 		count++
-		return m2.Draw(winsize.Winsize{})
+		return mock2.Draw(winsize.Winsize{})
 	}
 
-	stack.Push(d1)
-	stack.Push(d2)
+	stack.Push(unit1)
+	stack.Push(unit2)
 
 	stack.init()
 
@@ -85,35 +86,35 @@ func TestVStack_Shift_Order(t *testing.T) {
 		Cols: 10,
 	})
 
-	assert.Equal(t, 0, m1.Order)
-	assert.Equal(t, 1, m2.Order)
+	assert.Equal(t, 0, mock1.Order)
+	assert.Equal(t, 1, mock2.Order)
 }
 
 func TestVStack_Unshift_Order(t *testing.T) {
-	stack := &VStackDrawable{}
+	stack := &VStackUnit{}
 
 	count := 0
 
-	m1 := &drawable_test.MockDrawable{Status: false}
-	m2 := &drawable_test.MockDrawable{Status: false}
+	mock1 := &drawable_test.MockUnit{Status: false}
+	mock2 := &drawable_test.MockUnit{Status: false}
 
-	d1 := m1.ToDrawable()
-	d2 := m2.ToDrawable()
+	unit1 := mock1.ToUnit()
+	unit2 := mock2.ToUnit()
 
-	d1.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
-		m1.Order = count
+	unit1.Drawable.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
+		mock1.Order = count
 		count++
-		return m1.Draw(winsize.Winsize{})
+		return mock1.Draw(winsize.Winsize{})
 	}
 
-	d2.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
-		m2.Order = count
+	unit2.Drawable.Draw = func(_ winsize.Winsize) ([]text.Line, bool) {
+		mock2.Order = count
 		count++
-		return m2.Draw(winsize.Winsize{})
+		return mock2.Draw(winsize.Winsize{})
 	}
 
-	stack.Push(d1)
-	stack.Unshift(d2)
+	stack.Push(unit1)
+	stack.Unshift(unit2)
 
 	stack.init()
 
@@ -122,19 +123,19 @@ func TestVStack_Unshift_Order(t *testing.T) {
 		Cols: 10,
 	})
 
-	assert.Equal(t, 1, m1.Order)
-	assert.Equal(t, 0, m2.Order)
+	assert.Equal(t, 1, mock1.Order)
+	assert.Equal(t, 0, mock2.Order)
 }
 
 func TestVStack_Draw_BreaksOnTrue(t *testing.T) {
-	stack := &VStackDrawable{}
+	stack := &VStackUnit{}
 
-	d1 := &drawable_test.MockDrawable{Status: true}
-	d2 := &drawable_test.MockDrawable{Status: false}
+	mock1 := &drawable_test.MockUnit{Status: true}
+	mock2 := &drawable_test.MockUnit{Status: false}
 
 	stack.Push(
-		d1.ToDrawable(),
-		d2.ToDrawable(),
+		mock1.ToUnit(),
+		mock2.ToUnit(),
 	)
 
 	stack.init()
@@ -142,15 +143,15 @@ func TestVStack_Draw_BreaksOnTrue(t *testing.T) {
 	_, global := stack.draw(winsize.Winsize{})
 
 	assert.True(t, global)
-	assert.Equal(t, 0, d2.DrawCalls)
+	assert.Equal(t, 0, mock2.DrawCalls)
 }
 
 func TestVStack_DisablesLayer(t *testing.T) {
-	stack := &VStackDrawable{}
+	stack := &VStackUnit{}
 
-	d1 := &drawable_test.MockDrawable{Status: false}
+	mock := &drawable_test.MockUnit{Status: false}
 
-	stack.Push(d1.ToDrawable())
+	stack.Push(mock.ToUnit())
 
 	stack.init()
 
@@ -163,28 +164,27 @@ func TestVStack_DisablesLayer(t *testing.T) {
 		Cols: 10,
 	})
 
-	assert.Equal(t, 1, d1.DrawCalls)
+	assert.Equal(t, 1, mock.DrawCalls)
 }
 
 func TestVStack_BufferConcat(t *testing.T) {
-	stack := &VStackDrawable{}
+	stack := &VStackUnit{}
 
 	line1 := text.NewLine("go")
 	line2 := text.NewLine("lang")
 
-	d1 := &drawable_test.MockDrawable{
+	mock1 := &drawable_test.MockUnit{
 		Lines:  []text.Line{*line1},
 		Status: false,
 	}
-
-	d2 := &drawable_test.MockDrawable{
+	mock2 := &drawable_test.MockUnit{
 		Lines:  []text.Line{*line2},
 		Status: false,
 	}
 
 	stack.Push(
-		d1.ToDrawable(),
-		d2.ToDrawable(),
+		mock1.ToUnit(),
+		mock2.ToUnit(),
 	)
 
 	stack.init()
@@ -199,22 +199,22 @@ func TestVStack_BufferConcat(t *testing.T) {
 }
 
 func TestVStack_ShortCircuitStopsPropagation(t *testing.T) {
-	stack := &VStackDrawable{}
+	stack := &VStackUnit{}
 
-	d1 := &drawable_test.MockDrawable{
+	mock1 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 1),
 	}
-	d2 := &drawable_test.MockDrawable{
+	mock2 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 2),
 	}
-	d3 := &drawable_test.MockDrawable{
+	mock3 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 1),
 	}
 
 	stack.Push(
-		d1.ToDrawable(),
-		d2.ToDrawable(),
-		d3.ToDrawable(),
+		mock1.ToUnit(),
+		mock2.ToUnit(),
+		mock3.ToUnit(),
 	)
 
 	stack.init()
@@ -224,156 +224,150 @@ func TestVStack_ShortCircuitStopsPropagation(t *testing.T) {
 		Cols: 10,
 	})
 
-	assert.Equal(t, 1, d1.DrawCalls)
-	assert.Equal(t, 1, d2.DrawCalls)
-	assert.Equal(t, 0, d3.DrawCalls)
+	assert.Equal(t, 1, mock1.DrawCalls)
+	assert.Equal(t, 1, mock2.DrawCalls)
+	assert.Equal(t, 0, mock3.DrawCalls)
 }
 
 func TestVStack_FixedChunk_PadsWhenChildIsSmaller(t *testing.T) {
-	dw := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 10),
 	}
 
 	stack := NewVStack().
-		PushChunk(dw.ToDrawable(), chunk.Fixed[winsize.Rows](15)).
-		ToDrawable()
+		PushChunk(mock.ToUnit(), chunk.Fixed[winsize.Rows](15)).
+		ToUnit()
 
-	stack.Init()
+	stack.Drawable.Init()
 
-	lines, _ := stack.Draw(winsize.Winsize{Rows: 20, Cols: 10})
+	lines, _ := stack.Drawable.Draw(winsize.Winsize{Rows: 20, Cols: 10})
 
 	assert.Len(t, 15, lines)
 }
 
 func TestVStack_FixedChunk_TruncatesWhenChildIsBigger(t *testing.T) {
-	dw := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 15),
 	}
 
 	stack := NewVStack().
-		PushChunk(dw.ToDrawable(), chunk.Fixed[winsize.Rows](20)).
-		ToDrawable()
+		PushChunk(mock.ToUnit(), chunk.Fixed[winsize.Rows](20)).
+		ToUnit()
 
-	stack.Init()
+	stack.Drawable.Init()
 
-	lines, _ := stack.Draw(winsize.Winsize{Rows: 10, Cols: 10})
+	lines, _ := stack.Drawable.Draw(winsize.Winsize{Rows: 10, Cols: 10})
 
 	assert.Len(t, 10, lines)
 }
 
 func TestVStack_DynamicChunk_FillsRemainingSpace(t *testing.T) {
-	dw1 := &drawable_test.MockDrawable{
+	mock1 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 10),
 	}
-
-	dw2 := &drawable_test.MockDrawable{
+	mock2 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 10),
 	}
-
-	dw3 := &drawable_test.MockDrawable{
+	mock3 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 5),
 	}
 
 	stack := NewVStack().
-		PushChunk(dw1.ToDrawable(), chunk.Fixed[winsize.Rows](10)).
-		PushChunk(dw2.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
-		PushChunk(dw3.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
-		ToDrawable()
+		PushChunk(mock1.ToUnit(), chunk.Fixed[winsize.Rows](10)).
+		PushChunk(mock2.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		PushChunk(mock3.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		ToUnit()
 
-	stack.Init()
+	stack.Drawable.Init()
 
-	lines, _ := stack.Draw(winsize.Winsize{Rows: 30, Cols: 10})
+	lines, _ := stack.Drawable.Draw(winsize.Winsize{Rows: 30, Cols: 10})
 
 	assert.Len(t, 25, lines)
 }
 
 func TestVStack_FixedOverflow_ShouldNotExceedContainer(t *testing.T) {
-	dw1 := &drawable_test.MockDrawable{
+	mock1 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 10),
 	}
-
-	dw2 := &drawable_test.MockDrawable{
+	mock2 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 10),
 	}
 
 	stack := NewVStack().
-		PushChunk(dw1.ToDrawable(), chunk.Fixed[winsize.Rows](10)).
-		PushChunk(dw2.ToDrawable(), chunk.Fixed[winsize.Rows](10)).
-		ToDrawable()
+		PushChunk(mock1.ToUnit(), chunk.Fixed[winsize.Rows](10)).
+		PushChunk(mock2.ToUnit(), chunk.Fixed[winsize.Rows](10)).
+		ToUnit()
 
-	stack.Init()
+	stack.Drawable.Init()
 
-	lines, _ := stack.Draw(winsize.Winsize{Rows: 15, Cols: 10})
+	lines, _ := stack.Drawable.Draw(winsize.Winsize{Rows: 15, Cols: 10})
 
 	assert.Len(t, 15, lines)
 }
 
 func TestVStack_ExactFit_NoExtraNoMissing(t *testing.T) {
-	dw1 := &drawable_test.MockDrawable{
+	mock1 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 5),
 	}
-
-	dw2 := &drawable_test.MockDrawable{
+	mock2 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 5),
 	}
-
-	dw3 := &drawable_test.MockDrawable{
+	mock3 := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 5),
 	}
 
 	stack := NewVStack().
-		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
-		PushChunk(dw2.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
-		PushChunk(dw3.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
-		ToDrawable()
+		PushChunk(mock1.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		PushChunk(mock2.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		PushChunk(mock3.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		ToUnit()
 
-	stack.Init()
+	stack.Drawable.Init()
 
-	lines, _ := stack.Draw(winsize.Winsize{Rows: 15, Cols: 10})
+	lines, _ := stack.Drawable.Draw(winsize.Winsize{Rows: 15, Cols: 10})
 
 	assert.Len(t, 15, lines)
 }
 
-func TestVStack_ToDrawable_AnemicStack(t *testing.T) {
-    dw1 := &drawable_test.MockDrawable{
-		Name: "mock_drawable",
+func TestVStack_ToUnit_AnemicStack(t *testing.T) {
+	mock := &drawable_test.MockUnit{
+		Name: "mock_unit",
 	}
 
 	stack := NewVStack().
-		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
-		ToDrawable()
+		PushChunk(mock.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		ToUnit()
 
-    assert.True(t, stack.Tags.Has(AnemicStack))
-    assert.Equal(t, dw1.Name, stack.Name) 
+	assert.True(t, stack.Tags.Has(AnemicStack))
+	assert.Equal(t, mock.Name, stack.Name)
 }
 
-func TestVStack_ToDrawable_SingleElement_NotAnemic(t *testing.T) {
-    dw1 := &drawable_test.MockDrawable{
-		Name: "mock_drawable",
+func TestVStack_ToUnit_SingleElement_NotAnemic(t *testing.T) {
+	mock := &drawable_test.MockUnit{
+		Name: "mock_unit",
 	}
 
 	stack := NewVStack().
-		PushChunk(dw1.ToDrawable(), chunk.Fixed[winsize.Rows](10)).
-		ToDrawable()
+		PushChunk(mock.ToUnit(), chunk.Fixed[winsize.Rows](10)).
+		ToUnit()
 
-    assert.False(t, stack.Tags.Has(AnemicStack))
-    assert.Equal(t, NameVStack, stack.Name) 
+	assert.False(t, stack.Tags.Has(AnemicStack))
+	assert.Equal(t, NameVStack, stack.Name)
 }
 
-func TestVStack_ToDrawable_MultipleElements(t *testing.T) {
-    dw1 := &drawable_test.MockDrawable{
-		Name: "mock_drawable_001",
+func TestVStack_ToUnit_MultipleElements(t *testing.T) {
+	mock1 := &drawable_test.MockUnit{
+		Name: "mock_unit_001",
 	}
-
-	dw2 := &drawable_test.MockDrawable{
-		Name: "mock_drawable_002",
+	mock2 := &drawable_test.MockUnit{
+		Name: "mock_unit_002",
 	}
 
 	stack := NewVStack().
-		PushChunk(dw1.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
-		PushChunk(dw2.ToDrawable(), chunk.Dynamic[winsize.Rows]()).
-		ToDrawable()
+		PushChunk(mock1.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		PushChunk(mock2.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		ToUnit()
 
-    assert.False(t, stack.Tags.Has(AnemicStack))
-    assert.Equal(t, NameVStack, stack.Name) 
+	assert.False(t, stack.Tags.Has(AnemicStack))
+	assert.Equal(t, NameVStack, stack.Name)
 }

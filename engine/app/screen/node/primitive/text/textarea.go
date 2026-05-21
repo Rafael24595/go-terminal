@@ -525,7 +525,7 @@ func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 	predicate, textarea, needsPulse := c.viewSources()
 
 	vm.Kernel.Push(
-		textarea.ToDrawable(),
+		textarea.ToUnit(),
 	)
 
 	vm.Pager.SetPredicate(predicate)
@@ -536,7 +536,7 @@ func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 
 func (c *TextArea) viewSources() (
 	pager.Predicate,
-	*textarea.TextAreaDrawable,
+	*textarea.TextAreaUnit,
 	bool,
 ) {
 	predicate := pager.PredicatePage()

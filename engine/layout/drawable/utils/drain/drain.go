@@ -9,18 +9,18 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/wrap"
 )
 
-func DrawableEager(size winsize.Winsize, drawable drawable.Drawable) []text.Line {
-	result, _ := Drawable(size, drawable, false)
+func UnitEager(size winsize.Winsize, unit drawable.Unit) []text.Line {
+	result, _ := Unit(size, unit, false)
 	return result
 }
 
-func DrawableLazy(size winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
-	return Drawable(size, drawable, true)
+func UnitLazy(size winsize.Winsize, unit drawable.Unit) ([]text.Line, bool) {
+	return Unit(size, unit, true)
 }
 
-func Drawable(
+func Unit(
 	size winsize.Winsize,
-	drawable drawable.Drawable,
+	unit drawable.Unit,
 	lazy bool,
 ) ([]text.Line, bool) {
 	result := make([]text.Line, 0, size.Rows)
@@ -36,7 +36,7 @@ func Drawable(
 		tracker.Advance()
 		tracker.Reset()
 
-		lines, hasNext := drawable.Draw(size)
+		lines, hasNext := unit.Drawable.Draw(size)
 		if hasNext {
 			tracker.Add(1)
 		}

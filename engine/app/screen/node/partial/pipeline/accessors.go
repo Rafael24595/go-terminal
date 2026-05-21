@@ -6,34 +6,34 @@ import (
 )
 
 type StackAccessor struct {
-	Get func(viewmodel.ViewModel) *stack.VStackDrawable
-	Set func(viewmodel.ViewModel, *stack.VStackDrawable) viewmodel.ViewModel
+	Get func(viewmodel.ViewModel) *stack.VStackUnit
+	Set func(viewmodel.ViewModel, *stack.VStackUnit) viewmodel.ViewModel
 }
 
 var viewModelAccessors = map[Section]StackAccessor{
 	Header: {
-		Get: func(vm viewmodel.ViewModel) *stack.VStackDrawable {
+		Get: func(vm viewmodel.ViewModel) *stack.VStackUnit {
 			return vm.Header
 		},
-		Set: func(vm viewmodel.ViewModel, s *stack.VStackDrawable) viewmodel.ViewModel {
+		Set: func(vm viewmodel.ViewModel, s *stack.VStackUnit) viewmodel.ViewModel {
 			vm.Header = s
 			return vm
 		},
 	},
 	Kernel: {
-		Get: func(vm viewmodel.ViewModel) *stack.VStackDrawable {
+		Get: func(vm viewmodel.ViewModel) *stack.VStackUnit {
 			return vm.Kernel
 		},
-		Set: func(vm viewmodel.ViewModel, s *stack.VStackDrawable) viewmodel.ViewModel {
+		Set: func(vm viewmodel.ViewModel, s *stack.VStackUnit) viewmodel.ViewModel {
 			vm.Kernel = s
 			return vm
 		},
 	},
 	Footer: {
-		Get: func(vm viewmodel.ViewModel) *stack.VStackDrawable {
+		Get: func(vm viewmodel.ViewModel) *stack.VStackUnit {
 			return vm.Footer
 		},
-		Set: func(vm viewmodel.ViewModel, s *stack.VStackDrawable) viewmodel.ViewModel {
+		Set: func(vm viewmodel.ViewModel, s *stack.VStackUnit) viewmodel.ViewModel {
 			vm.Footer = s
 			return vm
 		},

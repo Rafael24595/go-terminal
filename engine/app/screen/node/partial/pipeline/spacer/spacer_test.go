@@ -35,14 +35,14 @@ func TestSpacer_AddsHeaderLinesWhenEmpty(t *testing.T) {
 		)
 
 		acc := findAccesor(t, v)
-		items := acc.Get(vm).Items()
+		units := acc.Get(vm).Units()
 
-		assert.Len(t, 0, items)
+		assert.Len(t, 0, units)
 	}
 }
 
 func TestSpacer_AddsHeaderLines(t *testing.T) {
-	mc := drawable_test.MockDrawable{
+	mc := drawable_test.MockUnit{
 		Name: "mock_header",
 	}
 
@@ -51,7 +51,7 @@ func TestSpacer_AddsHeaderLines(t *testing.T) {
 
 		acc := findAccesor(t, v)
 		acc.Get(vm).Push(
-			mc.ToDrawable(),
+			mc.ToUnit(),
 		)
 
 		meta := NewMeta(1, Once, pipeline.After)
@@ -59,21 +59,21 @@ func TestSpacer_AddsHeaderLines(t *testing.T) {
 
 		vm = transformer(vm)
 
-		items := acc.Get(vm).Items()
+		units := acc.Get(vm).Units()
 
-		assert.Len(t, 2, items)
+		assert.Len(t, 2, units)
 
-		assert.Equal(t, "mock_header", items[0].Name)
-		assert.Equal(t, Name, items[1].Name)
+		assert.Equal(t, "mock_header", units[0].Name)
+		assert.Equal(t, Name, units[1].Name)
 	}
 
 }
 
 func TestSpacer_HeaderBetween(t *testing.T) {
-	mc1 := drawable_test.MockDrawable{
+	mock1 := drawable_test.MockUnit{
 		Name: "mock_header_1",
 	}
-	mc2 := drawable_test.MockDrawable{
+	mock2 := drawable_test.MockUnit{
 		Name: "mock_header_2",
 	}
 
@@ -82,8 +82,8 @@ func TestSpacer_HeaderBetween(t *testing.T) {
 
 		acc := findAccesor(t, v)
 		acc.Get(vm).Push(
-			mc1.ToDrawable(),
-			mc2.ToDrawable(),
+			mock1.ToUnit(),
+			mock2.ToUnit(),
 		)
 
 		meta := NewMeta(1, Between, pipeline.After)
@@ -91,15 +91,15 @@ func TestSpacer_HeaderBetween(t *testing.T) {
 
 		vm = transformer(vm)
 
-		items := acc.Get(vm).Items()
+		units := acc.Get(vm).Units()
 
-		assert.Len(t, 4, items)
+		assert.Len(t, 4, units)
 
-		assert.Equal(t, "mock_header_1", items[0].Name)
-		assert.Equal(t, Name, items[1].Name)
+		assert.Equal(t, "mock_header_1", units[0].Name)
+		assert.Equal(t, Name, units[1].Name)
 
-		assert.Equal(t, "mock_header_2", items[2].Name)
-		assert.Equal(t, Name, items[3].Name)
+		assert.Equal(t, "mock_header_2", units[2].Name)
+		assert.Equal(t, Name, units[3].Name)
 	}
 
 }

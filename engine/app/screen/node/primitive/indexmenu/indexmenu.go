@@ -122,7 +122,7 @@ func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
 	vm.Kernel.Push(
-		indexmenu.ToDrawable(),
+		indexmenu.ToUnit(),
 	)
 
 	index := math.SubClampZeroAs[int, uint16](len(c.options), 1)
@@ -130,8 +130,8 @@ func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
 	text := c.options[option].Label.Text
 
 	vm.Footer.Push(
-		inputline.DrawableFromDrawable(
-			drain.DrawableFromString(text),
+		inputline.UnitFromUnit(
+			drain.UnitFromString(text),
 		),
 	)
 

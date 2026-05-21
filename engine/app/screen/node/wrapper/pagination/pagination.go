@@ -181,7 +181,7 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 	}
 
 	vm.Footer.Unshift(
-		drain.DrawableFromLines(footer...).
+		drain.UnitFromLines(footer...).
 			AddTag(screen.SystemMetaTag),
 	)
 

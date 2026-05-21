@@ -231,7 +231,7 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
 	vm.Kernel.Push(
-		indexmenu.ToDrawable(),
+		indexmenu.ToUnit(),
 	)
 
 	vm.Pager.SetPredicate(
@@ -243,8 +243,8 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 	text := c.options[option].Label.Text
 
 	vm.Footer.Push(
-		inputline.DrawableFromDrawable(
-			drain.DrawableFromString(text),
+		inputline.UnitFromUnit(
+			drain.UnitFromString(text),
 		),
 	)
 

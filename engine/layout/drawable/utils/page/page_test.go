@@ -20,20 +20,20 @@ func TestNewPageRenderer_NoEngineCall(t *testing.T) {
 		Rows: 5,
 	}
 
-	mock := pager_test.MockStrategy{
+	mockStrategy := pager_test.MockStrategy{
 		PredicateBool: false,
 	}
 
-	strategy := mock.ToStrategy()
+	strategy := mockStrategy.ToStrategy()
 
-	m := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 1),
 	}
 
 	renderer := NewPageRenderer(strategy)
-	status := renderer(uiState, size, m.ToDrawable())
+	status := renderer(uiState, size, mock.ToUnit())
 
-	assert.Equal(t, 0, mock.EngineCall)
+	assert.Equal(t, 0, mockStrategy.EngineCall)
 	assert.True(t, status.Work.Finished())
 	assert.False(t, status.IsFull())
 }
@@ -45,7 +45,7 @@ func TestNewPageRenderer_EngineCall(t *testing.T) {
 		Rows: 5,
 	}
 
-	mock := &pager_test.MockStrategy{
+	mockStrategy := &pager_test.MockStrategy{
 		PredicateBool: false,
 		EngineFunc: func(dc *draw.DrawContext, ds *draw.DrawState) *draw.DrawState {
 			ds.Reset()
@@ -53,17 +53,18 @@ func TestNewPageRenderer_EngineCall(t *testing.T) {
 			return ds
 		},
 	}
-	strategy := mock.ToStrategy()
+	
+	strategy := mockStrategy.ToStrategy()
 
-	m := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 7),
 		Batch: 5,
 	}
 
 	renderer := NewPageRenderer(strategy)
-	status := renderer(uiState, size, m.ToDrawable())
+	status := renderer(uiState, size, mock.ToUnit())
 
-	assert.Equal(t, 1, mock.EngineCall)
+	assert.Equal(t, 1, mockStrategy.EngineCall)
 	assert.Equal(t, 1, status.Page)
 	assert.True(t, status.Work.Finished())
 	assert.False(t, status.IsFull())
@@ -76,22 +77,22 @@ func TestNewPageRenderer_EarlyPredicate(t *testing.T) {
 		Rows: 5,
 	}
 
-	mock := &pager_test.MockStrategy{
+	mockStrategy := &pager_test.MockStrategy{
 		PredicateBool: true,
 	}
 
-	strategy := mock.ToStrategy()
+	strategy := mockStrategy.ToStrategy()
 
-	m := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: make([]text.Line, 10),
 		Batch: 5,
 	}
 
 	renderer := NewPageRenderer(strategy)
-	status := renderer(uiState, size, m.ToDrawable())
+	status := renderer(uiState, size, mock.ToUnit())
 
-	assert.Equal(t, 0, mock.EngineCall)
-	assert.Equal(t, 1, mock.PredicateCall)
+	assert.Equal(t, 0, mockStrategy.EngineCall)
+	assert.Equal(t, 1, mockStrategy.PredicateCall)
 	assert.True(t, status.Work.Unfinished())
 	assert.True(t, status.IsFull())
 }
@@ -103,7 +104,7 @@ func TestNewPageRenderer_WithLineOverflow(t *testing.T) {
 		Rows: 2,
 	}
 
-	mock := &pager_test.MockStrategy{
+	mockStrategy := &pager_test.MockStrategy{
 		EngineFunc: func(dc *draw.DrawContext, ds *draw.DrawState) *draw.DrawState {
 			ds.Reset()
 			ds.Page += 1
@@ -113,9 +114,10 @@ func TestNewPageRenderer_WithLineOverflow(t *testing.T) {
 			return pc.Page == 2
 		},
 	}
-	strategy := mock.ToStrategy()
 
-	m := &drawable_test.MockDrawable{
+	strategy := mockStrategy.ToStrategy()
+
+	mock := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("golang"),
 			*text.NewLine("ziglang"),
@@ -125,9 +127,9 @@ func TestNewPageRenderer_WithLineOverflow(t *testing.T) {
 	}
 
 	renderer := NewPageRenderer(strategy)
-	status := renderer(uiState, size, m.ToDrawable())
+	status := renderer(uiState, size, mock.ToUnit())
 
-	assert.Equal(t, 2, mock.EngineCall)
+	assert.Equal(t, 2, mockStrategy.EngineCall)
 	assert.Equal(t, 2, status.Page)
 	assert.True(t, status.Work.Unfinished())
 	assert.True(t, status.IsFull())

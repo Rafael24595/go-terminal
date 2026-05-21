@@ -11,11 +11,11 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const NameMockDrawable = "mock_drawable"
+const NameMockUnit = "mock_unit"
 
-type MockDrawable struct {
+//TODO: Refactor
+type MockUnit struct {
 	Order      int
-	Code       string
 	Tags       set.Set[string]
 	Name       string
 	InitCalled bool
@@ -28,15 +28,15 @@ type MockDrawable struct {
 	Size       winsize.Winsize
 }
 
-func (m *MockDrawable) Init() {
+func (m *MockUnit) Init() {
 	m.InitCalled = true
 }
 
-func (m *MockDrawable) Wipe() {
+func (m *MockUnit) Wipe() {
 	m.WipeCalled = true
 }
 
-func (m *MockDrawable) Draw(size winsize.Winsize) ([]text.Line, bool) {
+func (m *MockUnit) Draw(size winsize.Winsize) ([]text.Line, bool) {
 	m.DrawCalls++
 	m.Size = size
 
@@ -56,46 +56,37 @@ func (m *MockDrawable) Draw(size winsize.Winsize) ([]text.Line, bool) {
 	return data, len(m.queue) > 0
 }
 
-func (m *MockDrawable) ToDrawable() drawable.Drawable {
-	name := NameMockDrawable
+func (m *MockUnit) ToUnit() drawable.Unit {
+	name := NameMockUnit
 	if m.Name != "" {
 		name = m.Name
 	}
 
-	return drawable.Drawable{
-		Name: name,
-		Code: m.Code,
-		Tags: m.Tags,
-		Init: m.Init,
-		Wipe: m.Wipe,
-		Draw: m.Draw,
-	}
+	return drawable.NewBuilder().
+		Name(name).
+		MergeTags(m.Tags).
+		Init(m.Init).
+		Wipe(m.Wipe).
+		Draw(m.Draw).
+		ToUnit()
 }
 
-func Test_DrawableBasicSuite(t *testing.T, dw drawable.Drawable) {
+func Test_UnitBasicSuite(t *testing.T, unit drawable.Unit) {
 	t.Helper()
 
-	Helper_ToDrawable(t, dw)
+	Helper_ToUnit(t, unit)
 	assert.Panic(t, func() {
-		dw.Draw(winsize.Winsize{})
+		unit.Drawable.Draw(winsize.Winsize{})
 	})
 }
 
-func Helper_ToDrawable(t *testing.T, drawable drawable.Drawable) {
+func Helper_ToUnit(t *testing.T, unit drawable.Unit) {
 	t.Helper()
 
-	assert.NotEqual(t, "", drawable.Name, "Drawable.Name should be set")
-	assert.NotNil(t, drawable.Code, "Drawable.Code should be set")
-	assert.True(t, len(drawable.Tags) >= 0, "Drawable.Tags should be set")
-	assert.NotNil(t, drawable.Init, "Drawable.Init should be set")
-	assert.NotNil(t, drawable.Wipe, "Drawable.Wipe should be set")
-	assert.NotNil(t, drawable.Draw, "Drawable.Draw should be set")
-}
+	assert.NotEqual(t, "", unit.Name, "Unit.Name should be set")
+	assert.True(t, len(unit.Tags) >= 0, "Unit.Tags should be set")
 
-func Helper_IsDrawableNil(t *testing.T, drawable drawable.Drawable) bool {
-	t.Helper()
-
-	return drawable.Init == nil &&
-		drawable.Wipe == nil &&
-		drawable.Draw == nil
+	assert.NotNil(t, unit.Drawable.Init, "Drawable.Init should be set")
+	assert.NotNil(t, unit.Drawable.Wipe, "Drawable.Wipe should be set")
+	assert.NotNil(t, unit.Drawable, "Drawable.Draw should be set")
 }

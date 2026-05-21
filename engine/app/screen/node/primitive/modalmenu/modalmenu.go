@@ -124,7 +124,7 @@ func (c *ModalMenu) view(_ state.UIState) viewmodel.ViewModel {
 		AddText(c.text...).
 		AddOptions(frags...).
 		DefineCursor(c.cursor).
-		ToDrawable()
+		ToUnit()
 
 	vm.Kernel.Push(modal)
 

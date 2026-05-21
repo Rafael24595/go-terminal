@@ -25,13 +25,13 @@ func TestStandard_FixedAndPaged(t *testing.T) {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		drain.DrawableFromLines(
+		drain.UnitFromLines(
 			*text.NewLine("HEADER", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Kernel.Push(
-		line.DrawableFromLines(
+		line.UnitFromLines(
 			*text.NewLine("=", style.SpecFromKind(style.SpcKindFill)),
 			*text.NewLine("LINE TWO", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			*text.NewLine("LINE THREE IS LONG", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -40,7 +40,7 @@ func TestStandard_FixedAndPaged(t *testing.T) {
 	)
 
 	frag := text.FragmentsFromString("INPUT")
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Status: false,
 		Lines: []text.Line{
 			*text.LineFromFragments(frag...),
@@ -48,8 +48,8 @@ func TestStandard_FixedAndPaged(t *testing.T) {
 	}
 
 	vm.Footer.Unshift(
-		inputline.DrawableFromDrawable(
-			mock.ToDrawable(),
+		inputline.UnitFromUnit(
+			mock.ToUnit(),
 		),
 	)
 
@@ -88,13 +88,13 @@ func TestStandard_MultiplePages(t *testing.T) {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.Push(
-		drain.DrawableFromLines(
+		drain.UnitFromLines(
 			*text.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 	)
 
 	vm.Kernel.Push(
-		line.DrawableFromLines(
+		line.UnitFromLines(
 			*text.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			*text.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
 			*text.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindPaddingLeft)),
@@ -103,7 +103,7 @@ func TestStandard_MultiplePages(t *testing.T) {
 	)
 
 	frag := text.FragmentsFromString("X")
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Status: false,
 		Lines: []text.Line{
 			*text.LineFromFragments(frag...),
@@ -111,8 +111,8 @@ func TestStandard_MultiplePages(t *testing.T) {
 	}
 
 	vm.Footer.Unshift(
-		inputline.DrawableFromDrawable(
-			mock.ToDrawable(),
+		inputline.UnitFromUnit(
+			mock.ToUnit(),
 		),
 	)
 
@@ -122,8 +122,8 @@ func TestStandard_MultiplePages(t *testing.T) {
 	assert.Equal(t, "H", lines0[0].Text[0].Text)
 	assert.Equal(t, "> X", text.LineToString(&lines0[len(lines0)-1]))
 
-	header := vm.Header.ToDrawable()
-	header.Init()
+	header := vm.Header.ToUnit()
+	header.Drawable.Init()
 
 	stt.Pager.TargetPage = 1
 	_, lines1 := Standard(stt, *vm, size)
@@ -141,26 +141,26 @@ func TestStandard_InitializeLayers(t *testing.T) {
 	vm := viewmodel.NewViewModel()
 
 	vm.Header.PushChunk(
-		drain.DrawableFromLines(
+		drain.UnitFromLines(
 			*text.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 		chunk.Fixed[winsize.Rows](1),
 	)
 	vm.Kernel.PushChunk(
-		line.DrawableFromLines(
+		line.UnitFromLines(
 			*text.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 		chunk.Fixed[winsize.Rows](1),
 	)
 	vm.Footer.PushChunk(
-		drain.DrawableFromLines(
+		drain.UnitFromLines(
 			*text.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
 		chunk.Fixed[winsize.Rows](1),
 	)
 
 	frag := text.FragmentsFromString("X")
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Status: false,
 		Lines: []text.Line{
 			*text.LineFromFragments(frag...),
@@ -168,8 +168,8 @@ func TestStandard_InitializeLayers(t *testing.T) {
 	}
 
 	vm.Footer.Unshift(
-		inputline.DrawableFromDrawable(
-			mock.ToDrawable(),
+		inputline.UnitFromUnit(
+			mock.ToUnit(),
 		),
 	)
 

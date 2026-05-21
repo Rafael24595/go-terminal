@@ -8,18 +8,18 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestBox_DrawableBasicSuite(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	dw := DrawableFromDrawable(mock.ToDrawable())
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestBox_UnitBasicSuite(t *testing.T) {
+	mock := &drawable_test.MockUnit{}
+	unit := UnitFromUnit(mock.ToUnit())
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }
 
-func TestBoxDrawable_Init_ShouldPropagateToChild(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	bd := New(mock.ToDrawable())
+func TestBox_Init_ShouldPropagateToChild(t *testing.T) {
+	mock := &drawable_test.MockUnit{}
+	unit := New(mock.ToUnit())
 
-	bd.init()
+	unit.init()
 
-	assert.True(t, bd.loaded)
+	assert.True(t, unit.loaded)
 	assert.True(t, mock.InitCalled)
 }

@@ -73,9 +73,9 @@ func makeTextArea() screen.Node {
 }
 
 func wrapStep(vm viewmodel.ViewModel) viewmodel.ViewModel {
-	kernel := vm.Kernel.ToDrawable()
+	kernel := vm.Kernel.ToUnit()
 
-	pageStep := pageDrawable()
+	pageStep := pageTransformer()
 
 	paddingX := padding.ColsDrawTransformer(
 		hint.Maximize[winsize.Cols](),
@@ -93,17 +93,17 @@ func wrapStep(vm viewmodel.ViewModel) viewmodel.ViewModel {
 			paddingY,
 			paddingX,
 		).
-		ToDrawable()
+		ToUnit()
 
 	box := box.New(paddingPip).
 		PaddingY(0).
 		PaddingX(1).
-		ToDrawable()
+		ToUnit()
 
 	metadataPip := drawable_pipeline.New(box).
 		SetDrawStep(addTopSpacer).
 		PushDataSteps(wipe.DataTransformer()).
-		ToDrawable()
+		ToUnit()
 
 	vm.Kernel = stack.NewVStack().
 		Push(metadataPip)
@@ -111,9 +111,9 @@ func wrapStep(vm viewmodel.ViewModel) viewmodel.ViewModel {
 	return vm
 }
 
-func addTopSpacer(size winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
+func addTopSpacer(size winsize.Winsize, unit drawable.Unit) ([]text.Line, bool) {
 	if size.Rows < 3 {
-		return drawable.Draw(size)
+		return unit.Drawable.Draw(size)
 	}
 
 	fixedSize := winsize.New(
@@ -121,14 +121,14 @@ func addTopSpacer(size winsize.Winsize, drawable drawable.Drawable) ([]text.Line
 		size.Cols,
 	)
 
-	lines, hasNext := drawable.Draw(fixedSize)
+	lines, hasNext := unit.Drawable.Draw(fixedSize)
 	return append([]text.Line{*text.LineJump()}, lines...), hasNext
 }
 
-func pageDrawable() drawable_pipeline.DrawTransformer {
+func pageTransformer() drawable_pipeline.DrawTransformer {
 	engine := pager.EngineScroll()
-	return func(winsize winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
+	return func(winsize winsize.Winsize, unit drawable.Unit) ([]text.Line, bool) {
 		transformer := focus.DrawTransformer(engine)
-		return transformer(winsize, drawable)
+		return transformer(winsize, unit)
 	}
 }

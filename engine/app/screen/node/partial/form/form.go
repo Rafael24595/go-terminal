@@ -162,15 +162,15 @@ func (c *Form) view(stt state.UIState) viewmodel.ViewModel {
 	//TODO: Manage the master paging screen.
 	for _, i := range c.items {
 		cvm := i.node.Screen.View(stt)
-		dw := cvm.Kernel.ToDrawable()
-		vm.Kernel.PushChunk(dw, i.chunk)
+		unit := cvm.Kernel.ToUnit()
+		vm.Kernel.PushChunk(unit, i.chunk)
 	}
 
 	if focus, ok := c.focusItem(); ok {
 		label := focus.node.Name
 		vm.Footer.Push(
-			inputline.DrawableFromDrawable(
-				drain.DrawableFromString(label),
+			inputline.UnitFromUnit(
+				drain.UnitFromString(label),
 			),
 		)
 	}

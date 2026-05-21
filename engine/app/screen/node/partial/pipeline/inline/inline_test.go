@@ -26,16 +26,16 @@ func findAccesor(t *testing.T, s pipeline.Section) pipeline.StackAccessor {
 	return acc
 }
 
-func TestInline_GroupDrawables_NoMatches(t *testing.T) {
+func TestInline_GroupUnits_NoMatches(t *testing.T) {
 	meta := pipeline.NewFilter(
-		pipeline.Code, "x",
+		pipeline.Name, "x",
 	)
 
-	mc1 := drawable_test.MockDrawable{
-		Code: "a",
+	mock1 := drawable_test.MockUnit{
+		Name: "a",
 	}
-	mc2 := drawable_test.MockDrawable{
-		Code: "b",
+	mock2 := drawable_test.MockUnit{
+		Name: "b",
 	}
 
 	for _, v := range targets {
@@ -43,31 +43,31 @@ func TestInline_GroupDrawables_NoMatches(t *testing.T) {
 
 		acc := findAccesor(t, v)
 		acc.Get(vm).Push(
-			mc1.ToDrawable(),
-			mc2.ToDrawable(),
+			mock1.ToUnit(),
+			mock2.ToUnit(),
 		)
 
 		transformer := Transformer("|", meta, v, pipeline.After)
 		vm = transformer(vm)
 
-		items := acc.Get(vm).Items()
+		units := acc.Get(vm).Units()
 
-		assert.Equal(t, 2, len(items))
-		assert.Equal(t, "a", items[0].Code)
-		assert.Equal(t, "b", items[1].Code)
+		assert.Equal(t, 2, len(units))
+		assert.Equal(t, "a", units[0].Name)
+		assert.Equal(t, "b", units[1].Name)
 	}
 }
 
-func TestInline_GroupDrawables_ByCode(t *testing.T) {
+func TestInline_GroupUnits_ByCode(t *testing.T) {
 	meta := pipeline.NewFilter(
-		pipeline.Code, "a",
+		pipeline.Name, "a",
 	)
 
-	mc1 := drawable_test.MockDrawable{
-		Code: "a",
+	mock1 := drawable_test.MockUnit{
+		Name: "a",
 	}
-	mc2 := drawable_test.MockDrawable{
-		Code: "b",
+	mock2 := drawable_test.MockUnit{
+		Name: "b",
 	}
 
 	for _, v := range targets {
@@ -75,30 +75,30 @@ func TestInline_GroupDrawables_ByCode(t *testing.T) {
 
 		acc := findAccesor(t, v)
 		acc.Get(vm).Push(
-			mc1.ToDrawable(),
-			mc2.ToDrawable(),
+			mock1.ToUnit(),
+			mock2.ToUnit(),
 		)
 
 		transformer := Transformer("|", meta, v, pipeline.Before)
 		vm = transformer(vm)
 
-		items := acc.Get(vm).Items()
+		units := acc.Get(vm).Units()
 
-		assert.Equal(t, 2, len(items))
-		assert.Equal(t, "b", items[0].Code)
-		assert.Equal(t, Name, items[1].Name)
+		assert.Equal(t, 2, len(units))
+		assert.Equal(t, "b", units[0].Name)
+		assert.Equal(t, Name, units[1].Name)
 	}
 }
 
-func TestInline_GroupDrawables_ByTags(t *testing.T) {
+func TestInline_GroupUnits_ByTags(t *testing.T) {
 	meta := pipeline.NewFilter(
 		pipeline.Tags, "a",
 	)
 
-	mc1 := drawable_test.MockDrawable{
+	mock1 := drawable_test.MockUnit{
 		Tags: set.SetFrom("a"),
 	}
-	mc2 := drawable_test.MockDrawable{
+	mock2 := drawable_test.MockUnit{
 		Tags: set.SetFrom("b"),
 	}
 
@@ -107,33 +107,33 @@ func TestInline_GroupDrawables_ByTags(t *testing.T) {
 
 		acc := findAccesor(t, v)
 		acc.Get(vm).Push(
-			mc1.ToDrawable(),
-			mc2.ToDrawable(),
+			mock1.ToUnit(),
+			mock2.ToUnit(),
 		)
 
 		transformer := Transformer("|", meta, v, pipeline.Before)
 		vm = transformer(vm)
 
-		items := acc.Get(vm).Items()
+		units := acc.Get(vm).Units()
 
-		assert.Equal(t, 2, len(items))
-		assert.Equal(t, Name, items[1].Name)
+		assert.Equal(t, 2, len(units))
+		assert.Equal(t, Name, units[1].Name)
 	}
 }
 
-func TestInline_GroupDrawables_MultipleMatches(t *testing.T) {
+func TestInline_GroupUnits_MultipleMatches(t *testing.T) {
 	meta := pipeline.NewFilter(
-		pipeline.Code, "a",
+		pipeline.Name, "a",
 	)
 
-	mc1 := drawable_test.MockDrawable{
-		Code: "a",
+	mock1 := drawable_test.MockUnit{
+		Name: "a",
 	}
-	mc2 := drawable_test.MockDrawable{
-		Code: "b",
+	mock2 := drawable_test.MockUnit{
+		Name: "b",
 	}
-	mc3 := drawable_test.MockDrawable{
-		Code: "a",
+	mock3 := drawable_test.MockUnit{
+		Name: "a",
 	}
 
 	for _, v := range targets {
@@ -141,18 +141,18 @@ func TestInline_GroupDrawables_MultipleMatches(t *testing.T) {
 
 		acc := findAccesor(t, v)
 		acc.Get(vm).Push(
-			mc1.ToDrawable(),
-			mc2.ToDrawable(),
-			mc3.ToDrawable(),
+			mock1.ToUnit(),
+			mock2.ToUnit(),
+			mock3.ToUnit(),
 		)
 
 		transformer := Transformer("|", meta, v, pipeline.After)
 		vm = transformer(vm)
 
-		items := acc.Get(vm).Items()
+		units := acc.Get(vm).Units()
 
-		assert.Equal(t, 2, len(items))
-		assert.Equal(t, Name, items[0].Name)
-		assert.Equal(t, "b", items[1].Code)
+		assert.Equal(t, 2, len(units))
+		assert.Equal(t, Name, units[0].Name)
+		assert.Equal(t, "b", units[1].Name)
 	}
 }

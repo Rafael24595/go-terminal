@@ -8,7 +8,7 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestCheckMenu_DrawableBasicSuite(t *testing.T) {
-	dw := DrawableFromOptions([]input.CheckOption{})
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestCheckMenu_UnitBasicSuite(t *testing.T) {
+	unit := UnitFromOptions([]input.CheckOption{})
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }

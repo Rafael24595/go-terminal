@@ -1,15 +1,15 @@
-package drawable_test
+package drain
 
 import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestDrainDrawable_WithMock(t *testing.T) {
+func TestDrainUnit_WithMock(t *testing.T) {
 	tests := []struct {
 		name          string
 		rows          winsize.Rows
@@ -47,7 +47,7 @@ func TestDrainDrawable_WithMock(t *testing.T) {
 			wantDrawCalls: 2,
 		},
 		{
-			name:          "Lazy_StopWhenDrawableIsExhaustedBeforeLimit",
+			name:          "Lazy_StopWhenUnitIsExhaustedBeforeLimit",
 			rows:          10,
 			batch:         2,
 			lines:         4,
@@ -65,7 +65,7 @@ func TestDrainDrawable_WithMock(t *testing.T) {
 			wantDrawCalls: 0,
 		},
 		{
-			name:          "EdgeCase_EmptyDrawable",
+			name:          "EdgeCase_EmptyUnit",
 			rows:          10,
 			batch:         5,
 			lines:         0,
@@ -77,7 +77,7 @@ func TestDrainDrawable_WithMock(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &MockDrawable{
+			m := &drawable_test.MockUnit{
 				Lines: make([]text.Line, tt.lines),
 				Batch: tt.batch,
 			}
@@ -87,7 +87,7 @@ func TestDrainDrawable_WithMock(t *testing.T) {
 				Rows: tt.rows,
 			}
 
-			got, _ := drain.Drawable(size, m.ToDrawable(), tt.lazy)
+			got, _ := Unit(size, m.ToUnit(), tt.lazy)
 
 			assert.Len(t, tt.wantLines, got)
 			assert.Equal(t, tt.wantDrawCalls, m.DrawCalls)

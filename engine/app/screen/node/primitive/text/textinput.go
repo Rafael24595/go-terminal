@@ -118,7 +118,7 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 	)
 
 	pipeline := c.makePipeline(
-		textarea.ToDrawable(),
+		textarea.ToUnit(),
 	)
 
 	position := c.makePosition(
@@ -128,7 +128,7 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 	if len(c.label) != 0 {
 		frags := append(c.label, *text.NewFragment(": "))
 		vm.Kernel.Push(
-			drain.DrawableFromFragments(frags...),
+			drain.UnitFromFragments(frags...),
 		)
 	}
 
@@ -139,31 +139,31 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 	return *vm
 }
 
-func (c *TextInput) makePipeline(drawable drawable.Drawable) drawable.Drawable {
-	pageStep := pageDrawable()
+func (c *TextInput) makePipeline(unit drawable.Unit) drawable.Unit {
+	pageStep := pageTransformer()
 
 	paddingStep := padding.ColsDrawTransformer(
 		hint.Fixed(c.limit),
 		style.Left,
 	)
 
-	return pipeline.New(drawable).
+	return pipeline.New(unit).
 		SetDrawStep(pageStep).
 		PushDataSteps(paddingStep).
-		ToDrawable()
+		ToUnit()
 }
 
-func (c *TextInput) makePosition(drawable drawable.Drawable) drawable.Drawable {
-	box := box.New(drawable).
+func (c *TextInput) makePosition(unit drawable.Unit) drawable.Unit {
+	box := box.New(unit).
 		PaddingY(0).
 		PaddingX(1).
-		ToDrawable()
+		ToUnit()
 
 	return position.New(box).
 		PositionY(style.Top).
 		PositionX(style.Left).
 		MarginX(0).
-		ToDrawable()
+		ToUnit()
 }
 
 func limitRows(size winsize.Winsize) winsize.Winsize {
@@ -173,13 +173,13 @@ func limitRows(size winsize.Winsize) winsize.Winsize {
 	)
 }
 
-func pageDrawable() pipeline.DrawTransformer {
+func pageTransformer() pipeline.DrawTransformer {
 	engine := pager.EngineScroll()
-	return func(winsize winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
+	return func(winsize winsize.Winsize, unit drawable.Unit) ([]text.Line, bool) {
 		transformer := focus.DrawTransformer(engine)
 		return transformer(
 			limitRows(winsize),
-			drawable,
+			unit,
 		)
 	}
 }

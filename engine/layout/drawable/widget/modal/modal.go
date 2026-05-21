@@ -14,67 +14,65 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const Name = "modal_drawable"
+const Name = "modal_unit"
 
-type ModalDrawable struct {
+type ModalUnit struct {
 	loaded     bool
 	lazyLoaded bool
 	text       []text.Line
 	options    []text.Fragment
 	limit      uint
 	cursor     uint16
-	drawable   drawable.Drawable
+	unit       drawable.Unit
 }
 
-func New() *ModalDrawable {
-	return &ModalDrawable{
+func New() *ModalUnit {
+	return &ModalUnit{
 		loaded:     false,
 		lazyLoaded: false,
 		text:       make([]text.Line, 0),
 		options:    make([]text.Fragment, 0),
 		limit:      style.DefaultMaxOpts,
 		cursor:     0,
-		drawable:   drawable.Drawable{},
+		unit:       drawable.Unit{},
 	}
 }
 
-func (d *ModalDrawable) AddText(text ...text.Line) *ModalDrawable {
+func (d *ModalUnit) AddText(text ...text.Line) *ModalUnit {
 	d.text = append(d.text, text...)
 	return d
 }
 
-func (d *ModalDrawable) AddOptions(options ...text.Fragment) *ModalDrawable {
+func (d *ModalUnit) AddOptions(options ...text.Fragment) *ModalUnit {
 	d.options = append(d.options, options...)
 	return d
 }
 
-func (d *ModalDrawable) DefineLimit(limit uint) *ModalDrawable {
+func (d *ModalUnit) DefineLimit(limit uint) *ModalUnit {
 	d.limit = limit
 	return d
 }
 
-func (d *ModalDrawable) DefineCursor(cursor uint16) *ModalDrawable {
+func (d *ModalUnit) DefineCursor(cursor uint16) *ModalUnit {
 	d.cursor = cursor
 	return d
 }
 
-func (d *ModalDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: d.drawable.Code,
-		Tags: d.drawable.Tags,
-		Init: d.init,
-		Wipe: d.wipe,
-		Draw: d.draw,
-	}
+func (d *ModalUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		Init(d.init).
+		Wipe(d.wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *ModalDrawable) init() {
+func (d *ModalUnit) init() {
 	d.loaded = true
 	d.lazyLoaded = false
 }
 
-func (d *ModalDrawable) lazyInit(size winsize.Winsize) {
+func (d *ModalUnit) lazyInit(size winsize.Winsize) {
 	if d.lazyLoaded {
 		return
 	}
@@ -96,18 +94,18 @@ func (d *ModalDrawable) lazyInit(size winsize.Winsize) {
 	cols := text.MaxLineMeasure(size.Cols, d.text...) + 1
 	text := formatLines(d.text...)
 
-	title := drain.DrawableFromLines(text...)
+	title := drain.UnitFromLines(text...)
 
 	options := justify.New(opts).
 		MaxCols(cols).
-		ToDrawable()
+		ToUnit()
 
-	optionsBlock := drain.Drawable(options)
+	optionsBlock := drain.Unit(options)
 
-	title.Init()
-	optionsBlock.Init()
+	title.Drawable.Init()
+	optionsBlock.Drawable.Init()
 
-	stack := stack.VStackDrawableFromDrawables(
+	stack := stack.VStackFromUnits(
 		title,
 		optionsBlock,
 	)
@@ -115,30 +113,30 @@ func (d *ModalDrawable) lazyInit(size winsize.Winsize) {
 	box := box.New(stack).
 		PaddingX(1).
 		PaddingY(1).
-		ToDrawable()
+		ToUnit()
 
-	position := position.DrawableFromDrawable(box)
-	position.Init()
+	position := position.UnitFromUnit(box)
+	position.Drawable.Init()
 
-	d.drawable = position
+	d.unit = position
 }
 
-func (d *ModalDrawable) wipe() {
+func (d *ModalUnit) wipe() {
 	d.lazyLoaded = false
 
-	if d.drawable.Wipe == nil {
+	if d.unit.Drawable.Wipe == nil {
 		return
 	}
 
-	d.drawable.Wipe()
+	d.unit.Drawable.Wipe()
 }
 
-func (d *ModalDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *ModalUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	d.lazyInit(size)
 
-	return d.drawable.Draw(size)
+	return d.unit.Drawable.Draw(size)
 }
 
 func formatLines(lines ...text.Line) []text.Line {

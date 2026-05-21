@@ -50,7 +50,7 @@ func (c *Article) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
 	vm.Kernel.Push(
-		line.DrawableFromLines(c.article...),
+		line.UnitFromLines(c.article...),
 	)
 
 	return *vm

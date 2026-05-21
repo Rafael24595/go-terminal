@@ -15,55 +15,53 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const Name = "index_menu_drawable"
+const Name = "index_menu_unit"
 
-type IndexMenuDrawable struct {
-	loaded   bool
-	meta     marker.IndexMeta
-	options  []text.Fragment
-	cursor   uint16
-	drawable drawable.Drawable
+type IndexMenuUnit struct {
+	loaded  bool
+	meta    marker.IndexMeta
+	options []text.Fragment
+	cursor  uint16
+	unit    drawable.Unit
 }
 
-func New(options []text.Fragment) *IndexMenuDrawable {
+func New(options []text.Fragment) *IndexMenuUnit {
 	clone := make([]text.Fragment, len(options))
 	copy(clone, options)
 
-	return &IndexMenuDrawable{
-		loaded:   false,
-		meta:     marker.HyphenIndex,
-		options:  clone,
-		cursor:   0,
-		drawable: drawable.Drawable{},
+	return &IndexMenuUnit{
+		loaded:  false,
+		meta:    marker.HyphenIndex,
+		options: clone,
+		cursor:  0,
+		unit:    drawable.Unit{},
 	}
 }
 
-func DrawableFromOptions(options []text.Fragment) drawable.Drawable {
-	return New(options).ToDrawable()
+func UnitFromOptions(options []text.Fragment) drawable.Unit {
+	return New(options).ToUnit()
 }
 
-func (d *IndexMenuDrawable) Meta(meta marker.IndexMeta) *IndexMenuDrawable {
+func (d *IndexMenuUnit) Meta(meta marker.IndexMeta) *IndexMenuUnit {
 	d.meta = meta
 	return d
 }
 
-func (d *IndexMenuDrawable) Cursor(cursor uint16) *IndexMenuDrawable {
+func (d *IndexMenuUnit) Cursor(cursor uint16) *IndexMenuUnit {
 	d.cursor = cursor
 	return d
 }
 
-func (d *IndexMenuDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: d.drawable.Code,
-		Tags: d.drawable.Tags,
-		Init: d.init,
-		Wipe: d.wipe,
-		Draw: d.draw,
-	}
+func (d *IndexMenuUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		Init(d.init).
+		Wipe(d.wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *IndexMenuDrawable) init() {
+func (d *IndexMenuUnit) init() {
 	d.loaded = true
 
 	lines := make([]text.Line, 0)
@@ -88,13 +86,13 @@ func (d *IndexMenuDrawable) init() {
 		)
 	}
 
-	drawable := drain.DrawableFromLines(lines...)
-	drawable.Init()
+	unit := drain.UnitFromLines(lines...)
+	unit.Drawable.Init()
 
-	d.drawable = drawable
+	d.unit = unit
 }
 
-func (d *IndexMenuDrawable) makeIndex(cursor int, digits winsize.Cols) *text.Fragment {
+func (d *IndexMenuUnit) makeIndex(cursor int, digits winsize.Cols) *text.Fragment {
 	if d.meta.Kind == marker.Numeric {
 		txt := helper.Right(strconv.Itoa(cursor+1), digits)
 		index := text.NewFragment(txt + ".- ")
@@ -121,15 +119,15 @@ func (d *IndexMenuDrawable) makeIndex(cursor int, digits winsize.Cols) *text.Fra
 	return text.NewFragment(index)
 }
 
-func (d *IndexMenuDrawable) wipe() {
-	if d.drawable.Wipe == nil {
+func (d *IndexMenuUnit) wipe() {
+	if d.unit.Drawable.Wipe == nil {
 		return
 	}
-	d.drawable.Wipe()
+	d.unit.Drawable.Wipe()
 }
 
-func (d *IndexMenuDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *IndexMenuUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
-	return d.drawable.Draw(size)
+	return d.unit.Drawable.Draw(size)
 }

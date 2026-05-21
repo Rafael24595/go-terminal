@@ -10,40 +10,40 @@ import (
 const NameWipe = "wipe_pipeline"
 
 func InitTransformer() pipeline.InitTransformer {
-	return func(size winsize.Winsize, drawable drawable.Drawable) drawable.Drawable {
-		drawable.Wipe()
-		return drawable
+	return func(size winsize.Winsize, unit drawable.Unit) drawable.Unit {
+		unit.Drawable.Wipe()
+		return unit
 	}
 }
 
 func DrawTransformer() pipeline.DrawTransformer {
 	transformer := DataTransformer()
-	return func(size winsize.Winsize, drawable drawable.Drawable) ([]text.Line, bool) {
-		lines, hasNext := drawable.Draw(size)
-		return transformer(size, drawable, lines, hasNext)
+	return func(size winsize.Winsize, unit drawable.Unit) ([]text.Line, bool) {
+		lines, hasNext := unit.Drawable.Draw(size)
+		return transformer(size, unit, lines, hasNext)
 	}
 }
 
 func DataTransformer() pipeline.DataTransformer {
-	return func(_ winsize.Winsize, drawable drawable.Drawable, lines []text.Line, hasNext bool) ([]text.Line, bool) {
+	return func(_ winsize.Winsize, unit drawable.Unit, lines []text.Line, hasNext bool) ([]text.Line, bool) {
 		if len(lines) == 0 {
 			return lines, hasNext
 		}
 
 		if !hasNext {
-			drawable.Wipe()
+			unit.Drawable.Wipe()
 		}
 
 		return lines, true
 	}
 }
 
-func Drawable(drawable drawable.Drawable) drawable.Drawable {
-	drw := pipeline.New(drawable).
+func Drawable(unit drawable.Unit) drawable.Unit {
+	unt := pipeline.New(unit).
 		SetDrawStep(DrawTransformer()).
-		ToDrawable()
+		ToUnit()
 
-	drw.Name = NameWipe
-	return drw
+	unt.Name = NameWipe
+	return unt
 }
 

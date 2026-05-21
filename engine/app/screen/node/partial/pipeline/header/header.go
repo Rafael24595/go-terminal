@@ -11,15 +11,15 @@ import (
 const Name = "header_transformer"
 
 func Transformer(placement pipeline.Placement, lines ...text.Line) pipeline.Transformer {
-	drawable := drain.DrawableFromLines(lines...)
-	drawable.Name = Name
+	unit := drain.UnitFromLines(lines...)
+	unit.Name = Name
 
 	return func(vm viewmodel.ViewModel) viewmodel.ViewModel {
 		switch placement {
 		case pipeline.Before:
-			vm.Header.Unshift(drawable)
+			vm.Header.Unshift(unit)
 		case pipeline.After:
-			vm.Header.Push(drawable)
+			vm.Header.Push(unit)
 		}
 		return vm
 	}

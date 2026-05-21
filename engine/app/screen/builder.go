@@ -3,8 +3,6 @@ package screen
 import (
 	"fmt"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
-	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 	"github.com/Rafael24595/go-reacterm-core/engine/platform/clock"
 )
@@ -25,9 +23,9 @@ type Builder struct {
 	name       string
 	stack      set.Set[string]
 	children   []Node
-	definition func() Definition
-	update     func(*state.UIState, Event) Result
-	view       func(state.UIState) viewmodel.ViewModel
+	definition DefinitionFunc
+	update     UpdateFunc
+	view       ViewFunc
 }
 
 func NewBuilder() *Builder {
@@ -92,7 +90,6 @@ func (s *Builder) View(view ViewFunc) *Builder {
 	return s
 }
 
-//TODO: Deprecate?
 func (s *Builder) makeTags() set.Set[string] {
 	tags := set.NewSet[string]()
 

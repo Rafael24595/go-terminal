@@ -65,9 +65,9 @@ func renderLine(cols winsize.Cols, mode style.Justify, line text.Line) string {
 	return frags
 }
 
-func TestJustify_DrawableBasicSuite(t *testing.T) {
-	dw := DrawableFromFragments([]text.Fragment{})
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestJustify_UnitBasicSuite(t *testing.T) {
+	unit := UnitFromFragments([]text.Fragment{})
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }
 
 func TestAddGaps_SingleFragment(t *testing.T) {

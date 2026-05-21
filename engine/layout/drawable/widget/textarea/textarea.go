@@ -15,9 +15,9 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/wrap"
 )
 
-const Name = "text_area_drawable"
+const Name = "text_area_unit"
 
-type TextAreaDrawable struct {
+type TextAreaUnit struct {
 	loaded     bool
 	lazyLoaded bool
 	writeMode  bool
@@ -25,14 +25,14 @@ type TextAreaDrawable struct {
 	buffer     []rune
 	caret      *input.TextCursor
 	steps      []Transformer
-	drawable   drawable.Drawable
+	unit       drawable.Unit
 }
 
-func New(buffer []rune, caret *input.TextCursor) *TextAreaDrawable {
+func New(buffer []rune, caret *input.TextCursor) *TextAreaUnit {
 	clone := make([]rune, len(buffer))
 	copy(clone, buffer)
 
-	return &TextAreaDrawable{
+	return &TextAreaUnit{
 		loaded:     false,
 		lazyLoaded: false,
 		writeMode:  false,
@@ -40,42 +40,40 @@ func New(buffer []rune, caret *input.TextCursor) *TextAreaDrawable {
 		buffer:     clone,
 		caret:      caret,
 		steps:      make([]Transformer, 0),
-		drawable:   drawable.Drawable{},
+		unit:       drawable.Unit{},
 	}
 }
 
-func (d *TextAreaDrawable) WriteMode(writeMode bool) *TextAreaDrawable {
+func (d *TextAreaUnit) WriteMode(writeMode bool) *TextAreaUnit {
 	d.writeMode = writeMode
 	return d
 }
 
-func (d *TextAreaDrawable) IndexMode(indexMode bool) *TextAreaDrawable {
+func (d *TextAreaUnit) IndexMode(indexMode bool) *TextAreaUnit {
 	d.indexMode = indexMode
 	return d
 }
 
-func (d *TextAreaDrawable) PushStep(step Transformer) *TextAreaDrawable {
+func (d *TextAreaUnit) PushStep(step Transformer) *TextAreaUnit {
 	d.steps = append(d.steps, step)
 	return d
 }
 
-func (d *TextAreaDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: d.drawable.Code,
-		Tags: d.drawable.Tags,
-		Init: d.init,
-		Wipe: d.wipe,
-		Draw: d.draw,
-	}
+func (d *TextAreaUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		Init(d.init).
+		Wipe(d.wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *TextAreaDrawable) init() {
+func (d *TextAreaUnit) init() {
 	d.loaded = true
 	d.lazyLoaded = false
 }
 
-func (d *TextAreaDrawable) lazyInit(size winsize.Winsize) {
+func (d *TextAreaUnit) lazyInit(size winsize.Winsize) {
 	if d.lazyLoaded {
 		return
 	}
@@ -101,13 +99,13 @@ func (d *TextAreaDrawable) lazyInit(size winsize.Winsize) {
 	lines := d.makeLines(base)
 	lines = wrap.MaterializeEmpty(size, marker.DefaultPaddingText, lines...)
 
-	drawable := line.DrawableFromLayout(lines...)
-	drawable.Init()
+	unit := line.UnitFromLayout(lines...)
+	unit.Drawable.Init()
 
-	d.drawable = drawable
+	d.unit = unit
 }
 
-func (d *TextAreaDrawable) makeLines(base *text.Line) []wrap.LayoutLine {
+func (d *TextAreaUnit) makeLines(base *text.Line) []wrap.LayoutLine {
 	if d.indexMode {
 		return wrap.NormalizeLinesWithOrder(*base)
 	}
@@ -115,17 +113,17 @@ func (d *TextAreaDrawable) makeLines(base *text.Line) []wrap.LayoutLine {
 
 }
 
-func (d *TextAreaDrawable) wipe() {
+func (d *TextAreaUnit) wipe() {
 	d.lazyLoaded = false
 
-	if d.drawable.Wipe == nil {
+	if d.unit.Drawable.Wipe == nil {
 		return
 	}
 
-	d.drawable.Wipe()
+	d.unit.Drawable.Wipe()
 }
 
-func (d *TextAreaDrawable) resolveFragments(
+func (d *TextAreaUnit) resolveFragments(
 	renderBuffer []rune,
 	start, end offset.Offset,
 ) []text.Fragment {
@@ -155,7 +153,7 @@ func (d *TextAreaDrawable) resolveFragments(
 	return frags
 }
 
-func (c *TextAreaDrawable) blinkStyle() style.Atom {
+func (c *TextAreaUnit) blinkStyle() style.Atom {
 	if !c.writeMode {
 		return style.AtmNone
 	}
@@ -163,10 +161,10 @@ func (c *TextAreaDrawable) blinkStyle() style.Atom {
 	return c.caret.BlinkStyle()
 }
 
-func (d *TextAreaDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *TextAreaUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	d.lazyInit(size)
 
-	return d.drawable.Draw(size)
+	return d.unit.Drawable.Draw(size)
 }

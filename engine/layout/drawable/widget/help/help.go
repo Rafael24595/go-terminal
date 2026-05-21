@@ -14,61 +14,59 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const Name = "help_drawable"
+const Name = "help_unit"
 
-type HelpDrawable struct {
-	loaded   bool
-	fields   []key.Descriptor
-	drawable drawable.Drawable
+type HelpUnit struct {
+	loaded bool
+	fields []key.Descriptor
+	unit   drawable.Unit
 }
 
-func New(fields []key.Descriptor) *HelpDrawable {
-	return &HelpDrawable{
+func New(fields []key.Descriptor) *HelpUnit {
+	return &HelpUnit{
 		loaded: false,
 		fields: fields,
 	}
 }
 
-func DrawableFromFields(fields []key.Descriptor) drawable.Drawable {
-	return New(fields).ToDrawable()
+func UnitFromFields(fields []key.Descriptor) drawable.Unit {
+	return New(fields).ToUnit()
 }
 
-func (d *HelpDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: d.drawable.Code,
-		Tags: d.drawable.Tags,
-		Init: d.init,
-		Wipe: d.wipe,
-		Draw: d.draw,
-	}
+func (d *HelpUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		Init(d.init).
+		Wipe(d.wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *HelpDrawable) init() {
+func (d *HelpUnit) init() {
 	d.loaded = true
 
-	d.drawable = makeDrawable(d.fields)
+	d.unit = makeUnit(d.fields)
 
-	d.drawable.Init()
+	d.unit.Drawable.Init()
 }
 
-func (d *HelpDrawable) wipe() {
-	if d.drawable.Wipe == nil {
+func (d *HelpUnit) wipe() {
+	if d.unit.Drawable.Wipe == nil {
 		return
 	}
-	d.drawable.Wipe()
+	d.unit.Drawable.Wipe()
 }
 
-func (d *HelpDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *HelpUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
-	return d.drawable.Draw(size)
+	return d.unit.Drawable.Draw(size)
 }
 
-func makeDrawable(fields []key.Descriptor) drawable.Drawable {
+func makeUnit(fields []key.Descriptor) drawable.Unit {
 	fieldsLen := len(fields)
 	if fieldsLen == 0 {
-		return drain.DrawableFromLines()
+		return drain.UnitFromLines()
 	}
 
 	frags := make([]text.Fragment, fieldsLen)
@@ -88,7 +86,7 @@ func makeDrawable(fields []key.Descriptor) drawable.Drawable {
 		)
 	}
 
-	return drain.DrawableFromLines(
+	return drain.UnitFromLines(
 		*text.LineFromFragments(
 			*text.NewFragment("--Help--"),
 			*text.NewFragment("-").

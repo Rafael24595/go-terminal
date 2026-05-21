@@ -12,7 +12,7 @@ import (
 )
 
 func TestFocusInitTransformer_FocusAtStart(t *testing.T) {
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("base_01"),
 			*text.LineFromFragments(
@@ -32,7 +32,7 @@ func TestFocusInitTransformer_FocusAtStart(t *testing.T) {
 	lines, status := transformer(winsize.Winsize{
 		Rows: 2,
 		Cols: 10,
-	}, mock.ToDrawable())
+	}, mock.ToUnit())
 
 	assert.Len(t, 2, lines)
 
@@ -42,7 +42,7 @@ func TestFocusInitTransformer_FocusAtStart(t *testing.T) {
 }
 
 func TestFocusInitTransformer_FocusAtEnd(t *testing.T) {
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("base_01"),
 			*text.NewLine("base_02"),
@@ -62,7 +62,7 @@ func TestFocusInitTransformer_FocusAtEnd(t *testing.T) {
 	lines, status := transformer(winsize.Winsize{
 		Rows: 2,
 		Cols: 10,
-	}, mock.ToDrawable())
+	}, mock.ToUnit())
 
 	assert.Len(t, 2, lines)
 

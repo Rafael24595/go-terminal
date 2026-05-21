@@ -11,18 +11,18 @@ import (
 
 const NameIsolated = "isolated_pipeline"
 
-func Drawable(drawable drawable.Drawable) drawable.Drawable {
-	drw := pipeline.New(drawable).
+func Unit(unit drawable.Unit) drawable.Unit {
+	unt := pipeline.New(unit).
 		PushInitSteps(wipe.InitTransformer()).
 		SetDrawStep(drain.DrawTransformer(true)).
-		ToDrawable()
+		ToUnit()
 
-	drw.Name = NameIsolated
-	return drw
+	unt.Name = NameIsolated
+	return unt
 }
 
-func DrawableFromLines(lines ...text.Line) drawable.Drawable {
-	return Drawable(
-		line.FromLines(lines...).ToDrawable(),
+func UnitFromLines(lines ...text.Line) drawable.Unit {
+	return Unit(
+		line.FromLines(lines...).ToUnit(),
 	)
 }

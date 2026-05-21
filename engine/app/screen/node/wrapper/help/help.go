@@ -67,7 +67,7 @@ func (c *Help) view(state state.UIState) viewmodel.ViewModel {
 	definition := c.node.Screen.Definition()
 
 	vm.Footer.Push(
-		help.DrawableFromFields(definition.Descriptor.ToValuesSlice()),
+		help.UnitFromFields(definition.Descriptor.ToValuesSlice()),
 	)
 
 	return vm

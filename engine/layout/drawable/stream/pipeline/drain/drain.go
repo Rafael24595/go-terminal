@@ -12,34 +12,34 @@ import (
 const NameDrain = "drain_pipeline"
 
 func DrawTransformer(lazy bool) pipeline.DrawTransformer {
-	return func(size winsize.Winsize, drw drawable.Drawable) ([]text.Line, bool) {
-		return drain.Drawable(size, drw, lazy)
+	return func(size winsize.Winsize, unit drawable.Unit) ([]text.Line, bool) {
+		return drain.Unit(size, unit, lazy)
 	}
 }
 
-func Drawable(drawable drawable.Drawable) drawable.Drawable {
-	drw := pipeline.New(drawable).
+func Unit(unit drawable.Unit) drawable.Unit {
+	unt := pipeline.New(unit).
 		SetDrawStep(DrawTransformer(true)).
-		ToDrawable()
+		ToUnit()
 
-	drw.Name = NameDrain
-	return drw
+	unt.Name = NameDrain
+	return unt
 }
 
-func DrawableFromLines(lines ...text.Line) drawable.Drawable {
-	return Drawable(
-		line.FromLines(lines...).ToDrawable(),
+func UnitFromLines(lines ...text.Line) drawable.Unit {
+	return Unit(
+		line.FromLines(lines...).ToUnit(),
 	)
 }
 
-func DrawableFromFragments(frags ...text.Fragment) drawable.Drawable {
-	return DrawableFromLines(
+func UnitFromFragments(frags ...text.Fragment) drawable.Unit {
+	return UnitFromLines(
 		*text.LineFromFragments(frags...),
 	)
 }
 
-func DrawableFromString(txt ...string) drawable.Drawable {
-	return DrawableFromLines(
+func UnitFromString(txt ...string) drawable.Unit {
+	return UnitFromLines(
 		*text.LineFromFragments(
 			text.FragmentsFromString(txt...)...,
 		),

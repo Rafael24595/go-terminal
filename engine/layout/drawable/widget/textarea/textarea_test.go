@@ -8,7 +8,7 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestTextArea_DrawableBasicSuite(t *testing.T) {
-	dw := New([]rune{}, input.NewTextCursor(false)).ToDrawable()
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestTextArea_UnitBasicSuite(t *testing.T) {
+	unit := New([]rune{}, input.NewTextCursor(false)).ToUnit()
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }

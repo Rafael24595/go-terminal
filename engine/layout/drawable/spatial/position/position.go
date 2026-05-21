@@ -10,82 +10,81 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const Name = "position_drawable"
+const Name = "position_unit"
 
 const (
 	default_margin = winsize.Cols(0)
 )
 
-//TODO: Remove and use padding resources?
-type PositionDrawable struct {
+// TODO: Remove and use padding resources?
+type PositionUnit struct {
 	loaded    bool
 	marginY   winsize.Rows
 	marginX   winsize.Cols
 	absolute  bool
 	positionY style.VerticalPosition
 	positionX style.HorizontalPosition
-	drawable  drawable.Drawable
+	unit      drawable.Unit
 }
 
-func New(drawable drawable.Drawable) *PositionDrawable {
-	return &PositionDrawable{
+func New(unit drawable.Unit) *PositionUnit {
+	return &PositionUnit{
 		loaded:    false,
 		marginY:   winsize.Rows(default_margin),
 		marginX:   default_margin,
 		absolute:  true,
 		positionX: style.Center,
 		positionY: style.Middle,
-		drawable:  drawable,
+		unit:      unit,
 	}
 }
 
-func DrawableFromDrawable(drawable drawable.Drawable) drawable.Drawable {
-	return New(drawable).ToDrawable()
+func UnitFromUnit(unit drawable.Unit) drawable.Unit {
+	return New(unit).ToUnit()
 }
 
-func (d *PositionDrawable) MarginY(margin winsize.Rows) *PositionDrawable {
+func (d *PositionUnit) MarginY(margin winsize.Rows) *PositionUnit {
 	d.marginY = margin
 	return d
 }
 
-func (d *PositionDrawable) MarginX(margin winsize.Cols) *PositionDrawable {
+func (d *PositionUnit) MarginX(margin winsize.Cols) *PositionUnit {
 	d.marginX = margin
 	return d
 }
 
-func (d *PositionDrawable) Absolute(absolute bool) *PositionDrawable {
+func (d *PositionUnit) Absolute(absolute bool) *PositionUnit {
 	d.absolute = absolute
 	return d
 }
 
-func (d *PositionDrawable) PositionY(y style.VerticalPosition) *PositionDrawable {
+func (d *PositionUnit) PositionY(y style.VerticalPosition) *PositionUnit {
 	d.positionY = y
 	return d
 }
 
-func (d *PositionDrawable) PositionX(x style.HorizontalPosition) *PositionDrawable {
+func (d *PositionUnit) PositionX(x style.HorizontalPosition) *PositionUnit {
 	d.positionX = x
 	return d
 }
 
-func (d *PositionDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: d.drawable.Code,
-		Tags: d.drawable.Tags,
-		Init: d.init,
-		Wipe: d.drawable.Init,
-		Draw: d.draw,
-	}
+func (d *PositionUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		MergeTags(d.unit.Tags).
+		Init(d.init).
+		Wipe(d.unit.Drawable.Wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *PositionDrawable) init() {
+func (d *PositionUnit) init() {
 	d.loaded = true
 
-	d.drawable.Init()
+	d.unit.Drawable.Init()
 }
 
-func (d *PositionDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *PositionUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	fixedSize := winsize.New(
@@ -96,7 +95,7 @@ func (d *PositionDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	spec := makeSpec(fixedSize, d.positionX)
 	frag := makeFrag(d.marginX)
 
-	lines, hasNext := d.drawable.Draw(fixedSize)
+	lines, hasNext := d.unit.Drawable.Draw(fixedSize)
 
 	styled := d.styleLines(spec, lines...)
 
@@ -114,7 +113,7 @@ func (d *PositionDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	return base, hasNext
 }
 
-func (d *PositionDrawable) makeTopMargin(size winsize.Winsize, lines []text.Line) []text.Line {
+func (d *PositionUnit) makeTopMargin(size winsize.Winsize, lines []text.Line) []text.Line {
 	width := winsize.Rows(len(lines))
 
 	if d.positionY == style.Top || width >= size.Rows {
@@ -129,11 +128,11 @@ func (d *PositionDrawable) makeTopMargin(size winsize.Winsize, lines []text.Line
 	return make([]text.Line, start+d.marginY)
 }
 
-func (d *PositionDrawable) addBottomMargin(lines []text.Line) []text.Line {
+func (d *PositionUnit) addBottomMargin(lines []text.Line) []text.Line {
 	return append(lines, make([]text.Line, d.marginY)...)
 }
 
-func (d *PositionDrawable) fillEmpty(result []text.Line) []text.Line {
+func (d *PositionUnit) fillEmpty(result []text.Line) []text.Line {
 	var frag text.Fragment
 	if d.absolute {
 		frag = *text.EmptyFragment()
@@ -154,7 +153,7 @@ func (d *PositionDrawable) fillEmpty(result []text.Line) []text.Line {
 	return result
 }
 
-func (d *PositionDrawable) styleLines(spec style.Spec, lines ...text.Line) []text.Line {
+func (d *PositionUnit) styleLines(spec style.Spec, lines ...text.Line) []text.Line {
 	for i := range lines {
 		lines[i].AddSpec(spec)
 	}

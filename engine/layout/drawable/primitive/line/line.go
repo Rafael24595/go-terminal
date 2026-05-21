@@ -3,16 +3,15 @@ package line
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/wrap"
 )
 
-const Name = "line_drawable"
+const Name = "line_unit"
 
-type LineDrawable struct {
+type LineUnit struct {
 	loaded     bool
 	indexMeta  *indexMeta
 	normalizer linesNormalizer
@@ -20,42 +19,40 @@ type LineDrawable struct {
 	source     []wrap.LayoutLine
 }
 
-func New(lines ...wrap.LayoutLine) *LineDrawable {
+func New(lines ...wrap.LayoutLine) *LineUnit {
 	return new(eagerNormalizer(lines...))
 }
 
-func FromLines(lines ...text.Line) *LineDrawable {
+func FromLines(lines ...text.Line) *LineUnit {
 	return new(lazyNormalizer(lines...))
 }
 
-func new(normalizer linesNormalizer) *LineDrawable {
-	return &LineDrawable{
+func new(normalizer linesNormalizer) *LineUnit {
+	return &LineUnit{
 		loaded:     false,
 		indexMeta:  nil,
 		normalizer: normalizer,
 	}
 }
 
-func DrawableFromLayout(lines ...wrap.LayoutLine) drawable.Drawable {
-	return New(lines...).ToDrawable()
+func UnitFromLayout(lines ...wrap.LayoutLine) drawable.Unit {
+	return New(lines...).ToUnit()
 }
 
-func DrawableFromLines(lines ...text.Line) drawable.Drawable {
-	return FromLines(lines...).ToDrawable()
+func UnitFromLines(lines ...text.Line) drawable.Unit {
+	return FromLines(lines...).ToUnit()
 }
 
-func (d *LineDrawable) ToDrawable() drawable.Drawable {
-	return drawable.Drawable{
-		Name: Name,
-		Code: "",
-		Tags: make(set.Set[string]),
-		Init: d.init,
-		Draw: d.draw,
-		Wipe: d.wipe,
-	}
+func (d *LineUnit) ToUnit() drawable.Unit {
+	return drawable.NewBuilder().
+		Name(Name).
+		Init(d.init).
+		Wipe(d.wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *LineDrawable) init() {
+func (d *LineUnit) init() {
 	d.loaded = true
 
 	d.lines = d.normalizer()
@@ -64,11 +61,11 @@ func (d *LineDrawable) init() {
 	d.indexMeta = computeIndexMeta(d.lines)
 }
 
-func (d *LineDrawable) wipe() {
+func (d *LineUnit) wipe() {
 	d.source = d.lines
 }
 
-func (d *LineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *LineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	if len(d.source) == 0 {
@@ -86,7 +83,7 @@ func (d *LineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
 	return result, len(d.source) > 0
 }
 
-func (d *LineDrawable) nextIndexedWrappedLine(size winsize.Winsize) (*text.Line, []wrap.LayoutLine) {
+func (d *LineUnit) nextIndexedWrappedLine(size winsize.Winsize) (*text.Line, []wrap.LayoutLine) {
 	if d.indexMeta == nil {
 		return wrap.NextLine(size.Cols, d.source)
 	}

@@ -11,51 +11,45 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestInline_DrawableBasicSuite(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	dw := DrawableFromDrawables(mock.ToDrawable())
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestInline_UnitBasicSuite(t *testing.T) {
+	mock := &drawable_test.MockUnit{}
+	unit := UnitFromUnits(mock.ToUnit())
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }
 
 func TestInline_LazyInit(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	bd := New(mock.ToDrawable())
+	mock := &drawable_test.MockUnit{}
+	unit := New(mock.ToUnit())
 
-	assert.False(t, bd.lazyLoaded)
-	assert.True(t,
-		drawable_test.Helper_IsDrawableNil(t, bd.drawable),
-	)
+	assert.False(t, unit.lazyLoaded)
 
-	bd.init()
-	bd.draw(winsize.Winsize{})
+	unit.init()
+	unit.draw(winsize.Winsize{})
 
-	assert.True(t, bd.lazyLoaded)
-	drawable_test.Helper_ToDrawable(t, bd.drawable)
+	assert.True(t, unit.lazyLoaded)
+	drawable_test.Helper_ToUnit(t, unit.unit)
 }
 
 func TestInline_JoinsChildren(t *testing.T) {
-	mock1 := &drawable_test.MockDrawable{
+	mock1 := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("go"),
 		},
 	}
-
-	mock2 := &drawable_test.MockDrawable{
+	mock2 := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("lang"),
 		},
 	}
 
-	d := New(
-		mock1.ToDrawable(),
-		mock2.ToDrawable(),
-	)
+	unit := New(
+		mock1.ToUnit(),
+		mock2.ToUnit(),
+	).ToUnit()
 
-	dr := d.ToDrawable()
+	unit.Drawable.Init()
 
-	dr.Init()
-
-	lines, _ := dr.Draw(winsize.Winsize{
+	lines, _ := unit.Drawable.Draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 10,
 	})
@@ -65,30 +59,25 @@ func TestInline_JoinsChildren(t *testing.T) {
 }
 
 func TestInline_JoinsChildrenWithSeparator(t *testing.T) {
-	mock1 := &drawable_test.MockDrawable{
+	mock1 := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("golang"),
 		},
 	}
-
-	mock2 := &drawable_test.MockDrawable{
+	mock2 := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("ziglang"),
 		},
 	}
 
-	d := New(
-		mock1.ToDrawable(),
-		mock2.ToDrawable(),
-	)
+	unit := New(
+		mock1.ToUnit(),
+		mock2.ToUnit(),
+	).Separator(" | ").ToUnit()
 
-	d.Separator(" | ")
+	unit.Drawable.Init()
 
-	dr := d.ToDrawable()
-
-	dr.Init()
-
-	lines, _ := dr.Draw(winsize.Winsize{
+	lines, _ := unit.Drawable.Draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 16,
 	})
@@ -98,24 +87,20 @@ func TestInline_JoinsChildrenWithSeparator(t *testing.T) {
 }
 
 func TestInline_MultipleLines(t *testing.T) {
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Lines: []text.Line{
 			*text.NewLine("go"),
 			*text.NewLine("lang"),
 		},
 	}
 
-	d := New(
-		mock.ToDrawable(),
-	)
+	unit := New(
+		mock.ToUnit(),
+	).Separator(" | ").ToUnit()
 
-	dr := d.ToDrawable()
+	unit.Drawable.Init()
 
-	d.Separator(" | ")
-
-	dr.Init()
-
-	lines, _ := dr.Draw(winsize.Winsize{
+	lines, _ := unit.Drawable.Draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 9,
 	})
@@ -125,13 +110,11 @@ func TestInline_MultipleLines(t *testing.T) {
 }
 
 func TestInline_Empty(t *testing.T) {
-	d := New()
+	unit := New().ToUnit()
 
-	dr := d.ToDrawable()
+	unit.Drawable.Init()
 
-	dr.Init()
-
-	lines, _ := dr.Draw(winsize.Winsize{})
+	lines, _ := unit.Drawable.Draw(winsize.Winsize{})
 
 	assert.Len(t, 0, lines)
 }

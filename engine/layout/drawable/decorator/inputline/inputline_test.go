@@ -12,31 +12,29 @@ import (
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
-func TestInputLine_DrawableBasicSuite(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	input := New(mock.ToDrawable())
-	dw := input.ToDrawable()
-	drawable_test.Test_DrawableBasicSuite(t, dw)
+func TestInputLine_UnitBasicSuite(t *testing.T) {
+	mock := &drawable_test.MockUnit{}
+	unit := New(mock.ToUnit()).ToUnit()
+	drawable_test.Test_UnitBasicSuite(t, unit)
 }
 
 func TestNewInputLine_DefaultPrompt(t *testing.T) {
-	mock := &drawable_test.MockDrawable{}
-	input := New(mock.ToDrawable())
+	mock := &drawable_test.MockUnit{}
+	input := New(mock.ToUnit())
 
 	assert.Equal(t, input.prompt, marker.DefaultInputLinePrompt)
 }
 
 func TestNewInputLine_NoContent_ReturnsPromptOnly(t *testing.T) {
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Status: false,
 		Lines:  make([]text.Line, 0),
 	}
 
-	input := New(mock.ToDrawable())
-	drawable := input.ToDrawable()
+	unit := New(mock.ToUnit()).ToUnit()
 
-	drawable.Init()
-	lines, status := drawable.Draw(winsize.Winsize{
+	unit.Drawable.Init()
+	lines, status := unit.Drawable.Draw(winsize.Winsize{
 		Rows: 5,
 	})
 
@@ -48,18 +46,17 @@ func TestNewInputLine_NoContent_ReturnsPromptOnly(t *testing.T) {
 func TestNewInputLine_WithSingleLine_AddsPrompt(t *testing.T) {
 	frag := text.FragmentsFromString("golang")
 
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Status: false,
 		Lines: []text.Line{
 			*text.LineFromFragments(frag...),
 		},
 	}
 
-	input := New(mock.ToDrawable())
-	drawable := input.ToDrawable()
+	unit := New(mock.ToUnit()).ToUnit()
 
-	drawable.Init()
-	lines, _ := drawable.Draw(winsize.Winsize{
+	unit.Drawable.Init()
+	lines, _ := unit.Drawable.Draw(winsize.Winsize{
 		Cols: 10,
 		Rows: 5,
 	})
@@ -72,7 +69,7 @@ func TestNewInputLine_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
 	frag1 := text.FragmentsFromString("ziglang")
 	frag2 := text.FragmentsFromString("golang")
 
-	mock := &drawable_test.MockDrawable{
+	mock := &drawable_test.MockUnit{
 		Status: false,
 		Lines: []text.Line{
 			*text.LineFromFragments(frag1...),
@@ -80,11 +77,10 @@ func TestNewInputLine_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
 		},
 	}
 
-	input := New(mock.ToDrawable())
-	drawable := input.ToDrawable()
+	unit := New(mock.ToUnit()).ToUnit()
 
-	drawable.Init()
-	lines, _ := drawable.Draw(winsize.Winsize{
+	unit.Drawable.Init()
+	lines, _ := unit.Drawable.Draw(winsize.Winsize{
 		Cols: 10,
 		Rows: 5,
 	})

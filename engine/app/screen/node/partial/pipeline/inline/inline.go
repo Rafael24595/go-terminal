@@ -15,13 +15,13 @@ const DefaultSeparator = " | "
 
 const Name = "inline_transformer"
 
-type predicate func(pipeline.Filter, drawable.Drawable) bool
+type predicate func(pipeline.Filter, drawable.Unit) bool
 
 var predicates = map[pipeline.Criterion]predicate{
-	pipeline.Code: func(f pipeline.Filter, d drawable.Drawable) bool {
-		return f.Values.Has(d.Code)
+	pipeline.Name: func(f pipeline.Filter, d drawable.Unit) bool {
+		return f.Values.Has(d.Name)
 	},
-	pipeline.Tags: func(f pipeline.Filter, d drawable.Drawable) bool {
+	pipeline.Tags: func(f pipeline.Filter, d drawable.Unit) bool {
 		return d.Tags.Any(f.Values)
 	},
 }
@@ -40,13 +40,13 @@ func Transformer(
 		}
 
 		vStack := accessor.Get(vm)
-		items := vStack.Items()
+		units := vStack.Units()
 
-		itemsLen := len(items)
-		matched := make([]drawable.Drawable, 0, itemsLen)
-		remaining := make([]drawable.Drawable, 0, itemsLen)
+		unitsLen := len(units)
+		matched := make([]drawable.Unit, 0, unitsLen)
+		remaining := make([]drawable.Unit, 0, unitsLen)
 
-		for _, d := range items {
+		for _, d := range units {
 			if matchesFilter(filter, d) {
 				matched = append(matched, d)
 			} else {
@@ -58,19 +58,19 @@ func Transformer(
 			return vm
 		}
 
-		inlineDrawable := drawable_inline.New(matched...).
+		inlineUnit := drawable_inline.New(matched...).
 			Separator(separator).
-			ToDrawable()
+			ToUnit()
 
-		inlineDrawable.Name = Name
+		inlineUnit.Name = Name
 
 		newVStack := stack.NewVStack(remaining...)
 
 		switch placement {
 		case pipeline.After:
-			newVStack.Unshift(inlineDrawable)
+			newVStack.Unshift(inlineUnit)
 		case pipeline.Before:
-			newVStack.Push(inlineDrawable)
+			newVStack.Push(inlineUnit)
 		default:
 			assert.Unreachable("unhandled placement %d", placement)
 		}
@@ -79,10 +79,10 @@ func Transformer(
 	}
 }
 
-func matchesFilter(filter pipeline.Filter, drawable drawable.Drawable) bool {
+func matchesFilter(filter pipeline.Filter, unit drawable.Unit) bool {
 	predicate, ok := predicates[filter.Criterion]
 	if !ok {
 		return false
 	}
-	return predicate(filter, drawable)
+	return predicate(filter, unit)
 }

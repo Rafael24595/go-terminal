@@ -16,17 +16,17 @@ import (
 )
 
 func drawSources(vm viewmodel.ViewModel, winsize winsize.Winsize) {
-	header := vm.Header.ToDrawable()
-	header.Init()
-	header.Draw(winsize)
+	header := vm.Header.ToUnit()
+	header.Drawable.Init()
+	header.Drawable.Draw(winsize)
 
-	footer := vm.Footer.ToDrawable()
-	footer.Init()
-	footer.Draw(winsize)
+	footer := vm.Footer.ToUnit()
+	footer.Drawable.Init()
+	footer.Drawable.Draw(winsize)
 
-	lines := vm.Kernel.ToDrawable()
-	lines.Init()
-	lines.Draw(winsize)
+	lines := vm.Kernel.ToUnit()
+	lines.Drawable.Init()
+	lines.Drawable.Draw(winsize)
 }
 
 func TestPipeline_ToNode(t *testing.T) {
@@ -82,22 +82,22 @@ func TestPipeline_WrapsReturnedScreen(t *testing.T) {
 }
 
 func TestPipeline_ActionSingleFocus(t *testing.T) {
-	headerBase := drawable_test.MockDrawable{
-		Code: "mock_01",
+	headerBase := drawable_test.MockUnit{
+		Name: "mock_01",
 	}
-	kernelBase := drawable_test.MockDrawable{
-		Code: "mock_01",
+	kernelBase := drawable_test.MockUnit{
+		Name: "mock_01",
 	}
-	footerBase := drawable_test.MockDrawable{
-		Code: "mock_01",
+	footerBase := drawable_test.MockUnit{
+		Name: "mock_01",
 	}
 
 	mockNode := screen_test.MockScreen{
 		View: func(_ state.UIState) viewmodel.ViewModel {
 			vm := viewmodel.NewViewModel()
-			vm.Header.Push(headerBase.ToDrawable())
-			vm.Kernel.Push(kernelBase.ToDrawable())
-			vm.Footer.Push(footerBase.ToDrawable())
+			vm.Header.Push(headerBase.ToUnit())
+			vm.Kernel.Push(kernelBase.ToUnit())
+			vm.Footer.Push(footerBase.ToUnit())
 			return *vm
 		},
 	}
@@ -106,18 +106,26 @@ func TestPipeline_ActionSingleFocus(t *testing.T) {
 
 	w.PushSteps(
 		func(vm viewmodel.ViewModel) viewmodel.ViewModel {
-			mock := drawable_test.MockDrawable{Code: "mock_02"}
+			mock := drawable_test.MockUnit{
+				Name: "mock_02",
+			}
+
 			vm.Header.Unshift(
-				mock.ToDrawable(),
+				mock.ToUnit(),
 			)
 			return vm
 		},
 		func(vm viewmodel.ViewModel) viewmodel.ViewModel {
-			mock1 := drawable_test.MockDrawable{Code: "mock_02"}
-			mock2 := drawable_test.MockDrawable{Code: "mock_03"}
+			mock1 := drawable_test.MockUnit{
+				Name: "mock_02",
+			}
+			mock2 := drawable_test.MockUnit{
+				Name: "mock_03",
+			}
+
 			vm.Kernel.Push(
-				mock2.ToDrawable(),
-				mock1.ToDrawable(),
+				mock2.ToUnit(),
+				mock1.ToUnit(),
 			)
 			return vm
 		},
@@ -135,14 +143,14 @@ func TestPipeline_ActionSingleFocus(t *testing.T) {
 		winsize.Winsize{},
 	)
 
-	header := vm.Header.Items()
+	header := vm.Header.Units()
 	assert.Len(t, 2, header)
-	assert.Equal(t, "mock_02", header[0].Code)
+	assert.Equal(t, "mock_02", header[0].Name)
 
-	kernel := vm.Kernel.Items()
+	kernel := vm.Kernel.Units()
 	assert.Len(t, 3, kernel)
-	assert.Equal(t, "mock_03", kernel[1].Code)
-	assert.Equal(t, "mock_02", kernel[2].Code)
+	assert.Equal(t, "mock_03", kernel[1].Name)
+	assert.Equal(t, "mock_02", kernel[2].Name)
 
-	assert.Len(t, 0, vm.Footer.Items())
+	assert.Len(t, 0, vm.Footer.Units())
 }

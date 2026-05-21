@@ -177,10 +177,10 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 	menu.cursor = 1
 	vm := menu.view(*stt)
 
-	kernel := vm.Kernel.ToDrawable()
+	kernel := vm.Kernel.ToUnit()
 
-	kernel.Init()
-	lines, _ := kernel.Draw(winsize.Winsize{Cols: 10, Rows: 2})
+	kernel.Drawable.Init()
+	lines, _ := kernel.Drawable.Draw(winsize.Winsize{Cols: 10, Rows: 2})
 
 	assert.NotNil(t, vm.Pager)
 	assert.Equal(t, pager.CodePredicateFocus, vm.Pager.Predicate.Code)

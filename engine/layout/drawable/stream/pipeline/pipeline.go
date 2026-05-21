@@ -8,37 +8,37 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-const Name = "pipeline_drawable"
+const Name = "pipeline_unit"
 
-type InitTransformer func(winsize.Winsize, drawable.Drawable) drawable.Drawable
-type DrawTransformer func(winsize.Winsize, drawable.Drawable) ([]text.Line, bool)
-type DataTransformer func(winsize.Winsize, drawable.Drawable, []text.Line, bool) ([]text.Line, bool)
+type InitTransformer func(winsize.Winsize, drawable.Unit) drawable.Unit
+type DrawTransformer func(winsize.Winsize, drawable.Unit) ([]text.Line, bool)
+type DataTransformer func(winsize.Winsize, drawable.Unit, []text.Line, bool) ([]text.Line, bool)
 
-type PipelineDrawable struct {
+type PipelineUnit struct {
 	loaded    bool
-	drawable  drawable.Drawable
+	unit      drawable.Unit
 	initSteps []InitTransformer
 	drawStep  DrawTransformer
 	dataSteps []DataTransformer
 }
 
-func New(drawable drawable.Drawable) *PipelineDrawable {
-	return &PipelineDrawable{
+func New(unit drawable.Unit) *PipelineUnit {
+	return &PipelineUnit{
 		loaded:    false,
-		drawable:  drawable,
+		unit:      unit,
 		initSteps: make([]InitTransformer, 0),
 		drawStep:  nil,
 		dataSteps: make([]DataTransformer, 0),
 	}
 }
 
-func DrawToDrawable(drawable drawable.Drawable, step DrawTransformer) drawable.Drawable {
-	return New(drawable).
+func DrawToUnit(unit drawable.Unit, step DrawTransformer) drawable.Unit {
+	return New(unit).
 		SetDrawStep(step).
-		ToDrawable()
+		ToUnit()
 }
 
-func (d *PipelineDrawable) PushInitSteps(steps ...InitTransformer) *PipelineDrawable {
+func (d *PipelineUnit) PushInitSteps(steps ...InitTransformer) *PipelineUnit {
 	if d.loaded {
 		assert.Unreachable(drawable.MessageNewElement)
 		return d
@@ -48,7 +48,7 @@ func (d *PipelineDrawable) PushInitSteps(steps ...InitTransformer) *PipelineDraw
 	return d
 }
 
-func (d *PipelineDrawable) SetDrawStep(step DrawTransformer) *PipelineDrawable {
+func (d *PipelineUnit) SetDrawStep(step DrawTransformer) *PipelineUnit {
 	if d.loaded {
 		assert.Unreachable(drawable.MessageNewElement)
 		return d
@@ -58,7 +58,7 @@ func (d *PipelineDrawable) SetDrawStep(step DrawTransformer) *PipelineDrawable {
 	return d
 }
 
-func (d *PipelineDrawable) PushDataSteps(steps ...DataTransformer) *PipelineDrawable {
+func (d *PipelineUnit) PushDataSteps(steps ...DataTransformer) *PipelineUnit {
 	if d.loaded {
 		assert.Unreachable(drawable.MessageNewElement)
 		return d
@@ -68,53 +68,62 @@ func (d *PipelineDrawable) PushDataSteps(steps ...DataTransformer) *PipelineDraw
 	return d
 }
 
-func (d *PipelineDrawable) ToDrawable() drawable.Drawable {
-	if len(d.initSteps) == 0 &&
-		d.drawStep == nil &&
-		len(d.dataSteps) == 0 {
-		return d.drawable
+func (d *PipelineUnit) ToUnit() drawable.Unit {
+	if d.isAnemic() {
+		return d.unit
 	}
 
-	return drawable.Drawable{
-		Name: Name,
-		Code: d.drawable.Code,
-		Tags: d.drawable.Tags,
-		Init: d.init,
-		Wipe: d.wipe,
-		Draw: d.draw,
-	}
+	return drawable.NewBuilder().
+		Name(Name).
+		MergeTags(d.unit.Tags).
+		Init(d.init).
+		Wipe(d.wipe).
+		Draw(d.draw).
+		ToUnit()
 }
 
-func (d *PipelineDrawable) init() {
+func (d *PipelineUnit) isAnemic() bool {
+	if d.drawStep != nil {
+		return false
+	}
+
+	if len(d.initSteps) > 0 {
+		return false
+	}
+
+	return len(d.dataSteps) == 0
+}
+
+func (d *PipelineUnit) init() {
 	d.loaded = true
 
-	d.drawable.Init()
+	d.unit.Drawable.Init()
 }
 
-func (d *PipelineDrawable) wipe() {
-	if d.drawable.Wipe == nil {
+func (d *PipelineUnit) wipe() {
+	if d.unit.Drawable.Wipe == nil {
 		return
 	}
-	d.drawable.Wipe()
+	d.unit.Drawable.Wipe()
 }
 
-func (d *PipelineDrawable) draw(size winsize.Winsize) ([]text.Line, bool) {
+func (d *PipelineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	assert.True(d.loaded, drawable.MessageInitialized)
 
 	for _, s := range d.initSteps {
-		d.drawable = s(size, d.drawable)
+		d.unit = s(size, d.unit)
 	}
 
-	draw := d.drawable.Draw
+	draw := d.unit.Drawable.Draw
 	if d.drawStep != nil {
 		draw = func(size winsize.Winsize) ([]text.Line, bool) {
-			return d.drawStep(size, d.drawable)
+			return d.drawStep(size, d.unit)
 		}
 	}
 
 	lines, status := draw(size)
 	for _, s := range d.dataSteps {
-		lines, status = s(size, d.drawable, lines, status)
+		lines, status = s(size, d.unit, lines, status)
 	}
 
 	return lines, status

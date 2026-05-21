@@ -71,10 +71,10 @@ func TestPagination_ViewFooter(t *testing.T) {
 	page := New(base.ToNode())
 	vm := page.view(*stt)
 
-	footer := vm.Footer.ToDrawable()
-	footer.Init()
+	footer := vm.Footer.ToUnit()
+	footer.Drawable.Init()
 
-	lines, _ := footer.Draw(winsize.Winsize{
+	lines, _ := footer.Drawable.Draw(winsize.Winsize{
 		Rows: 3,
 		Cols: 10,
 	})

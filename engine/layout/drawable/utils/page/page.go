@@ -12,7 +12,7 @@ import (
 )
 
 func NewPageRenderer(strategy pager.PagerStrategy) draw.PageRenderer {
-	return func(uiState *state.UIState, size winsize.Winsize, drawable drawable.Drawable) *draw.DrawState {
+	return func(uiState *state.UIState, size winsize.Winsize, unit drawable.Unit) *draw.DrawState {
 		ctx := draw.NewDrawContext(uiState, size)
 		status := draw.NewDrawStatus(ctx)
 		if size.Rows == 0 {
@@ -25,7 +25,7 @@ func NewPageRenderer(strategy pager.PagerStrategy) draw.PageRenderer {
 			status.Work.Advance()
 			status.Work.Reset()
 
-			lines, hasNext := drawable.Draw(size)
+			lines, hasNext := unit.Drawable.Draw(size)
 			if hasNext {
 				status.Work.Add(1)
 			}
