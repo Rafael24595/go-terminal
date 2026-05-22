@@ -17,7 +17,7 @@ func TestDrainUnit_WithMock(t *testing.T) {
 		lines         int
 		lazy          bool
 		wantLines     int
-		wantDrawCalls int
+		wantDrawCalls uint
 	}{
 		{
 			name:          "Eager_DrainAllInSingleCall",
