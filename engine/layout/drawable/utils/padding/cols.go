@@ -51,14 +51,14 @@ func Cols(cols hint.Size[winsize.Cols], position ...style.HorizontalPosition) tr
 				continue
 			}
 
-			newLines[i] = addColsPadding(remaining, lines[i], horizontal)
+			newLines[i] = AddColsPadding(remaining, lines[i], horizontal)
 		}
 
 		return newLines
 	}
 }
 
-func addColsPadding(
+func AddColsPadding(
 	cols winsize.Cols,
 	line text.Line,
 	position style.HorizontalPosition,
