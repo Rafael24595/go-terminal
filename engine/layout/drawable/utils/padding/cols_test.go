@@ -1,7 +1,6 @@
 package padding
 
 import (
-	"strings"
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
@@ -10,27 +9,8 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/styler"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+	render_test "github.com/Rafael24595/go-reacterm-core/test/engine/render"
 )
-
-func renderFragments(styler *styler.Spec, size winsize.Winsize, frags []text.Fragment) string {
-	var buffer strings.Builder
-
-	lineSize := winsize.New(
-		size.Rows,
-		size.Cols,
-	)
-
-	for _, f := range frags {
-		spec := styler.Apply(f.Spec, lineSize, f.Text, f.Size())
-
-		fragSize := text.FragmentMeasure(size.Cols, f)
-		lineSize.Cols = lineSize.Cols.Sub(fragSize)
-
-		buffer.WriteString(spec)
-	}
-
-	return buffer.String()
-}
 
 func TestColPositioners(t *testing.T) {
 	tests := []struct {
@@ -146,7 +126,7 @@ func TestColsTransformer(t *testing.T) {
 			gotSize := text.FragmentMeasure(tt.size.Cols, resLines[0].Text...)
 
 			assert.Equal(t, tt.wantLength, gotSize)
-			assert.Equal(t, tt.wantString, renderFragments(styler, tt.size, resLines[0].Text))
+			assert.Equal(t, tt.wantString, render_test.Fragments(styler, tt.size, resLines[0].Text))
 		})
 	}
 }
