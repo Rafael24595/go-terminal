@@ -7,11 +7,13 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/padding"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/table"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 
 	drawable_table "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/widget/table"
@@ -187,12 +189,12 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 
 	table := drawable_table.UnitFromTable(*c.table, *c.cursor)
 
-	vm.Kernel.Push(
-		position.New(table).
-			PositionY(c.positionY).
-			PositionX(c.positionX).
-			ToUnit(),
-	)
+	position := padding.NewBuilder().
+		Y(hint.Maximize[winsize.Rows](), c.positionY).
+		X(hint.Maximize[winsize.Cols](), c.positionX).
+		ToUnit(table)
+
+	vm.Kernel.Push(position)
 
 	preficate := pager.PredicatePage()
 	if c.action.EnableMode && c.action.ActionMode {

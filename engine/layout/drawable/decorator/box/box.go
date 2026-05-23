@@ -5,7 +5,7 @@ import (
 
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/margin"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
@@ -82,12 +82,10 @@ func (d *BoxUnit) makeUnit() drawable.Unit {
 		return d.unit
 	}
 
-	return position.New(d.unit).
-		MarginY(d.paddingY).
-		MarginX(d.paddingX).
-		PositionY(style.Top).
-		PositionX(style.Left).
-		ToUnit()
+	return margin.NewBuilder().
+		Y(d.paddingY, style.Middle).
+		X(d.paddingX, style.Center).
+		ToUnit(d.unit)
 }
 
 func (d *BoxUnit) draw(size winsize.Winsize) ([]text.Line, bool) {

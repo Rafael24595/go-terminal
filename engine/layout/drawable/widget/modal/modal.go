@@ -6,9 +6,10 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/justify"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/padding"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -115,7 +116,11 @@ func (d *ModalUnit) lazyInit(size winsize.Winsize) {
 		PaddingY(1).
 		ToUnit()
 
-	position := position.Wrap(box)
+	position := padding.NewBuilder().
+		Y(hint.Maximize[winsize.Rows](), style.Middle).
+		X(hint.Maximize[winsize.Cols](), style.Center).
+		ToUnit(box)
+
 	position.Drawable.Init()
 
 	d.unit = position
