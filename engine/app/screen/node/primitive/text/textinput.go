@@ -142,7 +142,7 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 func (c *TextInput) makePipeline(unit drawable.Unit) drawable.Unit {
 	pageStep := pageTransformer()
 
-	paddingStep := padding.ColsDrawTransformer(
+	paddingStep := padding.Cols(
 		hint.Fixed(c.limit),
 		style.Left,
 	)

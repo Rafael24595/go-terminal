@@ -77,12 +77,12 @@ func wrapStep(vm viewmodel.ViewModel) viewmodel.ViewModel {
 
 	pageStep := pageTransformer()
 
-	paddingX := padding.ColsDrawTransformer(
+	paddingX := padding.Cols(
 		hint.Maximize[winsize.Cols](),
 		style.Left,
 	)
 
-	paddingY := padding.RowsDataTransformer(
+	paddingY := padding.Rows(
 		hint.Maximize[winsize.Rows](),
 		style.Top,
 	)
