@@ -7,6 +7,8 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -104,9 +106,9 @@ func (d *BoxUnit) styleLines(size winsize.Winsize, lines ...text.Line) []text.Li
 	vertical := horizontalStaticSize(d.separator)
 
 	maxLine := text.MaxLineMeasure(size.Cols, lines...)
-	padding := min(maxLine+vertical, size.Cols)
+	measure := min(maxLine+vertical, size.Cols)
 
-	specCover := style.SpecRepeatLeft(padding)
+	specCover := style.SpecRepeatLeft(measure)
 	cover := text.LineFromFragments(
 		*text.NewFragment(d.separator.Top).AddSpec(specCover),
 	)
@@ -117,7 +119,11 @@ func (d *BoxUnit) styleLines(size winsize.Winsize, lines ...text.Line) []text.Li
 
 	available := size.Cols.Sub(vertical)
 
-	for _, lin := range lines {
+	transformer := padding.Cols(
+		hint.Fixed(maxLine), style.Center,
+	)
+
+	for _, lin := range transformer(size, lines) {
 		for _, v := range wrap.Line(available, &lin) {
 			line := d.wrapLine(v)
 			result = append(result, line)
