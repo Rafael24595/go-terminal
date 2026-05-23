@@ -9,6 +9,8 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
+const DefaultColFrag = marker.DefaultPaddingText
+
 type colPositioner func(winsize.Cols) (winsize.Cols, winsize.Cols)
 
 var colPositionerMap = map[style.HorizontalPosition]colPositioner{
@@ -32,6 +34,14 @@ func colToCenter(remaining winsize.Cols) (winsize.Cols, winsize.Cols) {
 }
 
 func Cols(cols hint.Size[winsize.Cols], position ...style.HorizontalPosition) transformer {
+	return ColsWithDefault(cols, DefaultColFrag, position...)
+}
+
+func ColsWithDefault(
+	cols hint.Size[winsize.Cols],
+	frag string,
+	position ...style.HorizontalPosition,
+) transformer {
 	horizontal := style.Left
 	if len(position) > 0 {
 		horizontal = position[0]
@@ -51,7 +61,7 @@ func Cols(cols hint.Size[winsize.Cols], position ...style.HorizontalPosition) tr
 				continue
 			}
 
-			newLines[i] = AddColsPadding(remaining, lines[i], horizontal)
+			newLines[i] = AddColsPaddingWithDefault(remaining, lines[i], frag, horizontal)
 		}
 
 		return newLines
@@ -61,6 +71,17 @@ func Cols(cols hint.Size[winsize.Cols], position ...style.HorizontalPosition) tr
 func AddColsPadding(
 	cols winsize.Cols,
 	line text.Line,
+	position style.HorizontalPosition,
+) text.Line {
+	return AddColsPaddingWithDefault(
+		cols, line, DefaultColFrag, position,
+	)
+}
+
+func AddColsPaddingWithDefault(
+	cols winsize.Cols,
+	line text.Line,
+	frag string,
 	position style.HorizontalPosition,
 ) text.Line {
 	positioner, ok := colPositionerMap[position]
@@ -74,7 +95,7 @@ func AddColsPadding(
 	frags := make([]text.Fragment, 0, 3)
 
 	if paddingL > 0 {
-		frag := text.NewFragment(marker.DefaultPaddingText).
+		frag := text.NewFragment(frag).
 			AddSpec(style.SpecRepeatRight(paddingL))
 		frags = append(frags, *frag)
 	}
@@ -82,7 +103,7 @@ func AddColsPadding(
 	frags = append(frags, line.Text...)
 
 	if paddingR > 0 {
-		frag := text.NewFragment(marker.DefaultPaddingText).
+		frag := text.NewFragment(frag).
 			AddSpec(style.SpecRepeatRight(paddingR))
 		frags = append(frags, *frag)
 	}

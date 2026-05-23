@@ -11,25 +11,26 @@ import (
 )
 
 func RowsTop(margin winsize.Rows) pipeline.DataTransformer {
-	return rowsDataTransformer(margin, style.Bottom)
+	return rowsDataTransformer(margin, *padding.DefaultRowFrag(), style.Bottom)
 }
 
 func RowsBottom(margin winsize.Rows) pipeline.DataTransformer {
-	return rowsDataTransformer(margin, style.Top)
+	return rowsDataTransformer(margin, *padding.DefaultRowFrag(), style.Top)
 }
 
 func RowsMiddle(margin winsize.Rows) pipeline.DataTransformer {
-	return rowsDataTransformer(margin, style.Middle)
+	return rowsDataTransformer(margin, *padding.DefaultRowFrag(), style.Middle)
 }
 
-func rowsDataTransformer(margin winsize.Rows, position style.VerticalPosition) pipeline.DataTransformer {
+func rowsDataTransformer(margin winsize.Rows, frag text.Fragment, position style.VerticalPosition) pipeline.DataTransformer {
 	margin = margin * verticalFactor(position)
 
 	return func(size winsize.Winsize, _ drawable.Unit, lines []text.Line, hasNext bool) ([]text.Line, bool) {
 		linesLen := winsize.Rows(len(lines))
 
-		transformer := padding.Rows(
+		transformer := padding.RowsWithDefault(
 			hint.Fixed(linesLen+margin),
+			frag,
 			position,
 		)
 

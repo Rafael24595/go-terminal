@@ -15,6 +15,8 @@ func TestRowPositioners(t *testing.T) {
 		*text.NewLine("Golang"),
 	}
 
+	frag := *text.EmptyFragment()
+
 	tests := []struct {
 		name         string
 		position     style.VerticalPosition
@@ -48,7 +50,7 @@ func TestRowPositioners(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			positioner := rowPositionerMap[tt.position]
-			gotLines := positioner(inputLines, tt.paddingTotal)
+			gotLines := positioner(inputLines, frag, tt.paddingTotal)
 
 			assert.Len(t, tt.wantLength, gotLines)
 

@@ -10,18 +10,18 @@ import (
 )
 
 func ColsLeft(margin winsize.Cols) pipeline.DataTransformer {
-	return colsDrawTransformer(margin, style.Right)
+	return colsDrawTransformer(margin, padding.DefaultColFrag, style.Right)
 }
 
 func ColsRight(margin winsize.Cols) pipeline.DataTransformer {
-	return colsDrawTransformer(margin, style.Left)
+	return colsDrawTransformer(margin, padding.DefaultColFrag, style.Left)
 }
 
 func ColsCenter(margin winsize.Cols) pipeline.DataTransformer {
-	return colsDrawTransformer(margin, style.Center)
+	return colsDrawTransformer(margin, padding.DefaultColFrag, style.Center)
 }
 
-func colsDrawTransformer(margin winsize.Cols, position style.HorizontalPosition) pipeline.DataTransformer {
+func colsDrawTransformer(margin winsize.Cols, frag string, position style.HorizontalPosition) pipeline.DataTransformer {
 	margin = margin * horizontalFactor(position)
 
 	return func(size winsize.Winsize, _ drawable.Unit, lines []text.Line, hasNext bool) ([]text.Line, bool) {
@@ -41,7 +41,9 @@ func colsDrawTransformer(margin winsize.Cols, position style.HorizontalPosition)
 				remaining = measure.Sub(size.Cols)
 			}
 
-			newLines[i] = padding.AddColsPadding(remaining, lines[i], position)
+			newLines[i] = padding.AddColsPaddingWithDefault(
+				remaining, lines[i], frag, position,
+			)
 		}
 
 		return newLines, hasNext

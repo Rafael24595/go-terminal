@@ -11,14 +11,22 @@ import (
 )
 
 func Rows(rows hint.Size[winsize.Rows], position ...style.VerticalPosition) pipeline.DataTransformer {
-	transformer := padding.Rows(rows, position...)
+	return RowsWithDefault(rows, *padding.DefaultRowFrag(), position...)
+}
+
+func RowsWithDefault(rows hint.Size[winsize.Rows], frag text.Fragment, position ...style.VerticalPosition) pipeline.DataTransformer {
+	transformer := padding.RowsWithDefault(rows, frag, position...)
 	return func(size winsize.Winsize, _ drawable.Unit, lines []text.Line, hasNext bool) ([]text.Line, bool) {
 		return transformer(size, lines), hasNext
 	}
 }
 
 func Cols(cols hint.Size[winsize.Cols], position ...style.HorizontalPosition) pipeline.DataTransformer {
-	transformer := padding.Cols(cols, position...)
+	return ColsWithDefault(cols, padding.DefaultColFrag, position...)
+}
+
+func ColsWithDefault(cols hint.Size[winsize.Cols], frag string, position ...style.HorizontalPosition) pipeline.DataTransformer {
+	transformer := padding.ColsWithDefault(cols, frag, position...)
 	return func(size winsize.Winsize, _ drawable.Unit, lines []text.Line, hasNext bool) ([]text.Line, bool) {
 		return transformer(size, lines), hasNext
 	}
