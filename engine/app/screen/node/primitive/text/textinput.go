@@ -9,7 +9,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/focus"
@@ -121,9 +120,10 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 		textarea.ToUnit(),
 	)
 
-	position := c.makePosition(
-		pipeline,
-	)
+	box := box.New(pipeline).
+		PaddingY(0).
+		PaddingX(1).
+		ToUnit()
 
 	if len(c.label) != 0 {
 		frags := append(c.label, *text.NewFragment(": "))
@@ -132,7 +132,7 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 		)
 	}
 
-	vm.Kernel.Push(position)
+	vm.Kernel.Push(box)
 
 	vm.Behavior.NeedsPulse = needsPulse
 
@@ -150,19 +150,6 @@ func (c *TextInput) makePipeline(unit drawable.Unit) drawable.Unit {
 	return pipeline.New(unit).
 		SetDrawStep(pageStep).
 		PushDataSteps(paddingStep).
-		ToUnit()
-}
-
-func (c *TextInput) makePosition(unit drawable.Unit) drawable.Unit {
-	box := box.New(unit).
-		PaddingY(0).
-		PaddingX(1).
-		ToUnit()
-
-	return position.New(box).
-		PositionY(style.Top).
-		PositionX(style.Left).
-		MarginX(0).
 		ToUnit()
 }
 
