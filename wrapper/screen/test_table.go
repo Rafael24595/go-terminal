@@ -21,7 +21,7 @@ type Language struct {
 
 var headers = table.StructHeaders[Language]()
 
-var rows = []Language{
+var rowsData = []Language{
 	{
 		Name:       "Go",
 		Creator:    "Google",
@@ -80,7 +80,7 @@ func NewTestTable() screen.Node {
 		SetPositionX(style.Center).
 		EnableAction().
 		SetHeaders(headers...).
-		AddItems(marshal, rows...).
+		AddItems(marshal, rowsData...).
 		ToNode()
 
 	return header.Node(node, title...)

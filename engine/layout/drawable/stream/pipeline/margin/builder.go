@@ -1,60 +1,49 @@
 package margin
 
 import (
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 type Builder struct {
-	marginY   winsize.Rows
-	optionsY  []options.RowsOption
-	marginX   winsize.Cols
-	defaultX  string
-	positionX style.HorizontalPosition
+	marginY  winsize.Rows
+	optionsY []rows.Option
+	marginX  winsize.Cols
+	optionsX []cols.Option
 }
 
 func NewBuilder() *Builder {
 	return &Builder{
-		marginY:   0,
-		optionsY:  make([]options.RowsOption, 0),
-		marginX:   0,
-		defaultX:  padding.DefaultColFrag,
-		positionX: style.Center,
+		marginY:  0,
+		optionsY: make([]rows.Option, 0),
+		marginX:  0,
+		optionsX: make([]cols.Option, 0),
 	}
 }
 
-func (b *Builder) Y(margin winsize.Rows, opts ...options.RowsOption) *Builder {
+func (b *Builder) Y(margin winsize.Rows, opts ...rows.Option) *Builder {
 	b.marginY = margin
 	b.optionsY = append(b.optionsY, opts...)
 	return b
 }
 
-func (b *Builder) X(margin winsize.Cols, position ...style.HorizontalPosition) *Builder {
-	return b.XWithDefault(margin, padding.DefaultColFrag, position...)
-}
-
-func (b *Builder) XWithDefault(margin winsize.Cols, frag string, position ...style.HorizontalPosition) *Builder {
+func (b *Builder) X(margin winsize.Cols, opts ...cols.Option) *Builder {
 	b.marginX = margin
-	b.defaultX = frag
-
-	if len(position) > 0 {
-		b.positionX = position[0]
-	}
-
+	b.optionsX = append(b.optionsX, opts...)
 	return b
 }
 
 func (b *Builder) Steps() (pipeline.DrawTransformer, []pipeline.DataTransformer) {
 	draw := func(size winsize.Winsize, unit drawable.Unit) ([]text.Line, bool) {
-		cfg := options.ResolveRowsConfig(b.optionsY...)
+		cfgY := rows.ResolveConfig(b.optionsY...)
+		cfgX := cols.ResolveConfig(b.optionsX...)
 
-		marginY := b.marginY * verticalFactor(cfg.Position)
-		marginX := b.marginX * horizontalFactor(b.positionX)
+		marginY := b.marginY * verticalFactor(cfgY.Position)
+		marginX := b.marginX * horizontalFactor(cfgX.Position)
 
 		fixedSize := winsize.New(
 			size.Rows.Sub(marginY),
@@ -74,7 +63,7 @@ func (b *Builder) Steps() (pipeline.DrawTransformer, []pipeline.DataTransformer)
 
 	if b.marginX > 0 {
 		data = append(data,
-			colsDrawTransformer(b.marginX, b.defaultX, b.positionX),
+			colsDrawTransformer(b.marginX, b.optionsX...),
 		)
 	}
 

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -104,7 +104,7 @@ func TestRowsTransformer(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			transformer := Rows(tt.hint, options.WithPosition(tt.pos))
+			transformer := Rows(tt.hint, rows.WithPosition(tt.pos))
 
 			gotLines := transformer(tt.canvasSize, mockLines)
 

@@ -1,51 +1,39 @@
 package padding
 
 import (
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 )
 
 type Builder struct {
-	hintY     *hint.Size[winsize.Rows]
-	optionsY  []options.RowsOption
-	hintX     *hint.Size[winsize.Cols]
-	defaultX  string
-	positionX style.HorizontalPosition
+	hintY    *hint.Size[winsize.Rows]
+	optionsY []rows.Option
+	hintX    *hint.Size[winsize.Cols]
+	optionsX []cols.Option
 }
 
 func NewBuilder() *Builder {
 	return &Builder{
-		hintY:     nil,
-		optionsY:  make([]options.RowsOption, 0),
-		hintX:     nil,
-		defaultX:  padding.DefaultColFrag,
-		positionX: style.Center,
+		hintY:    nil,
+		optionsY: make([]rows.Option, 0),
+		hintX:    nil,
+		optionsX: make([]cols.Option, 0),
 	}
 }
 
-func (b *Builder) Y(hint hint.Size[winsize.Rows], opts ...options.RowsOption) *Builder {
+func (b *Builder) Y(hint hint.Size[winsize.Rows], opts ...rows.Option) *Builder {
 	b.hintY = &hint
 	b.optionsY = append(b.optionsY, opts...)
 	return b
 }
 
-func (b *Builder) X(hint hint.Size[winsize.Cols], position ...style.HorizontalPosition) *Builder {
-	return b.XWithDefault(hint, padding.DefaultColFrag, position...)
-}
-
-func (b *Builder) XWithDefault(hint hint.Size[winsize.Cols], frag string, position ...style.HorizontalPosition) *Builder {
+func (b *Builder) X(hint hint.Size[winsize.Cols], opts ...cols.Option) *Builder {
 	b.hintX = &hint
-	b.defaultX = frag
-
-	if len(position) > 0 {
-		b.positionX = position[0]
-	}
-
+	b.optionsX = append(b.optionsX, opts...)
 	return b
 }
 
@@ -60,7 +48,7 @@ func (b *Builder) Steps() []pipeline.DataTransformer {
 
 	if b.hintX != nil {
 		data = append(data,
-			ColsWithDefault(*b.hintX, b.defaultX, b.positionX),
+			Cols(*b.hintX, b.optionsX...),
 		)
 	}
 

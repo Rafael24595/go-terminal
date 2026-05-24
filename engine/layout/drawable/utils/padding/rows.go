@@ -2,7 +2,7 @@ package padding
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -17,13 +17,13 @@ var rowPositionerMap = map[style.VerticalPosition]rowPositioner{
 	style.Middle: rowsToMiddle,
 }
 
-func Rows(rows hint.Size[winsize.Rows], opts ...options.RowsOption) transformer {
-	cfg := options.ResolveRowsConfig(opts...)
+func Rows(hint hint.Size[winsize.Rows], opts ...rows.Option) transformer {
+	cfg := rows.ResolveConfig(opts...)
 
 	return func(size winsize.Winsize, lines []text.Line) []text.Line {
 		frag := cfg.Provider(size, lines...)
 
-		padding := rows.Min(size.Rows)
+		padding := hint.Min(size.Rows)
 		if winsize.Rows(len(lines)) >= padding {
 			return lines
 		}

@@ -1,4 +1,4 @@
-package options
+package rows
 
 import (
 	"testing"
@@ -9,8 +9,19 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
+func TestResolveConfigDefaults(t *testing.T) {
+	cfg := ResolveConfig()
+	assert.Equal(t, style.Top, cfg.Position)
+
+	frag := cfg.Provider(
+		winsize.New(10, 20),
+	)
+
+	assert.Len(t, 0, frag.Text)
+}
+
 func TestWithPosition(t *testing.T) {
-	cfg := defaultRowsConfig()
+	cfg := defaultConfig()
 
 	WithPosition(style.Bottom)(&cfg)
 
@@ -18,7 +29,7 @@ func TestWithPosition(t *testing.T) {
 }
 
 func TestWithFragment(t *testing.T) {
-	cfg := defaultRowsConfig()
+	cfg := defaultConfig()
 
 	WithFragment(
 		*text.NewFragment("golang"),
@@ -32,7 +43,7 @@ func TestWithFragment(t *testing.T) {
 }
 
 func TestWithFillFragment(t *testing.T) {
-	cfg := defaultRowsConfig()
+	cfg := defaultConfig()
 
 	WithFillFragment(".")(&cfg)
 

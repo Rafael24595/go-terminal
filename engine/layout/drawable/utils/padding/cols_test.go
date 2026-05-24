@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -120,7 +121,7 @@ func TestColsTransformer(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			transformer := Cols(tt.hint, tt.pos)
+			transformer := Cols(tt.hint, cols.WithPosition(tt.pos))
 			resLines := transformer(tt.size, mockLines)
 
 			gotSize := text.FragmentMeasure(tt.size.Cols, resLines[0].Text...)

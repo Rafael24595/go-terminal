@@ -1,10 +1,10 @@
 package margin
 
 import (
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -12,19 +12,19 @@ import (
 )
 
 func RowsTop(margin winsize.Rows) pipeline.DataTransformer {
-	return rowsDataTransformer(margin, options.WithPosition(style.Bottom))
+	return rowsDataTransformer(margin, rows.WithPosition(style.Bottom))
 }
 
 func RowsBottom(margin winsize.Rows) pipeline.DataTransformer {
-	return rowsDataTransformer(margin, options.WithPosition(style.Top))
+	return rowsDataTransformer(margin, rows.WithPosition(style.Top))
 }
 
 func RowsMiddle(margin winsize.Rows) pipeline.DataTransformer {
-	return rowsDataTransformer(margin, options.WithPosition(style.Middle))
+	return rowsDataTransformer(margin, rows.WithPosition(style.Middle))
 }
 
-func rowsDataTransformer(margin winsize.Rows, opts ...options.RowsOption) pipeline.DataTransformer {
-	cfg := options.ResolveRowsConfig(opts...)
+func rowsDataTransformer(margin winsize.Rows, opts ...rows.Option) pipeline.DataTransformer {
+	cfg := rows.ResolveConfig(opts...)
 	margin = margin * verticalFactor(cfg.Position)
 
 	return func(size winsize.Winsize, _ drawable.Unit, lines []text.Line, hasNext bool) ([]text.Line, bool) {

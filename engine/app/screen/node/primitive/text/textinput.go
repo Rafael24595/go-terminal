@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
@@ -144,7 +145,7 @@ func (c *TextInput) makePipeline(unit drawable.Unit) drawable.Unit {
 
 	paddingStep := padding.Cols(
 		hint.Fixed(c.limit),
-		style.Left,
+		cols.WithPosition(style.Left),
 	)
 
 	return pipeline.New(unit).

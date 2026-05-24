@@ -1,6 +1,7 @@
 package margin
 
 import (
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
@@ -10,19 +11,21 @@ import (
 )
 
 func ColsLeft(margin winsize.Cols) pipeline.DataTransformer {
-	return colsDrawTransformer(margin, padding.DefaultColFrag, style.Right)
+	return colsDrawTransformer(margin, cols.WithPosition(style.Right))
 }
 
 func ColsRight(margin winsize.Cols) pipeline.DataTransformer {
-	return colsDrawTransformer(margin, padding.DefaultColFrag, style.Left)
+	return colsDrawTransformer(margin, cols.WithPosition(style.Left))
 }
 
 func ColsCenter(margin winsize.Cols) pipeline.DataTransformer {
-	return colsDrawTransformer(margin, padding.DefaultColFrag, style.Center)
+	return colsDrawTransformer(margin, cols.WithPosition(style.Center))
 }
 
-func colsDrawTransformer(margin winsize.Cols, frag string, position style.HorizontalPosition) pipeline.DataTransformer {
-	margin = margin * horizontalFactor(position)
+func colsDrawTransformer(margin winsize.Cols, opts ...cols.Option) pipeline.DataTransformer {
+	cfg := cols.ResolveConfig(opts...)
+
+	margin = margin * horizontalFactor(cfg.Position)
 
 	return func(size winsize.Winsize, _ drawable.Unit, lines []text.Line, hasNext bool) ([]text.Line, bool) {
 		newLines := make([]text.Line, len(lines))
@@ -41,8 +44,8 @@ func colsDrawTransformer(margin winsize.Cols, frag string, position style.Horizo
 				remaining = measure.Sub(size.Cols)
 			}
 
-			newLines[i] = padding.AddColsPaddingWithDefault(
-				remaining, lines[i], frag, position,
+			newLines[i] = padding.AddColsPadding(
+				remaining, lines[i], opts...
 			)
 		}
 

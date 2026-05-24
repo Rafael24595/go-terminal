@@ -3,8 +3,9 @@ package wrapper_screen
 import (
 	node_pipeline "github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline"
 	text_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/text"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	drawable_pipeline "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
@@ -80,12 +81,12 @@ func wrapStep(vm viewmodel.ViewModel) viewmodel.ViewModel {
 
 	paddingX := padding.Cols(
 		hint.Maximize[winsize.Cols](),
-		style.Left,
+		cols.WithPosition(style.Left),
 	)
 
 	paddingY := padding.Rows(
 		hint.Maximize[winsize.Rows](),
-		options.WithPosition(style.Top),
+		rows.WithPosition(style.Top),
 	)
 
 	paddingPip := drawable_pipeline.New(kernel).

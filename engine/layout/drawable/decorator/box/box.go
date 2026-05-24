@@ -3,12 +3,13 @@ package box
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/runes"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/margin"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
@@ -84,8 +85,8 @@ func (d *BoxUnit) makeUnit() drawable.Unit {
 	}
 
 	return margin.NewBuilder().
-		Y(d.paddingY, options.WithPosition(style.Middle)).
-		X(d.paddingX, style.Center).
+		Y(d.paddingY, rows.WithPosition(style.Middle)).
+		X(d.paddingX, cols.WithPosition(style.Center)).
 		ToUnit(d.unit)
 }
 
@@ -119,7 +120,8 @@ func (d *BoxUnit) styleLines(size winsize.Winsize, lines ...text.Line) []text.Li
 	available := size.Cols.Sub(vertical)
 
 	transformer := padding.Cols(
-		hint.Fixed(maxLine), style.Center,
+		hint.Fixed(maxLine),
+		cols.WithPosition(style.Center),
 	)
 
 	for _, lin := range transformer(size, lines) {

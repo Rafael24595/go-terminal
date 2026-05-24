@@ -3,13 +3,14 @@ package modal
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/justify"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/padding"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -93,14 +94,14 @@ func (d *ModalUnit) lazyInit(size winsize.Winsize) {
 		}
 	}
 
-	cols := text.MaxLineMeasure(size.Cols, d.text...) + 1
+	measure := text.MaxLineMeasure(size.Cols, d.text...) + 1
 	text := formatLines(d.text...)
 
 	title := drain.UnitFromLines(text...)
 
 	optionsBlock := drain.Unit(
 		justify.New(opts).
-			MaxCols(cols).
+			MaxCols(measure).
 			ToUnit(),
 	)
 
@@ -118,8 +119,8 @@ func (d *ModalUnit) lazyInit(size winsize.Winsize) {
 		ToUnit()
 
 	position := padding.NewBuilder().
-		Y(hint.Maximize[winsize.Rows](), options.WithPosition(style.Middle)).
-		X(hint.Maximize[winsize.Cols](), style.Center).
+		Y(hint.Maximize[winsize.Rows](), rows.WithPosition(style.Middle)).
+		X(hint.Maximize[winsize.Cols](), cols.WithPosition(style.Center)).
 		ToUnit(box)
 
 	position.Drawable.Init()
