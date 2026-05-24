@@ -5,12 +5,13 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/template"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/position"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -51,17 +52,23 @@ func makeKernel() drawable.Unit {
 	)
 
 	box := box.Wrap(ascii)
-	pst := position.New(box).
-		PositionY(style.Top).
-		MarginY(1).MarginX(1).Absolute(false)
 
-	pst2 := position.New(pst.ToUnit()).
-		PositionY(style.Top).
-		MarginY(3)
+	padding := position.NewBuilder().
+		MarginX(1).
+		MarginY(1,
+			rows.WithFillFragment(),
+			rows.WithPosition(style.Middle),
+		).
+		ToUnit(box)
+
+	position := position.NewBuilder().
+		MarginY(3,
+			rows.WithPosition(style.Middle),
+		).
+		ToUnit(padding)
 
 	hstack.PushChunk(
-		pst2.ToUnit(),
-		chunk.Fixed[winsize.Cols](28),
+		position, chunk.Fixed[winsize.Cols](28),
 	)
 
 	article := line.UnitFromLines(
