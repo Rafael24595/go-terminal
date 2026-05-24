@@ -8,6 +8,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/margin"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
@@ -83,7 +84,7 @@ func (d *BoxUnit) makeUnit() drawable.Unit {
 	}
 
 	return margin.NewBuilder().
-		Y(d.paddingY, style.Middle).
+		Y(d.paddingY, options.WithPosition(style.Middle)).
 		X(d.paddingX, style.Center).
 		ToUnit(d.unit)
 }

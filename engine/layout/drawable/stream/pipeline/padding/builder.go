@@ -4,16 +4,15 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 type Builder struct {
 	hintY     *hint.Size[winsize.Rows]
-	defaultY  text.Fragment
-	positionY style.VerticalPosition
+	optionsY  []options.RowsOption
 	hintX     *hint.Size[winsize.Cols]
 	defaultX  string
 	positionX style.HorizontalPosition
@@ -22,26 +21,16 @@ type Builder struct {
 func NewBuilder() *Builder {
 	return &Builder{
 		hintY:     nil,
-		defaultY:  *padding.DefaultRowFrag(),
-		positionY: style.Middle,
+		optionsY:  make([]options.RowsOption, 0),
 		hintX:     nil,
 		defaultX:  padding.DefaultColFrag,
 		positionX: style.Center,
 	}
 }
 
-func (b *Builder) Y(hint hint.Size[winsize.Rows], position ...style.VerticalPosition) *Builder {
-	return b.YWithDefault(hint, *padding.DefaultRowFrag(), position...)
-}
-
-func (b *Builder) YWithDefault(hint hint.Size[winsize.Rows], frag text.Fragment, position ...style.VerticalPosition) *Builder {
+func (b *Builder) Y(hint hint.Size[winsize.Rows], opts ...options.RowsOption) *Builder {
 	b.hintY = &hint
-	b.defaultY = frag
-
-	if len(position) > 0 {
-		b.positionY = position[0]
-	}
-
+	b.optionsY = append(b.optionsY, opts...)
 	return b
 }
 
@@ -65,7 +54,7 @@ func (b *Builder) Steps() []pipeline.DataTransformer {
 
 	if b.hintY != nil {
 		data = append(data,
-			RowsWithDefault(*b.hintY, b.defaultY, b.positionY),
+			Rows(*b.hintY, b.optionsY...),
 		)
 	}
 

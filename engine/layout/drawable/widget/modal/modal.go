@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/padding"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
@@ -97,11 +98,11 @@ func (d *ModalUnit) lazyInit(size winsize.Winsize) {
 
 	title := drain.UnitFromLines(text...)
 
-	options := justify.New(opts).
-		MaxCols(cols).
-		ToUnit()
-
-	optionsBlock := drain.Unit(options)
+	optionsBlock := drain.Unit(
+		justify.New(opts).
+			MaxCols(cols).
+			ToUnit(),
+	)
 
 	title.Drawable.Init()
 	optionsBlock.Drawable.Init()
@@ -117,7 +118,7 @@ func (d *ModalUnit) lazyInit(size winsize.Winsize) {
 		ToUnit()
 
 	position := padding.NewBuilder().
-		Y(hint.Maximize[winsize.Rows](), style.Middle).
+		Y(hint.Maximize[winsize.Rows](), options.WithPosition(style.Middle)).
 		X(hint.Maximize[winsize.Cols](), style.Center).
 		ToUnit(box)
 

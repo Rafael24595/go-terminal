@@ -2,15 +2,12 @@ package padding
 
 import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
-
-func DefaultRowFrag() *text.Fragment {
-	return text.EmptyFragment()
-}
 
 type rowPositioner func([]text.Line, text.Fragment, winsize.Rows) []text.Line
 
@@ -18,6 +15,27 @@ var rowPositionerMap = map[style.VerticalPosition]rowPositioner{
 	style.Top:    rowsToTop,
 	style.Bottom: rowsToBottom,
 	style.Middle: rowsToMiddle,
+}
+
+func Rows(rows hint.Size[winsize.Rows], opts ...options.RowsOption) transformer {
+	cfg := options.ResolveRowsConfig(opts...)
+
+	return func(size winsize.Winsize, lines []text.Line) []text.Line {
+		frag := cfg.Provider(size, lines...)
+
+		padding := rows.Min(size.Rows)
+		if winsize.Rows(len(lines)) >= padding {
+			return lines
+		}
+
+		positioner, ok := rowPositionerMap[cfg.Position]
+		if !ok {
+			assert.Unreachable("unhandled vertical position '%d'", cfg.Position)
+			positioner = rowsToTop
+		}
+
+		return positioner(lines, frag, padding)
+	}
 }
 
 func rowsToTop(lines []text.Line, frag text.Fragment, padding winsize.Rows) []text.Line {
@@ -57,30 +75,4 @@ func paddingLines(rows winsize.Rows, frag text.Fragment) []text.Line {
 	}
 
 	return result
-}
-
-func Rows(rows hint.Size[winsize.Rows], position ...style.VerticalPosition) transformer {
-	return RowsWithDefault(rows, *DefaultRowFrag(), position...)
-}
-
-func RowsWithDefault(rows hint.Size[winsize.Rows], frag text.Fragment, position ...style.VerticalPosition) transformer {
-	vertical := style.Top
-	if len(position) > 0 {
-		vertical = position[0]
-	}
-
-	return func(size winsize.Winsize, lines []text.Line) []text.Line {
-		padding := rows.Min(size.Rows)
-		if winsize.Rows(len(lines)) >= padding {
-			return lines
-		}
-
-		positioner, ok := rowPositionerMap[vertical]
-		if !ok {
-			assert.Unreachable("unhandled vertical position '%d'", position)
-			positioner = rowsToTop
-		}
-
-		return positioner(lines, frag, padding)
-	}
 }

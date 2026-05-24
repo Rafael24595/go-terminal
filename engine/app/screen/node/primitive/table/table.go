@@ -9,6 +9,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/padding"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/utils/padding/options"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/hint"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/input"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
@@ -190,7 +191,7 @@ func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 	table := drawable_table.UnitFromTable(*c.table, *c.cursor)
 
 	position := padding.NewBuilder().
-		Y(hint.Maximize[winsize.Rows](), c.positionY).
+		Y(hint.Maximize[winsize.Rows](), options.WithPosition(c.positionY)).
 		X(hint.Maximize[winsize.Cols](), c.positionX).
 		ToUnit(table)
 
