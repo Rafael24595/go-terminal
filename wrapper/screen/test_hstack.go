@@ -53,7 +53,7 @@ func makeKernel() drawable.Unit {
 
 	box := box.Wrap(ascii)
 
-	padding := position.NewBuilder().
+	padding := position.New().
 		MarginX(1).
 		MarginY(1,
 			rows.WithFillFragment(),
@@ -61,7 +61,7 @@ func makeKernel() drawable.Unit {
 		).
 		ToUnit(box)
 
-	position := position.NewBuilder().
+	position := position.New().
 		MarginY(3,
 			rows.WithPosition(style.Middle),
 		).

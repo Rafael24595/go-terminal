@@ -16,7 +16,7 @@ type Builder struct {
 	margin  *margin.Builder
 }
 
-func NewBuilder() *Builder {
+func New() *Builder {
 	return &Builder{
 		padding: padding.NewBuilder(),
 		margin:  margin.NewBuilder(),
