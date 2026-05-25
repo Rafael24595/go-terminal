@@ -14,7 +14,7 @@ func ps(k style.SpecKind, s SpecStyler) dict.Pair[style.SpecKind, SpecStyler] {
 	return dict.NewPair(k, s)
 }
 
-var DefaultSpecStyler = dict.NewInmutableLinkedMap(
+var Specs = dict.NewInmutableLinkedMap(
 	ps(style.SpcKindFill, func(spec style.Spec, cols winsize.Cols, text string, logicalSize winsize.Cols) (string, bool) {
 		return fill(spec, cols, text, logicalSize), true
 	}),
@@ -50,9 +50,9 @@ func NewSpec() *Spec {
 	return instance.lazyInit()
 }
 
-func NewDefault() *Spec {
+func NewDefaultSpec() *Spec {
 	return &Spec{
-		table: DefaultSpecStyler,
+		table: Specs.Clone(false),
 	}
 }
 

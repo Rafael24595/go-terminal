@@ -13,7 +13,7 @@ func pa(k style.Atom, s AtomStyler) dict.Pair[style.Atom, AtomStyler] {
 	return dict.NewPair(k, s)
 }
 
-var DefaultAtomStyler = dict.NewInmutableLinkedMap(
+var Atoms = dict.NewInmutableLinkedMap(
 	pa(style.AtmLower, func(text string) string {
 		return strings.ToLower(text)
 	}),
@@ -37,6 +37,12 @@ func NewAtom() *Atom {
 	return instance.lazyInit()
 }
 
+func NewDefaultAtom() *Atom {
+	return &Atom{
+		table: Atoms.Clone(false),
+	}
+}
+
 func (a *Atom) lazyInit() *Atom {
 	if a.table != nil {
 		return a
@@ -46,10 +52,10 @@ func (a *Atom) lazyInit() *Atom {
 	return a
 }
 
-func (a *Atom) Push(pair dict.Pair[style.Atom, AtomStyler]) *Atom {
+func (a *Atom) Push(pair ...dict.Pair[style.Atom, AtomStyler]) *Atom {
 	a.lazyInit()
 
-	a.table.SetPairs(pair)
+	a.table.SetPairs(pair...)
 	return a
 }
 

@@ -213,7 +213,7 @@ func (e *Engine) renderFrame(state *state.UIState, size winsize.Winsize) {
 	vm := e.node.Screen.View(*state)
 
 	state, lines := e.layout.Compose(state, vm, size)
-	result := e.render.Render(lines, size)
+	result := e.render.Processor(lines, size)
 
 	e.syncPager(state, &vm)
 	e.syncPulse(vm)

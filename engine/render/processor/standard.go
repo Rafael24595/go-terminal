@@ -1,21 +1,34 @@
-package wrapper_render
+package processor
 
 import (
 	"strings"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/styler"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-func TerminalRawRender(lines []text.Line, size winsize.Winsize) []string {
+type Standard struct {
+	atom styler.Atom
+	spec styler.Spec
+}
+
+func New(atom styler.Atom, spec styler.Spec) Standard {
+	return Standard{
+		atom: atom,
+		spec: spec,
+	}
+}
+
+func (r Standard) Render(lines []text.Line, size winsize.Winsize) []string {
 	buffer := make([]string, len(lines))
 
 	for i, line := range lines {
 		measure := text.FragmentMeasure(size.Cols, line.Text...)
-		styled := renderLineFragments(line, size)
+		styled := r.renderLineFragments(line, size)
 
-		buffer[i] = applySpecStyles(
+		buffer[i] = r.spec.Apply(
 			line.Spec,
 			size,
 			styled,
@@ -26,7 +39,7 @@ func TerminalRawRender(lines []text.Line, size winsize.Winsize) []string {
 	return buffer
 }
 
-func renderLineFragments(line text.Line, size winsize.Winsize) string {
+func (r Standard) renderLineFragments(line text.Line, size winsize.Winsize) string {
 	var buffer strings.Builder
 
 	fragments := ""
@@ -38,13 +51,13 @@ func renderLineFragments(line text.Line, size winsize.Winsize) string {
 	)
 
 	for _, f := range line.Text {
-		spec := applySpecStyles(f.Spec, lineSize, f.Text, f.Size())
+		spec := r.spec.Apply(f.Spec, lineSize, f.Text, f.Size())
 
 		fragSize := text.FragmentMeasure(size.Cols, f)
 		lineSize.Cols = lineSize.Cols.Sub(fragSize)
 
 		if atomStyles != f.Atom && len(fragments) != 0 {
-			atom := applyAtomStyles(fragments, atomStyles)
+			atom := r.atom.Apply(fragments, atomStyles)
 			buffer.WriteString(atom)
 
 			fragments = spec
@@ -58,9 +71,10 @@ func renderLineFragments(line text.Line, size winsize.Winsize) string {
 	}
 
 	if len(fragments) != 0 {
-		atom := applyAtomStyles(fragments, atomStyles)
+		atom := r.atom.Apply(fragments, atomStyles)
 		buffer.WriteString(atom)
 	}
 
 	return buffer.String()
 }
+

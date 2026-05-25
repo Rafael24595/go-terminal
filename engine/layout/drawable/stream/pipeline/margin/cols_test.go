@@ -35,7 +35,7 @@ func TestColsTransformer_KeepHasNext(t *testing.T) {
 
 func TestColsLeftTransformer(t *testing.T) {
 	mock := drawable_test.MockUnit{}
-	styler := styler.NewDefault()
+	styler := styler.NewDefaultSpec()
 
 	tests := []struct {
 		name      string
@@ -95,7 +95,7 @@ func TestColsLeftTransformer(t *testing.T) {
 
 func TestColsRightTransformer(t *testing.T) {
 	mock := drawable_test.MockUnit{}
-	styler := styler.NewDefault()
+	styler := styler.NewDefaultSpec()
 
 	tests := []struct {
 		name      string
@@ -155,7 +155,7 @@ func TestColsRightTransformer(t *testing.T) {
 
 func TestColsCenterTransformer(t *testing.T) {
 	mock := drawable_test.MockUnit{}
-	styler := styler.NewDefault()
+	styler := styler.NewDefaultSpec()
 
 	tests := []struct {
 		name      string

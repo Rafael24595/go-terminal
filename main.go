@@ -28,6 +28,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize/transformer"
 	"github.com/Rafael24595/go-reacterm-core/engine/render"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/processor"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/styler"
 	"github.com/Rafael24595/go-reacterm-core/engine/terminal"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/app/cleaner/composite"
@@ -144,9 +145,16 @@ func makeLayout(transformer winsize.Transformer) layout.Layout {
 }
 
 func makeRender(transformer winsize.Transformer) render.Render {
+	atomStyler := styler.NewDefaultAtom().
+		Push(wrapper_render.Atoms.ToPairsSlice()...)
+
+	specStyler := styler.NewDefaultSpec()
+
+	standard := processor.New(*atomStyler, *specStyler)
+
 	adapter := processor.WithPadding(
 		transformer,
-		wrapper_render.TerminalRawRender,
+		standard.Render,
 	)
 
 	return render.NewBuilder(adapter).

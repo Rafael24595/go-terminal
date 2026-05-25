@@ -1,12 +1,10 @@
-package wrapper_render
+package styler
 
 import (
 	"testing"
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
-
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
-	wrapper_ansi "github.com/Rafael24595/go-reacterm-core/wrapper/ansi"
 )
 
 func TestAtomsStyler(t *testing.T) {
@@ -17,20 +15,32 @@ func TestAtomsStyler(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "bold transformation",
-			atom:     style.AtmBold,
-			input:    "Golang",
-			expected: wrapper_ansi.Bold + "Golang" + wrapper_ansi.NormalWeight,
+			name:     "lowercase transformation",
+			atom:     style.AtmLower,
+			input:    "HelLo GoLang",
+			expected: "hello golang",
 		},
 		{
-			name:     "select transformation",
+			name:     "uppercase transformation",
+			atom:     style.AtmUpper,
+			input:    "HelLo GoLang",
+			expected: "HELLO GOLANG",
+		},
+		{
+			name:     "bold does not modify text",
+			atom:     style.AtmBold,
+			input:    "Hello Golang",
+			expected: "Hello Golang",
+		},
+		{
+			name:     "select does not modify text",
 			atom:     style.AtmSelect,
-			input:    "Ziglang",
-			expected: wrapper_ansi.Reverse + "Ziglang" + wrapper_ansi.NoReverse,
+			input:    "Hello Golang",
+			expected: "Hello Golang",
 		},
 		{
 			name:     "empty string",
-			atom:     style.AtmBold,
+			atom:     style.AtmLower,
 			input:    "",
 			expected: "",
 		},
