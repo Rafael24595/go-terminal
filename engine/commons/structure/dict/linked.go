@@ -258,11 +258,16 @@ func (m *LinkedMap[K, V]) ToValuesSlice() []V {
 	return values
 }
 
-func (m *LinkedMap[K, V]) Clone() *LinkedMap[K, V] {
+func (m *LinkedMap[K, V]) Clone(inmu ...bool) *LinkedMap[K, V] {
 	m.lazyInit()
 
+	immutable := m.inmu
+	if len(inmu) > 0 {
+		immutable = inmu[0]
+	}
+
 	cloned := NewLinkedMap[K, V]()
-	cloned.inmu = m.inmu
+	cloned.inmu = immutable
 
 	for p := range m.Pairs() {
 		cloned.set(p)
