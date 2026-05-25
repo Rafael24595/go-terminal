@@ -39,6 +39,12 @@ func WithPosition(position style.HorizontalPosition) Option {
 	}
 }
 
+func WithText(frag string) Option {
+	return WithFragment(
+		*text.NewFragment(frag),
+	)
+}
+
 func WithFragment(frag text.Fragment) Option {
 	return func(cfg *Config) {
 		cfg.Provider = func(_ winsize.Cols, _ ...text.Line) text.Fragment {
@@ -46,4 +52,3 @@ func WithFragment(frag text.Fragment) Option {
 		}
 	}
 }
-
