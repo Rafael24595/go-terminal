@@ -1,4 +1,4 @@
-package adapter
+package processor
 
 import (
 	"strings"
@@ -10,18 +10,10 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-func JoinLines(inner render.RawAdapter) render.Adapter {
-	return func(lines []text.Line, size winsize.Winsize) string {
-		buffer := inner(lines, size)
-		buffer = normalize(buffer, size.Rows)
-		return strings.Join(buffer, "\n")
-	}
-}
-
 func WithPadding(
 	transform func(winsize.Winsize) winsize.Winsize,
-	inner render.RawAdapter,
-) render.Adapter {
+	inner render.RawProcessor,
+) render.Processor {
 	return func(lines []text.Line, size winsize.Winsize) string {
 		r := transform(size)
 

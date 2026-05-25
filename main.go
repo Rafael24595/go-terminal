@@ -27,7 +27,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize/transformer"
 	"github.com/Rafael24595/go-reacterm-core/engine/render"
-	"github.com/Rafael24595/go-reacterm-core/engine/render/adapter"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/processor"
 	"github.com/Rafael24595/go-reacterm-core/engine/terminal"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/app/cleaner/composite"
@@ -144,7 +144,7 @@ func makeLayout(transformer winsize.Transformer) layout.Layout {
 }
 
 func makeRender(transformer winsize.Transformer) render.Render {
-	adapter := adapter.WithPadding(
+	adapter := processor.WithPadding(
 		transformer,
 		wrapper_render.TerminalRawRender,
 	)

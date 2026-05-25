@@ -5,25 +5,25 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-type Adapter func([]text.Line, winsize.Winsize) string
-type RawAdapter func([]text.Line, winsize.Winsize) []string
+type Processor func([]text.Line, winsize.Winsize) string
+type RawProcessor func([]text.Line, winsize.Winsize) []string
 
 type Render struct {
-	Render Adapter
+	Processor Processor
 }
 
 type RenderBuilder struct {
-	render Adapter
+	render Processor
 }
 
-func NewBuilder(render Adapter) *RenderBuilder {
+func NewBuilder(processor Processor) *RenderBuilder {
 	return &RenderBuilder{
-		render: render,
+		render: processor,
 	}
 }
 
 func (b *RenderBuilder) ToRender() Render {
 	return Render{
-		Render: b.render,
+		Processor: b.render,
 	}
 }
