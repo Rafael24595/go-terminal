@@ -42,41 +42,41 @@ func UnitFromOptions(options []text.Fragment) drawable.Unit {
 	return New(options).ToUnit()
 }
 
-func (d *IndexMenuUnit) Meta(meta marker.IndexMeta) *IndexMenuUnit {
-	d.meta = meta
-	return d
+func (u *IndexMenuUnit) Meta(meta marker.IndexMeta) *IndexMenuUnit {
+	u.meta = meta
+	return u
 }
 
-func (d *IndexMenuUnit) Cursor(cursor uint16) *IndexMenuUnit {
-	d.cursor = cursor
-	return d
+func (u *IndexMenuUnit) Cursor(cursor uint16) *IndexMenuUnit {
+	u.cursor = cursor
+	return u
 }
 
-func (d *IndexMenuUnit) ToUnit() drawable.Unit {
+func (u *IndexMenuUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *IndexMenuUnit) init() {
-	d.loaded = true
+func (u *IndexMenuUnit) init() {
+	u.loaded = true
 
 	lines := make([]text.Line, 0)
 
-	digits := math.Digits(len(d.options))
+	digits := math.Digits(len(u.options))
 
-	for i, o := range d.options {
+	for i, o := range u.options {
 		focs := style.AtmNone
-		if i == int(d.cursor) {
+		if i == int(u.cursor) {
 			focs = style.AtmFocus
 		}
 
 		padd := text.EmptyFragment().
 			AddSpec(style.SpecPaddingLeft(2))
-		indx := d.makeIndex(i, winsize.Cols(digits))
+		indx := u.makeIndex(i, winsize.Cols(digits))
 		spac := text.NewFragment(marker.DefaultPaddingText)
 		mark := text.NewFragment(o.Text).
 			AddAtom(focs)
@@ -89,45 +89,45 @@ func (d *IndexMenuUnit) init() {
 	unit := drain.UnitFromLines(lines...)
 	unit.Drawable.Init()
 
-	d.unit = unit
+	u.unit = unit
 }
 
-func (d *IndexMenuUnit) makeIndex(cursor int, digits winsize.Cols) *text.Fragment {
-	if d.meta.Kind == marker.Numeric {
+func (u *IndexMenuUnit) makeIndex(cursor int, digits winsize.Cols) *text.Fragment {
+	if u.meta.Kind == marker.Numeric {
 		txt := helper.Right(strconv.Itoa(cursor+1), digits)
 		index := text.NewFragment(txt + ".- ")
-		if cursor == int(d.cursor) {
+		if cursor == int(u.cursor) {
 			index.Atom |= style.AtmBold
 		}
 		return index
 	}
 
-	if d.meta.Kind == marker.Alphabetic {
+	if u.meta.Kind == marker.Alphabetic {
 		txt := helper.Right(helper.NumberToAlpha(cursor), digits)
 		index := text.NewFragment(txt + ".- ")
-		if cursor == int(d.cursor) {
+		if cursor == int(u.cursor) {
 			index.Atom |= style.AtmBold
 		}
 		return index
 	}
 
-	index := d.meta.Index
-	if cursor == int(d.cursor) {
-		index = d.meta.Cursor
+	index := u.meta.Index
+	if cursor == int(u.cursor) {
+		index = u.meta.Cursor
 	}
 
 	return text.NewFragment(index)
 }
 
-func (d *IndexMenuUnit) wipe() {
-	if d.unit.Drawable.Wipe == nil {
+func (u *IndexMenuUnit) wipe() {
+	if u.unit.Drawable.Wipe == nil {
 		return
 	}
-	d.unit.Drawable.Wipe()
+	u.unit.Drawable.Wipe()
 }
 
-func (d *IndexMenuUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *IndexMenuUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	return d.unit.Drawable.Draw(size)
+	return u.unit.Drawable.Draw(size)
 }

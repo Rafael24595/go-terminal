@@ -22,35 +22,35 @@ func New() *Article {
 	}
 }
 
-func (c *Article) Name(name string) *Article {
-	c.reference = name
-	return c
+func (n *Article) Name(name string) *Article {
+	n.reference = name
+	return n
 }
 
-func (c *Article) AddArticle(article ...text.Line) *Article {
-	c.article = append(c.article, article...)
-	return c
+func (n *Article) AddArticle(article ...text.Line) *Article {
+	n.article = append(n.article, article...)
+	return n
 }
 
-func (c *Article) ToNode() screen.Node {
+func (n *Article) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.reference).
+		Name(n.reference).
 		NameToStack().
 		WithoutDefinition().
-		Update(c.update).
-		View(c.view).
+		Update(n.update).
+		View(n.view).
 		ToNode()
 }
 
-func (c *Article) update(stt *state.UIState, _ screen.Event) screen.Result {
+func (n *Article) update(stt *state.UIState, _ screen.Event) screen.Result {
 	return screen.ResultFromUIState(stt)
 }
 
-func (c *Article) view(_ state.UIState) viewmodel.ViewModel {
+func (n *Article) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
 	vm.Kernel.Push(
-		line.UnitFromLines(c.article...),
+		line.UnitFromLines(n.article...),
 	)
 
 	return *vm

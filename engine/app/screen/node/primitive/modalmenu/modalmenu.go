@@ -46,84 +46,84 @@ func New() *ModalMenu {
 	}
 }
 
-func (c *ModalMenu) SetName(name string) *ModalMenu {
-	c.reference = name
-	return c
+func (n *ModalMenu) SetName(name string) *ModalMenu {
+	n.reference = name
+	return n
 }
 
-func (c *ModalMenu) AddText(text ...text.Line) *ModalMenu {
-	c.text = append(c.text, text...)
-	return c
+func (n *ModalMenu) AddText(text ...text.Line) *ModalMenu {
+	n.text = append(n.text, text...)
+	return n
 }
 
-func (c *ModalMenu) AddOptions(options ...input.MenuOption) *ModalMenu {
-	c.options = append(c.options, options...)
-	return c
+func (n *ModalMenu) AddOptions(options ...input.MenuOption) *ModalMenu {
+	n.options = append(n.options, options...)
+	return n
 }
 
-func (c *ModalMenu) SetCursor(cursor uint16) *ModalMenu {
-	maxIdx := math.SubClampZeroAs[int, uint16](len(c.options), 1)
-	c.cursor = math.Clamp(cursor, 0, maxIdx)
-	return c
+func (n *ModalMenu) SetCursor(cursor uint16) *ModalMenu {
+	maxIdx := math.SubClampZeroAs[int, uint16](len(n.options), 1)
+	n.cursor = math.Clamp(cursor, 0, maxIdx)
+	return n
 }
 
-func (c *ModalMenu) ToNode() screen.Node {
+func (n *ModalMenu) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.reference).
+		Name(n.reference).
 		NameToStack().
-		Definition(c.definition).
-		Update(c.update).
-		View(c.view).
+		Definition(n.definition).
+		Update(n.update).
+		View(n.view).
 		ToNode()
 }
 
-func (c *ModalMenu) definition() screen.Definition {
+func (n *ModalMenu) definition() screen.Definition {
 	return definition
 }
 
-func (c *ModalMenu) update(state *state.UIState, evnt screen.Event) screen.Result {
+func (n *ModalMenu) update(state *state.UIState, evnt screen.Event) screen.Result {
 	ky := evnt.Key
 
 	switch ky.Code {
 	case key.ActionArrowUp:
-		c.cursor = 0
+		n.cursor = 0
 	case key.ActionArrowDown:
-		c.cursor = math.SubClampZeroAs[int, uint16](len(c.options), 1)
+		n.cursor = math.SubClampZeroAs[int, uint16](len(n.options), 1)
 	case key.ActionArrowLeft:
-		c.cursor = math.SubClampZero(c.cursor, 1)
+		n.cursor = math.SubClampZero(n.cursor, 1)
 	case key.ActionArrowRight:
-		last := math.SubClampZeroAs[int, uint16](len(c.options), 1)
-		c.cursor = min(last, c.cursor+1)
+		last := math.SubClampZeroAs[int, uint16](len(n.options), 1)
+		n.cursor = min(last, n.cursor+1)
 	case key.ActionEnter:
-		return c.actionEnter(state)
+		return n.actionEnter(state)
 	}
 
 	return screen.ResultFromUIState(state)
 }
 
-func (c *ModalMenu) actionEnter(stt *state.UIState) screen.Result {
-	option := c.options[c.cursor]
+func (n *ModalMenu) actionEnter(stt *state.UIState) screen.Result {
+	option := n.options[n.cursor]
 
 	state.PushParam(
 		stt.Stack,
-		c.reference,
+		n.reference,
 		ArgActiveOption,
 		option.Id,
 	)
 
-	node := c.options[c.cursor].Action()
+	node := n.options[n.cursor].Action()
 	return screen.ResultFromNode(&node)
 }
 
-func (c *ModalMenu) view(_ state.UIState) viewmodel.ViewModel {
+func (n *ModalMenu) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
-	frags := input.FragmentFromMenuOption(c.options...)
+	frags := input.FragmentFromMenuOption(n.options...)
 
 	modal := modal.New().
-		AddText(c.text...).
+		AddText(n.text...).
 		AddOptions(frags...).
-		DefineCursor(c.cursor).
+		DefineCursor(n.cursor).
 		ToUnit()
 
 	vm.Kernel.Push(modal)

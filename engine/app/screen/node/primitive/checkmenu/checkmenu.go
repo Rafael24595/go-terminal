@@ -73,132 +73,132 @@ func New() *CheckMenu {
 	}
 }
 
-func (c *CheckMenu) Name(name string) *CheckMenu {
-	c.reference = name
-	return c
+func (n *CheckMenu) Name(name string) *CheckMenu {
+	n.reference = name
+	return n
 }
 
-func (c *CheckMenu) Meta(meta marker.CheckMeta) *CheckMenu {
-	c.meta = meta
-	return c
+func (n *CheckMenu) Meta(meta marker.CheckMeta) *CheckMenu {
+	n.meta = meta
+	return n
 }
 
-func (c *CheckMenu) ActionHandler(handler input.CheckActionHandler) *CheckMenu {
-	c.action.Handler = handler
-	return c
+func (n *CheckMenu) ActionHandler(handler input.CheckActionHandler) *CheckMenu {
+	n.action.Handler = handler
+	return n
 }
 
-func (c *CheckMenu) AddOptions(options ...input.CheckOption) *CheckMenu {
-	c.options = append(c.options, options...)
-	return c
+func (n *CheckMenu) AddOptions(options ...input.CheckOption) *CheckMenu {
+	n.options = append(n.options, options...)
+	return n
 }
 
-func (c *CheckMenu) Cursor(cursor uint16) *CheckMenu {
-	maxIdx := math.SubClampZeroAs[int, uint16](len(c.options), 1)
-	c.cursor = math.Clamp(cursor, 0, maxIdx)
-	return c
+func (n *CheckMenu) Cursor(cursor uint16) *CheckMenu {
+	maxIdx := math.SubClampZeroAs[int, uint16](len(n.options), 1)
+	n.cursor = math.Clamp(cursor, 0, maxIdx)
+	return n
 }
 
-func (c *CheckMenu) Distribution(distribution style.Distribution) *CheckMenu {
-	c.distribution = distribution
-	return c
+func (n *CheckMenu) Distribution(distribution style.Distribution) *CheckMenu {
+	n.distribution = distribution
+	return n
 }
 
-func (c *CheckMenu) Limit(limit uint16) *CheckMenu {
-	c.limit = limit
-	return c
+func (n *CheckMenu) Limit(limit uint16) *CheckMenu {
+	n.limit = limit
+	return n
 }
 
-func (c *CheckMenu) ToNode() screen.Node {
+func (n *CheckMenu) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.reference).
+		Name(n.reference).
 		NameToStack().
-		Definition(c.definition).
-		Update(c.update).
-		View(c.view).
+		Definition(n.definition).
+		Update(n.update).
+		View(n.view).
 		ToNode()
 }
 
-func (c *CheckMenu) definition() screen.Definition {
-	if c.action.ActionMode {
+func (n *CheckMenu) definition() screen.Definition {
+	if n.action.ActionMode {
 		return write_definition
 	}
 	return read_definition
 }
 
-func (c *CheckMenu) update(stt *state.UIState, evt screen.Event) screen.Result {
-	if !c.action.ActionMode {
-		return c.updateRead(stt, evt)
+func (n *CheckMenu) update(stt *state.UIState, evt screen.Event) screen.Result {
+	if !n.action.ActionMode {
+		return n.updateRead(stt, evt)
 	}
 
-	return c.updateNavigation(stt, evt)
+	return n.updateNavigation(stt, evt)
 }
 
-func (c *CheckMenu) updateNavigation(stt *state.UIState, evt screen.Event) screen.Result {
+func (n *CheckMenu) updateNavigation(stt *state.UIState, evt screen.Event) screen.Result {
 	ky := evt.Key
 
-	optsLen := uint16(len(c.options))
+	optsLen := uint16(len(n.options))
 
 	switch ky.Code {
 	case key.ActionEsc:
-		c.action.ActionMode = false
+		n.action.ActionMode = false
 	case key.ActionEnter:
-		c.switchState()
+		n.switchState()
 		state.PushParam(
 			stt.Stack,
-			c.reference,
+			n.reference,
 			ArgActiveChecks,
-			c.activeIds(),
+			n.activeIds(),
 		)
 	case key.ActionArrowLeft:
-		c.cursor = math.SubClampZero(c.cursor, 1)
+		n.cursor = math.SubClampZero(n.cursor, 1)
 	case key.ActionArrowRight:
 		optsLen = math.SubClampZero(optsLen, 1)
-		c.cursor = min(optsLen, c.cursor+1)
+		n.cursor = min(optsLen, n.cursor+1)
 	case key.ActionArrowUp:
-		c.cursor = 0
+		n.cursor = 0
 	case key.ActionArrowDown:
 		optsLen = math.SubClampZero(optsLen, 1)
-		c.cursor = max(0, optsLen)
+		n.cursor = max(0, optsLen)
 	}
 
 	return screen.ResultFromUIState(stt)
 }
 
-func (c *CheckMenu) updateRead(state *state.UIState, evnt screen.Event) screen.Result {
+func (n *CheckMenu) updateRead(state *state.UIState, evnt screen.Event) screen.Result {
 	ky := evnt.Key
 
 	switch ky.Code {
 	case key.ActionEnter:
-		c.action.ActionMode = true
+		n.action.ActionMode = true
 	}
 
 	return screen.ResultFromUIState(state)
 }
 
-func (c *CheckMenu) switchState() {
-	optsLen := uint16(len(c.options))
+func (n *CheckMenu) switchState() {
+	optsLen := uint16(len(n.options))
 
-	if c.cursor < optsLen {
-		c.options[c.cursor].Status = !c.options[c.cursor].Status
+	if n.cursor < optsLen {
+		n.options[n.cursor].Status = !n.options[n.cursor].Status
 	}
 
-	if c.options[c.cursor].Status {
-		c.options[c.cursor].Timestamp = c.clock()
+	if n.options[n.cursor].Status {
+		n.options[n.cursor].Timestamp = n.clock()
 	}
 
-	if c.limit == 0 {
+	if n.limit == 0 {
 		return
 	}
 
 	active := make([]*input.CheckOption, 0, optsLen)
-	for i := range c.options {
-		if c.options[i].Status {
-			active = append(active, &c.options[i])
+	for i := range n.options {
+		if n.options[i].Status {
+			active = append(active, &n.options[i])
 		}
 	}
 
-	if len(active) <= int(c.limit) {
+	if len(active) <= int(n.limit) {
 		return
 	}
 
@@ -206,15 +206,15 @@ func (c *CheckMenu) switchState() {
 		return active[i].Timestamp < active[j].Timestamp
 	})
 
-	excess := len(active) - int(c.limit)
+	excess := len(active) - int(n.limit)
 	for i := range excess {
 		active[i].Status = false
 	}
 }
 
-func (c *CheckMenu) activeIds() set.Set[string] {
+func (n *CheckMenu) activeIds() set.Set[string] {
 	result := set.NewSet[string]()
-	for _, v := range c.options {
+	for _, v := range n.options {
 		if v.Status {
 			result.Add(v.Id)
 		}
@@ -222,11 +222,11 @@ func (c *CheckMenu) activeIds() set.Set[string] {
 	return result
 }
 
-func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
-	indexmenu := checkmenu.New(c.options).
-		WriteMode(c.action.ActionMode).
-		Meta(c.meta).
-		Cursor(c.cursor)
+func (n *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
+	indexmenu := checkmenu.New(n.options).
+		WriteMode(n.action.ActionMode).
+		Meta(n.meta).
+		Cursor(n.cursor)
 
 	vm := viewmodel.NewViewModel()
 
@@ -238,9 +238,9 @@ func (c *CheckMenu) view(_ state.UIState) viewmodel.ViewModel {
 		pager.PredicateFocus(),
 	)
 
-	index := math.SubClampZeroAs[int, uint16](len(c.options), 1)
-	option := min(index, c.cursor)
-	text := c.options[option].Label.Text
+	index := math.SubClampZeroAs[int, uint16](len(n.options), 1)
+	option := min(index, n.cursor)
+	text := n.options[option].Label.Text
 
 	vm.Footer.Push(
 		inputline.Wrap(

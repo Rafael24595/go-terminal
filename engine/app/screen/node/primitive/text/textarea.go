@@ -86,443 +86,443 @@ func NewArea() *TextArea {
 	}
 }
 
-func (c *TextArea) SetName(name string) *TextArea {
-	c.reference = name
-	return c
+func (n *TextArea) SetName(name string) *TextArea {
+	n.reference = name
+	return n
 }
 
-func (c *TextArea) SetBuffer(buffer *buffer.RuneBuffer) *TextArea {
+func (n *TextArea) SetBuffer(buffer *buffer.RuneBuffer) *TextArea {
 	if buffer != nil {
-		c.buffer = buffer
+		n.buffer = buffer
 	}
-	return c
+	return n
 }
 
-func (c *TextArea) WriteMode() *TextArea {
-	c.writeMode = true
-	return c
+func (n *TextArea) WriteMode() *TextArea {
+	n.writeMode = true
+	return n
 }
 
-func (c *TextArea) ReadMode() *TextArea {
-	c.writeMode = false
-	return c
+func (n *TextArea) ReadMode() *TextArea {
+	n.writeMode = false
+	return n
 }
 
-func (c *TextArea) EnableBlinking() *TextArea {
-	c.caret.EnableBlinking()
-	return c
+func (n *TextArea) EnableBlinking() *TextArea {
+	n.caret.EnableBlinking()
+	return n
 }
 
-func (c *TextArea) DisableBlinking() *TextArea {
-	c.caret.DisableBlinking()
-	return c
+func (n *TextArea) DisableBlinking() *TextArea {
+	n.caret.DisableBlinking()
+	return n
 }
 
-func (c *TextArea) AddText(text string) *TextArea {
-	c.buffer.Append([]rune(text))
-	c.caret.MoveCaretTo(c.buffer.Buffer(), c.buffer.Size())
-	return c
+func (n *TextArea) AddText(text string) *TextArea {
+	n.buffer.Append([]rune(text))
+	n.caret.MoveCaretTo(n.buffer.Buffer(), n.buffer.Size())
+	return n
 }
 
-func (c *TextArea) ShowIndex() *TextArea {
-	c.indexMode = true
-	return c
+func (n *TextArea) ShowIndex() *TextArea {
+	n.indexMode = true
+	return n
 }
 
-func (c *TextArea) HideIndex() *TextArea {
-	c.indexMode = false
-	return c
+func (n *TextArea) HideIndex() *TextArea {
+	n.indexMode = false
+	return n
 }
 
-func (c *TextArea) ToNode() screen.Node {
+func (n *TextArea) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.reference).
+		Name(n.reference).
 		NameToStack().
-		Definition(c.definition).
-		Update(c.update).
-		View(c.view).
+		Definition(n.definition).
+		Update(n.update).
+		View(n.view).
 		ToNode()
 }
 
-func (c *TextArea) definition() screen.Definition {
-	if c.writeMode {
+func (n *TextArea) definition() screen.Definition {
+	if n.writeMode {
 		return area_write_definition
 	}
 	return area_read_definition
 }
 
-func (c *TextArea) update(stt *state.UIState, evnt screen.Event) screen.Result {
+func (n *TextArea) update(stt *state.UIState, evnt screen.Event) screen.Result {
 	stt.Pager.ForceShow = true
 
-	if !c.writeMode {
-		return c.updateRead(stt, evnt)
+	if !n.writeMode {
+		return n.updateRead(stt, evnt)
 	}
-	return c.updateWrite(stt, evnt)
+	return n.updateWrite(stt, evnt)
 }
 
-func (c *TextArea) updateRead(stt *state.UIState, evt screen.Event) screen.Result {
+func (n *TextArea) updateRead(stt *state.UIState, evt screen.Event) screen.Result {
 	ky := evt.Key
 
 	switch ky.Code {
 	case key.ActionEnter:
-		c.writeMode = true
+		n.writeMode = true
 	}
 
 	return screen.ResultFromUIState(stt)
 }
 
-func (c *TextArea) updateWrite(stt *state.UIState, evt screen.Event) screen.Result {
+func (n *TextArea) updateWrite(stt *state.UIState, evt screen.Event) screen.Result {
 	ky := evt.Key
 
 	switch ky.Code {
 	case key.ActionEsc:
-		c.writeMode = false
+		n.writeMode = false
 		return screen.ResultFromUIState(stt)
 
 	case key.ActionHome:
-		return c.moveHome(stt, evt)
+		return n.moveHome(stt, evt)
 
 	case key.ActionEnd:
-		return c.moveEnd(stt, evt)
+		return n.moveEnd(stt, evt)
 
 	case key.ActionArrowLeft:
-		return c.moveBackward(stt, evt)
+		return n.moveBackward(stt, evt)
 
 	case key.ActionArrowRight:
-		return c.moveForward(stt, evt)
+		return n.moveForward(stt, evt)
 
 	case key.ActionEnter:
 		ky = *key.NewKeyRune(ascii.ENTER_LF)
 
 	case key.ActionArrowUp:
-		return c.moveUp(stt, evt)
+		return n.moveUp(stt, evt)
 
 	case key.ActionArrowDown:
-		return c.moveDown(stt, evt)
+		return n.moveDown(stt, evt)
 	}
 
-	result := c.updateBuffer(stt, ky)
+	result := n.updateBuffer(stt, ky)
 
 	state.PushParam(
 		stt.Stack,
-		c.reference,
+		n.reference,
 		ArgAreaBuffer,
-		c.buffer.Buffer(),
+		n.buffer.Buffer(),
 	)
 
 	return result
 }
 
-func (c *TextArea) updateBuffer(state *state.UIState, ky key.Key) screen.Result {
+func (n *TextArea) updateBuffer(state *state.UIState, ky key.Key) screen.Result {
 	switch ky.Code {
 	case key.ActionBackspace, key.ActionDeleteBackward:
 		word := ky.Code == key.ActionDeleteBackward
-		return c.deleteBackward(state, word)
+		return n.deleteBackward(state, word)
 
 	case key.ActionDelete, key.ActionDeleteForward:
 		word := ky.Code == key.ActionDeleteForward
-		return c.deleteForward(state, word)
+		return n.deleteForward(state, word)
 	case key.CustomActionUndo, key.CustomActionRedo:
-		return c.undoRedo(state, ky)
+		return n.undoRedo(state, ky)
 
 	case key.CustomActionCut, key.CustomActionCopy:
 		cut := ky.Code == key.CustomActionCut
-		return c.copyCut(state, cut)
+		return n.copyCut(state, cut)
 
 	case key.CustomActionPaste:
-		return c.paste(state)
+		return n.paste(state)
 	}
 
-	return c.pushRune(state, ky)
+	return n.pushRune(state, ky)
 }
 
-func (c *TextArea) pushRune(state *state.UIState, ky key.Key) screen.Result {
-	start, end, fixEnd := c.insertSelection()
+func (n *TextArea) pushRune(state *state.UIState, ky key.Key) screen.Result {
+	start, end, fixEnd := n.insertSelection()
 
-	insert, delete := c.buffer.ReplaceWithRules([]rune{ky.Rune}, start, end)
-	c.history.PushEvent(event.Insert, start, fixEnd, string(delete), string(insert))
+	insert, delete := n.buffer.ReplaceWithRules([]rune{ky.Rune}, start, end)
+	n.history.PushEvent(event.Insert, start, fixEnd, string(delete), string(insert))
 
 	position := start + offset.Offset(len(insert))
-	c.caret.MoveCaretTo(c.buffer.Buffer(), position)
+	n.caret.MoveCaretTo(n.buffer.Buffer(), position)
 
 	return screen.ResultFromUIState(state)
 }
 
-func (c *TextArea) undoRedo(state *state.UIState, ky key.Key) screen.Result {
+func (n *TextArea) undoRedo(state *state.UIState, ky key.Key) screen.Result {
 	result := screen.ResultFromUIState(state)
 
 	var delta *delta.Delta
 	switch ky.Code {
 	case key.CustomActionUndo:
-		delta = c.history.Undo()
+		delta = n.history.Undo()
 	case key.CustomActionRedo:
-		delta = c.history.Redo()
+		delta = n.history.Redo()
 	default:
 		assert.Unreachable("unsupported key code '%d'", ky.Code)
-		delta = c.history.Redo()
+		delta = n.history.Redo()
 	}
 
 	if delta == nil {
 		return result
 	}
 
-	c.buffer.ApplyDelta(delta)
+	n.buffer.ApplyDelta(delta)
 
 	position := delta.Start + delta.Measure()
-	c.caret.MoveCaretTo(c.buffer.Buffer(), position)
+	n.caret.MoveCaretTo(n.buffer.Buffer(), position)
 
 	return result
 }
 
-func (c *TextArea) copyCut(state *state.UIState, cut bool) screen.Result {
+func (n *TextArea) copyCut(state *state.UIState, cut bool) screen.Result {
 	result := screen.ResultFromUIState(state)
 
-	if c.buffer.Empty() {
+	if n.buffer.Empty() {
 		return result
 	}
 
-	start := c.caret.SelectStart().Sub(1)
-	end := c.caret.SelectEnd()
+	start := n.caret.SelectStart().Sub(1)
+	end := n.caret.SelectEnd()
 
-	c.clipboard.Put(c.buffer.Range(start, end))
+	n.clipboard.Put(n.buffer.Range(start, end))
 
 	if cut {
-		c.history.PushEvent(event.Cut, start, end, string(c.clipboard.Buffer()), "")
-		c.buffer.Delete(start, end)
-		c.caret.MoveCaretTo(c.buffer.Buffer(), start)
+		n.history.PushEvent(event.Cut, start, end, string(n.clipboard.Buffer()), "")
+		n.buffer.Delete(start, end)
+		n.caret.MoveCaretTo(n.buffer.Buffer(), start)
 	}
 
 	return result
 }
 
-func (c *TextArea) paste(state *state.UIState) screen.Result {
-	start, end, fixEnd := c.insertSelection()
+func (n *TextArea) paste(state *state.UIState) screen.Result {
+	start, end, fixEnd := n.insertSelection()
 
-	insert, delete := c.buffer.Replace(c.clipboard.Buffer(), start, end)
-	c.history.PushEvent(event.Paste, start, fixEnd, string(delete), string(insert))
+	insert, delete := n.buffer.Replace(n.clipboard.Buffer(), start, end)
+	n.history.PushEvent(event.Paste, start, fixEnd, string(delete), string(insert))
 
 	position := start + offset.Offset(len(insert))
-	c.caret.MoveCaretTo(c.buffer.Buffer(), position)
+	n.caret.MoveCaretTo(n.buffer.Buffer(), position)
 
 	return screen.ResultFromUIState(state)
 }
 
-func (c *TextArea) moveHome(state *state.UIState, event screen.Event) screen.Result {
+func (n *TextArea) moveHome(state *state.UIState, event screen.Event) screen.Result {
 	result := screen.ResultFromUIState(state)
 
-	buffer := c.buffer.Buffer()
+	buffer := n.buffer.Buffer()
 
 	if event.Key.Mod.HasAny(key.ModCtrl) {
-		c.caret.MoveCaretTo(buffer, 0)
+		n.caret.MoveCaretTo(buffer, 0)
 		return result
 	}
 
-	caret := runes.BackwardIndexWithLimit(buffer, runes.NextLineRunes, c.caret.Caret())
+	caret := runes.BackwardIndexWithLimit(buffer, runes.NextLineRunes, n.caret.Caret())
 
-	anchor := c.caret.Anchor()
+	anchor := n.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModShift) {
-		c.caret.MoveCaretTo(buffer, caret)
+		n.caret.MoveCaretTo(buffer, caret)
 		return result
 	}
 
-	c.caret.MoveSelectTo(buffer, caret, anchor)
+	n.caret.MoveSelectTo(buffer, caret, anchor)
 
 	return result
 }
 
-func (c *TextArea) moveEnd(state *state.UIState, event screen.Event) screen.Result {
+func (n *TextArea) moveEnd(state *state.UIState, event screen.Event) screen.Result {
 	result := screen.ResultFromUIState(state)
 
-	buffer := c.buffer.Buffer()
+	buffer := n.buffer.Buffer()
 
 	if event.Key.Mod.HasAny(key.ModCtrl) {
-		c.caret.MoveCaretTo(buffer, c.buffer.Size())
+		n.caret.MoveCaretTo(buffer, n.buffer.Size())
 		return result
 	}
 
-	caret := runes.ForwardIndexWithLimit(buffer, runes.NextLineRunes, c.caret.Caret())
+	caret := runes.ForwardIndexWithLimit(buffer, runes.NextLineRunes, n.caret.Caret())
 
-	anchor := c.caret.Anchor()
+	anchor := n.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModShift) {
-		c.caret.MoveCaretTo(buffer, caret)
+		n.caret.MoveCaretTo(buffer, caret)
 		return result
 	}
 
-	c.caret.MoveSelectTo(buffer, caret, anchor)
+	n.caret.MoveSelectTo(buffer, caret, anchor)
 
 	return result
 }
 
-func (c *TextArea) moveUp(state *state.UIState, event screen.Event) screen.Result {
+func (n *TextArea) moveUp(state *state.UIState, event screen.Event) screen.Result {
 	result := screen.ResultFromUIState(state)
 
-	buffer := c.buffer.Buffer()
+	buffer := n.buffer.Buffer()
 
-	start := c.caret.Caret()
+	start := n.caret.Caret()
 	distance := line.DistanceFromLF(buffer, start)
 
 	prevLineStart, ok := line.FindPrevLineStart(buffer, start)
 	if !ok {
 		if event.Key.Mod.HasAny(key.ModShift) {
-			c.caret.MoveSelectTo(buffer, 0, c.caret.Anchor())
+			n.caret.MoveSelectTo(buffer, 0, n.caret.Anchor())
 			return result
 		}
 
-		c.caret.MoveCaretTo(buffer, 0)
+		n.caret.MoveCaretTo(buffer, 0)
 		return result
 	}
 
 	position := line.ClampToLine(buffer, prevLineStart, distance)
 
 	if event.Key.Mod.HasAny(key.ModShift) {
-		c.caret.MoveSelectTo(buffer, position, c.caret.Anchor())
+		n.caret.MoveSelectTo(buffer, position, n.caret.Anchor())
 	} else {
-		c.caret.MoveCaretTo(buffer, position)
+		n.caret.MoveCaretTo(buffer, position)
 	}
 
 	return result
 }
 
-func (c *TextArea) moveDown(state *state.UIState, event screen.Event) screen.Result {
+func (n *TextArea) moveDown(state *state.UIState, event screen.Event) screen.Result {
 	result := screen.ResultFromUIState(state)
 
-	buffer := c.buffer.Buffer()
-	size := c.buffer.Size()
+	buffer := n.buffer.Buffer()
+	size := n.buffer.Size()
 
-	start := c.caret.Caret()
+	start := n.caret.Caret()
 	distance := line.DistanceFromLF(buffer, start)
 
 	nextLineStart, ok := line.FindNextLineStart(buffer, start)
 	if !ok {
 		if event.Key.Mod.HasAny(key.ModShift) {
-			c.caret.MoveSelectTo(buffer, size, c.caret.Anchor())
+			n.caret.MoveSelectTo(buffer, size, n.caret.Anchor())
 			return result
 		}
 
-		c.caret.MoveCaretTo(buffer, size)
+		n.caret.MoveCaretTo(buffer, size)
 		return result
 	}
 
 	position := line.ClampToLine(buffer, nextLineStart, distance)
 
 	if event.Key.Mod.HasAny(key.ModShift) {
-		c.caret.MoveSelectTo(buffer, position, c.caret.Anchor())
+		n.caret.MoveSelectTo(buffer, position, n.caret.Anchor())
 	} else {
-		c.caret.MoveCaretTo(buffer, position)
+		n.caret.MoveCaretTo(buffer, position)
 	}
 
 	return result
 }
 
-func (c *TextArea) moveBackward(state *state.UIState, event screen.Event) screen.Result {
+func (n *TextArea) moveBackward(state *state.UIState, event screen.Event) screen.Result {
 	result := screen.ResultFromUIState(state)
 
-	buffer := c.buffer.Buffer()
+	buffer := n.buffer.Buffer()
 
 	if event.Key.Mod.HasNone(key.ModShift, key.ModCtrl) {
-		caret := c.caret.Caret().Sub(1)
-		c.caret.MoveCaretTo(buffer, caret)
+		caret := n.caret.Caret().Sub(1)
+		n.caret.MoveCaretTo(buffer, caret)
 		return result
 	}
 
-	anchor := c.caret.Anchor()
+	anchor := n.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModCtrl) {
-		caret := c.caret.Caret().Sub(1)
-		c.caret.MoveSelectTo(buffer, caret, anchor)
+		caret := n.caret.Caret().Sub(1)
+		n.caret.MoveSelectTo(buffer, caret, anchor)
 		return result
 	}
 
-	caret := runes.BackwardIndex(buffer, runes.NextWordRunes, c.caret.Caret())
+	caret := runes.BackwardIndex(buffer, runes.NextWordRunes, n.caret.Caret())
 	if event.Key.Mod.HasNone(key.ModShift) {
-		c.caret.MoveCaretTo(buffer, caret)
+		n.caret.MoveCaretTo(buffer, caret)
 		return result
 	}
 
-	c.caret.MoveSelectTo(buffer, caret, anchor)
+	n.caret.MoveSelectTo(buffer, caret, anchor)
 	return result
 }
 
-func (c *TextArea) moveForward(state *state.UIState, event screen.Event) screen.Result {
+func (n *TextArea) moveForward(state *state.UIState, event screen.Event) screen.Result {
 	result := screen.ResultFromUIState(state)
 
-	buffer := c.buffer.Buffer()
-	size := c.buffer.Size()
+	buffer := n.buffer.Buffer()
+	size := n.buffer.Size()
 
 	if event.Key.Mod.HasNone(key.ModShift, key.ModCtrl) {
-		caret := min(size, c.caret.Caret()+1)
-		c.caret.MoveCaretTo(buffer, caret)
+		caret := min(size, n.caret.Caret()+1)
+		n.caret.MoveCaretTo(buffer, caret)
 		return result
 	}
 
-	anchor := c.caret.Anchor()
+	anchor := n.caret.Anchor()
 	if event.Key.Mod.HasNone(key.ModCtrl) {
-		caret := min(size, c.caret.Caret()+1)
-		c.caret.MoveSelectTo(buffer, caret, anchor)
+		caret := min(size, n.caret.Caret()+1)
+		n.caret.MoveSelectTo(buffer, caret, anchor)
 		return result
 	}
 
-	caret := runes.ForwardIndex(buffer, runes.NextWordRunes, c.caret.Caret())
+	caret := runes.ForwardIndex(buffer, runes.NextWordRunes, n.caret.Caret())
 	if event.Key.Mod.HasNone(key.ModShift) {
-		c.caret.MoveCaretTo(buffer, caret)
+		n.caret.MoveCaretTo(buffer, caret)
 		return result
 	}
 
-	c.caret.MoveSelectTo(buffer, caret, anchor)
+	n.caret.MoveSelectTo(buffer, caret, anchor)
 	return result
 }
 
-func (c *TextArea) deleteBackward(state *state.UIState, word bool) screen.Result {
+func (n *TextArea) deleteBackward(state *state.UIState, word bool) screen.Result {
 	result := screen.ResultFromUIState(state)
 
-	if c.buffer.Empty() {
+	if n.buffer.Empty() {
 		return result
 	}
 
-	start := c.caret.SelectStart()
+	start := n.caret.SelectStart()
 
 	if word {
-		start = runes.BackwardIndex(c.buffer.Buffer(), runes.NextWordRunes, start)
+		start = runes.BackwardIndex(n.buffer.Buffer(), runes.NextWordRunes, start)
 	} else {
 		start = start.Sub(1)
 	}
 
-	end := c.caret.SelectEnd()
+	end := n.caret.SelectEnd()
 
-	delete := c.buffer.Delete(start, end)
-	c.history.PushEvent(event.DeleteBackward, start, end, string(delete), "")
+	delete := n.buffer.Delete(start, end)
+	n.history.PushEvent(event.DeleteBackward, start, end, string(delete), "")
 
-	c.caret.MoveCaretTo(c.buffer.Buffer(), start)
+	n.caret.MoveCaretTo(n.buffer.Buffer(), start)
 	return result
 }
 
-func (c *TextArea) deleteForward(state *state.UIState, word bool) screen.Result {
+func (n *TextArea) deleteForward(state *state.UIState, word bool) screen.Result {
 	result := screen.ResultFromUIState(state)
 
-	if c.buffer.Empty() {
+	if n.buffer.Empty() {
 		return result
 	}
 
-	end := c.caret.SelectEnd()
+	end := n.caret.SelectEnd()
 
 	if word {
-		end = runes.ForwardIndex(c.buffer.Buffer(), runes.NextWordRunes, end)
+		end = runes.ForwardIndex(n.buffer.Buffer(), runes.NextWordRunes, end)
 	} else {
-		end = min(c.buffer.Size(), end+1)
+		end = min(n.buffer.Size(), end+1)
 	}
 
-	start := c.caret.SelectStart().Sub(1)
+	start := n.caret.SelectStart().Sub(1)
 
-	delete := c.buffer.Delete(start, end)
-	c.history.PushEvent(event.DeleteForward, start, end, string(delete), "")
+	delete := n.buffer.Delete(start, end)
+	n.history.PushEvent(event.DeleteForward, start, end, string(delete), "")
 
-	c.caret.MoveCaretTo(c.buffer.Buffer(), start)
+	n.caret.MoveCaretTo(n.buffer.Buffer(), start)
 	return result
 }
 
-func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
+func (n *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
-	predicate, textarea, needsPulse := c.viewSources()
+	predicate, textarea, needsPulse := n.viewSources()
 
 	vm.Kernel.Push(
 		textarea.ToUnit(),
@@ -534,32 +534,32 @@ func (c *TextArea) view(_ state.UIState) viewmodel.ViewModel {
 	return *vm
 }
 
-func (c *TextArea) viewSources() (
+func (n *TextArea) viewSources() (
 	pager.Predicate,
 	*textarea.TextAreaUnit,
 	bool,
 ) {
 	predicate := pager.PredicatePage()
-	if c.writeMode {
+	if n.writeMode {
 		predicate = pager.PredicateFocus()
 	}
 
-	textarea := textarea.New(c.buffer.Facade(), c.caret).
-		WriteMode(c.writeMode).
-		IndexMode(c.indexMode)
+	textarea := textarea.New(n.buffer.Facade(), n.caret).
+		WriteMode(n.writeMode).
+		IndexMode(n.indexMode)
 
-	needsPulse := c.needsPulse()
+	needsPulse := n.needsPulse()
 
 	return predicate, textarea, needsPulse
 }
 
-func (c *TextArea) needsPulse() bool {
-	return c.writeMode && c.caret.IsBlinking()
+func (n *TextArea) needsPulse() bool {
+	return n.writeMode && n.caret.IsBlinking()
 }
 
-func (c *TextArea) insertSelection() (offset.Offset, offset.Offset, offset.Offset) {
-	start := c.caret.SelectStart()
-	end := c.caret.SelectEnd()
+func (n *TextArea) insertSelection() (offset.Offset, offset.Offset, offset.Offset) {
+	start := n.caret.SelectStart()
+	end := n.caret.SelectEnd()
 
 	if start != end {
 		return start.Sub(1), end, end + 1

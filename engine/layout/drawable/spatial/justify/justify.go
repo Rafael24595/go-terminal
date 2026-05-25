@@ -42,60 +42,60 @@ func UnitFromFragments(frags []text.Fragment) drawable.Unit {
 	return New(frags).ToUnit()
 }
 
-func (d *JustifyUnit) MaxOpts(opts uint16) *JustifyUnit {
-	d.maxOpts = max(1, opts)
-	return d
+func (u *JustifyUnit) MaxOpts(opts uint16) *JustifyUnit {
+	u.maxOpts = max(1, opts)
+	return u
 }
 
-func (d *JustifyUnit) MaxCols(cols winsize.Cols) *JustifyUnit {
-	d.maxCols = max(1, cols)
-	return d
+func (u *JustifyUnit) MaxCols(cols winsize.Cols) *JustifyUnit {
+	u.maxCols = max(1, cols)
+	return u
 }
 
-func (d *JustifyUnit) Justify(justify style.Justify) *JustifyUnit {
-	d.justify = justify
-	return d
+func (u *JustifyUnit) Justify(justify style.Justify) *JustifyUnit {
+	u.justify = justify
+	return u
 }
 
-func (d *JustifyUnit) AddFragments(frags []text.Fragment) *JustifyUnit {
-	d.fragments = append(d.fragments, frags...)
-	return d
+func (u *JustifyUnit) AddFragments(frags []text.Fragment) *JustifyUnit {
+	u.fragments = append(u.fragments, frags...)
+	return u
 }
 
-func (d *JustifyUnit) ToUnit() drawable.Unit {
+func (u *JustifyUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *JustifyUnit) init() {
-	d.loaded = true
+func (u *JustifyUnit) init() {
+	u.loaded = true
 
-	d.cursor = 0
+	u.cursor = 0
 }
 
-func (d *JustifyUnit) wipe() {
-	d.cursor = 0
+func (u *JustifyUnit) wipe() {
+	u.cursor = 0
 }
 
-func (d *JustifyUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *JustifyUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	if d.cursor >= uint16(len(d.fragments)) {
+	if u.cursor >= uint16(len(u.fragments)) {
 		return make([]text.Line, 0), false
 	}
 
-	maxOpts := int(d.maxOpts)
-	maxCols := math.MinNotZero(size.Cols, d.maxCols)
+	maxOpts := int(u.maxOpts)
+	maxCols := math.MinNotZero(size.Cols, u.maxCols)
 
 	remaining := winsize.Cols(0)
 	frags := make([]text.Fragment, 0)
 
-	for i := d.cursor; i < uint16(len(d.fragments)); i++ {
-		frag := d.fragments[i]
+	for i := u.cursor; i < uint16(len(u.fragments)); i++ {
+		frag := u.fragments[i]
 
 		fragsLen := len(frags)
 		fragSize := text.FragmentMeasure(size.Cols, frag)
@@ -107,18 +107,18 @@ func (d *JustifyUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 
 		newRemaining := remaining + spacing + fragSize
 		if fragsLen > 0 && fragsLen >= maxOpts || newRemaining > maxCols {
-			line := justifyLine(maxCols, frags, remaining, d.justify)
+			line := justifyLine(maxCols, frags, remaining, u.justify)
 			return []text.Line{*line}, true
 		}
 
 		remaining = newRemaining
 		frags = append(frags, frag)
 
-		d.cursor += 1
+		u.cursor += 1
 	}
 
-	line := justifyLine(maxCols, frags, remaining, d.justify)
-	return []text.Line{*line}, d.cursor < uint16(len(d.fragments))
+	line := justifyLine(maxCols, frags, remaining, u.justify)
+	return []text.Line{*line}, u.cursor < uint16(len(u.fragments))
 }
 
 func justifyLine(cols winsize.Cols, frags []text.Fragment, size winsize.Cols, mode style.Justify) *text.Line {

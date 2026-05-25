@@ -39,148 +39,148 @@ func VStackFromUnits(units ...drawable.Unit) drawable.Unit {
 	return NewVStack(units...).ToUnit()
 }
 
-func (d *VStackUnit) Unshift(units ...drawable.Unit) *VStackUnit {
-	assert.False(d.loaded, drawable.MessageNewElement)
+func (u *VStackUnit) Unshift(units ...drawable.Unit) *VStackUnit {
+	assert.False(u.loaded, drawable.MessageNewElement)
 
 	layers := layersFromUnits(
 		chunk.Dynamic[winsize.Rows](), 0, units...,
 	)
 
-	d.items = append(layers, d.items...)
-	return d
+	u.items = append(layers, u.items...)
+	return u
 }
 
-func (d *VStackUnit) Push(units ...drawable.Unit) *VStackUnit {
-	assert.False(d.loaded, drawable.MessageNewElement)
+func (u *VStackUnit) Push(units ...drawable.Unit) *VStackUnit {
+	assert.False(u.loaded, drawable.MessageNewElement)
 
 	for _, unit := range units {
-		d.items = append(d.items,
+		u.items = append(u.items,
 			layerFromUnit(chunk.Dynamic[winsize.Rows](), 0, unit),
 		)
 	}
 
-	return d
+	return u
 }
 
-func (d *VStackUnit) UnshiftChunk(
+func (u *VStackUnit) UnshiftChunk(
 	unit drawable.Unit,
 	chunk chunk.Chunk[winsize.Rows],
 ) *VStackUnit {
-	assert.False(d.loaded, drawable.MessageNewElement)
+	assert.False(u.loaded, drawable.MessageNewElement)
 
 	layers := layersFromUnits(chunk, 0, unit)
 
-	d.items = append(layers, d.items...)
-	return d
+	u.items = append(layers, u.items...)
+	return u
 }
 
-func (d *VStackUnit) PushChunk(unit drawable.Unit, chunk chunk.Chunk[winsize.Rows]) *VStackUnit {
-	assert.False(d.loaded, drawable.MessageNewElement)
+func (u *VStackUnit) PushChunk(unit drawable.Unit, chunk chunk.Chunk[winsize.Rows]) *VStackUnit {
+	assert.False(u.loaded, drawable.MessageNewElement)
 
-	d.items = append(d.items,
+	u.items = append(u.items,
 		layerFromUnit(chunk, 0, unit),
 	)
 
-	return d
+	return u
 }
 
-func (d *VStackUnit) Size() uint {
-	return uint(len(d.items))
+func (u *VStackUnit) Size() uint {
+	return uint(len(u.items))
 }
 
-func (d *VStackUnit) Units() []drawable.Unit {
-	units := make([]drawable.Unit, len(d.items))
-	for i := range d.items {
-		units[i] = d.items[i].unit
+func (u *VStackUnit) Units() []drawable.Unit {
+	units := make([]drawable.Unit, len(u.items))
+	for i := range u.items {
+		units[i] = u.items[i].unit
 	}
 	return units
 }
 
-func (d *VStackUnit) ToUnit() drawable.Unit {
-	if d.isAnemic() {
-		unit := d.items[0].unit
+func (u *VStackUnit) ToUnit() drawable.Unit {
+	if u.isAnemic() {
+		unit := u.items[0].unit
 		return unit.AddTag(AnemicStack)
 	}
 
 	return drawable.NewBuilder().
 		Name(NameVStack).
-		MergeTags(d.tags()).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		MergeTags(u.tags()).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *VStackUnit) isAnemic() bool {
-	if len(d.items) != 1 {
+func (u *VStackUnit) isAnemic() bool {
+	if len(u.items) != 1 {
 		return false
 	}
-	return d.items[0].chunk.IsAnemic()
+	return u.items[0].chunk.IsAnemic()
 }
 
-func (d *VStackUnit) tags() set.Set[string] {
+func (u *VStackUnit) tags() set.Set[string] {
 	tags := set.NewSet[string]()
-	for i := range d.items {
-		tags.Merge(d.items[i].unit.Tags)
+	for i := range u.items {
+		tags.Merge(u.items[i].unit.Tags)
 	}
 	return tags
 }
 
-func (d *VStackUnit) init() {
-	d.loaded = true
-	d.lazyLoaded = false
+func (u *VStackUnit) init() {
+	u.loaded = true
+	u.lazyLoaded = false
 }
 
-func (d *VStackUnit) lazyInit(size winsize.Winsize) {
-	if d.lazyLoaded {
+func (u *VStackUnit) lazyInit(size winsize.Winsize) {
+	if u.lazyLoaded {
 		return
 	}
 
-	d.lazyLoaded = true
+	u.lazyLoaded = true
 
-	d.fixed = d.items
-	d.fixed = d.fixLayout(size)
+	u.fixed = u.items
+	u.fixed = u.fixLayout(size)
 
-	for i := range d.fixed {
-		d.fixed[i].unit.Drawable.Init()
-		d.fixed[i].status = true
+	for i := range u.fixed {
+		u.fixed[i].unit.Drawable.Init()
+		u.fixed[i].status = true
 	}
 }
 
-func (d *VStackUnit) wipe() {
-	d.lazyLoaded = false
+func (u *VStackUnit) wipe() {
+	u.lazyLoaded = false
 
-	d.fixed = d.items
-	for i := range d.fixed {
-		d.fixed[i].unit.Drawable.Wipe()
+	u.fixed = u.items
+	for i := range u.fixed {
+		u.fixed[i].unit.Drawable.Wipe()
 	}
 }
 
-func (d *VStackUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *VStackUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	d.lazyInit(size)
+	u.lazyInit(size)
 
-	if !d.size.Eq(size) {
-		d.fixed = d.fixLayout(size)
-		d.size = size
+	if !u.size.Eq(size) {
+		u.fixed = u.fixLayout(size)
+		u.size = size
 	}
 
-	lines, recalc := d.makeLines(size)
+	lines, recalc := u.makeLines(size)
 
-	if !d.size.Eq(size) || recalc {
-		d.fixed = d.fixLayout(size)
+	if !u.size.Eq(size) || recalc {
+		u.fixed = u.fixLayout(size)
 	}
 
-	return lines, len(d.fixed) > 0
+	return lines, len(u.fixed) > 0
 }
 
-func (d *VStackUnit) makeLines(size winsize.Winsize) ([]text.Line, bool) {
+func (u *VStackUnit) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 	buffer := make([]text.Line, 0, size.Rows)
 	recalcule := false
 
-	for i := range d.fixed {
-		if !d.fixed[i].status {
+	for i := range u.fixed {
+		if !u.fixed[i].status {
 			continue
 		}
 
@@ -191,21 +191,21 @@ func (d *VStackUnit) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 		}
 
 		rows := remaining
-		if d.fixed[i].chunk.Sized {
-			value := d.fixed[i].value
+		if u.fixed[i].chunk.Sized {
+			value := u.fixed[i].value
 			rows = min(value, remaining)
 		}
 
 		fixedSize := winsize.New(rows, size.Cols)
 
-		lines, status := drain.Unit(fixedSize, d.fixed[i].unit, true)
+		lines, status := drain.Unit(fixedSize, u.fixed[i].unit, true)
 		if !status {
-			d.fixed[i].status = false
+			u.fixed[i].status = false
 			recalcule = true
 		}
 
 		linesLen := winsize.Rows(len(lines))
-		if linesLen < rows && d.fixed[i].chunk.Sized {
+		if linesLen < rows && u.fixed[i].chunk.Sized {
 			padded := make([]text.Line, rows)
 			copy(padded, lines)
 			lines = padded
@@ -219,10 +219,10 @@ func (d *VStackUnit) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 	return buffer, recalcule
 }
 
-func (d *VStackUnit) fixLayout(size winsize.Winsize) []layer[winsize.Rows] {
-	layers := make([]layer[winsize.Rows], 0, len(d.fixed))
+func (u *VStackUnit) fixLayout(size winsize.Winsize) []layer[winsize.Rows] {
+	layers := make([]layer[winsize.Rows], 0, len(u.fixed))
 
-	for _, v := range d.fixed {
+	for _, v := range u.fixed {
 		if !v.status {
 			continue
 		}
@@ -242,10 +242,10 @@ func (d *VStackUnit) fixLayout(size winsize.Winsize) []layer[winsize.Rows] {
 	return layers
 }
 
-func (d *VStackUnit) HasNext() bool {
-	items := d.items
-	if d.lazyLoaded {
-		items = d.fixed
+func (u *VStackUnit) HasNext() bool {
+	items := u.items
+	if u.lazyLoaded {
+		items = u.fixed
 	}
 
 	for _, item := range items {

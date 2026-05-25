@@ -22,47 +22,47 @@ func newBuffer(size winsize.Winsize) *consoleBuffer {
 	}
 }
 
-func (c *consoleBuffer) defineSize(size winsize.Winsize) winsize.Winsize {
-	if c.size.Eq(size) {
-		return c.size
+func (b *consoleBuffer) defineSize(size winsize.Winsize) winsize.Winsize {
+	if b.size.Eq(size) {
+		return b.size
 	}
 
-	c.size = size
+	b.size = size
 
-	c.lines = make([]string, size.Rows)
-	c.cursor = 0
+	b.lines = make([]string, size.Rows)
+	b.cursor = 0
 
-	return c.size
+	return b.size
 }
 
-func (c *consoleBuffer) setLine(line string) *consoleBuffer {
+func (b *consoleBuffer) setLine(line string) *consoleBuffer {
 	assert.True(
-		winsize.Rows(c.cursor) < c.size.Rows,
+		winsize.Rows(b.cursor) < b.size.Rows,
 		"buffer overflow[%d]: the line '%s' cannot be appended at %d position",
-		c.size.Rows, line, c.cursor,
+		b.size.Rows, line, b.cursor,
 	)
 
-	c.lines[c.cursor] = line
-	return c
+	b.lines[b.cursor] = line
+	return b
 }
 
-func (c *consoleBuffer) nextLine() bool {
-	if c.cursor >= uint16(len(c.lines)) {
+func (b *consoleBuffer) nextLine() bool {
+	if b.cursor >= uint16(len(b.lines)) {
 		return false
 	}
 
-	c.cursor += 1
+	b.cursor += 1
 	return true
 }
 
-func (c *consoleBuffer) join(sep string) string {
-	return strings.Join(c.lines, sep)
+func (b *consoleBuffer) join(sep string) string {
+	return strings.Join(b.lines, sep)
 }
 
-func (c *consoleBuffer) clear() *consoleBuffer {
-	c.cursor = 0
-	for i := range c.lines {
-		c.lines[i] = ""
+func (b *consoleBuffer) clear() *consoleBuffer {
+	b.cursor = 0
+	for i := range b.lines {
+		b.lines[i] = ""
 	}
-	return c
+	return b
 }

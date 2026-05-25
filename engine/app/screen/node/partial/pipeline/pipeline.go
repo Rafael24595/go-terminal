@@ -22,63 +22,63 @@ func New(node screen.Node, steps ...Transformer) *Pipeline {
 	}
 }
 
-func (c *Pipeline) PushSteps(steps ...Transformer) *Pipeline {
-	c.steps = append(c.steps, steps...)
-	return c
+func (n *Pipeline) PushSteps(steps ...Transformer) *Pipeline {
+	n.steps = append(n.steps, steps...)
+	return n
 }
 
-func (c *Pipeline) ExpireOnNode() *Pipeline {
-	c.expiration = onNode(&c.node)
-	return c
+func (n *Pipeline) ExpireOnNode() *Pipeline {
+	n.expiration = onNode(&n.node)
+	return n
 }
 
-func (c *Pipeline) ExpireOnName() *Pipeline {
-	c.expiration = onName(c.node.Name)
-	return c
+func (n *Pipeline) ExpireOnName() *Pipeline {
+	n.expiration = onName(n.node.Name)
+	return n
 }
 
-func (c *Pipeline) Persistent() *Pipeline {
-	c.expiration = persistent()
-	return c
+func (n *Pipeline) Persistent() *Pipeline {
+	n.expiration = persistent()
+	return n
 }
 
-func (c *Pipeline) ToNode() screen.Node {
+func (n *Pipeline) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.node.Name).
-		AddStack(c.node.Stack).
-		Definition(c.node.Screen.Definition).
-		Update(c.update).
-		View(c.view).
-		Children(c.node).
+		Name(n.node.Name).
+		AddStack(n.node.Stack).
+		Definition(n.node.Screen.Definition).
+		Update(n.update).
+		View(n.view).
+		Children(n.node).
 		ToNode()
 }
 
-func (c *Pipeline) update(state *state.UIState, event screen.Event) screen.Result {
-	result := c.node.Screen.Update(state, event)
+func (n *Pipeline) update(state *state.UIState, event screen.Event) screen.Result {
+	result := n.node.Screen.Update(state, event)
 
-	if !c.shouldPropagate(result) {
+	if !n.shouldPropagate(result) {
 		return result
 	}
 
 	newNode := New(*result.Node).
-		PushSteps(c.steps...).
+		PushSteps(n.steps...).
 		ToNode()
 	result.Node = &newNode
 
 	return result
 }
 
-func (c *Pipeline) shouldPropagate(result screen.Result) bool {
+func (n *Pipeline) shouldPropagate(result screen.Result) bool {
 	if result.Node == nil {
 		return false
 	}
 
-	return !c.expiration.on(result.Node)
+	return !n.expiration.on(result.Node)
 }
 
-func (c *Pipeline) view(state state.UIState) viewmodel.ViewModel {
-	vm := c.node.Screen.View(state)
-	for _, s := range c.steps {
+func (n *Pipeline) view(state state.UIState) viewmodel.ViewModel {
+	vm := n.node.Screen.View(state)
+	for _, s := range n.steps {
 		vm = s(vm)
 	}
 	return vm

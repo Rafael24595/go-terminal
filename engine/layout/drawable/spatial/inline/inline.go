@@ -28,44 +28,44 @@ func Wrap(units ...drawable.Unit) drawable.Unit {
 	return New(units...).ToUnit()
 }
 
-func (d *InlineUnit) Separator(separator string) *InlineUnit {
-	d.separator = separator
-	return d
+func (u *InlineUnit) Separator(separator string) *InlineUnit {
+	u.separator = separator
+	return u
 }
 
-func (d *InlineUnit) ToUnit() drawable.Unit {
+func (u *InlineUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *InlineUnit) init() {
-	d.loaded = true
+func (u *InlineUnit) init() {
+	u.loaded = true
 }
 
-func (d *InlineUnit) wipe() {}
+func (u *InlineUnit) wipe() {}
 
-func (d *InlineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *InlineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	lines := d.drawChildren(size)
+	lines := u.drawChildren(size)
 
-	return d.joinChildren(lines), false
+	return u.joinChildren(lines), false
 }
 
-func (d *InlineUnit) drawChildren(size winsize.Winsize) []text.Line {
+func (u *InlineUnit) drawChildren(size winsize.Winsize) []text.Line {
 	lines := make([]text.Line, 0)
 
-	if len(d.units) == 0 {
+	if len(u.units) == 0 {
 		return lines
 	}
 
 	index := 0
 
-	focus := d.units[index]
+	focus := u.units[index]
 	focus.Drawable.Init()
 
 	for {
@@ -79,18 +79,18 @@ func (d *InlineUnit) drawChildren(size winsize.Winsize) []text.Line {
 		}
 
 		index += 1
-		if index >= len(d.units) {
+		if index >= len(u.units) {
 			break
 		}
 
-		focus = d.units[index]
+		focus = u.units[index]
 		focus.Drawable.Init()
 	}
 
 	return lines
 }
 
-func (d *InlineUnit) joinChildren(lines []text.Line) []text.Line {
+func (u *InlineUnit) joinChildren(lines []text.Line) []text.Line {
 	if len(lines) == 0 {
 		return []text.Line{}
 	}
@@ -98,14 +98,14 @@ func (d *InlineUnit) joinChildren(lines []text.Line) []text.Line {
 	merged := text.EmptyLine()
 
 	var separator *text.Fragment
-	if d.separator != "" {
-		frag := text.NewFragment(d.separator)
+	if u.separator != "" {
+		frag := text.NewFragment(u.separator)
 		separator = frag
 	}
 
 	for i, line := range lines {
 		frags := line.Text
-		if d.separator != "" && i < len(lines)-1 {
+		if u.separator != "" && i < len(lines)-1 {
 			frags = append(frags, *separator)
 		}
 

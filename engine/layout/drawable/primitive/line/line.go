@@ -43,49 +43,49 @@ func UnitFromLines(lines ...text.Line) drawable.Unit {
 	return FromLines(lines...).ToUnit()
 }
 
-func (d *LineUnit) ToUnit() drawable.Unit {
+func (u *LineUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *LineUnit) init() {
-	d.loaded = true
+func (u *LineUnit) init() {
+	u.loaded = true
 
-	d.lines = d.normalizer()
-	d.source = wrap.CloneLayoutLines(d.lines...)
+	u.lines = u.normalizer()
+	u.source = wrap.CloneLayoutLines(u.lines...)
 
-	d.indexMeta = computeIndexMeta(d.lines)
+	u.indexMeta = computeIndexMeta(u.lines)
 }
 
-func (d *LineUnit) wipe() {
-	d.source = d.lines
+func (u *LineUnit) wipe() {
+	u.source = u.lines
 }
 
-func (d *LineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *LineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	if len(d.source) == 0 {
+	if len(u.source) == 0 {
 		return make([]text.Line, 0), false
 	}
 
-	cursor, remain := d.nextIndexedWrappedLine(size)
-	d.source = remain
+	cursor, remain := u.nextIndexedWrappedLine(size)
+	u.source = remain
 
 	result := make([]text.Line, 0)
 	if cursor != nil {
 		result = append(result, *cursor)
 	}
 
-	return result, len(d.source) > 0
+	return result, len(u.source) > 0
 }
 
-func (d *LineUnit) nextIndexedWrappedLine(size winsize.Winsize) (*text.Line, []wrap.LayoutLine) {
-	if d.indexMeta == nil {
-		return wrap.NextLine(size.Cols, d.source)
+func (u *LineUnit) nextIndexedWrappedLine(size winsize.Winsize) (*text.Line, []wrap.LayoutLine) {
+	if u.indexMeta == nil {
+		return wrap.NextLine(size.Cols, u.source)
 	}
-	return NextIndexedLine(size.Cols, d.source, *d.indexMeta)
+	return NextIndexedLine(size.Cols, u.source, *u.indexMeta)
 }

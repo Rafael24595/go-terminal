@@ -22,11 +22,11 @@ func newStackContext() *StackContext {
 	}
 }
 
-func (c *StackContext) Find(screen, key string) (*commons.Argument, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+func (n *StackContext) Find(screen, key string) (*commons.Argument, bool) {
+	n.mu.RLock()
+	defer n.mu.RUnlock()
 
-	ctx, ok := c.context[screen]
+	ctx, ok := n.context[screen]
 	if !ok {
 		return nil, false
 	}
@@ -34,41 +34,41 @@ func (c *StackContext) Find(screen, key string) (*commons.Argument, bool) {
 	return ctx.Find(key)
 }
 
-func (c *StackContext) Push(screen, key string, arg any) *StackContext {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (n *StackContext) Push(screen, key string, arg any) *StackContext {
+	n.mu.Lock()
+	defer n.mu.Unlock()
 
-	ctx, ok := c.context[screen]
+	ctx, ok := n.context[screen]
 	if !ok {
-		ctx = newScreenContext(c.clock)
+		ctx = newScreenContext(n.clock)
 	}
 
-	c.context[screen] = ctx.Push(key,
-		newContextArgument(c.clock, arg),
+	n.context[screen] = ctx.Push(key,
+		newContextArgument(n.clock, arg),
 	)
 
-	return c
+	return n
 }
 
-func (c *StackContext) RemoveScreen(screen string) bool {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (n *StackContext) RemoveScreen(screen string) bool {
+	n.mu.Lock()
+	defer n.mu.Unlock()
 
-	_, ok := c.context[screen]
+	_, ok := n.context[screen]
 	if !ok {
 		return false
 	}
 
-	delete(c.context, screen)
+	delete(n.context, screen)
 
 	return true
 }
 
-func (c *StackContext) RemoveArgument(screen, key string) (*commons.Argument, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (n *StackContext) RemoveArgument(screen, key string) (*commons.Argument, bool) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
 
-	ctx, ok := c.context[screen]
+	ctx, ok := n.context[screen]
 	if !ok {
 		return nil, false
 	}
@@ -76,21 +76,21 @@ func (c *StackContext) RemoveArgument(screen, key string) (*commons.Argument, bo
 	return ctx.Remove(key)
 }
 
-func (c *StackContext) RetainOnly(screens set.Set[string]) *StackContext {
-	c.mu.Lock()
+func (n *StackContext) RetainOnly(screens set.Set[string]) *StackContext {
+	n.mu.Lock()
 	items := make([]string, 0)
-	for screen := range c.context {
+	for screen := range n.context {
 		if !screens.Has(screen) {
 			items = append(items, screen)
 		}
 	}
-	c.mu.Unlock()
+	n.mu.Unlock()
 
 	for _, name := range items {
-		c.RemoveScreen(name)
+		n.RemoveScreen(name)
 	}
 
-	return c
+	return n
 }
 
 func PushParam[T any](
@@ -115,11 +115,11 @@ func newScreenContext(clock clock.Clock) *ScreenContext {
 	}
 }
 
-func (c *ScreenContext) Find(key string) (*commons.Argument, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+func (n *ScreenContext) Find(key string) (*commons.Argument, bool) {
+	n.mu.RLock()
+	defer n.mu.RUnlock()
 
-	arg, ok := c.context[key]
+	arg, ok := n.context[key]
 	if !ok {
 		return nil, false
 	}
@@ -127,25 +127,25 @@ func (c *ScreenContext) Find(key string) (*commons.Argument, bool) {
 	return &arg.argument, true
 }
 
-func (c *ScreenContext) Push(key string, arg ContextArgument) *ScreenContext {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (n *ScreenContext) Push(key string, arg ContextArgument) *ScreenContext {
+	n.mu.Lock()
+	defer n.mu.Unlock()
 
-	c.context[key] = arg
+	n.context[key] = arg
 
-	return c
+	return n
 }
 
-func (c *ScreenContext) Remove(key string) (*commons.Argument, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (n *ScreenContext) Remove(key string) (*commons.Argument, bool) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
 
-	arg, ok := c.context[key]
+	arg, ok := n.context[key]
 	if !ok {
 		return nil, false
 	}
 
-	delete(c.context, key)
+	delete(n.context, key)
 
 	return &arg.argument, true
 }

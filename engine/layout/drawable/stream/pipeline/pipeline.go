@@ -38,92 +38,92 @@ func DrawToUnit(unit drawable.Unit, step DrawTransformer) drawable.Unit {
 		ToUnit()
 }
 
-func (d *PipelineUnit) PushInitSteps(steps ...InitTransformer) *PipelineUnit {
-	if d.loaded {
+func (u *PipelineUnit) PushInitSteps(steps ...InitTransformer) *PipelineUnit {
+	if u.loaded {
 		assert.Unreachable(drawable.MessageNewElement)
-		return d
+		return u
 	}
 
-	d.initSteps = append(d.initSteps, steps...)
-	return d
+	u.initSteps = append(u.initSteps, steps...)
+	return u
 }
 
-func (d *PipelineUnit) SetDrawStep(step DrawTransformer) *PipelineUnit {
-	if d.loaded {
+func (u *PipelineUnit) SetDrawStep(step DrawTransformer) *PipelineUnit {
+	if u.loaded {
 		assert.Unreachable(drawable.MessageNewElement)
-		return d
+		return u
 	}
 
-	d.drawStep = step
-	return d
+	u.drawStep = step
+	return u
 }
 
-func (d *PipelineUnit) PushDataSteps(steps ...DataTransformer) *PipelineUnit {
-	if d.loaded {
+func (u *PipelineUnit) PushDataSteps(steps ...DataTransformer) *PipelineUnit {
+	if u.loaded {
 		assert.Unreachable(drawable.MessageNewElement)
-		return d
+		return u
 	}
 
-	d.dataSteps = append(d.dataSteps, steps...)
-	return d
+	u.dataSteps = append(u.dataSteps, steps...)
+	return u
 }
 
-func (d *PipelineUnit) ToUnit() drawable.Unit {
-	if d.isAnemic() {
-		return d.unit
+func (u *PipelineUnit) ToUnit() drawable.Unit {
+	if u.isAnemic() {
+		return u.unit
 	}
 
 	return drawable.NewBuilder().
 		Name(Name).
-		MergeTags(d.unit.Tags).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		MergeTags(u.unit.Tags).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *PipelineUnit) isAnemic() bool {
-	if d.drawStep != nil {
+func (u *PipelineUnit) isAnemic() bool {
+	if u.drawStep != nil {
 		return false
 	}
 
-	if len(d.initSteps) > 0 {
+	if len(u.initSteps) > 0 {
 		return false
 	}
 
-	return len(d.dataSteps) == 0
+	return len(u.dataSteps) == 0
 }
 
-func (d *PipelineUnit) init() {
-	d.loaded = true
+func (u *PipelineUnit) init() {
+	u.loaded = true
 
-	d.unit.Drawable.Init()
+	u.unit.Drawable.Init()
 }
 
-func (d *PipelineUnit) wipe() {
-	if d.unit.Drawable.Wipe == nil {
+func (u *PipelineUnit) wipe() {
+	if u.unit.Drawable.Wipe == nil {
 		return
 	}
-	d.unit.Drawable.Wipe()
+	u.unit.Drawable.Wipe()
 }
 
-func (d *PipelineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *PipelineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	for _, s := range d.initSteps {
-		d.unit = s(size, d.unit)
+	for _, s := range u.initSteps {
+		u.unit = s(size, u.unit)
 	}
 
-	draw := d.unit.Drawable.Draw
-	if d.drawStep != nil {
+	draw := u.unit.Drawable.Draw
+	if u.drawStep != nil {
 		draw = func(size winsize.Winsize) ([]text.Line, bool) {
-			return d.drawStep(size, d.unit)
+			return u.drawStep(size, u.unit)
 		}
 	}
 
 	lines, status := draw(size)
-	for _, s := range d.dataSteps {
-		lines, status = s(size, d.unit, lines, status)
+	for _, s := range u.dataSteps {
+		lines, status = s(size, u.unit, lines, status)
 	}
 
 	return lines, status

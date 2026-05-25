@@ -82,64 +82,64 @@ func New(screen screen.Node) *Pagination {
 	}
 }
 
-func (c *Pagination) ForceEngine(forceEngine pager.Engine) *Pagination {
-	c.forceEngine = &forceEngine
-	c.engine = forceEngine.Code
-	return c
+func (n *Pagination) ForceEngine(forceEngine pager.Engine) *Pagination {
+	n.forceEngine = &forceEngine
+	n.engine = forceEngine.Code
+	return n
 }
 
-func (c *Pagination) ToNode() screen.Node {
+func (n *Pagination) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.node.Name).
-		AddStack(c.node.Stack).
-		Definition(c.definition).
-		Update(c.update).
-		View(c.view).
-		Children(c.node).
+		Name(n.node.Name).
+		AddStack(n.node.Stack).
+		Definition(n.definition).
+		Update(n.update).
+		View(n.view).
+		Children(n.node).
 		ToNode()
 }
 
-func (c *Pagination) definition() screen.Definition {
-	node := c.node.Screen.Definition()
+func (n *Pagination) definition() screen.Definition {
+	node := n.node.Screen.Definition()
 	return base_definition.Merge(
-		c.findDefinition().Merge(node),
+		n.findDefinition().Merge(node),
 	)
 }
 
-func (c *Pagination) findDefinition() screen.Definition {
-	if source, ok := definitions[c.engine]; ok {
+func (n *Pagination) findDefinition() screen.Definition {
+	if source, ok := definitions[n.engine]; ok {
 		return source
 	}
 
-	assert.Unreachable("unhandled engine definition %d", c.engine)
+	assert.Unreachable("unhandled engine definition %d", n.engine)
 	return pager_definition
 }
 
-func (c *Pagination) update(state *state.UIState, event screen.Event) screen.Result {
-	definition := c.node.Screen.Definition()
+func (n *Pagination) update(state *state.UIState, event screen.Event) screen.Result {
+	definition := n.node.Screen.Definition()
 
 	if !definition.IsRequired(event.Key) {
-		result := c.localUpdate(state, event)
+		result := n.localUpdate(state, event)
 		if result != nil {
 			return *result
 		}
 	}
 
-	result := c.node.Screen.Update(state, event)
+	result := n.node.Screen.Update(state, event)
 	if result.Node == nil {
 		return result
 	}
 
 	newWrapper := New(*result.Node)
-	newWrapper.engine = c.engine
-	newWrapper.forceEngine = c.forceEngine
+	newWrapper.engine = n.engine
+	newWrapper.forceEngine = n.forceEngine
 	newNode := newWrapper.ToNode()
 	result.Node = &newNode
 
 	return result
 }
 
-func (c *Pagination) localUpdate(state *state.UIState, event screen.Event) *screen.Result {
+func (n *Pagination) localUpdate(state *state.UIState, event screen.Event) *screen.Result {
 	keys, ok := keys[pager.CodeEnginePaged]
 
 	assert.True(ok, errf_unhandled, pager.CodeEnginePaged)
@@ -159,13 +159,13 @@ func (c *Pagination) localUpdate(state *state.UIState, event screen.Event) *scre
 	return nil
 }
 
-func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
-	vm := c.node.Screen.View(stt)
-	if c.forceEngine != nil {
-		vm.Pager.SetEngine(*c.forceEngine)
+func (n *Pagination) view(stt state.UIState) viewmodel.ViewModel {
+	vm := n.node.Screen.View(stt)
+	if n.forceEngine != nil {
+		vm.Pager.SetEngine(*n.forceEngine)
 	}
 
-	if !c.shouldShowPage(stt, vm) {
+	if !n.shouldShowPage(stt, vm) {
 		return vm
 	}
 
@@ -188,7 +188,7 @@ func (c *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 	return vm
 }
 
-func (c *Pagination) shouldShowPage(stt state.UIState, vm viewmodel.ViewModel) bool {
+func (n *Pagination) shouldShowPage(stt state.UIState, vm viewmodel.ViewModel) bool {
 	predicate := vm.Pager.Predicate.Code
 
 	if predicate != pager.CodePredicatePage {

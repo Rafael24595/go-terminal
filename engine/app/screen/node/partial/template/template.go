@@ -23,40 +23,40 @@ func New() *Template {
 	}
 }
 
-func (c *Template) Name(reference string) *Template {
-	c.reference = reference
-	return c
+func (n *Template) Name(reference string) *Template {
+	n.reference = reference
+	return n
 }
 
-func (c *Template) Stack(stack set.Set[string]) *Template {
-	c.stack = stack
-	return c
+func (n *Template) Stack(stack set.Set[string]) *Template {
+	n.stack = stack
+	return n
 }
 
-func (c *Template) ViewModel(model viewmodel.ViewModel) *Template {
-	c.model = model
-	return c
+func (n *Template) ViewModel(model viewmodel.ViewModel) *Template {
+	n.model = model
+	return n
 }
 
-func (c *Template) ToNode() screen.Node {
+func (n *Template) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.reference).
+		Name(n.reference).
 		NameToStack().
-		AddStack(c.stack).
-		Definition(c.definition).
-		Update(c.update).
-		View(c.view).
+		AddStack(n.stack).
+		Definition(n.definition).
+		Update(n.update).
+		View(n.view).
 		ToNode()
 }
 
-func (c *Template) definition() screen.Definition {
+func (n *Template) definition() screen.Definition {
 	return screen.EmptyDefinition()
 }
 
-func (c *Template) update(stt *state.UIState, _ screen.Event) screen.Result {
+func (n *Template) update(stt *state.UIState, _ screen.Event) screen.Result {
 	return screen.ResultFromUIState(stt)
 }
 
-func (c *Template) view(stt state.UIState) viewmodel.ViewModel {
-	return *c.model.Clone()
+func (n *Template) view(stt state.UIState) viewmodel.ViewModel {
+	return *n.model.Clone()
 }

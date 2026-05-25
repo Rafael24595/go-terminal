@@ -29,72 +29,72 @@ func NewBuilder() *Builder {
 	}
 }
 
-func (s *Builder) Name(name string) *Builder {
-	s.name = name
-	return s
+func (b *Builder) Name(name string) *Builder {
+	b.name = name
+	return b
 }
 
-func (s *Builder) AddTags(tags ...string) *Builder {
-	s.tags.Add(tags...)
-	return s
+func (b *Builder) AddTags(tags ...string) *Builder {
+	b.tags.Add(tags...)
+	return b
 }
 
-func (s *Builder) MergeTags(tags set.Set[string]) *Builder {
-	s.tags.Merge(tags)
-	return s
+func (b *Builder) MergeTags(tags set.Set[string]) *Builder {
+	b.tags.Merge(tags)
+	return b
 }
 
-func (s *Builder) Init(init InitFunc) *Builder {
-	s.init = init
-	return s
+func (b *Builder) Init(init InitFunc) *Builder {
+	b.init = init
+	return b
 }
 
-func (s *Builder) Wipe(wipe WipeFunc) *Builder {
-	s.wipe = wipe
-	return s
+func (b *Builder) Wipe(wipe WipeFunc) *Builder {
+	b.wipe = wipe
+	return b
 }
 
-func (s *Builder) Draw(draw DrawFunc) *Builder {
-	s.draw = draw
-	return s
+func (b *Builder) Draw(draw DrawFunc) *Builder {
+	b.draw = draw
+	return b
 }
 
-func (s *Builder) makeTags() set.Set[string] {
+func (b *Builder) makeTags() set.Set[string] {
 	tags := set.NewSet[string]()
 
-	if s.name == "" {
+	if b.name == "" {
 		tags.Add(ErrorMissingName)
 	}
 
-	if s.init == nil {
-		s.tags.Add(ErrorMissingInit)
+	if b.init == nil {
+		b.tags.Add(ErrorMissingInit)
 	}
 
-	if s.wipe == nil {
-		s.tags.Add(ErrorMissingWipe)
+	if b.wipe == nil {
+		b.tags.Add(ErrorMissingWipe)
 	}
 
-	if s.draw == nil {
-		s.tags.Add(ErrorMissingDraw)
+	if b.draw == nil {
+		b.tags.Add(ErrorMissingDraw)
 	}
 
-	tags.Merge(s.tags)
+	tags.Merge(b.tags)
 
 	return tags
 }
 
-func (s *Builder) toDrawable() Drawable {
+func (b *Builder) toDrawable() Drawable {
 	return Drawable{
-		Init: s.init,
-		Wipe: s.wipe,
-		Draw: s.draw,
+		Init: b.init,
+		Wipe: b.wipe,
+		Draw: b.draw,
 	}
 }
 
-func (s *Builder) ToUnit() Unit {
+func (b *Builder) ToUnit() Unit {
 	return Unit{
-		Name:     s.name,
-		Tags:     s.makeTags(),
-		Drawable: s.toDrawable(),
+		Name:     b.name,
+		Tags:     b.makeTags(),
+		Drawable: b.toDrawable(),
 	}
 }

@@ -32,35 +32,35 @@ func Wrap(unit drawable.Unit) drawable.Unit {
 	return New(unit).ToUnit()
 }
 
-func (d *InputLineUnit) ToUnit() drawable.Unit {
+func (u *InputLineUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		Init(d.init).
-		Wipe(d.unit.Drawable.Wipe).
-		Draw(d.draw).
+		Init(u.init).
+		Wipe(u.unit.Drawable.Wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *InputLineUnit) init() {
-	d.loaded = true
+func (u *InputLineUnit) init() {
+	u.loaded = true
 
-	d.unit.Drawable.Init()
+	u.unit.Drawable.Init()
 }
 
-func (d *InputLineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *InputLineUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
 	if size.Rows == 0 {
 		return make([]text.Line, 0), false
 	}
 
-	lines, _ := drain.UnitLazy(size, d.unit)
+	lines, _ := drain.UnitLazy(size, u.unit)
 	if len(lines) == 0 {
-		line := text.NewLine(d.prompt)
+		line := text.NewLine(u.prompt)
 		return []text.Line{*line}, false
 	}
 
-	prompt := text.FragmentsFromString(d.prompt + marker.DefaultPaddingText)
+	prompt := text.FragmentsFromString(u.prompt + marker.DefaultPaddingText)
 	lines[0].Text = append(prompt, lines[0].Text...)
 
 	return lines, false

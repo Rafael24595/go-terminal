@@ -36,35 +36,35 @@ func newConsole() *Console {
 	}
 }
 
-func (c *Console) ToTerminal() terminal.Terminal {
+func (t *Console) ToTerminal() terminal.Terminal {
 	return terminal.Terminal{
-		OnStart:      c.OnStart,
-		OnClose:      c.OnClose,
-		ResizeEvents: c.ResizeEvents,
-		KeyEvents:    c.KeyEvents,
-		Size:         c.Size,
-		Clear:        c.Clear,
-		Write:        c.Write,
-		WriteAll:     c.WriteAll,
-		Flush:        c.Flush,
+		OnStart:      t.OnStart,
+		OnClose:      t.OnClose,
+		ResizeEvents: t.ResizeEvents,
+		KeyEvents:    t.KeyEvents,
+		Size:         t.Size,
+		Clear:        t.Clear,
+		Write:        t.Write,
+		WriteAll:     t.WriteAll,
+		Flush:        t.Flush,
 	}
 }
 
-func (c *Console) OnStart() error {
+func (t *Console) OnStart() error {
 	rawmode, err := platform.OnStart()
 	if err != nil {
 		return err
 	}
 
-	c.rawmode = rawmode
+	t.rawmode = rawmode
 
-	fmt.Print(c.color + wrapper_ansi.FullReset + wrapper_ansi.HideCursor)
+	fmt.Print(t.color + wrapper_ansi.FullReset + wrapper_ansi.HideCursor)
 
 	return nil
 }
 
-func (c *Console) OnClose() error {
-	err := platform.OnClose(c.rawmode)
+func (t *Console) OnClose() error {
+	err := platform.OnClose(t.rawmode)
 	if err != nil {
 		return err
 	}
@@ -74,95 +74,95 @@ func (c *Console) OnClose() error {
 	return nil
 }
 
-func (c *Console) ResizeEvents() <-chan winsize.Winsize {
-	if c.resizeChan != nil {
-		return c.resizeChan
+func (t *Console) ResizeEvents() <-chan winsize.Winsize {
+	if t.resizeChan != nil {
+		return t.resizeChan
 	}
 
-	source := c.strategy(c.context)
-	c.resizeChan = make(chan winsize.Winsize, 1)
-	go c.listenResizeEvents(source)
+	source := t.strategy(t.context)
+	t.resizeChan = make(chan winsize.Winsize, 1)
+	go t.listenResizeEvents(source)
 
-	return c.resizeChan
+	return t.resizeChan
 }
 
-func (c *Console) listenResizeEvents(source <-chan winsize.Winsize) {
-	defer close(c.resizeChan)
+func (t *Console) listenResizeEvents(source <-chan winsize.Winsize) {
+	defer close(t.resizeChan)
 
 	for {
 		select {
-		case <-c.context.Done():
+		case <-t.context.Done():
 			return
 		case size, ok := <-source:
 			if !ok {
 				return
 			}
-			c.buffer.defineSize(size)
+			t.buffer.defineSize(size)
 			select {
-			case c.resizeChan <- size:
+			case t.resizeChan <- size:
 			default:
 			}
 		}
 	}
 }
 
-func (c *Console) KeyEvents() <-chan key.Key {
-	if c.keyChan != nil {
-		return c.keyChan
+func (t *Console) KeyEvents() <-chan key.Key {
+	if t.keyChan != nil {
+		return t.keyChan
 	}
 
-	c.keyChan = make(chan key.Key)
-	go c.listenKeyEvents()
+	t.keyChan = make(chan key.Key)
+	go t.listenKeyEvents()
 
-	return c.keyChan
+	return t.keyChan
 }
 
-func (c *Console) listenKeyEvents() {
-	defer close(c.keyChan)
+func (t *Console) listenKeyEvents() {
+	defer close(t.keyChan)
 
 	for {
-		k, err := c.reader.ReadKey()
+		k, err := t.reader.ReadKey()
 		if err != nil {
 			return
 		}
 
 		select {
-		case <-c.context.Done():
+		case <-t.context.Done():
 			return
-		case c.keyChan <- *k:
+		case t.keyChan <- *k:
 		}
 	}
 }
 
-func (c *Console) Size() (winsize.Winsize, error) {
+func (t *Console) Size() (winsize.Winsize, error) {
 	winsize, err := platform.Size()
 	if err != nil {
-		return c.buffer.size, err
+		return t.buffer.size, err
 	}
 
-	return c.buffer.defineSize(winsize), nil
+	return t.buffer.defineSize(winsize), nil
 }
 
-func (c *Console) Clear() error {
+func (t *Console) Clear() error {
 	fmt.Print(wrapper_ansi.CursorHome)
 	return nil
 }
 
-func (c *Console) Write(lines ...string) error {
+func (t *Console) Write(lines ...string) error {
 	for _, l := range lines {
-		c.buffer.setLine(wrapper_ansi.ClearLine + l).
+		t.buffer.setLine(wrapper_ansi.ClearLine + l).
 			nextLine()
 	}
 	return nil
 }
 
-func (c *Console) WriteAll(text string) error {
+func (t *Console) WriteAll(text string) error {
 	lines := strings.Split(text, "\n")
-	return c.Write(lines...)
+	return t.Write(lines...)
 }
 
-func (c *Console) Flush() error {
-	fmt.Print(c.buffer.join("\n"))
-	c.buffer.clear()
+func (t *Console) Flush() error {
+	fmt.Print(t.buffer.join("\n"))
+	t.buffer.clear()
 	return nil
 }

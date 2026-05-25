@@ -45,79 +45,79 @@ func New() *IndexMenu {
 	}
 }
 
-func (c *IndexMenu) SetName(name string) *IndexMenu {
-	c.reference = name
-	return c
+func (n *IndexMenu) SetName(name string) *IndexMenu {
+	n.reference = name
+	return n
 }
 
-func (c *IndexMenu) SetMeta(meta marker.IndexMeta) *IndexMenu {
-	c.meta = meta
-	return c
+func (n *IndexMenu) SetMeta(meta marker.IndexMeta) *IndexMenu {
+	n.meta = meta
+	return n
 }
 
-func (c *IndexMenu) AddOptions(options ...input.MenuOption) *IndexMenu {
-	c.options = append(c.options, options...)
-	return c
+func (n *IndexMenu) AddOptions(options ...input.MenuOption) *IndexMenu {
+	n.options = append(n.options, options...)
+	return n
 }
 
-func (c *IndexMenu) SetCursor(cursor uint16) *IndexMenu {
-	maxIdx := math.SubClampZeroAs[int, uint16](len(c.options), 1)
-	c.cursor = math.Clamp(cursor, 0, maxIdx)
-	return c
+func (n *IndexMenu) SetCursor(cursor uint16) *IndexMenu {
+	maxIdx := math.SubClampZeroAs[int, uint16](len(n.options), 1)
+	n.cursor = math.Clamp(cursor, 0, maxIdx)
+	return n
 }
 
-func (c *IndexMenu) ToNode() screen.Node {
+func (n *IndexMenu) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.reference).
+		Name(n.reference).
 		NameToStack().
-		Definition(c.definition).
-		Update(c.update).
-		View(c.view).
+		Definition(n.definition).
+		Update(n.update).
+		View(n.view).
 		ToNode()
 }
 
-func (c *IndexMenu) definition() screen.Definition {
+func (n *IndexMenu) definition() screen.Definition {
 	return index_menu_definition
 }
 
-func (c *IndexMenu) update(stt *state.UIState, evt screen.Event) screen.Result {
-	size := uint16(len(c.options))
+func (n *IndexMenu) update(stt *state.UIState, evt screen.Event) screen.Result {
+	size := uint16(len(n.options))
 	if size == 0 {
 		return screen.EmptyResult()
 	}
 
 	switch evt.Key.Code {
 	case key.ActionArrowUp:
-		c.cursor = (c.cursor + size - 1) % size
+		n.cursor = (n.cursor + size - 1) % size
 	case key.ActionTab, key.ActionArrowDown:
-		c.cursor = (c.cursor + 1) % size
+		n.cursor = (n.cursor + 1) % size
 	case key.ActionEnter:
-		return c.actionEnter(stt)
+		return n.actionEnter(stt)
 	}
 
 	return screen.EmptyResult()
 }
 
-func (c *IndexMenu) actionEnter(stt *state.UIState) screen.Result {
-	option := c.options[c.cursor]
+func (n *IndexMenu) actionEnter(stt *state.UIState) screen.Result {
+	option := n.options[n.cursor]
 
 	state.PushParam(
 		stt.Stack,
-		c.reference,
+		n.reference,
 		ArgActiveIndex,
 		option.Id,
 	)
 
-	node := c.options[c.cursor].Action()
+	node := n.options[n.cursor].Action()
 	return screen.ResultFromNode(&node)
 }
 
-func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
-	frags := input.FragmentFromMenuOption(c.options...)
+func (n *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
+	frags := input.FragmentFromMenuOption(n.options...)
 
 	indexmenu := indexmenu.New(frags).
-		Meta(c.meta).
-		Cursor(c.cursor)
+		Meta(n.meta).
+		Cursor(n.cursor)
 
 	vm := viewmodel.NewViewModel()
 
@@ -125,9 +125,9 @@ func (c *IndexMenu) view(_ state.UIState) viewmodel.ViewModel {
 		indexmenu.ToUnit(),
 	)
 
-	index := math.SubClampZeroAs[int, uint16](len(c.options), 1)
-	option := min(index, c.cursor)
-	text := c.options[option].Label.Text
+	index := math.SubClampZeroAs[int, uint16](len(n.options), 1)
+	option := min(index, n.cursor)
+	text := n.options[option].Label.Text
 
 	vm.Footer.Push(
 		inputline.Wrap(

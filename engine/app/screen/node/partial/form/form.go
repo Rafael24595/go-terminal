@@ -53,27 +53,27 @@ func New() *Form {
 	}
 }
 
-func (c *Form) AddNode(
+func (n *Form) AddNode(
 	selectable bool,
 	node screen.Node,
 	chunk chunk.Chunk[winsize.Rows],
 ) *Form {
-	c.items = append(c.items, item{
+	n.items = append(n.items, item{
 		node:       node,
 		chunk:      chunk,
 		selectable: selectable,
 	})
-	return c
+	return n
 }
 
-func (c *Form) ToNode() screen.Node {
+func (n *Form) ToNode() screen.Node {
 	builder := screen.NewBuilder().
-		Name(c.reference).
-		Definition(c.definition).
-		Update(c.update).
-		View(c.view)
+		Name(n.reference).
+		Definition(n.definition).
+		Update(n.update).
+		View(n.view)
 
-	for _, v := range c.items {
+	for _, v := range n.items {
 		builder.Children(v.node).
 			AddStack(v.node.Stack)
 	}
@@ -81,10 +81,10 @@ func (c *Form) ToNode() screen.Node {
 	return builder.ToNode()
 }
 
-func (c *Form) definition() screen.Definition {
+func (n *Form) definition() screen.Definition {
 	local := sources
 
-	item := c.items[c.cursor]
+	item := n.items[n.cursor]
 	if item.selectable {
 		local = local.Merge(
 			item.node.Screen.Definition(),
@@ -94,45 +94,45 @@ func (c *Form) definition() screen.Definition {
 	return local
 }
 
-func (c *Form) update(stt *state.UIState, evt screen.Event) screen.Result {
-	focus, ok := c.focusItem()
+func (n *Form) update(stt *state.UIState, evt screen.Event) screen.Result {
+	focus, ok := n.focusItem()
 
 	definition := focus.node.Screen.Definition()
 	required := ok && definition.IsRequired(evt.Key)
 
 	if required {
-		result := c.focusUpdate(stt, evt, focus)
+		result := n.focusUpdate(stt, evt, focus)
 		if evt.Key.Code != key.ActionEsc {
 			return result
 		}
 	}
 
-	return c.localUpdate(stt, evt)
+	return n.localUpdate(stt, evt)
 }
 
-func (c *Form) localUpdate(stt *state.UIState, evt screen.Event) screen.Result {
+func (n *Form) localUpdate(stt *state.UIState, evt screen.Event) screen.Result {
 	ky := evt.Key
 
 	switch ky.Code {
 	case key.ActionEsc:
-		c.fixed = false
+		n.fixed = false
 	case key.ActionArrowUp:
-		c.cursor = 0
+		n.cursor = 0
 	case key.ActionArrowDown:
-		c.cursor = math.SubClampZeroAs[int, uint16](len(c.items), 1)
+		n.cursor = math.SubClampZeroAs[int, uint16](len(n.items), 1)
 	case key.ActionArrowLeft:
-		c.cursor = math.SubClampZero(c.cursor, 1)
+		n.cursor = math.SubClampZero(n.cursor, 1)
 	case key.ActionArrowRight:
-		last := math.SubClampZeroAs[int, uint16](len(c.items), 1)
-		c.cursor = min(last, c.cursor+1)
+		last := math.SubClampZeroAs[int, uint16](len(n.items), 1)
+		n.cursor = min(last, n.cursor+1)
 	case key.ActionEnter:
-		c.fixed = true
+		n.fixed = true
 	}
 
 	return screen.ResultFromUIState(stt)
 }
 
-func (c *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus item) screen.Result {
+func (n *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus item) screen.Result {
 	result := focus.node.Screen.Update(stt, evt)
 
 	if result.Node == nil {
@@ -140,14 +140,14 @@ func (c *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus item) scr
 
 	}
 
-	newItems := make([]item, len(c.items))
-	copy(newItems, c.items)
+	newItems := make([]item, len(n.items))
+	copy(newItems, n.items)
 
 	newWrapper := New()
-	newWrapper.reference = c.reference
+	newWrapper.reference = n.reference
 	newWrapper.items = newItems
-	newWrapper.cursor = c.cursor
-	newWrapper.fixed = c.fixed
+	newWrapper.cursor = n.cursor
+	newWrapper.fixed = n.fixed
 
 	newNode := newWrapper.ToNode()
 	result.Node = &newNode
@@ -155,18 +155,18 @@ func (c *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus item) scr
 	return result
 }
 
-func (c *Form) view(stt state.UIState) viewmodel.ViewModel {
+func (n *Form) view(stt state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
 	//TODO: Compile headers and footers?
 	//TODO: Manage the master paging screen.
-	for _, i := range c.items {
+	for _, i := range n.items {
 		cvm := i.node.Screen.View(stt)
 		unit := cvm.Kernel.ToUnit()
 		vm.Kernel.PushChunk(unit, i.chunk)
 	}
 
-	if focus, ok := c.focusItem(); ok {
+	if focus, ok := n.focusItem(); ok {
 		label := focus.node.Name
 		vm.Footer.Push(
 			inputline.Wrap(
@@ -178,10 +178,10 @@ func (c *Form) view(stt state.UIState) viewmodel.ViewModel {
 	return *vm
 }
 
-func (c *Form) focusItem() (item, bool) {
-	if c.cursor >= uint16(len(c.items)) {
+func (n *Form) focusItem() (item, bool) {
+	if n.cursor >= uint16(len(n.items)) {
 		return item{}, false
 	}
 
-	return c.items[c.cursor], true
+	return n.items[n.cursor], true
 }

@@ -46,71 +46,71 @@ func Wrap(unit drawable.Unit) drawable.Unit {
 	return New(unit).ToUnit()
 }
 
-func (d *BoxUnit) Separator(separator marker.BoxSeparatorMeta) *BoxUnit {
-	d.separator = separator
-	return d
+func (u *BoxUnit) Separator(separator marker.BoxSeparatorMeta) *BoxUnit {
+	u.separator = separator
+	return u
 }
 
-func (d *BoxUnit) PaddingY(padding winsize.Rows) *BoxUnit {
-	d.paddingY = padding
-	return d
+func (u *BoxUnit) PaddingY(padding winsize.Rows) *BoxUnit {
+	u.paddingY = padding
+	return u
 }
 
-func (d *BoxUnit) PaddingX(padding winsize.Cols) *BoxUnit {
-	d.paddingX = padding
-	return d
+func (u *BoxUnit) PaddingX(padding winsize.Cols) *BoxUnit {
+	u.paddingX = padding
+	return u
 }
 
-func (d *BoxUnit) ToUnit() drawable.Unit {
+func (u *BoxUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		MergeTags(d.unit.Tags).
-		Init(d.init).
-		Wipe(d.unit.Drawable.Wipe).
-		Draw(d.draw).
+		MergeTags(u.unit.Tags).
+		Init(u.init).
+		Wipe(u.unit.Drawable.Wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *BoxUnit) init() {
-	d.loaded = true
+func (u *BoxUnit) init() {
+	u.loaded = true
 
-	d.unit = d.makeUnit()
+	u.unit = u.makeUnit()
 
-	d.unit.Drawable.Init()
+	u.unit.Drawable.Init()
 }
 
-func (d *BoxUnit) makeUnit() drawable.Unit {
-	if d.paddingY == 0 && d.paddingX == 0 {
-		return d.unit
+func (u *BoxUnit) makeUnit() drawable.Unit {
+	if u.paddingY == 0 && u.paddingX == 0 {
+		return u.unit
 	}
 
 	return margin.NewBuilder().
-		Y(d.paddingY, rows.WithPosition(style.Middle)).
-		X(d.paddingX, cols.WithPosition(style.Center)).
-		ToUnit(d.unit)
+		Y(u.paddingY, rows.WithPosition(style.Middle)).
+		X(u.paddingX, cols.WithPosition(style.Center)).
+		ToUnit(u.unit)
 }
 
-func (d *BoxUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *BoxUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	innerSize := d.computeInnerSize(size)
-	lines, hasNext := drain.UnitLazy(innerSize, d.unit)
+	innerSize := u.computeInnerSize(size)
+	lines, hasNext := drain.UnitLazy(innerSize, u.unit)
 
-	styled := d.styleLines(size, lines...)
+	styled := u.styleLines(size, lines...)
 
 	return styled, hasNext
 }
 
 // TODO: investigate spec overflow.
-func (d *BoxUnit) styleLines(size winsize.Winsize, lines ...text.Line) []text.Line {
-	vertical := horizontalStaticSize(d.separator)
+func (u *BoxUnit) styleLines(size winsize.Winsize, lines ...text.Line) []text.Line {
+	vertical := horizontalStaticSize(u.separator)
 
 	maxLine := text.MaxLineMeasure(size.Cols, lines...)
 	measure := min(maxLine+vertical, size.Cols)
 
 	specCover := style.SpecRepeatLeft(measure)
 	cover := text.LineFromFragments(
-		*text.NewFragment(d.separator.Top).AddSpec(specCover),
+		*text.NewFragment(u.separator.Top).AddSpec(specCover),
 	)
 
 	result := make([]text.Line, 0)
@@ -126,7 +126,7 @@ func (d *BoxUnit) styleLines(size winsize.Winsize, lines ...text.Line) []text.Li
 
 	for _, lin := range transformer(size, lines) {
 		for _, v := range wrap.Line(available, &lin) {
-			line := d.wrapLine(v)
+			line := u.wrapLine(v)
 			result = append(result, line)
 		}
 	}
@@ -136,23 +136,23 @@ func (d *BoxUnit) styleLines(size winsize.Winsize, lines ...text.Line) []text.Li
 	return result
 }
 
-func (d *BoxUnit) wrapLine(line text.Line) text.Line {
+func (u *BoxUnit) wrapLine(line text.Line) text.Line {
 	frags := make([]text.Fragment, 0)
 
-	frags = append(frags, *text.NewFragment(d.separator.Left))
+	frags = append(frags, *text.NewFragment(u.separator.Left))
 	frags = append(frags, line.Text...)
-	frags = append(frags, *text.NewFragment(d.separator.Right))
+	frags = append(frags, *text.NewFragment(u.separator.Right))
 
 	line.Text = frags
 
 	return line
 }
 
-func (d *BoxUnit) computeInnerSize(size winsize.Winsize) winsize.Winsize {
+func (u *BoxUnit) computeInnerSize(size winsize.Winsize) winsize.Winsize {
 	vertical := winsize.Rows(2)
 	rows := size.Rows.Sub(vertical)
 
-	horizontal := horizontalStaticSize(d.separator)
+	horizontal := horizontalStaticSize(u.separator)
 	cols := size.Cols.Sub(horizontal)
 
 	return winsize.New(rows, cols)

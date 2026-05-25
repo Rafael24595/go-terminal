@@ -68,141 +68,141 @@ func New[T any]() *Table[T] {
 	}
 }
 
-func (c *Table[T]) SetName(name string) *Table[T] {
-	c.reference = name
-	return c
+func (n *Table[T]) SetName(name string) *Table[T] {
+	n.reference = name
+	return n
 }
 
-func (c *Table[T]) EnableAction() *Table[T] {
-	c.action.EnableMode = true
-	return c
+func (n *Table[T]) EnableAction() *Table[T] {
+	n.action.EnableMode = true
+	return n
 }
 
-func (c *Table[T]) DisableAction() *Table[T] {
-	c.action.EnableMode = false
-	return c
+func (n *Table[T]) DisableAction() *Table[T] {
+	n.action.EnableMode = false
+	return n
 }
 
-func (c *Table[T]) SetActionHandler(handler input.TableActionHandler) *Table[T] {
-	c.action.Handler = handler
-	return c
+func (n *Table[T]) SetActionHandler(handler input.TableActionHandler) *Table[T] {
+	n.action.Handler = handler
+	return n
 }
 
-func (c *Table[T]) SetPositionY(position style.VerticalPosition) *Table[T] {
-	c.positionY = position
-	return c
+func (n *Table[T]) SetPositionY(position style.VerticalPosition) *Table[T] {
+	n.positionY = position
+	return n
 }
 
-func (c *Table[T]) SetPositionX(position style.HorizontalPosition) *Table[T] {
-	c.positionX = position
-	return c
+func (n *Table[T]) SetPositionX(position style.HorizontalPosition) *Table[T] {
+	n.positionX = position
+	return n
 }
 
-func (c *Table[T]) SetHeaders(headers ...string) *Table[T] {
-	c.table = table.NewTable()
-	c.table.SetHeaders(headers...)
-	return c
+func (n *Table[T]) SetHeaders(headers ...string) *Table[T] {
+	n.table = table.NewTable()
+	n.table.SetHeaders(headers...)
+	return n
 }
 
-func (c *Table[T]) AddItems(marshal MarshalFunc[T], items ...T) *Table[T] {
-	rows := c.table.Rows()
+func (n *Table[T]) AddItems(marshal MarshalFunc[T], items ...T) *Table[T] {
+	rows := n.table.Rows()
 	for i, item := range items {
 		index := rows + uint16(i)
 		for _, field := range marshal(item) {
-			c.table.SetCell(field.Header, index, field.Value)
+			n.table.SetCell(field.Header, index, field.Value)
 		}
 	}
-	return c
+	return n
 }
 
-func (c *Table[T]) ToNode() screen.Node {
+func (n *Table[T]) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.reference).
+		Name(n.reference).
 		NameToStack().
-		Definition(c.definition).
-		Update(c.update).
-		View(c.view).
+		Definition(n.definition).
+		Update(n.update).
+		View(n.view).
 		ToNode()
 }
 
-func (c *Table[T]) definition() screen.Definition {
-	if !c.action.EnableMode {
+func (n *Table[T]) definition() screen.Definition {
+	if !n.action.EnableMode {
 		return screen.EmptyDefinition()
 	}
 
-	if c.action.ActionMode {
+	if n.action.ActionMode {
 		return write_definition
 	}
 
 	return read_definition
 }
 
-func (c *Table[T]) update(stt *state.UIState, evnt screen.Event) screen.Result {
+func (n *Table[T]) update(stt *state.UIState, evnt screen.Event) screen.Result {
 	stt.Pager.ForceShow = true
 
-	if !c.action.EnableMode {
+	if !n.action.EnableMode {
 		return screen.ResultFromUIState(stt)
 	}
 
-	if !c.action.ActionMode {
-		return c.updateRead(stt, evnt)
+	if !n.action.ActionMode {
+		return n.updateRead(stt, evnt)
 	}
-	return c.updateNavigation(stt, evnt)
+	return n.updateNavigation(stt, evnt)
 }
 
-func (c *Table[T]) updateNavigation(state *state.UIState, evnt screen.Event) screen.Result {
+func (n *Table[T]) updateNavigation(state *state.UIState, evnt screen.Event) screen.Result {
 	ky := evnt.Key
 
 	switch ky.Code {
 	case key.ActionEsc:
-		c.action.ActionMode = false
-		c.cursor.Show = c.action.ActionMode
+		n.action.ActionMode = false
+		n.cursor.Show = n.action.ActionMode
 	case key.ActionArrowLeft:
-		c.cursor.DecCol()
+		n.cursor.DecCol()
 	case key.ActionArrowRight:
-		c.cursor.IncCol(
-			math.SubClampZero(c.table.Cols(), 1),
+		n.cursor.IncCol(
+			math.SubClampZero(n.table.Cols(), 1),
 		)
 	case key.ActionArrowUp:
-		c.cursor.DecRow()
+		n.cursor.DecRow()
 	case key.ActionArrowDown:
-		c.cursor.IncRow(
-			math.SubClampZero(c.table.Rows(), 1),
+		n.cursor.IncRow(
+			math.SubClampZero(n.table.Rows(), 1),
 		)
 	}
 
 	return screen.ResultFromUIState(state)
 }
 
-func (c *Table[T]) updateRead(state *state.UIState, evnt screen.Event) screen.Result {
+func (n *Table[T]) updateRead(state *state.UIState, evnt screen.Event) screen.Result {
 	ky := evnt.Key
 
 	switch ky.Code {
 	case key.ActionEnter:
-		c.action.ActionMode = true
-		c.cursor.Show = c.action.ActionMode
+		n.action.ActionMode = true
+		n.cursor.Show = n.action.ActionMode
 	}
 
 	return screen.ResultFromUIState(state)
 }
 
-func (c *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
+func (n *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
-	table := drawable_table.UnitFromTable(*c.table, *c.cursor)
+	table := drawable_table.UnitFromTable(*n.table, *n.cursor)
 
 	position := padding.NewBuilder().
-		Y(hint.Maximize[winsize.Rows](), rows.WithPosition(c.positionY)).
-		X(hint.Maximize[winsize.Cols](), cols.WithPosition(c.positionX)).
+		Y(hint.Maximize[winsize.Rows](), rows.WithPosition(n.positionY)).
+		X(hint.Maximize[winsize.Cols](), cols.WithPosition(n.positionX)).
 		ToUnit(table)
 
 	vm.Kernel.Push(position)
 
 	preficate := pager.PredicatePage()
-	if c.action.EnableMode && c.action.ActionMode {
+	if n.action.EnableMode && n.action.ActionMode {
 		preficate = pager.PredicateFocus()
 
-		cell, _ := c.table.FindCellByCoords(c.cursor.Row, c.cursor.Col)
+		cell, _ := n.table.FindCellByCoords(n.cursor.Row, n.cursor.Col)
 
 		vm.Footer.Push(
 			inputline.Wrap(

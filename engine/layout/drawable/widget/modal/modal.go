@@ -41,61 +41,61 @@ func New() *ModalUnit {
 	}
 }
 
-func (d *ModalUnit) AddText(text ...text.Line) *ModalUnit {
-	d.text = append(d.text, text...)
-	return d
+func (u *ModalUnit) AddText(text ...text.Line) *ModalUnit {
+	u.text = append(u.text, text...)
+	return u
 }
 
-func (d *ModalUnit) AddOptions(options ...text.Fragment) *ModalUnit {
-	d.options = append(d.options, options...)
-	return d
+func (u *ModalUnit) AddOptions(options ...text.Fragment) *ModalUnit {
+	u.options = append(u.options, options...)
+	return u
 }
 
-func (d *ModalUnit) DefineLimit(limit uint) *ModalUnit {
-	d.limit = limit
-	return d
+func (u *ModalUnit) DefineLimit(limit uint) *ModalUnit {
+	u.limit = limit
+	return u
 }
 
-func (d *ModalUnit) DefineCursor(cursor uint16) *ModalUnit {
-	d.cursor = cursor
-	return d
+func (u *ModalUnit) DefineCursor(cursor uint16) *ModalUnit {
+	u.cursor = cursor
+	return u
 }
 
-func (d *ModalUnit) ToUnit() drawable.Unit {
+func (u *ModalUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *ModalUnit) init() {
-	d.loaded = true
-	d.lazyLoaded = false
+func (u *ModalUnit) init() {
+	u.loaded = true
+	u.lazyLoaded = false
 }
 
-func (d *ModalUnit) lazyInit(size winsize.Winsize) {
-	if d.lazyLoaded {
+func (u *ModalUnit) lazyInit(size winsize.Winsize) {
+	if u.lazyLoaded {
 		return
 	}
 
-	d.lazyLoaded = true
+	u.lazyLoaded = true
 
-	opts := make([]text.Fragment, len(d.options))
-	for i := range d.options {
-		old := d.options[i]
+	opts := make([]text.Fragment, len(u.options))
+	for i := range u.options {
+		old := u.options[i]
 		opts[i] = *text.NewFragment(old.Text).
 			AddAtom(old.Atom).
 			AddSpec(old.Spec)
 
-		if i == int(d.cursor) {
+		if i == int(u.cursor) {
 			opts[i].AddAtom(style.AtmSelect)
 		}
 	}
 
-	measure := text.MaxLineMeasure(size.Cols, d.text...) + 1
-	text := formatLines(d.text...)
+	measure := text.MaxLineMeasure(size.Cols, u.text...) + 1
+	text := formatLines(u.text...)
 
 	title := drain.UnitFromLines(text...)
 
@@ -125,25 +125,25 @@ func (d *ModalUnit) lazyInit(size winsize.Winsize) {
 
 	position.Drawable.Init()
 
-	d.unit = position
+	u.unit = position
 }
 
-func (d *ModalUnit) wipe() {
-	d.lazyLoaded = false
+func (u *ModalUnit) wipe() {
+	u.lazyLoaded = false
 
-	if d.unit.Drawable.Wipe == nil {
+	if u.unit.Drawable.Wipe == nil {
 		return
 	}
 
-	d.unit.Drawable.Wipe()
+	u.unit.Drawable.Wipe()
 }
 
-func (d *ModalUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *ModalUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	d.lazyInit(size)
+	u.lazyInit(size)
 
-	return d.unit.Drawable.Draw(size)
+	return u.unit.Drawable.Draw(size)
 }
 
 func formatLines(lines ...text.Line) []text.Line {

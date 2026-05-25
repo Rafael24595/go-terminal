@@ -49,30 +49,30 @@ func (b *Builder) WithClock(clock clock.Clock) *Builder {
 	return b
 }
 
-func (s *Builder) Name(name string) *Builder {
-	s.name = name
-	return s
+func (b *Builder) Name(name string) *Builder {
+	b.name = name
+	return b
 }
 
-func (s *Builder) NameToStack() *Builder {
-	return s.AddStack(
-		set.SetFrom(s.name),
+func (b *Builder) NameToStack() *Builder {
+	return b.AddStack(
+		set.SetFrom(b.name),
 	)
 }
 
-func (s *Builder) AddStack(stack set.Set[string]) *Builder {
-	s.stack.Merge(stack)
-	return s
+func (b *Builder) AddStack(stack set.Set[string]) *Builder {
+	b.stack.Merge(stack)
+	return b
 }
 
-func (s *Builder) Definition(definition DefinitionFunc) *Builder {
-	s.definition = definition
-	return s
+func (b *Builder) Definition(definition DefinitionFunc) *Builder {
+	b.definition = definition
+	return b
 }
 
-func (s *Builder) WithoutDefinition() *Builder {
-	s.definition = withoutDefinition
-	return s
+func (b *Builder) WithoutDefinition() *Builder {
+	b.definition = withoutDefinition
+	return b
 }
 
 func (b *Builder) Children(children ...Node) *Builder {
@@ -80,57 +80,57 @@ func (b *Builder) Children(children ...Node) *Builder {
 	return b
 }
 
-func (s *Builder) Update(update UpdateFunc) *Builder {
-	s.update = update
-	return s
+func (b *Builder) Update(update UpdateFunc) *Builder {
+	b.update = update
+	return b
 }
 
-func (s *Builder) View(view ViewFunc) *Builder {
-	s.view = view
-	return s
+func (b *Builder) View(view ViewFunc) *Builder {
+	b.view = view
+	return b
 }
 
-func (s *Builder) makeTags() set.Set[string] {
+func (b *Builder) makeTags() set.Set[string] {
 	tags := set.NewSet[string]()
 
-	if s.name == "" {
+	if b.name == "" {
 		tags.Add(ErrorMissingName)
 	}
 
-	if s.definition == nil {
+	if b.definition == nil {
 		tags.Add(ErrorMissingDefinition)
 	}
 
-	if s.update == nil {
+	if b.update == nil {
 		tags.Add(ErrorMissingUpdate)
 	}
 
-	if s.view == nil {
+	if b.view == nil {
 		tags.Add(ErrorMissingView)
 	}
 
 	return tags
 }
 
-func (s *Builder) makeID() string {
-	return fmt.Sprintf("%s_%d", s.name, s.clock())
+func (b *Builder) makeID() string {
+	return fmt.Sprintf("%s_%d", b.name, b.clock())
 }
 
-func (s *Builder) toScreen() Screen {
+func (b *Builder) toScreen() Screen {
 	return Screen{
-		Definition: s.definition,
-		Update:     s.update,
-		View:       s.view,
+		Definition: b.definition,
+		Update:     b.update,
+		View:       b.view,
 	}
 }
 
-func (s *Builder) ToNode() Node {
+func (b *Builder) ToNode() Node {
 	return Node{
-		id:       s.makeID(),
-		Name:     s.name,
-		Tags:     s.makeTags(),
-		Screen:   s.toScreen(),
-		Stack:    s.stack,
-		children: s.children,
+		id:       b.makeID(),
+		Name:     b.name,
+		Tags:     b.makeTags(),
+		Screen:   b.toScreen(),
+		Stack:    b.stack,
+		children: b.children,
 	}
 }

@@ -36,52 +36,52 @@ func UnitFromTable(table table.Table, cursor input.MatrixCursor) drawable.Unit {
 	return New(table, cursor).ToUnit()
 }
 
-func (d *TableUnit) ToUnit() drawable.Unit {
+func (u *TableUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *TableUnit) init() {
-	d.loaded = true
-	d.lazyLoaded = false
+func (u *TableUnit) init() {
+	u.loaded = true
+	u.lazyLoaded = false
 }
 
-func (d *TableUnit) wipe() {
-	d.lazyLoaded = false
+func (u *TableUnit) wipe() {
+	u.lazyLoaded = false
 }
 
-func (d *TableUnit) lazyInit(size winsize.Winsize) {
-	if d.lazyLoaded {
+func (u *TableUnit) lazyInit(size winsize.Winsize) {
+	if u.lazyLoaded {
 		return
 	}
 
-	d.lazyLoaded = true
+	u.lazyLoaded = true
 
-	d.size = size
-	d.sections = makeSections(d.table, d.cursor, size)
+	u.size = size
+	u.sections = makeSections(u.table, u.cursor, size)
 
-	for i := range d.sections {
-		d.sections[i].header.Drawable.Init()
-		d.sections[i].rows.Drawable.Init()
-		d.sections[i].footer.Drawable.Init()
+	for i := range u.sections {
+		u.sections[i].header.Drawable.Init()
+		u.sections[i].rows.Drawable.Init()
+		u.sections[i].footer.Drawable.Init()
 	}
 }
 
-func (d *TableUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *TableUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
 	if size.Rows == 0 {
 		return make([]text.Line, 0), false
 	}
 
-	d.lazyInit(size)
+	u.lazyInit(size)
 
-	headers, footers, remaining := d.drawStatic()
-	bodies, hasNext := d.drawDynamic(remaining)
+	headers, footers, remaining := u.drawStatic()
+	bodies, hasNext := u.drawDynamic(remaining)
 
 	result := make([]text.Line, size.Rows)
 	cursor := 0
@@ -99,16 +99,16 @@ func (d *TableUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
 	return result, hasNext
 }
 
-func (d *TableUnit) drawStatic() ([][]text.Line, [][]text.Line, int) {
-	headers := make([][]text.Line, len(d.sections))
-	footers := make([][]text.Line, len(d.sections))
+func (u *TableUnit) drawStatic() ([][]text.Line, [][]text.Line, int) {
+	headers := make([][]text.Line, len(u.sections))
+	footers := make([][]text.Line, len(u.sections))
 
-	remaining := int(d.size.Rows)
-	for i, s := range d.sections {
-		header, _ := s.header.Drawable.Draw(d.size)
+	remaining := int(u.size.Rows)
+	for i, s := range u.sections {
+		header, _ := s.header.Drawable.Draw(u.size)
 		headers[i] = header
 
-		footer, _ := s.footer.Drawable.Draw(d.size)
+		footer, _ := s.footer.Drawable.Draw(u.size)
 		footers[i] = footer
 
 		remaining -= (len(header) + len(footer))
@@ -117,10 +117,10 @@ func (d *TableUnit) drawStatic() ([][]text.Line, [][]text.Line, int) {
 	return headers, footers, remaining
 }
 
-func (d *TableUnit) drawDynamic(remaining int) ([][]text.Line, bool) {
+func (u *TableUnit) drawDynamic(remaining int) ([][]text.Line, bool) {
 	empty := make(map[int]int)
 
-	sections := len(d.sections)
+	sections := len(u.sections)
 	if sections == 0 {
 		return make([][]text.Line, 0), false
 	}
@@ -129,7 +129,7 @@ func (d *TableUnit) drawDynamic(remaining int) ([][]text.Line, bool) {
 
 	bodies := make([][]text.Line, sections)
 	for fixRemaining > 0 && len(empty) != sections {
-		for i, s := range d.sections {
+		for i, s := range u.sections {
 			if fixRemaining <= 0 {
 				break
 			}
@@ -138,7 +138,7 @@ func (d *TableUnit) drawDynamic(remaining int) ([][]text.Line, bool) {
 				continue
 			}
 
-			lines, status := s.rows.Drawable.Draw(d.size)
+			lines, status := s.rows.Drawable.Draw(u.size)
 			if !status {
 				empty[i] = 1
 			}
@@ -149,5 +149,5 @@ func (d *TableUnit) drawDynamic(remaining int) ([][]text.Line, bool) {
 		}
 	}
 
-	return bodies, len(empty) != len(d.sections)
+	return bodies, len(empty) != len(u.sections)
 }

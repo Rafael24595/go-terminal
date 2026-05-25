@@ -48,76 +48,76 @@ func NewInput() *TextInput {
 	}
 }
 
-func (c *TextInput) SetName(name string) *TextInput {
-	c.textarea.SetName(name)
-	return c
+func (n *TextInput) SetName(name string) *TextInput {
+	n.textarea.SetName(name)
+	return n
 }
 
-func (c *TextInput) SetProcessor(limit winsize.Cols, process processor.Processor) *TextInput {
+func (n *TextInput) SetProcessor(limit winsize.Cols, process processor.Processor) *TextInput {
 	assert.True(
 		limit <= input_max_limit,
 		"longer text fields should use the text area screen instead of the input one.",
 	)
 
-	c.limit = limit
+	n.limit = limit
 
-	c.textarea.buffer.Processor(
+	n.textarea.buffer.Processor(
 		processor.Limit(limit, process),
 	)
 
-	return c
+	return n
 }
 
-func (c *TextInput) SetLabel(label []text.Fragment) *TextInput {
-	c.label = label
-	return c
+func (n *TextInput) SetLabel(label []text.Fragment) *TextInput {
+	n.label = label
+	return n
 }
 
-func (c *TextInput) WriteMode() *TextInput {
-	c.textarea.WriteMode()
-	return c
+func (n *TextInput) WriteMode() *TextInput {
+	n.textarea.WriteMode()
+	return n
 }
 
-func (c *TextInput) ReadMode() *TextInput {
-	c.textarea.ReadMode()
-	return c
+func (n *TextInput) ReadMode() *TextInput {
+	n.textarea.ReadMode()
+	return n
 }
 
-func (c *TextInput) EnableBlinking() *TextInput {
-	c.textarea.EnableBlinking()
-	return c
+func (n *TextInput) EnableBlinking() *TextInput {
+	n.textarea.EnableBlinking()
+	return n
 }
 
-func (c *TextInput) DisableBlinking() *TextInput {
-	c.textarea.DisableBlinking()
-	return c
+func (n *TextInput) DisableBlinking() *TextInput {
+	n.textarea.DisableBlinking()
+	return n
 }
 
-func (c *TextInput) AddText(text string) *TextInput {
-	c.textarea.AddText(text)
-	return c
+func (n *TextInput) AddText(text string) *TextInput {
+	n.textarea.AddText(text)
+	return n
 }
 
-func (c *TextInput) ToNode() screen.Node {
+func (n *TextInput) ToNode() screen.Node {
 	return screen.NewBuilder().
-		Name(c.textarea.reference).
+		Name(n.textarea.reference).
 		NameToStack().
-		Definition(c.textarea.definition).
-		Update(c.textarea.update).
-		View(c.view).
+		Definition(n.textarea.definition).
+		Update(n.textarea.update).
+		View(n.view).
 		ToNode()
 }
 
-func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
+func (n *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
-	_, textarea, needsPulse := c.textarea.viewSources()
+	_, textarea, needsPulse := n.textarea.viewSources()
 
 	textarea.PushStep(
 		transformer.BreakWord,
 	)
 
-	pipeline := c.makePipeline(
+	pipeline := n.makePipeline(
 		textarea.ToUnit(),
 	)
 
@@ -126,8 +126,8 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 		PaddingX(1).
 		ToUnit()
 
-	if len(c.label) != 0 {
-		frags := append(c.label, *text.NewFragment(": "))
+	if len(n.label) != 0 {
+		frags := append(n.label, *text.NewFragment(": "))
 		vm.Kernel.Push(
 			drain.UnitFromFragments(frags...),
 		)
@@ -140,11 +140,11 @@ func (c *TextInput) view(stt state.UIState) viewmodel.ViewModel {
 	return *vm
 }
 
-func (c *TextInput) makePipeline(unit drawable.Unit) drawable.Unit {
+func (n *TextInput) makePipeline(unit drawable.Unit) drawable.Unit {
 	pageStep := pageTransformer()
 
 	paddingStep := padding.Cols(
-		hint.Fixed(c.limit),
+		hint.Fixed(n.limit),
 		cols.WithPosition(style.Left),
 	)
 

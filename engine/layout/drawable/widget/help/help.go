@@ -33,34 +33,34 @@ func UnitFromFields(fields []key.Descriptor) drawable.Unit {
 	return New(fields).ToUnit()
 }
 
-func (d *HelpUnit) ToUnit() drawable.Unit {
+func (u *HelpUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *HelpUnit) init() {
-	d.loaded = true
+func (u *HelpUnit) init() {
+	u.loaded = true
 
-	d.unit = makeUnit(d.fields)
+	u.unit = makeUnit(u.fields)
 
-	d.unit.Drawable.Init()
+	u.unit.Drawable.Init()
 }
 
-func (d *HelpUnit) wipe() {
-	if d.unit.Drawable.Wipe == nil {
+func (u *HelpUnit) wipe() {
+	if u.unit.Drawable.Wipe == nil {
 		return
 	}
-	d.unit.Drawable.Wipe()
+	u.unit.Drawable.Wipe()
 }
 
-func (d *HelpUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *HelpUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	return d.unit.Drawable.Draw(size)
+	return u.unit.Drawable.Draw(size)
 }
 
 func makeUnit(fields []key.Descriptor) drawable.Unit {

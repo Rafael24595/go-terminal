@@ -44,86 +44,86 @@ func New(buffer []rune, caret *input.TextCursor) *TextAreaUnit {
 	}
 }
 
-func (d *TextAreaUnit) WriteMode(writeMode bool) *TextAreaUnit {
-	d.writeMode = writeMode
-	return d
+func (u *TextAreaUnit) WriteMode(writeMode bool) *TextAreaUnit {
+	u.writeMode = writeMode
+	return u
 }
 
-func (d *TextAreaUnit) IndexMode(indexMode bool) *TextAreaUnit {
-	d.indexMode = indexMode
-	return d
+func (u *TextAreaUnit) IndexMode(indexMode bool) *TextAreaUnit {
+	u.indexMode = indexMode
+	return u
 }
 
-func (d *TextAreaUnit) PushStep(step Transformer) *TextAreaUnit {
-	d.steps = append(d.steps, step)
-	return d
+func (u *TextAreaUnit) PushStep(step Transformer) *TextAreaUnit {
+	u.steps = append(u.steps, step)
+	return u
 }
 
-func (d *TextAreaUnit) ToUnit() drawable.Unit {
+func (u *TextAreaUnit) ToUnit() drawable.Unit {
 	return drawable.NewBuilder().
 		Name(Name).
-		Init(d.init).
-		Wipe(d.wipe).
-		Draw(d.draw).
+		Init(u.init).
+		Wipe(u.wipe).
+		Draw(u.draw).
 		ToUnit()
 }
 
-func (d *TextAreaUnit) init() {
-	d.loaded = true
-	d.lazyLoaded = false
+func (u *TextAreaUnit) init() {
+	u.loaded = true
+	u.lazyLoaded = false
 }
 
-func (d *TextAreaUnit) lazyInit(size winsize.Winsize) {
-	if d.lazyLoaded {
+func (u *TextAreaUnit) lazyInit(size winsize.Winsize) {
+	if u.lazyLoaded {
 		return
 	}
 
-	d.lazyLoaded = true
+	u.lazyLoaded = true
 
-	start := d.caret.SelectStart().Sub(1)
-	end := d.caret.SelectEnd()
+	start := u.caret.SelectStart().Sub(1)
+	end := u.caret.SelectEnd()
 
-	if len(d.buffer) == 0 {
-		d.buffer = append(d.buffer, marker.PrintableCaretRunes...)
+	if len(u.buffer) == 0 {
+		u.buffer = append(u.buffer, marker.PrintableCaretRunes...)
 		start = 0
 		end = 1
 	}
 
-	frags := d.resolveFragments(d.buffer, start, end)
-	for _, step := range d.steps {
+	frags := u.resolveFragments(u.buffer, start, end)
+	for _, step := range u.steps {
 		frags = step(frags)
 	}
 
 	base := text.LineFromFragments(frags...)
 
-	lines := d.makeLines(base)
+	lines := u.makeLines(base)
 	lines = wrap.MaterializeEmpty(size, marker.DefaultPaddingText, lines...)
 
 	unit := line.UnitFromLayout(lines...)
 	unit.Drawable.Init()
 
-	d.unit = unit
+	u.unit = unit
 }
 
-func (d *TextAreaUnit) makeLines(base *text.Line) []wrap.LayoutLine {
-	if d.indexMode {
+func (u *TextAreaUnit) makeLines(base *text.Line) []wrap.LayoutLine {
+	if u.indexMode {
 		return wrap.NormalizeLinesWithOrder(*base)
 	}
 	return wrap.NormalizeLines(*base)
 
 }
 
-func (d *TextAreaUnit) wipe() {
-	d.lazyLoaded = false
+func (u *TextAreaUnit) wipe() {
+	u.lazyLoaded = false
 
-	if d.unit.Drawable.Wipe == nil {
+	if u.unit.Drawable.Wipe == nil {
 		return
 	}
 
-	d.unit.Drawable.Wipe()
+	u.unit.Drawable.Wipe()
 }
 
-func (d *TextAreaUnit) resolveFragments(
+func (u *TextAreaUnit) resolveFragments(
 	renderBuffer []rune,
 	start, end offset.Offset,
 ) []text.Fragment {
@@ -136,10 +136,10 @@ func (d *TextAreaUnit) resolveFragments(
 	}
 
 	renderer := selection.NewRenderer(
-		renderBuffer, start, end, d.blinkStyle(),
+		renderBuffer, start, end, u.blinkStyle(),
 	)
 
-	result := renderer.Resolve(d.caret)
+	result := renderer.Resolve(u.caret)
 
 	end = result.End
 	frags = append(frags, result.Frags...)
@@ -153,18 +153,18 @@ func (d *TextAreaUnit) resolveFragments(
 	return frags
 }
 
-func (c *TextAreaUnit) blinkStyle() style.Atom {
-	if !c.writeMode {
+func (u *TextAreaUnit) blinkStyle() style.Atom {
+	if !u.writeMode {
 		return style.AtmNone
 	}
 
-	return c.caret.BlinkStyle()
+	return u.caret.BlinkStyle()
 }
 
-func (d *TextAreaUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
-	assert.True(d.loaded, drawable.MessageInitialized)
+func (u *TextAreaUnit) draw(size winsize.Winsize) ([]text.Line, bool) {
+	assert.True(u.loaded, drawable.MessageInitialized)
 
-	d.lazyInit(size)
+	u.lazyInit(size)
 
-	return d.unit.Drawable.Draw(size)
+	return u.unit.Drawable.Draw(size)
 }
