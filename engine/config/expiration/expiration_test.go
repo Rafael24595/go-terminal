@@ -1,4 +1,4 @@
-package pipeline
+package expiration
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestExpiration_Persistent_NeverExpires(t *testing.T) {
-	exp := persistent()
+	exp := Persistent()
 
 	mock1 := screen_test.MockScreen{
 		Name: "A",
@@ -18,8 +18,8 @@ func TestExpiration_Persistent_NeverExpires(t *testing.T) {
 		Name: "B",
 	}.ToNode()
 
-	assert.False(t, exp.on(&mock1))
-	assert.False(t, exp.on(&mock2))
+	assert.False(t, exp.On(&mock1))
+	assert.False(t, exp.On(&mock2))
 }
 
 func TestExpiration_OnNode_SameNode_DoesNotExpire(t *testing.T) {
@@ -27,9 +27,9 @@ func TestExpiration_OnNode_SameNode_DoesNotExpire(t *testing.T) {
 		Name: "A",
 	}.ToNode()
 
-	exp := onNode(&mock)
+	exp := OnNode(&mock)
 
-	assert.False(t, exp.on(&mock))
+	assert.False(t, exp.On(&mock))
 }
 
 func TestExpiration_OnNode_DifferentNode_Expires(t *testing.T) {
@@ -41,9 +41,9 @@ func TestExpiration_OnNode_DifferentNode_Expires(t *testing.T) {
 		Name: "B",
 	}.ToNode()
 
-	exp := onNode(&mock1)
+	exp := OnNode(&mock1)
 
-	assert.True(t, exp.on(&mock2))
+	assert.True(t, exp.On(&mock2))
 }
 
 func TestExpiration_OnName_SameName_Expires(t *testing.T) {
@@ -51,9 +51,9 @@ func TestExpiration_OnName_SameName_Expires(t *testing.T) {
 		Name: "A",
 	}.ToNode()
 
-	exp := onName("A")
+	exp := OnName("A")
 
-	assert.True(t, exp.on(&mock))
+	assert.True(t, exp.On(&mock))
 }
 
 func TestExpiration_OnName_DifferentName_DoesNotExpire(t *testing.T) {
@@ -61,7 +61,7 @@ func TestExpiration_OnName_DifferentName_DoesNotExpire(t *testing.T) {
 		Name: "A",
 	}.ToNode()
 
-	exp := onName("B")
+	exp := OnName("B")
 
-	assert.False(t, exp.on(&mock))
+	assert.False(t, exp.On(&mock))
 }

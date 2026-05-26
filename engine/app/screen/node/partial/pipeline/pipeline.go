@@ -4,6 +4,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/expiration"
 )
 
 type Transformer func(viewmodel.ViewModel) viewmodel.ViewModel
@@ -11,14 +12,14 @@ type Transformer func(viewmodel.ViewModel) viewmodel.ViewModel
 type Pipeline struct {
 	node       screen.Node
 	steps      []Transformer
-	expiration expiration
+	expiration expiration.Expiration
 }
 
 func New(node screen.Node, steps ...Transformer) *Pipeline {
 	return &Pipeline{
 		node:       node,
 		steps:      steps,
-		expiration: persistent(),
+		expiration: expiration.Persistent(),
 	}
 }
 
@@ -28,17 +29,17 @@ func (n *Pipeline) PushSteps(steps ...Transformer) *Pipeline {
 }
 
 func (n *Pipeline) ExpireOnNode() *Pipeline {
-	n.expiration = onNode(&n.node)
+	n.expiration = expiration.OnNode(&n.node)
 	return n
 }
 
 func (n *Pipeline) ExpireOnName() *Pipeline {
-	n.expiration = onName(n.node.Name)
+	n.expiration = expiration.OnName(n.node.Name)
 	return n
 }
 
 func (n *Pipeline) Persistent() *Pipeline {
-	n.expiration = persistent()
+	n.expiration = expiration.Persistent()
 	return n
 }
 
@@ -73,7 +74,7 @@ func (n *Pipeline) shouldPropagate(result screen.Result) bool {
 		return false
 	}
 
-	return !n.expiration.on(result.Node)
+	return !n.expiration.On(result.Node)
 }
 
 func (n *Pipeline) view(state state.UIState) viewmodel.ViewModel {

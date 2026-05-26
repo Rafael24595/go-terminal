@@ -1,31 +1,31 @@
-package pipeline
+package expiration
 
 import "github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 
-type expiration struct {
+type Expiration struct {
 	node *screen.Node
 	name string
 }
 
-func persistent() expiration {
-	return expiration{}
+func Persistent() Expiration {
+	return Expiration{}
 }
 
-func onNode(node *screen.Node) expiration {
-	return expiration{
+func OnNode(node *screen.Node) Expiration {
+	return Expiration{
 		node: node,
 		name: "",
 	}
 }
 
-func onName(name string) expiration {
-	return expiration{
+func OnName(name string) Expiration {
+	return Expiration{
 		node: nil,
 		name: name,
 	}
 }
 
-func (e expiration) on(node *screen.Node) bool {
+func (e Expiration) On(node *screen.Node) bool {
 	if e.node != nil {
 		return e.node != node
 	}
