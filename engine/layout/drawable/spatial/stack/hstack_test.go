@@ -5,9 +5,10 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/layer"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+	
 	drawable_test "github.com/Rafael24595/go-reacterm-core/test/engine/layout/drawable"
 )
 
@@ -34,9 +35,9 @@ func TestHStack_Distribution(t *testing.T) {
 
 	assert.Len(t, 3, stack.fixed)
 
-	assert.Equal(t, 34, stack.fixed[0].value)
-	assert.Equal(t, 33, stack.fixed[1].value)
-	assert.Equal(t, 33, stack.fixed[2].value)
+	assert.Equal(t, 34, stack.fixed[0].Value)
+	assert.Equal(t, 33, stack.fixed[1].Value)
+	assert.Equal(t, 33, stack.fixed[2].Value)
 }
 
 func TestHStack_MixedFixedAndDynamic(t *testing.T) {
@@ -45,7 +46,10 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 	mock3 := &drawable_test.MockUnit{}
 
 	stack := NewHStack()
-	stack.PushChunk(mock1.ToUnit(), chunk.Fixed[winsize.Cols](20))
+	stack.PushLayer(
+		mock1.ToUnit(),
+		layer.Fixed[winsize.Cols](20),
+	)
 	stack.Push(mock2.ToUnit(), mock3.ToUnit())
 
 	stack.init()
@@ -53,9 +57,9 @@ func TestHStack_MixedFixedAndDynamic(t *testing.T) {
 		Cols: 100,
 	})
 
-	assert.Equal(t, 20, stack.fixed[0].value)
-	assert.Equal(t, 40, stack.fixed[1].value)
-	assert.Equal(t, 40, stack.fixed[2].value)
+	assert.Equal(t, 20, stack.fixed[0].Value)
+	assert.Equal(t, 40, stack.fixed[1].Value)
+	assert.Equal(t, 40, stack.fixed[2].Value)
 }
 
 func TestHStack_RenderOutput(t *testing.T) {
@@ -73,8 +77,14 @@ func TestHStack_RenderOutput(t *testing.T) {
 	}
 
 	stack := NewHStack()
-	stack.PushChunk(mock1.ToUnit(), chunk.Percent[winsize.Cols](50))
-	stack.PushChunk(mock2.ToUnit(), chunk.Percent[winsize.Cols](50))
+	stack.PushLayer(
+		mock1.ToUnit(),
+		layer.Percent[winsize.Cols](50),
+	)
+	stack.PushLayer(
+		mock2.ToUnit(),
+		layer.Percent[winsize.Cols](50),
+	)
 
 	stack.init()
 
@@ -98,7 +108,7 @@ func TestHStack_ToUnit_AnemicStack(t *testing.T) {
 	}
 
 	stack := NewHStack().
-		PushChunk(mock.ToUnit(), chunk.Dynamic[winsize.Cols]()).
+		PushLayer(mock.ToUnit()).
 		ToUnit()
 
 	assert.True(t, stack.Tags.Has(AnemicStack))
@@ -111,7 +121,10 @@ func TestHStack_ToUnit_SingleElement_NotAnemic(t *testing.T) {
 	}
 
 	stack := NewHStack().
-		PushChunk(mock.ToUnit(), chunk.Fixed[winsize.Cols](10)).
+		PushLayer(
+			mock.ToUnit(),
+			layer.Fixed[winsize.Cols](10),
+		).
 		ToUnit()
 
 	assert.False(t, stack.Tags.Has(AnemicStack))
@@ -127,8 +140,8 @@ func TestHStack_ToUnit_MultipleElements(t *testing.T) {
 	}
 
 	stack := NewHStack().
-		PushChunk(mock1.ToUnit(), chunk.Dynamic[winsize.Cols]()).
-		PushChunk(mock2.ToUnit(), chunk.Dynamic[winsize.Cols]()).
+		PushLayer(mock1.ToUnit()).
+		PushLayer(mock2.ToUnit()).
 		ToUnit()
 
 	assert.False(t, stack.Tags.Has(AnemicStack))

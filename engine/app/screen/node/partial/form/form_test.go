@@ -5,8 +5,9 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 

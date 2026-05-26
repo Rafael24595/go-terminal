@@ -4,9 +4,9 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/layer"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/transform/drain"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
@@ -17,22 +17,20 @@ type VStackUnit struct {
 	loaded     bool
 	lazyLoaded bool
 	size       winsize.Winsize
-	items      []layer[winsize.Rows]
-	fixed      []layer[winsize.Rows]
+	items      []layer.Layer[winsize.Rows]
+	fixed      []layer.Layer[winsize.Rows]
 }
 
 func NewVStack(units ...drawable.Unit) *VStackUnit {
-	layers := layersFromUnits(
-		chunk.Dynamic[winsize.Rows](), 0, units...,
-	)
-
-	return &VStackUnit{
+	instance := &VStackUnit{
 		loaded:     false,
 		lazyLoaded: false,
 		size:       winsize.Winsize{},
-		items:      layers,
-		fixed:      make([]layer[winsize.Rows], 0),
+		items:      make([]layer.Layer[winsize.Rows], 0, len(units)),
+		fixed:      make([]layer.Layer[winsize.Rows], 0),
 	}
+
+	return instance.Push(units...)
 }
 
 func VStackFromUnits(units ...drawable.Unit) drawable.Unit {
@@ -42,45 +40,42 @@ func VStackFromUnits(units ...drawable.Unit) drawable.Unit {
 func (u *VStackUnit) Unshift(units ...drawable.Unit) *VStackUnit {
 	assert.False(u.loaded, drawable.MessageNewElement)
 
-	layers := layersFromUnits(
-		chunk.Dynamic[winsize.Rows](), 0, units...,
-	)
+	items := make([]layer.Layer[winsize.Rows], len(units))
+	for i, unit := range units {
+		items[i] = layer.New[winsize.Rows](unit)
+	}
 
-	u.items = append(layers, u.items...)
+	u.items = append(items, u.items...)
 	return u
 }
 
 func (u *VStackUnit) Push(units ...drawable.Unit) *VStackUnit {
 	assert.False(u.loaded, drawable.MessageNewElement)
 
-	for _, unit := range units {
-		u.items = append(u.items,
-			layerFromUnit(chunk.Dynamic[winsize.Rows](), 0, unit),
-		)
+	items := make([]layer.Layer[winsize.Rows], len(units))
+	for i, unit := range units {
+		items[i] = layer.New[winsize.Rows](unit)
 	}
 
+	u.items = append(u.items, items...)
 	return u
 }
 
-func (u *VStackUnit) UnshiftChunk(
-	unit drawable.Unit,
-	chunk chunk.Chunk[winsize.Rows],
-) *VStackUnit {
+func (u *VStackUnit) UnshiftLayer(unit drawable.Unit, opts ...layer.Option[winsize.Rows]) *VStackUnit {
 	assert.False(u.loaded, drawable.MessageNewElement)
 
-	layers := layersFromUnits(chunk, 0, unit)
+	item := layer.New(unit, opts...)
 
-	u.items = append(layers, u.items...)
+	u.items = append([]layer.Layer[winsize.Rows]{item}, u.items...)
 	return u
 }
 
-func (u *VStackUnit) PushChunk(unit drawable.Unit, chunk chunk.Chunk[winsize.Rows]) *VStackUnit {
+func (u *VStackUnit) PushLayer(unit drawable.Unit, opts ...layer.Option[winsize.Rows]) *VStackUnit {
 	assert.False(u.loaded, drawable.MessageNewElement)
 
-	u.items = append(u.items,
-		layerFromUnit(chunk, 0, unit),
-	)
+	item := layer.New(unit, opts...)
 
+	u.items = append(u.items, item)
 	return u
 }
 
@@ -91,14 +86,14 @@ func (u *VStackUnit) Size() uint {
 func (u *VStackUnit) Units() []drawable.Unit {
 	units := make([]drawable.Unit, len(u.items))
 	for i := range u.items {
-		units[i] = u.items[i].unit
+		units[i] = u.items[i].Unit()
 	}
 	return units
 }
 
 func (u *VStackUnit) ToUnit() drawable.Unit {
 	if u.isAnemic() {
-		unit := u.items[0].unit
+		unit := u.items[0].Unit()
 		return unit.AddTag(AnemicStack)
 	}
 
@@ -115,13 +110,13 @@ func (u *VStackUnit) isAnemic() bool {
 	if len(u.items) != 1 {
 		return false
 	}
-	return u.items[0].chunk.IsAnemic()
+	return u.items[0].Chunk().IsAnemic()
 }
 
 func (u *VStackUnit) tags() set.Set[string] {
 	tags := set.NewSet[string]()
 	for i := range u.items {
-		tags.Merge(u.items[i].unit.Tags)
+		tags.Merge(u.items[i].Unit().Tags)
 	}
 	return tags
 }
@@ -142,8 +137,8 @@ func (u *VStackUnit) lazyInit(size winsize.Winsize) {
 	u.fixed = u.fixLayout(size)
 
 	for i := range u.fixed {
-		u.fixed[i].unit.Drawable.Init()
-		u.fixed[i].status = true
+		u.fixed[i].Unit().Drawable.Init()
+		u.fixed[i].Status = true
 	}
 }
 
@@ -152,7 +147,7 @@ func (u *VStackUnit) wipe() {
 
 	u.fixed = u.items
 	for i := range u.fixed {
-		u.fixed[i].unit.Drawable.Wipe()
+		u.fixed[i].Unit().Drawable.Wipe()
 	}
 }
 
@@ -180,7 +175,7 @@ func (u *VStackUnit) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 	recalcule := false
 
 	for i := range u.fixed {
-		if !u.fixed[i].status {
+		if !u.fixed[i].Status {
 			continue
 		}
 
@@ -191,21 +186,21 @@ func (u *VStackUnit) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 		}
 
 		rows := remaining
-		if u.fixed[i].chunk.Sized {
-			value := u.fixed[i].value
+		if u.fixed[i].Chunk().Sized {
+			value := u.fixed[i].Value
 			rows = min(value, remaining)
 		}
 
 		fixedSize := winsize.New(rows, size.Cols)
 
-		lines, status := drain.Unit(fixedSize, u.fixed[i].unit, true)
+		lines, status := drain.Unit(fixedSize, u.fixed[i].Unit(), true)
 		if !status {
-			u.fixed[i].status = false
+			u.fixed[i].Status = false
 			recalcule = true
 		}
 
 		linesLen := winsize.Rows(len(lines))
-		if linesLen < rows && u.fixed[i].chunk.Sized {
+		if linesLen < rows && u.fixed[i].Chunk().Sized {
 			padded := make([]text.Line, rows)
 			copy(padded, lines)
 			lines = padded
@@ -219,24 +214,23 @@ func (u *VStackUnit) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 	return buffer, recalcule
 }
 
-func (u *VStackUnit) fixLayout(size winsize.Winsize) []layer[winsize.Rows] {
-	layers := make([]layer[winsize.Rows], 0, len(u.fixed))
+func (u *VStackUnit) fixLayout(size winsize.Winsize) []layer.Layer[winsize.Rows] {
+	layers := make([]layer.Layer[winsize.Rows], 0, len(u.fixed))
 
-	for _, v := range u.fixed {
-		if !v.status {
+	for _, item := range u.fixed {
+		if !item.Status {
 			continue
 		}
 
-		chk := v.chunk
+		chk := item.Chunk()
 
 		chunk := winsize.Rows(0)
 		if chk.Sized {
 			chunk = min(size.Rows, chk.Adapter(size.Rows))
 		}
 
-		layers = append(layers,
-			layerFromLayer(v, chunk),
-		)
+		item := layer.FromLayer(item, layer.WithValue(chunk))
+		layers = append(layers, item)
 	}
 
 	return layers
@@ -249,7 +243,7 @@ func (u *VStackUnit) HasNext() bool {
 	}
 
 	for _, item := range items {
-		if item.status {
+		if item.Status {
 			return true
 		}
 	}

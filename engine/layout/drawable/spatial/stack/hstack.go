@@ -4,8 +4,8 @@ import (
 	assert "github.com/Rafael24595/go-assert/assert/runtime"
 
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/layer"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/sink"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -23,22 +23,20 @@ type HStackUnit struct {
 	loaded     bool
 	lazyLoaded bool
 	size       winsize.Winsize
-	items      []layer[winsize.Cols]
-	fixed      []layer[winsize.Cols]
+	items      []layer.Layer[winsize.Cols]
+	fixed      []layer.Layer[winsize.Cols]
 }
 
 func NewHStack(units ...drawable.Unit) *HStackUnit {
-	layers := layersFromUnits(
-		chunk.Dynamic[winsize.Cols](), 0, units...,
-	)
-
-	return &HStackUnit{
+	instance := &HStackUnit{
 		loaded:     false,
 		lazyLoaded: false,
 		size:       winsize.Winsize{},
-		items:      layers,
-		fixed:      make([]layer[winsize.Cols], 0),
+		items:      make([]layer.Layer[winsize.Cols], 0, len(units)),
+		fixed:      make([]layer.Layer[winsize.Cols], 0),
 	}
+
+	return instance.Push(units...)
 }
 
 func HStackFromUnits(units ...drawable.Unit) drawable.Unit {
@@ -48,41 +46,42 @@ func HStackFromUnits(units ...drawable.Unit) drawable.Unit {
 func (u *HStackUnit) Unshift(units ...drawable.Unit) *HStackUnit {
 	assert.False(u.loaded, drawable.MessageNewElement)
 
-	layers := layersFromUnits(
-		chunk.Dynamic[winsize.Cols](), 0, units...,
-	)
+	items := make([]layer.Layer[winsize.Cols], len(units))
+	for i, unit := range units {
+		items[i] = layer.New[winsize.Cols](unit)
+	}
 
-	u.items = append(layers, u.items...)
+	u.items = append(items, u.items...)
 	return u
 }
 
 func (u *HStackUnit) Push(units ...drawable.Unit) *HStackUnit {
 	assert.False(u.loaded, drawable.MessageNewElement)
 
-	for _, unit := range units {
-		u.items = append(u.items,
-			layerFromUnit(chunk.Dynamic[winsize.Cols](), 0, unit),
-		)
+	items := make([]layer.Layer[winsize.Cols], len(units))
+	for i, unit := range units {
+		items[i] = layer.New[winsize.Cols](unit)
 	}
 
+	u.items = append(u.items, items...)
 	return u
 }
 
-func (u *HStackUnit) UnshiftChunk(unit drawable.Unit, chunk chunk.Chunk[winsize.Cols]) *HStackUnit {
+func (u *HStackUnit) UnshiftLayer(unit drawable.Unit, opts ...layer.Option[winsize.Cols]) *HStackUnit {
 	assert.False(u.loaded, drawable.MessageNewElement)
 
-	layers := layersFromUnits(chunk, 0, unit)
+	item := layer.New(unit, opts...)
 
-	u.items = append(layers, u.items...)
+	u.items = append([]layer.Layer[winsize.Cols]{item}, u.items...)
 	return u
 }
 
-func (u *HStackUnit) PushChunk(unit drawable.Unit, chunk chunk.Chunk[winsize.Cols]) *HStackUnit {
+func (u *HStackUnit) PushLayer(unit drawable.Unit, opts ...layer.Option[winsize.Cols]) *HStackUnit {
 	assert.False(u.loaded, drawable.MessageNewElement)
 
-	u.items = append(u.items,
-		layerFromUnit(chunk, 0, unit),
-	)
+	item := layer.New(unit, opts...)
+
+	u.items = append(u.items, item)
 	return u
 }
 
@@ -93,14 +92,14 @@ func (u *HStackUnit) Size() uint {
 func (u *HStackUnit) Units() []drawable.Unit {
 	units := make([]drawable.Unit, len(u.items))
 	for i := range u.items {
-		units[i] = u.items[i].unit
+		units[i] = u.items[i].Unit()
 	}
 	return units
 }
 
 func (u *HStackUnit) ToUnit() drawable.Unit {
 	if u.isAnemic() {
-		unit := u.items[0].unit
+		unit := u.items[0].Unit()
 		return unit.AddTag(AnemicStack)
 	}
 
@@ -117,13 +116,13 @@ func (u *HStackUnit) isAnemic() bool {
 	if len(u.items) != 1 {
 		return false
 	}
-	return u.items[0].chunk.IsAnemic()
+	return u.items[0].Chunk().IsAnemic()
 }
 
 func (u *HStackUnit) tags() set.Set[string] {
 	tags := set.NewSet[string]()
 	for i := range u.items {
-		tags.Merge(u.items[i].unit.Tags)
+		tags.Merge(u.items[i].Unit().Tags)
 	}
 	return tags
 }
@@ -144,8 +143,8 @@ func (u *HStackUnit) lazyInit(size winsize.Winsize) {
 	u.fixed = u.fixLayout(size)
 
 	for i := range u.fixed {
-		u.fixed[i].unit.Drawable.Init()
-		u.fixed[i].status = true
+		u.fixed[i].Unit().Drawable.Init()
+		u.fixed[i].Status = true
 	}
 }
 
@@ -154,7 +153,7 @@ func (u *HStackUnit) wipe() {
 
 	u.fixed = u.items
 	for i := range u.fixed {
-		u.fixed[i].unit.Drawable.Wipe()
+		u.fixed[i].Unit().Drawable.Wipe()
 	}
 }
 
@@ -186,27 +185,27 @@ func (u *HStackUnit) makeBlocks(size winsize.Winsize) ([]block, bool) {
 
 	canGrow := make([]bool, len(u.fixed))
 	for i := range u.fixed {
-		canGrow[i] = u.fixed[i].status
+		canGrow[i] = u.fixed[i].Status
 	}
 
 	for {
 		didGrow := false
 
 		for i := range u.fixed {
-			if !u.fixed[i].status || (maxHeight > 0 && len(buffer[i].lines) >= maxHeight) {
+			if !u.fixed[i].Status || (maxHeight > 0 && len(buffer[i].lines) >= maxHeight) {
 				continue
 			}
 
 			inheritCols := u.inheritCols(size, buffer, i)
 			fixedSize := winsize.Winsize{
 				Rows: size.Rows,
-				Cols: u.fixed[i].value + inheritCols,
+				Cols: u.fixed[i].Value + inheritCols,
 			}
 
-			drawable := u.fixed[i].unit.Drawable
+			drawable := u.fixed[i].Unit().Drawable
 			lines, status := drawable.Draw(fixedSize)
 			if !status {
-				u.fixed[i].status = false
+				u.fixed[i].Status = false
 				canGrow[i] = false
 				recalcule = true
 			}
@@ -238,7 +237,7 @@ func (u *HStackUnit) makeBlocks(size winsize.Winsize) ([]block, bool) {
 
 		shouldContinue := false
 		for i := range u.fixed {
-			if u.fixed[i].status && len(buffer[i].lines) < maxHeight {
+			if u.fixed[i].Status && len(buffer[i].lines) < maxHeight {
 				shouldContinue = true
 				break
 			}
@@ -273,7 +272,7 @@ func (u *HStackUnit) inheritCols(
 		return 0
 	}
 
-	return u.fixed[bufferIndex-1].value
+	return u.fixed[bufferIndex-1].Value
 }
 
 func (u *HStackUnit) makeLines(blocks []block) []text.Line {
@@ -297,16 +296,16 @@ func (u *HStackUnit) makeLines(blocks []block) []text.Line {
 	return buffer
 }
 
-func (u *HStackUnit) fixLayout(size winsize.Winsize) []layer[winsize.Cols] {
-	layers := make([]layer[winsize.Cols], 0, len(u.fixed))
+func (u *HStackUnit) fixLayout(size winsize.Winsize) []layer.Layer[winsize.Cols] {
+	layers := make([]layer.Layer[winsize.Cols], 0, len(u.fixed))
 	available, rest := u.calcSpace(size)
 
-	for _, v := range u.fixed {
-		if !v.status {
+	for _, item := range u.fixed {
+		if !item.Status {
 			continue
 		}
 
-		chk := v.chunk
+		chk := item.Chunk()
 
 		chunk := winsize.Cols(0)
 		if chk.Sized {
@@ -319,9 +318,8 @@ func (u *HStackUnit) fixLayout(size winsize.Winsize) []layer[winsize.Cols] {
 			}
 		}
 
-		layers = append(layers,
-			layerFromLayer(v, chunk),
-		)
+		item := layer.FromLayer(item, layer.WithValue(chunk))
+		layers = append(layers, item)
 	}
 
 	assert.LazyTrue(func() bool {
@@ -358,7 +356,7 @@ func (u *HStackUnit) HasNext() bool {
 	}
 
 	for _, item := range items {
-		if item.status {
+		if item.Status {
 			return true
 		}
 	}
@@ -371,11 +369,11 @@ func (u *HStackUnit) countCols(size winsize.Winsize) (winsize.Cols, uint16) {
 	zeroes := uint16(0)
 
 	for _, i := range u.fixed {
-		if !i.status {
+		if !i.Status {
 			continue
 		}
 
-		chk := i.chunk
+		chk := i.Chunk()
 		if !chk.Sized {
 			zeroes += 1
 		} else {

@@ -14,3 +14,19 @@ type Drawable struct {
 	Wipe WipeFunc
 	Draw DrawFunc
 }
+
+func IsDrawableZero(drawable Drawable) bool {
+	if drawable.Init == nil {
+		return true
+	}
+
+	if drawable.Wipe == nil {
+		return true
+	}
+
+	if drawable.Draw == nil {
+		return true
+	}
+
+	return false
+}

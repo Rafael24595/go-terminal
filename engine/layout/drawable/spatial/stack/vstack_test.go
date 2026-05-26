@@ -5,7 +5,7 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/layer"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 
@@ -235,7 +235,10 @@ func TestVStack_FixedChunk_PadsWhenChildIsSmaller(t *testing.T) {
 	}
 
 	stack := NewVStack().
-		PushChunk(mock.ToUnit(), chunk.Fixed[winsize.Rows](15)).
+		PushLayer(
+			mock.ToUnit(),
+			layer.Fixed[winsize.Rows](15),
+		).
 		ToUnit()
 
 	stack.Drawable.Init()
@@ -251,7 +254,10 @@ func TestVStack_FixedChunk_TruncatesWhenChildIsBigger(t *testing.T) {
 	}
 
 	stack := NewVStack().
-		PushChunk(mock.ToUnit(), chunk.Fixed[winsize.Rows](20)).
+		PushLayer(
+			mock.ToUnit(),
+			layer.Fixed[winsize.Rows](20),
+		).
 		ToUnit()
 
 	stack.Drawable.Init()
@@ -273,9 +279,12 @@ func TestVStack_DynamicChunk_FillsRemainingSpace(t *testing.T) {
 	}
 
 	stack := NewVStack().
-		PushChunk(mock1.ToUnit(), chunk.Fixed[winsize.Rows](10)).
-		PushChunk(mock2.ToUnit(), chunk.Dynamic[winsize.Rows]()).
-		PushChunk(mock3.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		PushLayer(
+			mock1.ToUnit(),
+			layer.Fixed[winsize.Rows](10),
+		).
+		PushLayer(mock2.ToUnit()).
+		PushLayer(mock3.ToUnit()).
 		ToUnit()
 
 	stack.Drawable.Init()
@@ -294,8 +303,14 @@ func TestVStack_FixedOverflow_ShouldNotExceedContainer(t *testing.T) {
 	}
 
 	stack := NewVStack().
-		PushChunk(mock1.ToUnit(), chunk.Fixed[winsize.Rows](10)).
-		PushChunk(mock2.ToUnit(), chunk.Fixed[winsize.Rows](10)).
+		PushLayer(
+			mock1.ToUnit(),
+			layer.Fixed[winsize.Rows](10),
+		).
+		PushLayer(
+			mock2.ToUnit(),
+			layer.Fixed[winsize.Rows](10),
+		).
 		ToUnit()
 
 	stack.Drawable.Init()
@@ -317,9 +332,9 @@ func TestVStack_ExactFit_NoExtraNoMissing(t *testing.T) {
 	}
 
 	stack := NewVStack().
-		PushChunk(mock1.ToUnit(), chunk.Dynamic[winsize.Rows]()).
-		PushChunk(mock2.ToUnit(), chunk.Dynamic[winsize.Rows]()).
-		PushChunk(mock3.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		PushLayer(mock1.ToUnit()).
+		PushLayer(mock2.ToUnit()).
+		PushLayer(mock3.ToUnit()).
 		ToUnit()
 
 	stack.Drawable.Init()
@@ -335,7 +350,7 @@ func TestVStack_ToUnit_AnemicStack(t *testing.T) {
 	}
 
 	stack := NewVStack().
-		PushChunk(mock.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		PushLayer(mock.ToUnit()).
 		ToUnit()
 
 	assert.True(t, stack.Tags.Has(AnemicStack))
@@ -348,7 +363,7 @@ func TestVStack_ToUnit_SingleElement_NotAnemic(t *testing.T) {
 	}
 
 	stack := NewVStack().
-		PushChunk(mock.ToUnit(), chunk.Fixed[winsize.Rows](10)).
+		PushLayer(mock.ToUnit(), layer.Fixed[winsize.Rows](10)).
 		ToUnit()
 
 	assert.False(t, stack.Tags.Has(AnemicStack))
@@ -364,8 +379,8 @@ func TestVStack_ToUnit_MultipleElements(t *testing.T) {
 	}
 
 	stack := NewVStack().
-		PushChunk(mock1.ToUnit(), chunk.Dynamic[winsize.Rows]()).
-		PushChunk(mock2.ToUnit(), chunk.Dynamic[winsize.Rows]()).
+		PushLayer(mock1.ToUnit()).
+		PushLayer(mock2.ToUnit()).
 		ToUnit()
 
 	assert.False(t, stack.Tags.Has(AnemicStack))

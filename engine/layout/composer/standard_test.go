@@ -8,10 +8,10 @@ import (
 
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/layer"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/primitive/line"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
@@ -140,23 +140,23 @@ func TestStandard_InitializeLayers(t *testing.T) {
 
 	vm := viewmodel.NewViewModel()
 
-	vm.Header.PushChunk(
+	vm.Header.PushLayer(
 		drain.UnitFromLines(
 			*text.NewLine("golang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
-		chunk.Fixed[winsize.Rows](1),
+		layer.Fixed[winsize.Rows](1),
 	)
-	vm.Kernel.PushChunk(
+	vm.Kernel.PushLayer(
 		line.UnitFromLines(
 			*text.NewLine("rust", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
-		chunk.Fixed[winsize.Rows](1),
+		layer.Fixed[winsize.Rows](1),
 	)
-	vm.Footer.PushChunk(
+	vm.Footer.PushLayer(
 		drain.UnitFromLines(
 			*text.NewLine("Ziglang", style.SpecFromKind(style.SpcKindPaddingLeft)),
 		),
-		chunk.Fixed[winsize.Rows](1),
+		layer.Fixed[winsize.Rows](1),
 	)
 
 	frag := text.FragmentsFromString("X")

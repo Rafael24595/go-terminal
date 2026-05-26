@@ -4,10 +4,11 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/chunk"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/layer"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/chunk"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
@@ -163,7 +164,7 @@ func (n *Form) view(stt state.UIState) viewmodel.ViewModel {
 	for _, i := range n.items {
 		cvm := i.node.Screen.View(stt)
 		unit := cvm.Kernel.ToUnit()
-		vm.Kernel.PushChunk(unit, i.chunk)
+		vm.Kernel.PushLayer(unit, layer.WithChunk(i.chunk))
 	}
 
 	if focus, ok := n.focusItem(); ok {

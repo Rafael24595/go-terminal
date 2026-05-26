@@ -36,15 +36,15 @@ func Fixed[T math.Number](fix T) Chunk[T] {
 	}
 }
 
-func Percent[T math.Number](chk T) Chunk[T] {
-	if chk > max_chunk {
+func Percent[T math.Number](chunk T) Chunk[T] {
+	if chunk > max_chunk {
 		assert.Unreachable(err_chunk_size, max_chunk)
-		chk = max_chunk
+		chunk = max_chunk
 	}
 
 	return Chunk[T]{
 		isAnemic: false,
-		Adapter:  perAdapter(chk),
+		Adapter:  perAdapter(chunk),
 		Sized:    true,
 	}
 }
@@ -59,11 +59,11 @@ func perAdapter[T math.Number](chunk T) chunkAdapter[T] {
 	}
 }
 
-func fixAdapter[T math.Number](cols T) chunkAdapter[T] {
+func fixAdapter[T math.Number](chunk T) chunkAdapter[T] {
 	return func(size T) T {
-		if cols > size {
+		if chunk > size {
 			return size
 		}
-		return cols
+		return chunk
 	}
 }
