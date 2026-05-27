@@ -1,16 +1,15 @@
 package form
 
 import (
+	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
-	"github.com/Rafael24595/go-reacterm-core/engine/config/chunk"
-	"github.com/Rafael24595/go-reacterm-core/engine/config/layer"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/entry"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 )
 
 const Name = "form"
@@ -32,15 +31,9 @@ var sources = screen.NewDefinition(
 	},
 )
 
-type item struct {
-	selectable bool
-	node       screen.Node
-	chunk      chunk.Chunk[winsize.Rows]
-}
-
 type Form struct {
 	reference string
-	items     []item
+	items     []entry.Entry
 	cursor    uint16
 	fixed     bool
 }
@@ -48,22 +41,19 @@ type Form struct {
 func New() *Form {
 	return &Form{
 		reference: Name,
-		items:     make([]item, 0),
+		items:     make([]entry.Entry, 0),
 		cursor:    0,
 		fixed:     false,
 	}
 }
 
 func (n *Form) AddNode(
-	selectable bool,
 	node screen.Node,
-	chunk chunk.Chunk[winsize.Rows],
+	opts ...entry.Option,
 ) *Form {
-	n.items = append(n.items, item{
-		node:       node,
-		chunk:      chunk,
-		selectable: selectable,
-	})
+	n.items = append(n.items,
+		entry.New(node, opts...),
+	)
 	return n
 }
 
@@ -75,8 +65,8 @@ func (n *Form) ToNode() screen.Node {
 		View(n.view)
 
 	for _, v := range n.items {
-		builder.Children(v.node).
-			AddStack(v.node.Stack)
+		builder.Children(v.Node).
+			AddStack(v.Node.Stack)
 	}
 
 	return builder.ToNode()
@@ -86,9 +76,9 @@ func (n *Form) definition() screen.Definition {
 	local := sources
 
 	item := n.items[n.cursor]
-	if item.selectable {
+	if item.Selectable {
 		local = local.Merge(
-			item.node.Screen.Definition(),
+			item.Node.Screen.Definition(),
 		)
 	}
 
@@ -98,7 +88,7 @@ func (n *Form) definition() screen.Definition {
 func (n *Form) update(stt *state.UIState, evt screen.Event) screen.Result {
 	focus, ok := n.focusItem()
 
-	definition := focus.node.Screen.Definition()
+	definition := focus.Node.Screen.Definition()
 	required := ok && definition.IsRequired(evt.Key)
 
 	if required {
@@ -133,15 +123,15 @@ func (n *Form) localUpdate(stt *state.UIState, evt screen.Event) screen.Result {
 	return screen.ResultFromUIState(stt)
 }
 
-func (n *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus item) screen.Result {
-	result := focus.node.Screen.Update(stt, evt)
+func (n *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus entry.Entry) screen.Result {
+	result := focus.Node.Screen.Update(stt, evt)
 
 	if result.Node == nil {
 		return result
 
 	}
 
-	newItems := make([]item, len(n.items))
+	newItems := make([]entry.Entry, len(n.items))
 	copy(newItems, n.items)
 
 	newWrapper := New()
@@ -160,15 +150,21 @@ func (n *Form) view(stt state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.NewViewModel()
 
 	//TODO: Compile headers and footers?
-	//TODO: Manage the master paging screen.
 	for _, i := range n.items {
-		cvm := i.node.Screen.View(stt)
-		unit := cvm.Kernel.ToUnit()
-		vm.Kernel.PushLayer(unit, layer.WithChunk(i.chunk))
+		cvm := i.Node.Screen.View(stt)
+
+		vm.Kernel.PushLayer(
+			cvm.Kernel.ToUnit(),
+			i.Opts...
+		)
+
+		if cvm.Behavior.NeedsPulse {
+			vm.Behavior.NeedsPulse = true
+		}
 	}
 
 	if focus, ok := n.focusItem(); ok {
-		label := focus.node.Name
+		label := focus.Node.Name
 		vm.Footer.Push(
 			inputline.Wrap(
 				drain.UnitFromString(label),
@@ -179,9 +175,9 @@ func (n *Form) view(stt state.UIState) viewmodel.ViewModel {
 	return *vm
 }
 
-func (n *Form) focusItem() (item, bool) {
+func (n *Form) focusItem() (entry.Entry, bool) {
 	if n.cursor >= uint16(len(n.items)) {
-		return item{}, false
+		return entry.Entry{}, false
 	}
 
 	return n.items[n.cursor], true

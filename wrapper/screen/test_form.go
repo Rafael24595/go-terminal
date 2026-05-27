@@ -4,15 +4,16 @@ import (
 	node_pipeline "github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline"
 	text_screen "github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/text"
 	drawable_pipeline "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline"
-	
-	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
-	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
+
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/form"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/primitive/article"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
-	"github.com/Rafael24595/go-reacterm-core/engine/config/chunk"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/entry"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/layer"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/cols"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/padding/rows"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/box"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
@@ -31,16 +32,18 @@ import (
 func NewTestForm() screen.Node {
 	node := form.New().
 		AddNode(
-			true,
 			makeArticle(),
-			chunk.Percent(
-				winsize.Rows(75),
+			entry.Selectable(),
+			entry.WithLayout(
+				layer.Percent[winsize.Rows](75),
 			),
 		).
 		AddNode(
-			true,
 			makeTextArea(),
-			chunk.Dynamic[winsize.Rows](),
+			entry.Selectable(),
+			entry.WithLayout(
+				layer.Static[winsize.Rows](),
+			),
 		).
 		ToNode()
 

@@ -5,9 +5,8 @@ import (
 
 	assert "github.com/Rafael24595/go-assert/assert/test"
 
-	"github.com/Rafael24595/go-reacterm-core/engine/config/chunk"
-	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
-	
+	"github.com/Rafael24595/go-reacterm-core/engine/config/entry"
+
 	screen_test "github.com/Rafael24595/go-reacterm-core/test/engine/app/screen"
 )
 
@@ -26,9 +25,8 @@ func TestForm_Propagate(t *testing.T) {
 
 	node := New().
 		AddNode(
-			true,
 			mock.ToNode(),
-			chunk.Chunk[winsize.Rows]{},
+			entry.Selectable(),
 		).
 		ToNode()
 
