@@ -6,7 +6,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
-type EngineCode uint16
+type EngineCode uint8
 
 const (
 	CodeEnginePaged EngineCode = iota
