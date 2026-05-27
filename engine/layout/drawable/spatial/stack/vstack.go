@@ -110,7 +110,7 @@ func (u *VStackUnit) isAnemic() bool {
 	if len(u.items) != 1 {
 		return false
 	}
-	return u.items[0].Chunk().IsAnemic()
+	return u.items[0].IsAnemic()
 }
 
 func (u *VStackUnit) tags() set.Set[string] {
@@ -217,6 +217,7 @@ func (u *VStackUnit) makeLines(size winsize.Winsize) ([]text.Line, bool) {
 func (u *VStackUnit) fixLayout(size winsize.Winsize) []layer.Layer[winsize.Rows] {
 	layers := make([]layer.Layer[winsize.Rows], 0, len(u.fixed))
 
+	statics := 0
 	for _, item := range u.fixed {
 		if !item.Status {
 			continue
@@ -231,6 +232,14 @@ func (u *VStackUnit) fixLayout(size winsize.Winsize) []layer.Layer[winsize.Rows]
 
 		item := layer.FromLayer(item, layer.WithValue(chunk))
 		layers = append(layers, item)
+
+		if item.Static() {
+			statics += 1
+		}
+	}
+
+	if len(layers) == statics {
+		return make([]layer.Layer[winsize.Rows], 0)
 	}
 
 	return layers
