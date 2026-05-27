@@ -19,7 +19,6 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/focus"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/padding"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/wipe"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/processor"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/buffer/rule"
@@ -107,7 +106,6 @@ func wrapStep(vm viewmodel.ViewModel) viewmodel.ViewModel {
 
 	metadataPip := drawable_pipeline.New(box).
 		SetDrawStep(addTopSpacer).
-		PushDataSteps(wipe.DataTransformer()).
 		ToUnit()
 
 	vm.Kernel = stack.NewVStack().
