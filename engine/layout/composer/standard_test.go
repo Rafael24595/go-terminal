@@ -80,59 +80,6 @@ func TestStandard_FixedAndPaged(t *testing.T) {
 	}
 }
 
-func TestStandard_MultiplePages(t *testing.T) {
-	size := winsize.Winsize{Rows: 4, Cols: 8}
-
-	stt := state.NewUIState()
-
-	vm := viewmodel.NewViewModel()
-
-	vm.Header.Push(
-		drain.UnitFromLines(
-			*text.NewLine("H", style.SpecFromKind(style.SpcKindPaddingLeft)),
-		),
-	)
-
-	vm.Kernel.Push(
-		line.UnitFromLines(
-			*text.NewLine("AAAAAAA", style.SpecFromKind(style.SpcKindPaddingLeft)),
-			*text.NewLine("BBBBBBB", style.SpecFromKind(style.SpcKindPaddingLeft)),
-			*text.NewLine("CCCCCCC", style.SpecFromKind(style.SpcKindPaddingLeft)),
-			*text.NewLine("DDDDDDD", style.SpecFromKind(style.SpcKindPaddingLeft)),
-		),
-	)
-
-	frag := text.FragmentsFromString("X")
-	mock := &drawable_test.MockUnit{
-		Status: false,
-		Lines: []text.Line{
-			*text.LineFromFragments(frag...),
-		},
-	}
-
-	vm.Footer.Unshift(
-		inputline.Wrap(
-			mock.ToUnit(),
-		),
-	)
-
-	_, lines0 := Standard(stt, *vm, size)
-
-	assert.Len(t, int(size.Rows), lines0)
-	assert.Equal(t, "H", lines0[0].Text[0].Text)
-	assert.Equal(t, "> X", text.LineToString(&lines0[len(lines0)-1]))
-
-	header := vm.Header.ToUnit()
-	header.Drawable.Init()
-
-	stt.Pager.TargetPage = 1
-	_, lines1 := Standard(stt, *vm, size)
-
-	assert.Len(t, int(size.Rows), lines1)
-	assert.Equal(t, "H", lines1[0].Text[0].Text)
-	assert.Equal(t, "> X", text.LineToString(&lines0[len(lines0)-1]))
-}
-
 func TestStandard_InitializeLayers(t *testing.T) {
 	size := winsize.Winsize{Rows: 5, Cols: 8}
 

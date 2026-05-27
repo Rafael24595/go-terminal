@@ -1,11 +1,9 @@
 package composer
 
 import (
-	"github.com/Rafael24595/go-reacterm-core/engine/app/draw"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/transform/drain"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/transform/page"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
@@ -30,27 +28,33 @@ func Standard(
 		}
 	}
 
-	kernel := vm.InitDynamicLayers()
+	ctx := newRenderContext()
+
+	renderer := pagerRenderer(uiState, *vm.Pager, ctx)
+
+	kernel := vm.Kernel.
+		SetRenderer(renderer).
+		ToUnit()
+
+	kernel.Drawable.Init()
 
 	dynamicSize := winsize.New(
 		size.Rows.Sub(staticRows),
 		size.Cols,
 	)
 
-	renderer := page.NewPageRenderer(*vm.Pager)
-	status := renderer(uiState, dynamicSize, kernel)
-
-	uiState = syncUIState(uiState, status)
+	kernelLines, _ := kernel.Drawable.Draw(dynamicSize)
+	uiState = syncUIState(uiState, ctx)
 
 	lines := headerLines
-	lines = append(lines, status.Buffer...)
+	lines = append(lines, kernelLines...)
 	lines = append(lines, footerLines...)
 
 	return uiState, lines
 }
 
-func syncUIState(uiState *state.UIState, status *draw.DrawState) *state.UIState {
-	uiState.Pager.ConfirmPage(status.Page)
-	uiState.Pager.HasMore = status.ShowPagination()
+func syncUIState(uiState *state.UIState, ctx *renderContext) *state.UIState {
+	uiState.Pager.ConfirmPage(ctx.MaxPage)
+	uiState.Pager.HasMore = ctx.HasMore
 	return uiState
 }
