@@ -13,9 +13,12 @@ func Standard(
 	vm viewmodel.ViewModel,
 	size winsize.Winsize,
 ) (*state.UIState, []text.Line) {
-	header, footer := vm.InitStaticLayers()
-
+	header := vm.Header.ToUnit()
+	header.Drawable.Init()
 	headerLines := drain.UnitEager(size, header)
+
+	footer := vm.Footer.ToUnit()
+	footer.Drawable.Init()
 	footerLines := drain.UnitEager(size, footer)
 
 	staticRows := winsize.Rows(

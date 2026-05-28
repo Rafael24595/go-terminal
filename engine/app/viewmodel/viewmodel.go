@@ -2,7 +2,6 @@ package viewmodel
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/pager"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/spatial/stack"
 )
 
@@ -23,23 +22,6 @@ func New() *ViewModel {
 		Pager:    pager.NewStrategy(),
 		Behavior: BehaviorContext{},
 	}
-}
-
-func (v *ViewModel) InitStaticLayers() (drawable.Unit, drawable.Unit) {
-	header := v.Header.ToUnit()
-	header.Drawable.Init()
-
-	footer := v.Footer.ToUnit()
-	footer.Drawable.Init()
-
-	return header, footer
-}
-
-func (v *ViewModel) InitDynamicLayers() drawable.Unit {
-	kernel := v.Kernel.ToUnit()
-	kernel.Drawable.Init()
-
-	return kernel
 }
 
 func (v *ViewModel) Clone() *ViewModel {
