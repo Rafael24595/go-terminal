@@ -2,13 +2,18 @@ package form
 
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/dummy"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/config/entry"
+	"github.com/Rafael24595/go-reacterm-core/engine/config/layer"
 	"github.com/Rafael24595/go-reacterm-core/engine/helper/math"
 	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/decorator/inputline"
-	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
+	"github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/gutter"
 	"github.com/Rafael24595/go-reacterm-core/engine/model/key"
+	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/style"
+	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
 )
 
 const Name = "form"
@@ -27,12 +32,14 @@ var sources = screen.NewDefinition(
 		key.ActionArrowRight,
 		key.ActionArrowUp,
 		key.ActionArrowDown,
+		key.CustomActionGutter,
 	},
 )
 
 type Form struct {
 	reference string
 	items     []entry.Entry
+	pointer   uint8
 	cursor    uint16
 	fixed     bool
 }
@@ -41,6 +48,7 @@ func New() *Form {
 	return &Form{
 		reference: Name,
 		items:     make([]entry.Entry, 0),
+		pointer:   0,
 		cursor:    0,
 		fixed:     false,
 	}
@@ -54,6 +62,20 @@ func (n *Form) AddNode(
 		entry.New(node, opts...),
 	)
 	return n
+}
+
+func (n *Form) AddBreak(rows ...winsize.Rows) *Form {
+	fixed := winsize.Rows(1)
+	if len(rows) > 0 {
+		fixed = rows[0]
+	}
+
+	return n.AddNode(
+		dummy.ToNode(),
+		entry.WithLayout(
+			layer.Fixed(fixed),
+		),
+	)
 }
 
 func (n *Form) ToNode() screen.Node {
@@ -117,6 +139,8 @@ func (n *Form) localUpdate(stt *state.UIState, evt screen.Event) screen.Result {
 		n.cursor = min(last, n.cursor+1)
 	case key.ActionEnter:
 		n.fixed = true
+	case key.CustomActionGutter:
+		n.pointer = nextPointer(n.pointer)
 	}
 
 	return screen.ResultFromUIState(stt)
@@ -136,6 +160,7 @@ func (n *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus entry.Ent
 	newWrapper := New()
 	newWrapper.reference = n.reference
 	newWrapper.items = newItems
+	newWrapper.pointer = n.pointer
 	newWrapper.cursor = n.cursor
 	newWrapper.fixed = n.fixed
 
@@ -148,26 +173,39 @@ func (n *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus entry.Ent
 func (n *Form) view(stt state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.New()
 
-	//TODO: Compile headers and footers?
-	for _, i := range n.items {
-		cvm := i.Node.Screen.View(stt)
+	pointer := findPointer(n.pointer)
 
-		vm.Kernel.PushLayer(
+	//TODO: Compile headers and footers?
+	for i, e := range n.items {
+		cvm := e.Node.Screen.View(stt)
+
+		opts := make([]gutter.Option, 0, 1)
+
+		if pointer.hasNone(pointerGutter) || n.cursor != uint16(i) {
+			opts = append(opts,
+				gutter.WithLeftGutter(gutter.DefaultEmpty),
+			)
+		}
+
+		unit := gutter.Unit(
 			cvm.Kernel.ToUnit(),
-			i.Opts...,
+			opts...,
 		)
+
+		vm.Kernel.PushLayer(unit, e.Opts...)
 
 		if cvm.Behavior.NeedsPulse {
 			vm.Behavior.NeedsPulse = true
 		}
 	}
 
-	if focus, ok := n.focusItem(); ok {
-		label := focus.Node.Name
+	focus, ok := n.focusItem()
+	if ok && pointer.hasAny(pointerPrompt) {
+		label := text.NewFragment(focus.Node.Name).
+			AddAtom(style.AtmSelect)
+
 		vm.Footer.Push(
-			inputline.Wrap(
-				drain.UnitFromString(label),
-			),
+			inputline.FromFragment(*label),
 		)
 	}
 

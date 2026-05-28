@@ -37,6 +37,7 @@ func NewTestForm() screen.Node {
 				layer.Percent[winsize.Rows](75),
 			),
 		).
+		AddBreak(1).
 		AddNode(
 			makeTextArea(),
 			entry.Selectable(),
@@ -104,28 +105,10 @@ func wrapStep(vm viewmodel.ViewModel) viewmodel.ViewModel {
 		PaddingX(1).
 		ToUnit()
 
-	metadataPip := drawable_pipeline.New(box).
-		SetDrawStep(addTopSpacer).
-		ToUnit()
-
 	vm.Kernel = stack.NewVStack().
-		Push(metadataPip)
+		Push(box)
 
 	return vm
-}
-
-func addTopSpacer(size winsize.Winsize, unit drawable.Unit) ([]text.Line, bool) {
-	if size.Rows < 3 {
-		return unit.Drawable.Draw(size)
-	}
-
-	fixedSize := winsize.New(
-		size.Rows.Sub(1),
-		size.Cols,
-	)
-
-	lines, hasNext := unit.Drawable.Draw(fixedSize)
-	return append([]text.Line{*text.LineJump()}, lines...), hasNext
 }
 
 func pageTransformer() drawable_pipeline.DrawTransformer {
