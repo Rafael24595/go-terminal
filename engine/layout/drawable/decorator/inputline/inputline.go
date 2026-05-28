@@ -8,6 +8,8 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/model/winsize"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/marker"
 	"github.com/Rafael24595/go-reacterm-core/engine/render/text"
+
+	drawable_drain "github.com/Rafael24595/go-reacterm-core/engine/layout/drawable/stream/pipeline/drain"
 )
 
 const Name = "input_line_unit"
@@ -30,6 +32,10 @@ func New(unit drawable.Unit) *InputLineUnit {
 
 func Wrap(unit drawable.Unit) drawable.Unit {
 	return New(unit).ToUnit()
+}
+
+func FromFragment(frag text.Fragment) drawable.Unit {
+	return Wrap(drawable_drain.UnitFromFragments(frag))
 }
 
 func (u *InputLineUnit) ToUnit() drawable.Unit {
