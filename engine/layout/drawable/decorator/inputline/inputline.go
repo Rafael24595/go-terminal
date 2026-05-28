@@ -23,7 +23,7 @@ func New(unit drawable.Unit) *InputLineUnit {
 	return &InputLineUnit{
 		loaded: false,
 		status: true,
-		prompt: marker.DefaultInputLinePrompt,
+		prompt: marker.DefaultPromptText,
 		unit:   unit,
 	}
 }

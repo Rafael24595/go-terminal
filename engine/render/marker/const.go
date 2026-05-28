@@ -9,6 +9,6 @@ const PrintableCaretText = " "
 const DefaultElipsisText = "."
 const DefaultElipsisSize = winsize.Cols(3)
 
-const DefaultInputLinePrompt = ">"
+const DefaultPromptText = ">"
 
 var PrintableCaretRunes = []rune(PrintableCaretText)

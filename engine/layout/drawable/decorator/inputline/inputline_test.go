@@ -22,7 +22,7 @@ func TestNewInputLine_DefaultPrompt(t *testing.T) {
 	mock := &drawable_test.MockUnit{}
 	input := New(mock.ToUnit())
 
-	assert.Equal(t, input.prompt, marker.DefaultInputLinePrompt)
+	assert.Equal(t, input.prompt, marker.DefaultPromptText)
 }
 
 func TestNewInputLine_NoContent_ReturnsPromptOnly(t *testing.T) {
@@ -40,7 +40,7 @@ func TestNewInputLine_NoContent_ReturnsPromptOnly(t *testing.T) {
 
 	assert.False(t, status)
 	assert.Len(t, 1, lines)
-	assert.Equal(t, marker.DefaultInputLinePrompt, text.LineToString(&lines[0]))
+	assert.Equal(t, marker.DefaultPromptText, text.LineToString(&lines[0]))
 }
 
 func TestNewInputLine_WithSingleLine_AddsPrompt(t *testing.T) {
@@ -62,7 +62,7 @@ func TestNewInputLine_WithSingleLine_AddsPrompt(t *testing.T) {
 	})
 
 	assert.Len(t, 1, lines)
-	assert.Equal(t, marker.DefaultInputLinePrompt+" golang", text.LineToString(&lines[0]))
+	assert.Equal(t, marker.DefaultPromptText+" golang", text.LineToString(&lines[0]))
 }
 
 func TestNewInputLine_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
@@ -87,6 +87,6 @@ func TestNewInputLine_MultipleDrawCalls_AccumulatesLines(t *testing.T) {
 
 	assert.Len(t, 2, lines)
 
-	assert.Equal(t, marker.DefaultInputLinePrompt+" ziglang", text.LineToString(&lines[0]))
+	assert.Equal(t, marker.DefaultPromptText+" ziglang", text.LineToString(&lines[0]))
 	assert.Equal(t, "golang", text.LineToString(&lines[1]))
 }
