@@ -41,6 +41,8 @@ const (
 	CustomActionCopy
 	CustomActionPaste
 
+	CustomActionGutter
+
 	ActionAll
 )
 
@@ -66,6 +68,7 @@ var AltKeyMap = map[rune]*Key{
 	'v': NewKeyCode(CustomActionPaste, ModAlt),
 	'z': NewKeyCode(CustomActionUndo, ModAlt),
 	'y': NewKeyCode(CustomActionRedo, ModAlt),
+	'g': NewKeyCode(CustomActionGutter, ModAlt),
 }
 
 var CsiFinalMap = map[rune]Action{
