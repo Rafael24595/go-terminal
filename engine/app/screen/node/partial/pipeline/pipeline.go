@@ -7,6 +7,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/config/expiration"
 )
 
+//TODO: Use references?
 type Transformer func(viewmodel.ViewModel) viewmodel.ViewModel
 
 type Pipeline struct {
