@@ -3,6 +3,7 @@ package form
 import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/dummy"
+	"github.com/Rafael24595/go-reacterm-core/engine/app/screen/node/partial/pipeline"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 	"github.com/Rafael24595/go-reacterm-core/engine/config/entry"
@@ -38,20 +39,27 @@ var sources = screen.NewDefinition(
 
 type Form struct {
 	reference string
-	items     []entry.Entry
 	pointer   uint8
+	focused   bool
 	cursor    uint16
-	fixed     bool
+	steps     []pipeline.Transformer
+	items     []entry.Entry
 }
 
 func New() *Form {
 	return &Form{
 		reference: Name,
-		items:     make([]entry.Entry, 0),
 		pointer:   0,
+		focused:   false,
 		cursor:    0,
-		fixed:     false,
+		steps:     make([]pipeline.Transformer, 0),
+		items:     make([]entry.Entry, 0),
 	}
+}
+
+func (n *Form) PushSteps(steps ...pipeline.Transformer) *Form {
+	n.steps = append(n.steps, steps...)
+	return n
 }
 
 func (n *Form) AddNode(
@@ -127,7 +135,7 @@ func (n *Form) localUpdate(stt *state.UIState, evt screen.Event) screen.Result {
 
 	switch ky.Code {
 	case key.ActionEsc:
-		n.fixed = false
+		n.focused = false
 	case key.ActionArrowUp:
 		n.cursor = 0
 	case key.ActionArrowDown:
@@ -138,7 +146,7 @@ func (n *Form) localUpdate(stt *state.UIState, evt screen.Event) screen.Result {
 		last := math.SubClampZeroAs[int, uint16](len(n.items), 1)
 		n.cursor = min(last, n.cursor+1)
 	case key.ActionEnter:
-		n.fixed = true
+		n.focused = true
 	case key.CustomActionGutter:
 		n.pointer = nextPointer(n.pointer)
 	}
@@ -157,12 +165,16 @@ func (n *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus entry.Ent
 	newItems := make([]entry.Entry, len(n.items))
 	copy(newItems, n.items)
 
+	newSteps := make([]pipeline.Transformer, len(n.steps))
+	copy(newSteps, n.steps)
+
 	newWrapper := New()
 	newWrapper.reference = n.reference
-	newWrapper.items = newItems
 	newWrapper.pointer = n.pointer
+	newWrapper.focused = n.focused
 	newWrapper.cursor = n.cursor
-	newWrapper.fixed = n.fixed
+	newWrapper.steps = newSteps
+	newWrapper.items = newItems
 
 	newNode := newWrapper.ToNode()
 	result.Node = &newNode
@@ -209,7 +221,14 @@ func (n *Form) view(stt state.UIState) viewmodel.ViewModel {
 		)
 	}
 
-	return *vm
+	return n.applySteps(*vm)
+}
+
+func (n *Form) applySteps(vm viewmodel.ViewModel) viewmodel.ViewModel {
+	for _, s := range n.steps {
+		vm = s(vm)
+	}
+	return vm
 }
 
 func (n *Form) focusItem() (entry.Entry, bool) {
