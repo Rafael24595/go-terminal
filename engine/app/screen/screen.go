@@ -5,6 +5,10 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/app/viewmodel"
 )
 
+const (
+	SystemMetaTag = "system_meta"
+)
+
 type DefinitionFunc func() Definition
 type UpdateFunc func(*state.UIState, Event) Result
 type ViewFunc func(state.UIState) viewmodel.ViewModel
