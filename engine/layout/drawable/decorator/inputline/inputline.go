@@ -34,8 +34,16 @@ func Wrap(unit drawable.Unit) drawable.Unit {
 	return New(unit).ToUnit()
 }
 
+func FromString(text string) drawable.Unit {
+	return Wrap(
+		drawable_drain.UnitFromString(text),
+	)
+}
+
 func FromFragment(frag text.Fragment) drawable.Unit {
-	return Wrap(drawable_drain.UnitFromFragments(frag))
+	return Wrap(
+		drawable_drain.UnitFromFragments(frag),
+	)
 }
 
 func (u *InputLineUnit) ToUnit() drawable.Unit {
