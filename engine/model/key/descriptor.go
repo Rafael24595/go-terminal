@@ -36,7 +36,7 @@ var actionHelpMap = map[Action]Descriptor{
 	CustomActionCopy:  {Code: []string{"M-c"}, Detail: "Copy"},
 	CustomActionPaste: {Code: []string{"M-v"}, Detail: "Paste"},
 
-	CustomActionGutter: {Code: []string{"M-g"}, Detail: "Switch gutter"},
+	CustomActionPointer: {Code: []string{"M-p"}, Detail: "Switch gutter"},
 
 	ActionRune: {Code: []string{"Text"}, Detail: "Text"},
 }

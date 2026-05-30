@@ -33,7 +33,7 @@ var sources = screen.NewDefinition(
 		key.ActionArrowRight,
 		key.ActionArrowUp,
 		key.ActionArrowDown,
-		key.CustomActionGutter,
+		key.CustomActionPointer,
 	},
 )
 
@@ -147,7 +147,7 @@ func (n *Form) localUpdate(stt *state.UIState, evt screen.Event) screen.Result {
 		n.cursor = min(last, n.cursor+1)
 	case key.ActionEnter:
 		n.focused = true
-	case key.CustomActionGutter:
+	case key.CustomActionPointer:
 		n.pointer = nextPointer(n.pointer)
 	}
 
