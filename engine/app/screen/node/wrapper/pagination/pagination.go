@@ -169,9 +169,9 @@ func (n *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 		return vm
 	}
 
-	label, ok := labels[pager.CodeEnginePaged]
+	label, ok := labels[vm.Pager.Engine.Code]
 
-	assert.True(ok, errf_unhandled, pager.CodeEnginePaged)
+	assert.True(ok, errf_unhandled, vm.Pager.Engine.Code)
 
 	footer := []text.Line{
 		*text.NewLine(
