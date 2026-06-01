@@ -102,6 +102,19 @@ func PushParam[T any](
 	return c.Push(screen, param.Code(), arg)
 }
 
+func FindParam[T any](
+	c *StackContext,
+	screen string,
+	param param.Typed[T],
+) (T, bool) {
+	arg, ok := c.Find(screen, param.Code())
+	if !ok {
+		var zero T
+		return zero, false
+	}
+
+	return commons.Map[T](*arg)
+}
 type ScreenContext struct {
 	mu        sync.RWMutex
 	timestamp int64
