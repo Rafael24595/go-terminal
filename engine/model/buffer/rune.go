@@ -63,6 +63,12 @@ func (b *RuneBuffer) Append(rns []rune) *RuneBuffer {
 	return b
 }
 
+func (b *RuneBuffer) Clean() *RuneBuffer {
+	b.buffer = make([]rune, 0)
+	b.facade = make([]rune, 0)
+	return b
+}
+
 func (b *RuneBuffer) Replace(rns []rune, start offset.Offset, end offset.Offset) ([]rune, []rune) {
 	if end < start {
 		zero := make([]rune, 0)
