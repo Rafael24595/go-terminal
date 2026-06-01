@@ -159,16 +159,20 @@ func (n *Table[T]) tickeNavigation(uiState *state.UIState, event screen.Event) s
 		n.cursor.Show = n.action.ActionMode
 	case key.ActionArrowLeft:
 		n.cursor.DecCol()
+		n.tickToStack(uiState)
 	case key.ActionArrowRight:
 		n.cursor.IncCol(
 			math.SubClampZero(n.table.Cols(), 1),
 		)
+		n.tickToStack(uiState)
 	case key.ActionArrowUp:
 		n.cursor.DecRow()
+		n.tickToStack(uiState)
 	case key.ActionArrowDown:
 		n.cursor.IncRow(
 			math.SubClampZero(n.table.Rows(), 1),
 		)
+		n.tickToStack(uiState)
 	}
 
 	return screen.ResultFromUIState(uiState)
@@ -184,6 +188,20 @@ func (n *Table[T]) tickRead(uiState *state.UIState, event screen.Event) screen.R
 	}
 
 	return screen.ResultFromUIState(uiState)
+}
+
+func (n *Table[T]) tickToStack(uiState *state.UIState) {
+	tableState := State{
+		Row: n.cursor.Row,
+		Col: n.cursor.Col,
+	}
+
+	state.PushParam(
+		uiState.Stack,
+		n.reference,
+		ArgTableState,
+		tableState,
+	)
 }
 
 func (n *Table[T]) view(_ state.UIState) viewmodel.ViewModel {
