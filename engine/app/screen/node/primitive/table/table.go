@@ -119,13 +119,13 @@ func (n *Table[T]) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.reference).
 		NameToStack().
-		Definition(n.definition).
-		Update(n.update).
+		Keys(n.keys).
+		Tick(n.tick).
 		View(n.view).
 		ToNode()
 }
 
-func (n *Table[T]) definition() screen.Definition {
+func (n *Table[T]) keys() screen.Definition {
 	if !n.action.EnableMode {
 		return screen.EmptyDefinition()
 	}
@@ -137,21 +137,21 @@ func (n *Table[T]) definition() screen.Definition {
 	return read_definition
 }
 
-func (n *Table[T]) update(stt *state.UIState, evnt screen.Event) screen.Result {
-	stt.Pager.ForceShow = true
+func (n *Table[T]) tick(uiState *state.UIState, event screen.Event) screen.Result {
+	uiState.Pager.ForceShow = true
 
 	if !n.action.EnableMode {
-		return screen.ResultFromUIState(stt)
+		return screen.ResultFromUIState(uiState)
 	}
 
 	if !n.action.ActionMode {
-		return n.updateRead(stt, evnt)
+		return n.tickRead(uiState, event)
 	}
-	return n.updateNavigation(stt, evnt)
+	return n.tickeNavigation(uiState, event)
 }
 
-func (n *Table[T]) updateNavigation(state *state.UIState, evnt screen.Event) screen.Result {
-	ky := evnt.Key
+func (n *Table[T]) tickeNavigation(uiState *state.UIState, event screen.Event) screen.Result {
+	ky := event.Key
 
 	switch ky.Code {
 	case key.ActionEsc:
@@ -171,11 +171,11 @@ func (n *Table[T]) updateNavigation(state *state.UIState, evnt screen.Event) scr
 		)
 	}
 
-	return screen.ResultFromUIState(state)
+	return screen.ResultFromUIState(uiState)
 }
 
-func (n *Table[T]) updateRead(state *state.UIState, evnt screen.Event) screen.Result {
-	ky := evnt.Key
+func (n *Table[T]) tickRead(uiState *state.UIState, event screen.Event) screen.Result {
+	ky := event.Key
 
 	switch ky.Code {
 	case key.ActionEnter:
@@ -183,7 +183,7 @@ func (n *Table[T]) updateRead(state *state.UIState, evnt screen.Event) screen.Re
 		n.cursor.Show = n.action.ActionMode
 	}
 
-	return screen.ResultFromUIState(state)
+	return screen.ResultFromUIState(uiState)
 }
 
 func (n *Table[T]) view(_ state.UIState) viewmodel.ViewModel {

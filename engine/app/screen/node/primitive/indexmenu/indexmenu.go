@@ -72,29 +72,32 @@ func (n *IndexMenu) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.reference).
 		NameToStack().
-		Definition(n.definition).
-		Update(n.update).
+		Keys(n.keys).
+		Tick(n.tick).
 		View(n.view).
 		ToNode()
 }
 
-func (n *IndexMenu) definition() screen.Definition {
+func (n *IndexMenu) keys() screen.Definition {
 	return index_menu_definition
 }
 
-func (n *IndexMenu) update(stt *state.UIState, evt screen.Event) screen.Result {
+func (n *IndexMenu) tick(uiState *state.UIState, event screen.Event) screen.Result {
 	size := uint16(len(n.options))
 	if size == 0 {
 		return screen.EmptyResult()
 	}
 
-	switch evt.Key.Code {
+	switch event.Key.Code {
 	case key.ActionArrowUp:
 		n.cursor = (n.cursor + size - 1) % size
+		n.tickToStack(uiState)
 	case key.ActionTab, key.ActionArrowDown:
 		n.cursor = (n.cursor + 1) % size
+		n.tickToStack(uiState)
 	case key.ActionEnter:
-		return n.actionEnter(stt)
+		n.tickToStack(uiState)
+		return n.actionEnter()
 	case key.CustomActionPointer:
 		n.pointer = indexmenu.NextPointer(n.pointer)
 	}
@@ -102,16 +105,24 @@ func (n *IndexMenu) update(stt *state.UIState, evt screen.Event) screen.Result {
 	return screen.EmptyResult()
 }
 
-func (n *IndexMenu) actionEnter(stt *state.UIState) screen.Result {
-	option := n.options[n.cursor]
+func (n *IndexMenu) tickToStack(uiState *state.UIState) {
+	if n.cursor >= uint16(len(n.options)) {
+		uiState.Stack.RemoveArgument(
+			n.reference,
+			string(ArgActiveIndex),
+		)
+		return
+	}
 
 	state.PushParam(
-		stt.Stack,
+		uiState.Stack,
 		n.reference,
 		ArgActiveIndex,
-		option.Id,
+		n.options[n.cursor].Id,
 	)
+}
 
+func (n *IndexMenu) actionEnter() screen.Result {
 	node := n.options[n.cursor].Action()
 	return screen.ResultFromNode(&node)
 }

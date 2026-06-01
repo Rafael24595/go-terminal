@@ -24,19 +24,19 @@ func TestDummy_Defaults(t *testing.T) {
 	assert.Len(t, 0, node.Tags)
 	assert.Len(t, 0, node.Children())
 
-	definition := node.Screen.Definition()
+	definition := node.Screen.Keys()
 	assert.Equal(t, 0, definition.Descriptor.Size())
 	assert.Equal(t, 0, definition.RequireKeys.Size())
 
 	uiState := state.NewUIState()
-	update := node.Screen.Update(
+	result := node.Screen.Tick(
 		uiState,
 		screen.NewEvent(key.Key{}),
 	)
 
-	assert.Nil(t, update.Node)
-	assert.False(t, update.Isolate)
-	assert.DeepEqual(t, uiState.Pager, update.Pager)
+	assert.Nil(t, result.Node)
+	assert.False(t, result.Isolate)
+	assert.DeepEqual(t, uiState.Pager, result.Pager)
 
 	view := node.Screen.View(*uiState)
 	assert.False(t, view.Behavior.NeedsPulse)

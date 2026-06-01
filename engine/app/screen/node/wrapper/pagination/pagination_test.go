@@ -38,8 +38,8 @@ func TestPagination_Propagate(t *testing.T) {
 	screen_test.Helper_Propagate(t, name, 0, node)
 }
 
-func TestPagination_LocalUpdate(t *testing.T) {
-	stt := state.NewUIState()
+func TestPagination_LocalTick(t *testing.T) {
+	uiState := state.NewUIState()
 	base := screen_test.MockScreen{
 		Name: "base",
 	}
@@ -47,17 +47,17 @@ func TestPagination_LocalUpdate(t *testing.T) {
 	page := New(base.ToNode())
 	node := page.ToNode()
 
-	stt.Pager.TargetPage = 0
-	result := node.Screen.Update(stt, screen.Event{Key: *key.NewKeyCode(key.ActionArrowLeft)})
+	uiState.Pager.TargetPage = 0
+	result := node.Screen.Tick(uiState, screen.Event{Key: *key.NewKeyCode(key.ActionArrowLeft)})
 	assert.Equal(t, result.Pager.TargetPage, 0)
 
-	result = node.Screen.Update(stt, screen.Event{Key: *key.NewKeyCode(key.ActionArrowRight)})
+	result = node.Screen.Tick(uiState, screen.Event{Key: *key.NewKeyCode(key.ActionArrowRight)})
 	assert.Equal(t, result.Pager.TargetPage, 1)
 }
 
 func TestPagination_ViewFooter(t *testing.T) {
-	stt := state.NewUIState()
-	stt.Pager.ActualPage = 3
+	uiState := state.NewUIState()
+	uiState.Pager.ActualPage = 3
 
 	base := screen_test.MockScreen{
 		Name: "base",
@@ -69,7 +69,7 @@ func TestPagination_ViewFooter(t *testing.T) {
 	}
 
 	page := New(base.ToNode())
-	vm := page.view(*stt)
+	vm := page.view(*uiState)
 
 	footer := vm.Footer.ToUnit()
 	footer.Drawable.Init()
@@ -83,12 +83,12 @@ func TestPagination_ViewFooter(t *testing.T) {
 	assert.Contains(t, text.LineToString(&lines[0]), "page: 3")
 }
 
-func TestPagination_UpdateDelegates(t *testing.T) {
+func TestPagination_TickDelegates(t *testing.T) {
 	called := false
 
 	base := screen_test.MockScreen{
 		Name: "base",
-		Update: func(s *state.UIState, e screen.Event) screen.Result {
+		Tick: func(s *state.UIState, e screen.Event) screen.Result {
 			called = true
 			return screen.EmptyResult()
 		},
@@ -97,14 +97,14 @@ func TestPagination_UpdateDelegates(t *testing.T) {
 	page := New(base.ToNode())
 	node := page.ToNode()
 
-	node.Screen.Update(state.NewUIState(), screen.Event{Key: *key.NewKeyRune('x')})
+	node.Screen.Tick(state.NewUIState(), screen.Event{Key: *key.NewKeyRune('x')})
 
-	assert.True(t, called, "screen.Update should be called")
+	assert.True(t, called, "screen.Tick should be called")
 }
 
 func TestPagination_PageNeverNegative(t *testing.T) {
-	stt := state.NewUIState()
-	stt.Pager.TargetPage = 0
+	uiState := state.NewUIState()
+	uiState.Pager.TargetPage = 0
 
 	base := screen_test.MockScreen{
 		Name: "base",
@@ -113,6 +113,6 @@ func TestPagination_PageNeverNegative(t *testing.T) {
 	page := New(base.ToNode())
 	node := page.ToNode()
 
-	node.Screen.Update(stt, screen.Event{Key: *key.NewKeyCode(key.ActionArrowLeft)})
-	assert.Equal(t, stt.Pager.TargetPage, 0)
+	node.Screen.Tick(uiState, screen.Event{Key: *key.NewKeyCode(key.ActionArrowLeft)})
+	assert.Equal(t, uiState.Pager.TargetPage, 0)
 }

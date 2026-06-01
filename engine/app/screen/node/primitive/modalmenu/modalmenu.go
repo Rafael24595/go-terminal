@@ -71,46 +71,59 @@ func (n *ModalMenu) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.reference).
 		NameToStack().
-		Definition(n.definition).
-		Update(n.update).
+		Keys(n.keys).
+		Tick(n.tick).
 		View(n.view).
 		ToNode()
 }
 
-func (n *ModalMenu) definition() screen.Definition {
+func (n *ModalMenu) keys() screen.Definition {
 	return definition
 }
 
-func (n *ModalMenu) update(state *state.UIState, evnt screen.Event) screen.Result {
-	ky := evnt.Key
+func (n *ModalMenu) tick(uiState *state.UIState, event screen.Event) screen.Result {
+	ky := event.Key
 
 	switch ky.Code {
 	case key.ActionArrowUp:
 		n.cursor = 0
+		n.tickToStack(uiState)
 	case key.ActionArrowDown:
 		n.cursor = math.SubClampZeroAs[int, uint16](len(n.options), 1)
+		n.tickToStack(uiState)
 	case key.ActionArrowLeft:
 		n.cursor = math.SubClampZero(n.cursor, 1)
+		n.tickToStack(uiState)
 	case key.ActionArrowRight:
 		last := math.SubClampZeroAs[int, uint16](len(n.options), 1)
 		n.cursor = min(last, n.cursor+1)
+		n.tickToStack(uiState)
 	case key.ActionEnter:
-		return n.actionEnter(state)
+		n.tickToStack(uiState)
+		return n.actionEnter()
 	}
 
-	return screen.ResultFromUIState(state)
+	return screen.ResultFromUIState(uiState)
 }
 
-func (n *ModalMenu) actionEnter(stt *state.UIState) screen.Result {
-	option := n.options[n.cursor]
+func (n *ModalMenu) tickToStack(uiState *state.UIState) {
+	if n.cursor >= uint16(len(n.options)) {
+		uiState.Stack.RemoveArgument(
+			n.reference,
+			string(ArgActiveOption),
+		)
+		return
+	}
 
 	state.PushParam(
-		stt.Stack,
+		uiState.Stack,
 		n.reference,
 		ArgActiveOption,
-		option.Id,
+		n.options[n.cursor].Id,
 	)
+}
 
+func (n *ModalMenu) actionEnter() screen.Result {
 	node := n.options[n.cursor].Action()
 	return screen.ResultFromNode(&node)
 }

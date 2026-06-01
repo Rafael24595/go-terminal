@@ -90,8 +90,8 @@ func (n *Form) AddBreak(rows ...winsize.Rows) *Form {
 func (n *Form) ToNode() screen.Node {
 	builder := screen.NewBuilder().
 		Name(n.reference).
-		Definition(n.definition).
-		Update(n.update).
+		Keys(n.keys).
+		Tick(n.tick).
 		View(n.view)
 
 	for _, v := range n.items {
@@ -102,37 +102,37 @@ func (n *Form) ToNode() screen.Node {
 	return builder.ToNode()
 }
 
-func (n *Form) definition() screen.Definition {
+func (n *Form) keys() screen.Definition {
 	local := sources
 
 	item := n.items[n.cursor]
 	if item.Selectable {
 		local = local.Merge(
-			item.Node.Screen.Definition(),
+			item.Node.Screen.Keys(),
 		)
 	}
 
 	return local
 }
 
-func (n *Form) update(stt *state.UIState, evt screen.Event) screen.Result {
+func (n *Form) tick(uiState *state.UIState, event screen.Event) screen.Result {
 	focus, ok := n.focusItem()
 
-	definition := focus.Node.Screen.Definition()
-	required := ok && definition.IsRequired(evt.Key)
+	definition := focus.Node.Screen.Keys()
+	required := ok && definition.IsRequired(event.Key)
 
 	if required {
-		result := n.focusUpdate(stt, evt, focus)
-		if evt.Key.Code != key.ActionEsc {
+		result := n.focusTick(uiState, event, focus)
+		if event.Key.Code != key.ActionEsc {
 			return result
 		}
 	}
 
-	return n.localUpdate(stt, evt)
+	return n.localTick(uiState, event)
 }
 
-func (n *Form) localUpdate(stt *state.UIState, evt screen.Event) screen.Result {
-	ky := evt.Key
+func (n *Form) localTick(uiState *state.UIState, event screen.Event) screen.Result {
+	ky := event.Key
 
 	switch ky.Code {
 	case key.ActionEsc:
@@ -152,11 +152,11 @@ func (n *Form) localUpdate(stt *state.UIState, evt screen.Event) screen.Result {
 		n.pointer = form.NextPointer(n.pointer)
 	}
 
-	return screen.ResultFromUIState(stt)
+	return screen.ResultFromUIState(uiState)
 }
 
-func (n *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus entry.Entry) screen.Result {
-	result := focus.Node.Screen.Update(stt, evt)
+func (n *Form) focusTick(uiState *state.UIState, event screen.Event, focus entry.Entry) screen.Result {
+	result := focus.Node.Screen.Tick(uiState, event)
 
 	if result.Node == nil {
 		return result
@@ -183,14 +183,14 @@ func (n *Form) focusUpdate(stt *state.UIState, evt screen.Event, focus entry.Ent
 	return result
 }
 
-func (n *Form) view(stt state.UIState) viewmodel.ViewModel {
+func (n *Form) view(uiState state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.New()
 
 	pointer := form.FindPointer(n.pointer)
 
 	//TODO: Compile headers and footers?
 	for i, e := range n.items {
-		cvm := e.Node.Screen.View(stt)
+		cvm := e.Node.Screen.View(uiState)
 
 		opts := make([]gutter.Option, 0, 1)
 

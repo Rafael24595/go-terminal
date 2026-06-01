@@ -59,7 +59,7 @@ func TestPipeline_WrapsReturnedScreen(t *testing.T) {
 	}
 
 	mockBase := screen_test.MockScreen{
-		Update: func(s *state.UIState, _ screen.Event) screen.Result {
+		Tick: func(s *state.UIState, _ screen.Event) screen.Result {
 			called = true
 			next := mockNext.ToNode()
 			return screen.Result{
@@ -71,10 +71,10 @@ func TestPipeline_WrapsReturnedScreen(t *testing.T) {
 	help := New(mockBase.ToNode()).
 		ToNode()
 
-	stt := &state.UIState{}
-	evt := screen.Event{}
+	uiState := &state.UIState{}
+	event := screen.Event{}
 
-	result := help.Screen.Update(stt, evt)
+	result := help.Screen.Tick(uiState, event)
 
 	assert.True(t, called)
 	assert.NotNil(t, result.Node.Screen)

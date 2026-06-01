@@ -9,22 +9,22 @@ const (
 	SystemMetaTag = "system_meta"
 )
 
-type DefinitionFunc func() Definition
-type UpdateFunc func(*state.UIState, Event) Result
+type KeysFunc func() Definition
+type TickFunc func(*state.UIState, Event) Result
 type ViewFunc func(state.UIState) viewmodel.ViewModel
 
 type Screen struct {
-	Definition DefinitionFunc
-	Update     UpdateFunc
-	View       ViewFunc
+	Keys KeysFunc
+	Tick TickFunc
+	View ViewFunc
 }
 
 func IsZeroScreen(screen Screen) bool {
-	if screen.Definition == nil {
+	if screen.Keys == nil {
 		return true
 	}
 
-	if screen.Update == nil {
+	if screen.Tick == nil {
 		return true
 	}
 

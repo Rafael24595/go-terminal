@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	err_name        = "screen: name is required"
-	errf_definition = "screen %q: Definition is nil"
-	errf_update     = "screen %q: Update is nil"
-	errf_view       = "screen %q: View is nil"
-	errf_cycle      = "screen %q: Cycle detected"
+	err_name   = "screen: name is required"
+	errf_keys  = "screen %q: Keys is nil"
+	errf_tick  = "screen %q: Tick is nil"
+	errf_view  = "screen %q: View is nil"
+	errf_cycle = "screen %q: Cycle detected"
 )
 
 func ValidateStructure() screen.Pass {
@@ -31,12 +31,12 @@ func ValidateStructure() screen.Pass {
 				return node, errors.New(err_name)
 			}
 
-			if focus.Screen.Definition == nil {
-				return node, fmt.Errorf(errf_definition, focus.Name)
+			if focus.Screen.Keys == nil {
+				return node, fmt.Errorf(errf_keys, focus.Name)
 			}
 
-			if focus.Screen.Update == nil {
-				return node, fmt.Errorf(errf_update, focus.Name)
+			if focus.Screen.Tick == nil {
+				return node, fmt.Errorf(errf_tick, focus.Name)
 			}
 
 			if focus.Screen.View == nil {

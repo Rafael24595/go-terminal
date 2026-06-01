@@ -78,11 +78,11 @@ func TestArticle_View(t *testing.T) {
 	assert.Equal(t, text.LineToString(body), text.LineToString(&lines[0]))
 }
 
-func TestArticle_Update(t *testing.T) {
+func TestArticle_Tick(t *testing.T) {
 	article := New()
 	initialState := &state.UIState{}
 
-	article.update(initialState, screen.Event{})
+	article.tick(initialState, screen.Event{})
 
 	assert.Equal(t, initialState, initialState)
 }

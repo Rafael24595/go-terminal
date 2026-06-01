@@ -43,20 +43,16 @@ func (n *Template) ToNode() screen.Node {
 		Name(n.reference).
 		NameToStack().
 		AddStack(n.stack).
-		Definition(n.definition).
-		Update(n.update).
+		WithoutKeys().
+		Tick(n.tick).
 		View(n.view).
 		ToNode()
 }
 
-func (n *Template) definition() screen.Definition {
-	return screen.EmptyDefinition()
+func (n *Template) tick(uiState *state.UIState, _ screen.Event) screen.Result {
+	return screen.ResultFromUIState(uiState)
 }
 
-func (n *Template) update(stt *state.UIState, _ screen.Event) screen.Result {
-	return screen.ResultFromUIState(stt)
-}
-
-func (n *Template) view(stt state.UIState) viewmodel.ViewModel {
+func (n *Template) view(state.UIState) viewmodel.ViewModel {
 	return *n.model.Clone()
 }

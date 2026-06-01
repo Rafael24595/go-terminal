@@ -12,11 +12,11 @@ import (
 )
 
 type MockScreen struct {
-	Name       string
-	Definition *screen.Definition
-	Update     screen.UpdateFunc
-	View       screen.ViewFunc
-	Stack      set.Set[string]
+	Name  string
+	Keys  *screen.Definition
+	Tick  screen.TickFunc
+	View  screen.ViewFunc
+	Stack set.Set[string]
 }
 
 func (t MockScreen) ToNode() screen.Node {
@@ -28,18 +28,18 @@ func (t MockScreen) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(t.Name).
 		AddStack(stack).
-		Definition(
+		Keys(
 			func() screen.Definition {
-				if t.Definition != nil {
-					return *t.Definition
+				if t.Keys != nil {
+					return *t.Keys
 				}
 
 				return screen.EmptyDefinition()
 			}).
-		Update(
+		Tick(
 			func(s *state.UIState, e screen.Event) screen.Result {
-				if t.Update != nil {
-					return t.Update(s, e)
+				if t.Tick != nil {
+					return t.Tick(s, e)
 				}
 
 				return screen.ResultFromUIState(s)
@@ -66,9 +66,9 @@ func Helper_ToNode(t *testing.T, node screen.Node) {
 	assert.NotNil(t, node.Tags, "Node.Stack should be set")
 	assert.NotNil(t, node.Children(), "Node.Stack should be set")
 
-	assert.NotNil(t, node.Screen.Definition, "Screen.Definition should be set")
+	assert.NotNil(t, node.Screen.Keys, "Screen.Keys should be set")
 	assert.NotNil(t, node.Screen.View, "Screen.View should be set")
-	assert.NotNil(t, node.Screen.Update, "Screen.Update should be set")
+	assert.NotNil(t, node.Screen.Tick, "Screen.Tick should be set")
 }
 
 func Helper_Propagate(t *testing.T, name string, child uint, node screen.Node) {

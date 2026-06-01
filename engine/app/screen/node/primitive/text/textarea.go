@@ -138,105 +138,120 @@ func (n *TextArea) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.reference).
 		NameToStack().
-		Definition(n.definition).
-		Update(n.update).
+		Keys(n.keys).
+		Tick(n.tick).
 		View(n.view).
 		ToNode()
 }
 
-func (n *TextArea) definition() screen.Definition {
+func (n *TextArea) keys() screen.Definition {
 	if n.writeMode {
 		return area_write_definition
 	}
 	return area_read_definition
 }
 
-func (n *TextArea) update(stt *state.UIState, evnt screen.Event) screen.Result {
-	stt.Pager.ForceShow = true
+func (n *TextArea) tick(uiState *state.UIState, event screen.Event) screen.Result {
+	uiState.Pager.ForceShow = true
 
 	if !n.writeMode {
-		return n.updateRead(stt, evnt)
+		return n.tickRead(uiState, event)
 	}
-	return n.updateWrite(stt, evnt)
+	return n.tickWrite(uiState, event)
 }
 
-func (n *TextArea) updateRead(stt *state.UIState, evt screen.Event) screen.Result {
-	ky := evt.Key
+func (n *TextArea) tickRead(uiState *state.UIState, event screen.Event) screen.Result {
+	ky := event.Key
 
 	switch ky.Code {
 	case key.ActionEnter:
 		n.writeMode = true
 	}
 
-	return screen.ResultFromUIState(stt)
+	return screen.ResultFromUIState(uiState)
 }
 
-func (n *TextArea) updateWrite(stt *state.UIState, evt screen.Event) screen.Result {
-	ky := evt.Key
+func (n *TextArea) tickWrite(uiState *state.UIState, event screen.Event) screen.Result {
+	ky := event.Key
 
 	switch ky.Code {
 	case key.ActionEsc:
 		n.writeMode = false
-		return screen.ResultFromUIState(stt)
+		return screen.ResultFromUIState(uiState)
 
 	case key.ActionHome:
-		return n.moveHome(stt, evt)
+		result := n.moveHome(uiState, event)
+		n.tickToStack(uiState)
+		return result
 
 	case key.ActionEnd:
-		return n.moveEnd(stt, evt)
+		result := n.moveEnd(uiState, event)
+		n.tickToStack(uiState)
+		return result
 
 	case key.ActionArrowLeft:
-		return n.moveBackward(stt, evt)
+		result := n.moveBackward(uiState, event)
+		n.tickToStack(uiState)
+		return result
 
 	case key.ActionArrowRight:
-		return n.moveForward(stt, evt)
+		result := n.moveForward(uiState, event)
+		n.tickToStack(uiState)
+		return result
+
+	case key.ActionArrowUp:
+		result := n.moveUp(uiState, event)
+		n.tickToStack(uiState)
+		return result
+
+	case key.ActionArrowDown:
+		result := n.moveDown(uiState, event)
+		n.tickToStack(uiState)
+		return result
 
 	case key.ActionEnter:
 		ky = *key.NewKeyRune(ascii.ENTER_LF)
-
-	case key.ActionArrowUp:
-		return n.moveUp(stt, evt)
-
-	case key.ActionArrowDown:
-		return n.moveDown(stt, evt)
 	}
 
-	result := n.updateBuffer(stt, ky)
-
-	state.PushParam(
-		stt.Stack,
-		n.reference,
-		ArgAreaBuffer,
-		n.buffer.Buffer(),
-	)
+	result := n.tickBuffer(uiState, ky)
+	n.tickToStack(uiState)
 
 	return result
 }
 
-func (n *TextArea) updateBuffer(state *state.UIState, ky key.Key) screen.Result {
+func (n *TextArea) tickToStack(uiState *state.UIState) {
+	state.PushParam(
+		uiState.Stack,
+		n.reference,
+		ArgAreaBuffer,
+		n.buffer.Buffer(),
+	)
+}
+
+func (n *TextArea) tickBuffer(uiState *state.UIState, ky key.Key) screen.Result {
 	switch ky.Code {
 	case key.ActionBackspace, key.ActionDeleteBackward:
 		word := ky.Code == key.ActionDeleteBackward
-		return n.deleteBackward(state, word)
+		return n.deleteBackward(uiState, word)
 
 	case key.ActionDelete, key.ActionDeleteForward:
 		word := ky.Code == key.ActionDeleteForward
-		return n.deleteForward(state, word)
+		return n.deleteForward(uiState, word)
 	case key.CustomActionUndo, key.CustomActionRedo:
-		return n.undoRedo(state, ky)
+		return n.undoRedo(uiState, ky)
 
 	case key.CustomActionCut, key.CustomActionCopy:
 		cut := ky.Code == key.CustomActionCut
-		return n.copyCut(state, cut)
+		return n.copyCut(uiState, cut)
 
 	case key.CustomActionPaste:
-		return n.paste(state)
+		return n.paste(uiState)
 	}
 
-	return n.pushRune(state, ky)
+	return n.pushRune(uiState, ky)
 }
 
-func (n *TextArea) pushRune(state *state.UIState, ky key.Key) screen.Result {
+func (n *TextArea) pushRune(uiState *state.UIState, ky key.Key) screen.Result {
 	start, end, fixEnd := n.insertSelection()
 
 	insert, delete := n.buffer.ReplaceWithRules([]rune{ky.Rune}, start, end)
@@ -245,11 +260,11 @@ func (n *TextArea) pushRune(state *state.UIState, ky key.Key) screen.Result {
 	position := start + offset.Offset(len(insert))
 	n.caret.MoveCaretTo(n.buffer.Buffer(), position)
 
-	return screen.ResultFromUIState(state)
+	return screen.ResultFromUIState(uiState)
 }
 
-func (n *TextArea) undoRedo(state *state.UIState, ky key.Key) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) undoRedo(uiState *state.UIState, ky key.Key) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	var delta *delta.Delta
 	switch ky.Code {
@@ -274,8 +289,8 @@ func (n *TextArea) undoRedo(state *state.UIState, ky key.Key) screen.Result {
 	return result
 }
 
-func (n *TextArea) copyCut(state *state.UIState, cut bool) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) copyCut(uiState *state.UIState, cut bool) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	if n.buffer.Empty() {
 		return result
@@ -295,7 +310,7 @@ func (n *TextArea) copyCut(state *state.UIState, cut bool) screen.Result {
 	return result
 }
 
-func (n *TextArea) paste(state *state.UIState) screen.Result {
+func (n *TextArea) paste(uiState *state.UIState) screen.Result {
 	start, end, fixEnd := n.insertSelection()
 
 	insert, delete := n.buffer.Replace(n.clipboard.Buffer(), start, end)
@@ -304,11 +319,11 @@ func (n *TextArea) paste(state *state.UIState) screen.Result {
 	position := start + offset.Offset(len(insert))
 	n.caret.MoveCaretTo(n.buffer.Buffer(), position)
 
-	return screen.ResultFromUIState(state)
+	return screen.ResultFromUIState(uiState)
 }
 
-func (n *TextArea) moveHome(state *state.UIState, event screen.Event) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) moveHome(uiState *state.UIState, event screen.Event) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	buffer := n.buffer.Buffer()
 
@@ -330,8 +345,8 @@ func (n *TextArea) moveHome(state *state.UIState, event screen.Event) screen.Res
 	return result
 }
 
-func (n *TextArea) moveEnd(state *state.UIState, event screen.Event) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) moveEnd(uiState *state.UIState, event screen.Event) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	buffer := n.buffer.Buffer()
 
@@ -353,8 +368,8 @@ func (n *TextArea) moveEnd(state *state.UIState, event screen.Event) screen.Resu
 	return result
 }
 
-func (n *TextArea) moveUp(state *state.UIState, event screen.Event) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) moveUp(uiState *state.UIState, event screen.Event) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	buffer := n.buffer.Buffer()
 
@@ -383,8 +398,8 @@ func (n *TextArea) moveUp(state *state.UIState, event screen.Event) screen.Resul
 	return result
 }
 
-func (n *TextArea) moveDown(state *state.UIState, event screen.Event) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) moveDown(uiState *state.UIState, event screen.Event) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	buffer := n.buffer.Buffer()
 	size := n.buffer.Size()
@@ -414,8 +429,8 @@ func (n *TextArea) moveDown(state *state.UIState, event screen.Event) screen.Res
 	return result
 }
 
-func (n *TextArea) moveBackward(state *state.UIState, event screen.Event) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) moveBackward(uiState *state.UIState, event screen.Event) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	buffer := n.buffer.Buffer()
 
@@ -442,8 +457,8 @@ func (n *TextArea) moveBackward(state *state.UIState, event screen.Event) screen
 	return result
 }
 
-func (n *TextArea) moveForward(state *state.UIState, event screen.Event) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) moveForward(uiState *state.UIState, event screen.Event) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	buffer := n.buffer.Buffer()
 	size := n.buffer.Size()
@@ -471,8 +486,8 @@ func (n *TextArea) moveForward(state *state.UIState, event screen.Event) screen.
 	return result
 }
 
-func (n *TextArea) deleteBackward(state *state.UIState, word bool) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) deleteBackward(uiState *state.UIState, word bool) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	if n.buffer.Empty() {
 		return result
@@ -495,8 +510,8 @@ func (n *TextArea) deleteBackward(state *state.UIState, word bool) screen.Result
 	return result
 }
 
-func (n *TextArea) deleteForward(state *state.UIState, word bool) screen.Result {
-	result := screen.ResultFromUIState(state)
+func (n *TextArea) deleteForward(uiState *state.UIState, word bool) screen.Result {
+	result := screen.ResultFromUIState(uiState)
 
 	if n.buffer.Empty() {
 		return result

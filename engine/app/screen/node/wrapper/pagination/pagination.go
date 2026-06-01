@@ -92,15 +92,15 @@ func (n *Pagination) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.node.Name).
 		AddStack(n.node.Stack).
-		Definition(n.definition).
-		Update(n.update).
+		Keys(n.keys).
+		Tick(n.tick).
 		View(n.view).
 		Children(n.node).
 		ToNode()
 }
 
-func (n *Pagination) definition() screen.Definition {
-	node := n.node.Screen.Definition()
+func (n *Pagination) keys() screen.Definition {
+	node := n.node.Screen.Keys()
 	return base_definition.Merge(
 		n.findDefinition().Merge(node),
 	)
@@ -115,17 +115,17 @@ func (n *Pagination) findDefinition() screen.Definition {
 	return pager_definition
 }
 
-func (n *Pagination) update(state *state.UIState, event screen.Event) screen.Result {
-	definition := n.node.Screen.Definition()
+func (n *Pagination) tick(uiState *state.UIState, event screen.Event) screen.Result {
+	definition := n.node.Screen.Keys()
 
 	if !definition.IsRequired(event.Key) {
-		result := n.localUpdate(state, event)
+		result := n.localTick(uiState, event)
 		if result != nil {
 			return *result
 		}
 	}
 
-	result := n.node.Screen.Update(state, event)
+	result := n.node.Screen.Tick(uiState, event)
 	if result.Node == nil {
 		return result
 	}
@@ -139,33 +139,33 @@ func (n *Pagination) update(state *state.UIState, event screen.Event) screen.Res
 	return result
 }
 
-func (n *Pagination) localUpdate(state *state.UIState, event screen.Event) *screen.Result {
+func (n *Pagination) localTick(uiState *state.UIState, event screen.Event) *screen.Result {
 	keys, ok := keys[pager.CodeEnginePaged]
 
 	assert.True(ok, errf_unhandled, pager.CodeEnginePaged)
 
 	if event.Key.Code == key.ActionPageUp || event.Key.Code == keys.back {
-		state.Pager.DecTarget()
-		result := screen.ResultFromUIState(state)
+		uiState.Pager.DecTarget()
+		result := screen.ResultFromUIState(uiState)
 		return &result
 	}
 
 	if event.Key.Code == key.ActionPageDown || event.Key.Code == keys.next {
-		state.Pager.IncTarget()
-		result := screen.ResultFromUIState(state)
+		uiState.Pager.IncTarget()
+		result := screen.ResultFromUIState(uiState)
 		return &result
 	}
 
 	return nil
 }
 
-func (n *Pagination) view(stt state.UIState) viewmodel.ViewModel {
-	vm := n.node.Screen.View(stt)
+func (n *Pagination) view(uiState state.UIState) viewmodel.ViewModel {
+	vm := n.node.Screen.View(uiState)
 	if n.forceEngine != nil {
 		vm.Pager.SetEngine(*n.forceEngine)
 	}
 
-	if !n.shouldShowPage(stt, vm) {
+	if !n.shouldShowPage(uiState, vm) {
 		return vm
 	}
 
@@ -175,7 +175,7 @@ func (n *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 
 	footer := []text.Line{
 		*text.NewLine(
-			fmt.Sprintf("%s: %d", label, stt.Pager.ActualPage),
+			fmt.Sprintf("%s: %d", label, uiState.Pager.ActualPage),
 			style.SpecFromKind(style.SpcKindPaddingRight),
 		),
 	}
@@ -188,16 +188,16 @@ func (n *Pagination) view(stt state.UIState) viewmodel.ViewModel {
 	return vm
 }
 
-func (n *Pagination) shouldShowPage(stt state.UIState, vm viewmodel.ViewModel) bool {
+func (n *Pagination) shouldShowPage(uiState state.UIState, vm viewmodel.ViewModel) bool {
 	predicate := vm.Pager.Predicate.Code
 
 	if predicate != pager.CodePredicatePage {
 		return false
 	}
 
-	if stt.Pager.ForceShow {
+	if uiState.Pager.ForceShow {
 		return true
 	}
 
-	return stt.Pager.HasMore || stt.Pager.ActualPage > 0
+	return uiState.Pager.HasMore || uiState.Pager.ActualPage > 0
 }

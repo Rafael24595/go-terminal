@@ -13,7 +13,7 @@ func TestBuilder_BasicScreen(t *testing.T) {
 
 	node := NewBuilder().
 		Name(name).
-		Update(func(*state.UIState, Event) Result {
+		Tick(func(*state.UIState, Event) Result {
 			return Result{}
 		}).
 		View(func(state.UIState) viewmodel.ViewModel {
@@ -23,19 +23,19 @@ func TestBuilder_BasicScreen(t *testing.T) {
 
 	assert.Equal(t, name, node.Name)
 	assert.Len(t, 0, node.Stack)
-	assert.Nil(t, node.Screen.Definition)
-	assert.NotNil(t, node.Screen.Update)
+	assert.Nil(t, node.Screen.Keys)
+	assert.NotNil(t, node.Screen.Tick)
 	assert.NotNil(t, node.Screen.View)
 }
 
-func TestBuilder_WithoutDefinition(t *testing.T) {
+func TestBuilder_WithoutKeys(t *testing.T) {
 	node := NewBuilder().
 		Name("home").
-		WithoutDefinition().
+		WithoutKeys().
 		ToNode()
 
-	assert.NotNil(t, node.Screen.Definition)
-	assert.Equal(t, 0, node.Screen.Definition().RequireKeys.Size())
+	assert.NotNil(t, node.Screen.Keys)
+	assert.Equal(t, 0, node.Screen.Keys().RequireKeys.Size())
 }
 
 func TestBuilder_NameToStack(t *testing.T) {
@@ -52,7 +52,7 @@ func TestBuilder_NameToStack(t *testing.T) {
 func TestBuilder_IncompleteScreen(t *testing.T) {
 	node := NewBuilder().Name("home").ToNode()
 
-	assert.Nil(t, node.Screen.Definition)
-	assert.Nil(t, node.Screen.Update)
+	assert.Nil(t, node.Screen.Keys)
+	assert.Nil(t, node.Screen.Tick)
 	assert.Nil(t, node.Screen.View)
 }

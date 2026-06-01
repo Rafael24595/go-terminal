@@ -46,7 +46,7 @@ func TestCheckMenu_SwitchState_WithLimit(t *testing.T) {
 	clock.Advance(1000)
 
 	menu.cursor = 0
-	menu.switchState()
+	menu.switchState(menu.cursor).applyLimit()
 
 	assert.True(t, menu.options[0].Status)
 	assert.False(t, menu.options[1].Status)
@@ -55,7 +55,7 @@ func TestCheckMenu_SwitchState_WithLimit(t *testing.T) {
 	clock.Advance(1000)
 
 	menu.cursor = 1
-	menu.switchState()
+	menu.switchState(menu.cursor).applyLimit()
 
 	assert.True(t, menu.options[0].Status)
 	assert.True(t, menu.options[1].Status)
@@ -64,7 +64,7 @@ func TestCheckMenu_SwitchState_WithLimit(t *testing.T) {
 	clock.Advance(1000)
 
 	menu.cursor = 2
-	menu.switchState()
+	menu.switchState(menu.cursor).applyLimit()
 
 	assert.False(t, menu.options[0].Status)
 	assert.True(t, menu.options[1].Status)

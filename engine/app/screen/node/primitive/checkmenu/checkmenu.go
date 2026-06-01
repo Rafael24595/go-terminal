@@ -113,29 +113,29 @@ func (n *CheckMenu) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.reference).
 		NameToStack().
-		Definition(n.definition).
-		Update(n.update).
+		Keys(n.keys).
+		Tick(n.tick).
 		View(n.view).
 		ToNode()
 }
 
-func (n *CheckMenu) definition() screen.Definition {
+func (n *CheckMenu) keys() screen.Definition {
 	if n.action.ActionMode {
 		return write_definition
 	}
 	return read_definition
 }
 
-func (n *CheckMenu) update(stt *state.UIState, evt screen.Event) screen.Result {
+func (n *CheckMenu) tick(uiState *state.UIState, event screen.Event) screen.Result {
 	if !n.action.ActionMode {
-		return n.updateRead(stt, evt)
+		return n.tickRead(uiState, event)
 	}
 
-	return n.updateNavigation(stt, evt)
+	return n.tickNavigation(uiState, event)
 }
 
-func (n *CheckMenu) updateNavigation(stt *state.UIState, evt screen.Event) screen.Result {
-	ky := evt.Key
+func (n *CheckMenu) tickNavigation(uiState *state.UIState, event screen.Event) screen.Result {
+	ky := event.Key
 
 	optsLen := uint16(len(n.options))
 
@@ -143,13 +143,10 @@ func (n *CheckMenu) updateNavigation(stt *state.UIState, evt screen.Event) scree
 	case key.ActionEsc:
 		n.action.ActionMode = false
 	case key.ActionEnter:
-		n.switchState()
-		state.PushParam(
-			stt.Stack,
-			n.reference,
-			ArgActiveChecks,
-			n.activeIds(),
-		)
+		n.switchState(n.cursor)
+		n.applyLimit()
+
+		n.tickToStack(uiState)
 	case key.ActionArrowLeft:
 		n.cursor = math.SubClampZero(n.cursor, 1)
 	case key.ActionArrowRight:
@@ -162,36 +159,49 @@ func (n *CheckMenu) updateNavigation(stt *state.UIState, evt screen.Event) scree
 		n.cursor = max(0, optsLen)
 	}
 
-	return screen.ResultFromUIState(stt)
+	return screen.ResultFromUIState(uiState)
 }
 
-func (n *CheckMenu) updateRead(state *state.UIState, evnt screen.Event) screen.Result {
-	ky := evnt.Key
+func (n *CheckMenu) tickToStack(uiState *state.UIState) {
+	state.PushParam(
+		uiState.Stack,
+		n.reference,
+		ArgActiveChecks,
+		n.activeIds(),
+	)
+}
+
+func (n *CheckMenu) tickRead(uiState *state.UIState, event screen.Event) screen.Result {
+	ky := event.Key
 
 	switch ky.Code {
 	case key.ActionEnter:
 		n.action.ActionMode = true
 	}
 
-	return screen.ResultFromUIState(state)
+	return screen.ResultFromUIState(uiState)
 }
 
-func (n *CheckMenu) switchState() {
-	optsLen := uint16(len(n.options))
-
-	if n.cursor < optsLen {
-		n.options[n.cursor].Status = !n.options[n.cursor].Status
+func (n *CheckMenu) switchState(cursor uint16) *CheckMenu {
+	if cursor >= uint16(len(n.options)) {
+		return n
 	}
 
-	if n.options[n.cursor].Status {
-		n.options[n.cursor].Timestamp = n.clock()
+	n.options[cursor].Status = !n.options[cursor].Status
+
+	if n.options[cursor].Status {
+		n.options[cursor].Timestamp = n.clock()
 	}
 
+	return n
+}
+
+func (n *CheckMenu) applyLimit() *CheckMenu {
 	if n.limit == 0 {
-		return
+		return n
 	}
 
-	active := make([]*input.CheckOption, 0, optsLen)
+	active := make([]*input.CheckOption, 0, len(n.options))
 	for i := range n.options {
 		if n.options[i].Status {
 			active = append(active, &n.options[i])
@@ -199,7 +209,7 @@ func (n *CheckMenu) switchState() {
 	}
 
 	if len(active) <= int(n.limit) {
-		return
+		return n
 	}
 
 	sort.Slice(active, func(i, j int) bool {
@@ -210,6 +220,8 @@ func (n *CheckMenu) switchState() {
 	for i := range excess {
 		active[i].Status = false
 	}
+
+	return n
 }
 
 func (n *CheckMenu) activeIds() set.Set[string] {

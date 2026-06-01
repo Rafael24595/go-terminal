@@ -88,9 +88,7 @@ func (e *Engine) RunWithContext(ctx context.Context) <-chan struct{} {
 	}
 
 	e.running = true
-
 	e.context = ctx
-	e.compileNodeScreen(e.node)
 
 	go e.run()
 
@@ -115,8 +113,10 @@ func (e *Engine) run() {
 		return
 	}
 
-	state := state.NewUIState()
-	e.renderFrame(state, size)
+	uiState := state.NewUIState()
+
+	e.compileNodeScreen(*uiState, e.node)
+	e.renderFrame(uiState, size)
 
 	keys := e.terminal.KeyEvents()
 	resizes := e.terminal.ResizeEvents()
@@ -127,14 +127,14 @@ func (e *Engine) run() {
 			return
 
 		case <-e.pulse.Listen():
-			e.renderFrame(state, size)
+			e.renderFrame(uiState, size)
 
 		case k, ok := <-keys:
 			if !ok || k.Code == key.ActionExit {
 				return
 			}
 
-			e.updateNode(state, size, k)
+			e.tickNode(uiState, size, k)
 
 		case s, ok := <-resizes:
 			if !ok {
@@ -142,7 +142,7 @@ func (e *Engine) run() {
 			}
 
 			size = s
-			e.renderFrame(state, size)
+			e.renderFrame(uiState, size)
 
 		case <-e.doneSgnl:
 			return
@@ -158,7 +158,7 @@ func (e *Engine) Exit() {
 	}
 }
 
-func (e *Engine) compileNodeScreen(node screen.Node) *Engine {
+func (e *Engine) compileNodeScreen(uiState state.UIState, node screen.Node) *Engine {
 	newNode, err := node.Compile(e.passes...)
 	if err != nil {
 		e.logErr(err)
@@ -168,33 +168,33 @@ func (e *Engine) compileNodeScreen(node screen.Node) *Engine {
 	return e
 }
 
-func (e *Engine) updateNode(
-	state *state.UIState,
+func (e *Engine) tickNode(
+	uiState *state.UIState,
 	size winsize.Winsize,
 	key key.Key,
 ) *state.UIState {
-	result := e.node.Screen.Update(state,
+	result := e.node.Screen.Tick(uiState,
 		screen.NewEvent(key),
 	)
 
-	e.manageResult(state, result)
-	e.manageNode(result)
+	e.manageResult(uiState, result)
+	e.manageNode(*uiState, result)
 
-	state = e.cleaner.Cleanup(result, state)
+	uiState = e.cleaner.Cleanup(result, uiState)
 
-	e.renderFrame(state, size)
+	e.renderFrame(uiState, size)
 
-	return state
+	return uiState
 }
 
-func (e *Engine) manageResult(state *state.UIState, result screen.Result) *state.UIState {
-	state.Pager = result.Pager
-	return state
+func (e *Engine) manageResult(uiState *state.UIState, result screen.Result) *state.UIState {
+	uiState.Pager = result.Pager
+	return uiState
 }
 
-func (e *Engine) manageNode(result screen.Result) screen.Result {
+func (e *Engine) manageNode(uiState state.UIState, result screen.Result) screen.Result {
 	if result.Node != nil {
-		e.compileNodeScreen(*result.Node)
+		e.compileNodeScreen(uiState, *result.Node)
 	}
 	return result
 }
@@ -209,13 +209,13 @@ func (e *Engine) syncPulse(vm viewmodel.ViewModel) viewmodel.ViewModel {
 	return vm
 }
 
-func (e *Engine) renderFrame(state *state.UIState, size winsize.Winsize) {
-	vm := e.node.Screen.View(*state)
+func (e *Engine) renderFrame(uiState *state.UIState, size winsize.Winsize) {
+	vm := e.node.Screen.View(*uiState)
 
-	state, lines := e.layout.Compose(state, vm, size)
+	uiState, lines := e.layout.Compose(uiState, vm, size)
 	result := e.render.Processor(lines, size)
 
-	e.syncPager(state, &vm)
+	e.syncPager(uiState, &vm)
 	e.syncPulse(vm)
 
 	err := e.terminal.WriteAll(result)
@@ -234,14 +234,14 @@ func (e *Engine) renderFrame(state *state.UIState, size winsize.Winsize) {
 	}
 }
 
-func (e *Engine) syncPager(state *state.UIState, vm *viewmodel.ViewModel) (*state.UIState, *viewmodel.ViewModel) {
-	if state.Pager.Syncronyzed {
-		return state, vm
+func (e *Engine) syncPager(uiState *state.UIState, vm *viewmodel.ViewModel) (*state.UIState, *viewmodel.ViewModel) {
+	if uiState.Pager.Syncronyzed {
+		return uiState, vm
 	}
 
 	vm.Behavior.NeedsPulse = true
-	state.Pager.Syncronyzed = true
-	return state, vm
+	uiState.Pager.Syncronyzed = true
+	return uiState, vm
 }
 
 func (e *Engine) logErr(err error) {

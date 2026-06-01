@@ -33,29 +33,29 @@ func (n *History) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.node.Name).
 		AddStack(n.node.Stack).
-		Definition(n.definition).
-		Update(n.update).
+		Keys(n.keys).
+		Tick(n.tick).
 		View(n.view).
 		Children(n.node).
 		ToNode()
 }
 
-func (n *History) definition() screen.Definition {
-	base := n.node.Screen.Definition()
+func (n *History) keys() screen.Definition {
+	base := n.node.Screen.Keys()
 	return definition.Merge(base)
 }
 
-func (n *History) update(state *state.UIState, event screen.Event) screen.Result {
-	definition := n.node.Screen.Definition()
+func (n *History) tick(uiState *state.UIState, event screen.Event) screen.Result {
+	definition := n.node.Screen.Keys()
 
 	if !definition.IsRequired(event.Key) {
-		result := n.localUpdate(state, event)
+		result := n.localTick(uiState, event)
 		if result != nil {
 			return *result
 		}
 	}
 
-	result := n.node.Screen.Update(state, event)
+	result := n.node.Screen.Tick(uiState, event)
 	if result.Node == nil {
 		return result
 	}
@@ -68,7 +68,7 @@ func (n *History) update(state *state.UIState, event screen.Event) screen.Result
 	return result
 }
 
-func (n *History) localUpdate(_ *state.UIState, event screen.Event) *screen.Result {
+func (n *History) localTick(_ *state.UIState, event screen.Event) *screen.Result {
 	if n.history == nil || event.Key.Code != key.CustomActionBack {
 		return nil
 	}
@@ -80,8 +80,8 @@ func (n *History) localUpdate(_ *state.UIState, event screen.Event) *screen.Resu
 	return &result
 }
 
-func (n *History) view(state state.UIState) viewmodel.ViewModel {
-	vm := n.node.Screen.View(state)
+func (n *History) view(uiState state.UIState) viewmodel.ViewModel {
+	vm := n.node.Screen.View(uiState)
 
 	if n.history == nil {
 		return vm

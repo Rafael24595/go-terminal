@@ -115,13 +115,13 @@ func TestIndexMenu_CursorNavigation(t *testing.T) {
 
 	assert.Equal(t, menu.cursor, 0)
 
-	node.Screen.Update(
+	node.Screen.Tick(
 		state.NewUIState(),
 		screen.Event{Key: *key.NewKeyCode(key.ActionArrowDown)},
 	)
 	assert.Equal(t, menu.cursor, 1)
 
-	node.Screen.Update(
+	node.Screen.Tick(
 		state.NewUIState(),
 		screen.Event{Key: *key.NewKeyCode(key.ActionArrowUp)},
 	)
@@ -144,7 +144,7 @@ func TestIndexMenu_Action(t *testing.T) {
 		)
 
 	node := menu.ToNode()
-	result := node.Screen.Update(
+	result := node.Screen.Tick(
 		state.NewUIState(),
 		screen.Event{Key: *key.NewKeyCode(key.ActionEnter)},
 	)
@@ -168,14 +168,14 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 			),
 		)
 
-	stt := &state.UIState{}
+	uiState := &state.UIState{}
 
 	ctx := pager.PredicateContext{
 		HasFocus: true,
 	}
 
 	menu.cursor = 1
-	vm := menu.view(*stt)
+	vm := menu.view(*uiState)
 
 	kernel := vm.Kernel.ToUnit()
 
@@ -184,7 +184,7 @@ func TestIndexMenu_ViewCursor(t *testing.T) {
 
 	assert.NotNil(t, vm.Pager)
 	assert.Equal(t, pager.CodePredicateFocus, vm.Pager.Predicate.Code)
-	assert.True(t, vm.Pager.Predicate.Func(*stt, ctx))
+	assert.True(t, vm.Pager.Predicate.Func(*uiState, ctx))
 
 	assert.Equal(t, "- A", text.LineToString(&lines[0]))
 	assert.Equal(t, "> B", text.LineToString(&lines[1]))

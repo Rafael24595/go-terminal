@@ -14,9 +14,9 @@ import (
 
 func TestValidateStructure_ValidNode(t *testing.T) {
 	node := screen_test.MockScreen{
-		Name:       "home",
-		Definition: &screen.Definition{},
-		Update: func(*state.UIState, screen.Event) screen.Result {
+		Name: "home",
+		Keys: &screen.Definition{},
+		Tick: func(*state.UIState, screen.Event) screen.Result {
 			return screen.Result{}
 		},
 		View: func(state.UIState) viewmodel.ViewModel {
@@ -33,10 +33,10 @@ func TestValidateStructure_ValidNode(t *testing.T) {
 func TestValidateStructure_EmptyName(t *testing.T) {
 	node := screen.Node{
 		Screen: screen.Screen{
-			Definition: func() screen.Definition {
+			Keys: func() screen.Definition {
 				return screen.Definition{}
 			},
-			Update: func(*state.UIState, screen.Event) screen.Result {
+			Tick: func(*state.UIState, screen.Event) screen.Result {
 				return screen.Result{}
 			},
 			View: func(state.UIState) viewmodel.ViewModel {
@@ -48,17 +48,17 @@ func TestValidateStructure_EmptyName(t *testing.T) {
 	pass := ValidateStructure()
 	_, err := pass(node)
 
-	assert.Error(t, err)
+	assert.NotNil(t, err)
 	assert.Equal(t, err_name, err.Error())
 }
 
-func TestValidateStructure_NilDefinition(t *testing.T) {
+func TestValidateStructure_NilKeys(t *testing.T) {
 	name := "home"
 
 	node := screen.Node{
 		Name: name,
 		Screen: screen.Screen{
-			Update: func(*state.UIState, screen.Event) screen.Result {
+			Tick: func(*state.UIState, screen.Event) screen.Result {
 				return screen.Result{}
 			},
 			View: func(state.UIState) viewmodel.ViewModel {
@@ -70,17 +70,17 @@ func TestValidateStructure_NilDefinition(t *testing.T) {
 	pass := ValidateStructure()
 	_, err := pass(node)
 
-	assert.Error(t, err)
-	assert.Equal(t, fmt.Sprintf(errf_definition, name), err.Error())
+	assert.NotNil(t, err)
+	assert.Equal(t, fmt.Sprintf(errf_keys, name), err.Error())
 }
 
-func TestValidateStructure_NilUpdate(t *testing.T) {
+func TestValidateStructure_NilTick(t *testing.T) {
 	name := "home"
 
 	node := screen.Node{
 		Name: name,
 		Screen: screen.Screen{
-			Definition: func() screen.Definition {
+			Keys: func() screen.Definition {
 				return screen.Definition{}
 			},
 			View: func(state.UIState) viewmodel.ViewModel {
@@ -92,8 +92,8 @@ func TestValidateStructure_NilUpdate(t *testing.T) {
 	pass := ValidateStructure()
 	_, err := pass(node)
 
-	assert.Error(t, err)
-	assert.Equal(t, fmt.Sprintf(errf_update, name), err.Error())
+	assert.NotNil(t, err)
+	assert.Equal(t, fmt.Sprintf(errf_tick, name), err.Error())
 }
 
 func TestValidateStructure_NilView(t *testing.T) {
@@ -102,10 +102,10 @@ func TestValidateStructure_NilView(t *testing.T) {
 	node := screen.Node{
 		Name: name,
 		Screen: screen.Screen{
-			Definition: func() screen.Definition {
+			Keys: func() screen.Definition {
 				return screen.Definition{}
 			},
-			Update: func(*state.UIState, screen.Event) screen.Result {
+			Tick: func(*state.UIState, screen.Event) screen.Result {
 				return screen.Result{}
 			},
 		},
@@ -114,6 +114,6 @@ func TestValidateStructure_NilView(t *testing.T) {
 	pass := ValidateStructure()
 	_, err := pass(node)
 
-	assert.Error(t, err)
+	assert.NotNil(t, err)
 	assert.Equal(t, fmt.Sprintf(errf_view, name), err.Error())
 }

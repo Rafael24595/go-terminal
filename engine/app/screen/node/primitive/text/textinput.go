@@ -102,13 +102,13 @@ func (n *TextInput) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.textarea.reference).
 		NameToStack().
-		Definition(n.textarea.definition).
-		Update(n.textarea.update).
+		Keys(n.textarea.keys).
+		Tick(n.textarea.tick).
 		View(n.view).
 		ToNode()
 }
 
-func (n *TextInput) view(stt state.UIState) viewmodel.ViewModel {
+func (n *TextInput) view(uiState state.UIState) viewmodel.ViewModel {
 	vm := viewmodel.New()
 
 	_, textarea, needsPulse := n.textarea.viewSources()

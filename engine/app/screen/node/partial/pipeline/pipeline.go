@@ -7,7 +7,7 @@ import (
 	"github.com/Rafael24595/go-reacterm-core/engine/config/expiration"
 )
 
-//TODO: Use references?
+// TODO: Use references?
 type Transformer func(viewmodel.ViewModel) viewmodel.ViewModel
 
 type Pipeline struct {
@@ -48,15 +48,15 @@ func (n *Pipeline) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.node.Name).
 		AddStack(n.node.Stack).
-		Definition(n.node.Screen.Definition).
-		Update(n.update).
+		Keys(n.node.Screen.Keys).
+		Tick(n.tick).
 		View(n.view).
 		Children(n.node).
 		ToNode()
 }
 
-func (n *Pipeline) update(state *state.UIState, event screen.Event) screen.Result {
-	result := n.node.Screen.Update(state, event)
+func (n *Pipeline) tick(uiState *state.UIState, event screen.Event) screen.Result {
+	result := n.node.Screen.Tick(uiState, event)
 
 	if !n.shouldPropagate(result) {
 		return result
@@ -78,8 +78,8 @@ func (n *Pipeline) shouldPropagate(result screen.Result) bool {
 	return !n.expiration.On(result.Node)
 }
 
-func (n *Pipeline) view(state state.UIState) viewmodel.ViewModel {
-	vm := n.node.Screen.View(state)
+func (n *Pipeline) view(uiState state.UIState) viewmodel.ViewModel {
+	vm := n.node.Screen.View(uiState)
 	for _, s := range n.steps {
 		vm = s(vm)
 	}

@@ -24,28 +24,28 @@ func (n *Help) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.node.Name).
 		AddStack(n.node.Stack).
-		Definition(n.node.Screen.Definition).
-		Update(n.update).
+		Keys(n.node.Screen.Keys).
+		Tick(n.tick).
 		View(n.view).
 		Children(n.node).
 		ToNode()
 }
 
-func (n *Help) update(state *state.UIState, event screen.Event) screen.Result {
-	definition := n.node.Screen.Definition()
+func (n *Help) tick(uiState *state.UIState, event screen.Event) screen.Result {
+	definition := n.node.Screen.Keys()
 
 	if !definition.IsRequired(event.Key) {
 		if event.Key.Code == key.CustomActionHelp {
 			n.visible = !n.visible
 		}
 
-		state.Helper.ShowHelp = n.visible
-		return screen.ResultFromUIState(state)
+		uiState.Helper.ShowHelp = n.visible
+		return screen.ResultFromUIState(uiState)
 	}
 
-	n.visible = state.Helper.ShowHelp
+	n.visible = uiState.Helper.ShowHelp
 
-	result := n.node.Screen.Update(state, event)
+	result := n.node.Screen.Tick(uiState, event)
 	if result.Node == nil {
 		return result
 	}
@@ -58,13 +58,13 @@ func (n *Help) update(state *state.UIState, event screen.Event) screen.Result {
 	return result
 }
 
-func (n *Help) view(state state.UIState) viewmodel.ViewModel {
-	vm := n.node.Screen.View(state)
+func (n *Help) view(uiState state.UIState) viewmodel.ViewModel {
+	vm := n.node.Screen.View(uiState)
 	if !n.visible {
 		return vm
 	}
 
-	definition := n.node.Screen.Definition()
+	definition := n.node.Screen.Keys()
 
 	vm.Footer.Push(
 		help.UnitFromFields(definition.Descriptor.ToValuesSlice()),

@@ -36,14 +36,14 @@ func (n *Article) ToNode() screen.Node {
 	return screen.NewBuilder().
 		Name(n.reference).
 		NameToStack().
-		WithoutDefinition().
-		Update(n.update).
+		WithoutKeys().
+		Tick(n.tick).
 		View(n.view).
 		ToNode()
 }
 
-func (n *Article) update(stt *state.UIState, _ screen.Event) screen.Result {
-	return screen.ResultFromUIState(stt)
+func (n *Article) tick(uiState *state.UIState, _ screen.Event) screen.Result {
+	return screen.ResultFromUIState(uiState)
 }
 
 func (n *Article) view(_ state.UIState) viewmodel.ViewModel {

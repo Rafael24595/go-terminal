@@ -3,40 +3,43 @@ package screen
 import (
 	"fmt"
 
+	"github.com/Rafael24595/go-reacterm-core/engine/app/state"
 	"github.com/Rafael24595/go-reacterm-core/engine/commons/structure/set"
 	"github.com/Rafael24595/go-reacterm-core/engine/platform/clock"
 )
 
 const (
-	ErrorMissingName       = "missing_name"
-	ErrorMissingDefinition = "missing_definition"
-	ErrorMissingUpdate     = "missing_update"
-	ErrorMissingView       = "missing_view"
+	ErrorMissingName = "missing_name"
+	ErrorMissingKeys = "missing_keys"
+	ErrorMissingTick = "missing_tick"
+	ErrorMissingView = "missing_view"
 )
 
-func withoutDefinition() Definition {
+func withoutInit(state.UIState) {}
+
+func withoutKeys() Definition {
 	return EmptyDefinition()
 }
 
 type Builder struct {
-	clock      clock.Clock
-	name       string
-	stack      set.Set[string]
-	children   []Node
-	definition DefinitionFunc
-	update     UpdateFunc
-	view       ViewFunc
+	clock    clock.Clock
+	name     string
+	stack    set.Set[string]
+	children []Node
+	keys     KeysFunc
+	tick     TickFunc
+	view     ViewFunc
 }
 
 func NewBuilder() *Builder {
 	return &Builder{
-		clock:      clock.GlobalCounterClock,
-		name:       "",
-		stack:      set.NewSet[string](),
-		children:   make([]Node, 0),
-		definition: nil,
-		update:     nil,
-		view:       nil,
+		clock:    clock.GlobalCounterClock,
+		name:     "",
+		stack:    set.NewSet[string](),
+		children: make([]Node, 0),
+		keys:     nil,
+		tick:     nil,
+		view:     nil,
 	}
 }
 
@@ -65,23 +68,23 @@ func (b *Builder) AddStack(stack set.Set[string]) *Builder {
 	return b
 }
 
-func (b *Builder) Definition(definition DefinitionFunc) *Builder {
-	b.definition = definition
-	return b
-}
-
-func (b *Builder) WithoutDefinition() *Builder {
-	b.definition = withoutDefinition
-	return b
-}
-
 func (b *Builder) Children(children ...Node) *Builder {
 	b.children = append(b.children, children...)
 	return b
 }
 
-func (b *Builder) Update(update UpdateFunc) *Builder {
-	b.update = update
+func (b *Builder) Keys(keys KeysFunc) *Builder {
+	b.keys = keys
+	return b
+}
+
+func (b *Builder) WithoutKeys() *Builder {
+	b.keys = withoutKeys
+	return b
+}
+
+func (b *Builder) Tick(tick TickFunc) *Builder {
+	b.tick = tick
 	return b
 }
 
@@ -97,12 +100,12 @@ func (b *Builder) makeTags() set.Set[string] {
 		tags.Add(ErrorMissingName)
 	}
 
-	if b.definition == nil {
-		tags.Add(ErrorMissingDefinition)
+	if b.keys == nil {
+		tags.Add(ErrorMissingKeys)
 	}
 
-	if b.update == nil {
-		tags.Add(ErrorMissingUpdate)
+	if b.tick == nil {
+		tags.Add(ErrorMissingTick)
 	}
 
 	if b.view == nil {
@@ -118,9 +121,9 @@ func (b *Builder) makeID() string {
 
 func (b *Builder) toScreen() Screen {
 	return Screen{
-		Definition: b.definition,
-		Update:     b.update,
-		View:       b.view,
+		Keys: b.keys,
+		Tick: b.tick,
+		View: b.view,
 	}
 }
 
